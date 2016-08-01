@@ -63,9 +63,19 @@ The following tools are very helpful for software development
 
 Notes:
 
-[version 2.2.3 - 2009-08-25] This software is still under development and as such the code is not all up to ALMA standards.  
-Some of the code needs review and much of it needs improved documentation.  You will find that the most critical front
-end operating code is well-commented.  Please feel free to contact me with any questions or comments.
+[version 2.5.0 - 2016-08-01] 
+
+Having subdirectories:
+
+* CppUtilityLib:   helper utilities used by all the other libraries.
+
+* FEICDBLib:       database access library for the FETMS database.
+
+* FrontEndAMBLib:  low-level CAN and Socket communications.
+
+* FrontEndICDTest: a CPPUnit-based test deck to prove the library complies with the FE-Computing ICD
+
+* FrontEndControl2:
 
 The key procedures for operating receiver cartridges are found in CartAssembly.cpp.
 CartAssembly calls classes in the OPTIMIZE folder for any time-consuming procedures or measurements.
