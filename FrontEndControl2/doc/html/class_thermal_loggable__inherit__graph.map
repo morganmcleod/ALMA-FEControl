@@ -1,0 +1,12 @@
+<map id="ThermalLoggable" name="ThermalLoggable">
+<area shape="rect" id="node3" href="$class_cart_assembly.html" title="The class representing a generic cartridge assembly, including cartrioperations for which a CartAssem..." alt="" coords="189,5,293,32"/>
+<area shape="rect" id="node5" href="$class_cartridges_container.html" title="CartridgesContainer" alt="" coords="173,56,309,83"/>
+<area shape="rect" id="node7" href="$class_cold_cart_impl.html" title="ColdCartImpl" alt="" coords="193,107,289,133"/>
+<area shape="rect" id="node9" href="$class_compressor_impl.html" title="implementation class for the Compressor M&amp;C module " alt="" coords="183,157,299,184"/>
+<area shape="rect" id="node11" href="$class_cryostat_impl.html" title="implementation class for the IF Switch module " alt="" coords="194,208,289,235"/>
+<area shape="rect" id="node13" href="$class_f_e_t_i_m_impl.html" title="implementation class for the FETIM " alt="" coords="199,259,283,285"/>
+<area shape="rect" id="node15" href="$class_front_end_impl.html" title="The top&#45;level FrontEnd class, giving the entire control interface for the Front End. " alt="" coords="192,309,291,336"/>
+<area shape="rect" id="node17" href="$class_i_f_switch_impl.html" title="implementation class for the IF Switch module " alt="" coords="193,360,289,387"/>
+<area shape="rect" id="node19" href="$class_l_p_r_impl.html" title="implementation class for the IF Switch module " alt="" coords="206,411,277,437"/>
+<area shape="rect" id="node21" href="$class_w_c_a_impl.html" title="WCAImpl" alt="" coords="203,461,280,488"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ThermalLogger" name="ThermalLogger">
+<area shape="rect" id="node2" href="$class_optimize_base.html" title="OptimizeBase" alt="" coords="47,96,151,123"/>
+<area shape="rect" id="node4" href="$struct_optimize_base_1_1optimize_data.html" title="Data structure shared between the main thread and the worker thread: worker accesses it through owner..." alt="" coords="5,5,192,32"/>
+<area shape="rect" id="node6" href="$class_thermal_loggable.html" title="Abstract interface for things which the ThermalLogger can call logging functions on. " alt="" coords="175,96,295,123"/>
+</map>

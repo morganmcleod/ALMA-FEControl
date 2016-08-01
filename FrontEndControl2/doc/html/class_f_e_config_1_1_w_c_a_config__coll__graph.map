@@ -1,0 +1,4 @@
+<map id="FEConfig::WCAConfig" name="FEConfig::WCAConfig">
+<area shape="rect" id="node2" href="$class_f_e_config_1_1_power_amp_params.html" title="lookup table for LO power amp bias parameters " alt="" coords="10,176,200,203"/>
+<area shape="rect" id="node4" href="$class_f_e_config_1_1_param_table.html" title="A ParamTable is a 2&#45;D table of float values, indexed by a double &#39;freq&#39; column. " alt="" coords="29,99,181,125"/>
+</map>

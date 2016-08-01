@@ -1,0 +1,27 @@
+<map id="FEBASE/WCAImplBase.h" name="FEBASE/WCAImplBase.h">
+<area shape="rect" id="node3" href="$_w_c_a_impl_8h.html" title="WCAImpl.h" alt="" coords="1332,80,1420,107"/>
+<area shape="rect" id="node64" href="$_w_c_a_impl_base_8cpp.html" title="FEBASE/WCAImplBase.cpp" alt="" coords="1444,80,1633,107"/>
+<area shape="rect" id="node5" href="$_cart_assembly_8h.html" title="CartAssembly.h" alt="" coords="829,229,944,256"/>
+<area shape="rect" id="node15" href="$_front_end_impl_8h.html" title="FrontEndImpl.h" alt="" coords="101,312,211,339"/>
+<area shape="rect" id="node19" href="$lv__wrapper___f_e_8cpp.html" title="DLL/lv_wrapper_FE.cpp" alt="" coords="5,395,163,421"/>
+<area shape="rect" id="node22" href="$_signal_source_impl_8h.html" title="SignalSourceImpl.h" alt="" coords="235,312,369,339"/>
+<area shape="rect" id="node26" href="$lv__wrapper__sig_src_8cpp.html" title="DLL/lv_wrapper_sigSrc.cpp" alt="" coords="739,395,917,421"/>
+<area shape="rect" id="node38" href="$_front_end_database_8h.html" title="CONFIG/FrontEndDatabase.h" alt="" coords="1279,155,1473,181"/>
+<area shape="rect" id="node58" href="$_maximize_i_f_power_8cpp.html" title="OPTIMIZE/MaximizeIFPower.cpp" alt="" coords="1823,155,2036,181"/>
+<area shape="rect" id="node60" href="$_measure_i_f_power_8cpp.html" title="OPTIMIZE/MeasureIFPower.cpp" alt="" coords="2061,155,2267,181"/>
+<area shape="rect" id="node62" href="$_w_c_a_impl_8cpp.html" title="WCAImpl.cpp" alt="" coords="2291,155,2393,181"/>
+<area shape="rect" id="node7" href="$_cart_assembly_8cpp.html" title="CartAssembly.cpp" alt="" coords="1217,312,1345,339"/>
+<area shape="rect" id="node9" href="$_cartridges_container_8h.html" title="CartridgesContainer.h" alt="" coords="597,312,744,339"/>
+<area shape="rect" id="node30" href="$_cart_health_check_8cpp.html" title="OPTIMIZE/CartHealthCheck.cpp" alt="" coords="984,312,1192,339"/>
+<area shape="rect" id="node32" href="$_measure_fine_l_o_sweep_8cpp.html" title="OPTIMIZE/MeasureFineLOSweep.cpp" alt="" coords="1370,312,1611,339"/>
+<area shape="rect" id="node34" href="$_mixer_deflux_8cpp.html" title="OPTIMIZE/MixerDeflux.cpp" alt="" coords="395,312,573,339"/>
+<area shape="rect" id="node36" href="$_optimize_l_o_power_amp_8cpp.html" title="OPTIMIZE/OptimizeLOPower\lAmp.cpp" alt="" coords="769,305,959,346"/>
+<area shape="rect" id="node11" href="$_cartridges_container_8cpp.html" title="CartridgesContainer.cpp" alt="" coords="942,395,1103,421"/>
+<area shape="rect" id="node13" href="$_front_end_impl_8cpp.html" title="FrontEndImpl.cpp" alt="" coords="590,395,713,421"/>
+<area shape="rect" id="node17" href="$_config_manager_8cpp.html" title="CONFIG/ConfigManager.cpp" alt="" coords="188,395,375,421"/>
+<area shape="rect" id="node28" href="$_signal_source_impl_8cpp.html" title="SignalSourceImpl.cpp" alt="" coords="399,395,547,421"/>
+<area shape="rect" id="node41" href="$_cart_health_check_8h.html" title="Worker thread to perform CCA/WCA health check procedure. " alt="" coords="969,229,1164,256"/>
+<area shape="rect" id="node45" href="$_measure_fine_l_o_sweep_8h.html" title="Worker thread object to measure the SIS current, IF output power, and PA drain voltage while sweeping..." alt="" coords="1188,229,1415,256"/>
+<area shape="rect" id="node49" href="$_config_provider_my_s_q_l_8cpp.html" title="definition of class FEConfig::ConfigProviderMySQL. " alt="" coords="1489,229,1716,256"/>
+<area shape="rect" id="node51" href="$_front_end_database_8cpp.html" title="CONFIG/FrontEndDatabase.cpp" alt="" coords="1740,229,1948,256"/>
+</map>

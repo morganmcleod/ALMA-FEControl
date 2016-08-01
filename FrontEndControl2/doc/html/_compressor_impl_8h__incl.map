@@ -1,0 +1,9 @@
+<map id="CompressorImpl.h" name="CompressorImpl.h">
+<area shape="rect" id="node3" href="$_compressor_impl_base_8h.html" title="FEBASE/CompressorImplBase.h" alt="" coords="533,80,747,107"/>
+<area shape="rect" id="node19" href="$_thermal_logger_8h.html" title="Background process which continuously logs temperatures, cryostat pressures, state, etc. " alt="" coords="847,80,1028,107"/>
+<area shape="rect" id="node5" href="$_a_m_b_s_i_hardware_device_8h.html" title="AMBSIHardwareDevice.h" alt="" coords="481,155,647,181"/>
+<area shape="rect" id="node7" href="$_f_e_hardware_device_8h.html" title="FEHardwareDevice.h" alt="" coords="330,229,472,256"/>
+<area shape="rect" id="node21" href="$_optimize_base_8h.html" title="A generic base class which defines a common interface and worker thread for optimization procedures..." alt="" coords="753,155,868,181"/>
+<area shape="rect" id="node33" href="$_thermal_loggable_8h.html" title="Abstract interface for things which the ThermalLogger can call logging functions on. " alt="" coords="975,229,1105,256"/>
+<area shape="rect" id="node25" href="$_f_e_m_c_event_queue_8h.html" title="FEMCEventQueue.h" alt="" coords="709,229,848,256"/>
+</map>

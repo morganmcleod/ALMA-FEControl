@@ -1,0 +1,32 @@
+<map id="CartHealthCheck" name="CartHealthCheck">
+<area shape="rect" id="node10" href="$class_cart_assembly.html" title="The class representing a generic cartridge assembly, including cartrioperations for which a CartAssem..." alt="" coords="1627,947,1731,973"/>
+<area shape="rect" id="node2" href="$class_optimize_base.html" title="OptimizeBase" alt="" coords="952,457,1056,484"/>
+<area shape="rect" id="node26" href="$class_measure_i_f_power.html" title="MeasureIFPower" alt="" coords="1274,1071,1393,1097"/>
+<area shape="rect" id="node37" href="$class_measure_fine_l_o_sweep.html" title="MeasureFineLOSweep" alt="" coords="1915,1265,2069,1292"/>
+<area shape="rect" id="node47" href="$class_measure_i_v_curve.html" title="MeasureIVCurve" alt="" coords="1275,748,1391,775"/>
+<area shape="rect" id="node53" href="$class_mixer_heating.html" title="MixerHeating" alt="" coords="1284,352,1383,379"/>
+<area shape="rect" id="node57" href="$class_measure_s_i_s_current.html" title="MeasureSISCurrent" alt="" coords="1266,821,1401,848"/>
+<area shape="rect" id="node85" href="$class_optimize_l_o_power_amp.html" title="OptimizeLOPowerAmp" alt="" coords="1915,481,2069,508"/>
+<area shape="rect" id="node90" href="$class_mixer_deflux.html" title="MixerDeflux" alt="" coords="1947,808,2037,835"/>
+<area shape="rect" id="node97" href="$class_maximize_i_f_power.html" title="MaximizeIFPower" alt="" coords="1271,463,1396,489"/>
+<area shape="rect" id="node4" href="$struct_optimize_base_1_1optimize_data.html" title="Data structure shared between the main thread and the worker thread: worker accesses it through owner..." alt="" coords="565,457,753,484"/>
+<area shape="rect" id="node6" href="$class_x_y_plot_array.html" title="XYPlotArray" alt="" coords="958,1048,1050,1075"/>
+<area shape="rect" id="node12" href="$class_thermal_loggable.html" title="Abstract interface for things which the ThermalLogger can call logging functions on. " alt="" coords="599,1276,719,1303"/>
+<area shape="rect" id="node15" href="$class_cold_cart_impl.html" title="ColdCartImpl" alt="" coords="956,755,1052,781"/>
+<area shape="rect" id="node31" href="$class_w_c_a_impl.html" title="WCAImpl" alt="" coords="965,1335,1043,1361"/>
+<area shape="rect" id="node17" href="$class_cold_cart_impl_base.html" title="ColdCartImplBase" alt="" coords="595,905,722,932"/>
+<area shape="rect" id="node19" href="$class_f_e_hardware_device.html" title="FEHardwareDevice is a base class common to all front end ImplBase classes. " alt="" coords="371,1168,501,1195"/>
+<area shape="rect" id="node33" href="$class_w_c_a_impl_base.html" title="WCAImplBase" alt="" coords="605,1335,712,1361"/>
+<area shape="rect" id="node23" href="$class_f_e_hardware_device_1_1_log_interface.html" title="declare an interface for CAN transaction logging. " alt="" coords="6,1143,215,1169"/>
+<area shape="rect" id="node42" href="$class_front_end_database.html" title="FrontEndDatabase" alt="" coords="939,1425,1069,1452"/>
+<area shape="rect" id="node62" href="$class_f_e_config_1_1_cart_assembly_config.html" title="holds the configuration for a ColdCart together with a WCA. " alt="" coords="1233,113,1434,140"/>
+<area shape="rect" id="node64" href="$class_f_e_config_1_1_w_c_a_config.html" title="Holds the configuration for a warm cartridge assembly and the associated first LO. " alt="" coords="929,57,1079,84"/>
+<area shape="rect" id="node66" href="$class_f_e_config_1_1_power_amp_params.html" title="lookup table for LO power amp bias parameters " alt="" coords="563,163,754,189"/>
+<area shape="rect" id="node68" href="$class_f_e_config_1_1_param_table.html" title="A ParamTable is a 2&#45;D table of float values, indexed by a double &#39;freq&#39; column. " alt="" coords="360,283,512,309"/>
+<area shape="rect" id="node74" href="$class_f_e_config_1_1_mixer_params.html" title="lookup table for SIS mixer voltage and current vs LO frequency " alt="" coords="579,357,739,384"/>
+<area shape="rect" id="node77" href="$class_f_e_config_1_1_preamp_params.html" title="lookup table for LNA bias parameters for a single polirization and sideband " alt="" coords="572,256,745,283"/>
+<area shape="rect" id="node80" href="$class_f_e_config_1_1_magnet_params.html" title="lookup table for SIS magnet bias parameters " alt="" coords="573,307,744,333"/>
+<area shape="rect" id="node72" href="$class_f_e_config_1_1_cold_cart_config.html" title="holds the configuration for a cold cartridge " alt="" coords="919,301,1089,328"/>
+<area shape="rect" id="node83" href="$class_f_e_config_1_1_cart_assembly_i_d.html" title="FEConfig::CartAssemblyID" alt="" coords="915,108,1093,135"/>
+<area shape="rect" id="node100" href="$class_maximizer.html" title="Maximizer" alt="" coords="963,508,1045,535"/>
+</map>

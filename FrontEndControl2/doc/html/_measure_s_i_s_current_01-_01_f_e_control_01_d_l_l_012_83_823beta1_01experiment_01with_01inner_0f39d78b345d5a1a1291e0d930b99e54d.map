@@ -1,0 +1,12 @@
+<map id="OPTIMIZE/MeasureSISCurrent &#45; FEControl DLL 2.3.23beta1 experiment with inner loop of SIS current vs magnet measurement.cpp" name="OPTIMIZE/MeasureSISCurrent &#45; FEControl DLL 2.3.23beta1 experiment with inner loop of SIS current vs magnet measurement.cpp">
+<area shape="rect" id="node3" href="$_measure_s_i_s_current_8h.html" title="Worker thread object to measure the junction current while sweeping the SIS magnet current..." alt="" coords="453,125,600,152"/>
+<area shape="rect" id="node19" href="$_x_y_plot_array_8h.html" title="Define a vector of points for containing various types of X&#45;Y plot data. " alt="" coords="1101,275,1203,301"/>
+<area shape="rect" id="node28" href="$_cold_cart_impl_8h.html" title="ColdCartImpl.h" alt="" coords="624,125,731,152"/>
+<area shape="rect" id="node5" href="$_optimize_base_8h.html" title="A generic base class which defines a common interface and worker thread for optimization procedures..." alt="" coords="96,200,211,227"/>
+<area shape="rect" id="node9" href="$_f_e_m_c_event_queue_8h.html" title="FEMCEventQueue.h" alt="" coords="146,275,285,301"/>
+<area shape="rect" id="node30" href="$_cold_cart_impl_base_8h.html" title="FEBASE/ColdCartImplBase.h" alt="" coords="905,200,1100,227"/>
+<area shape="rect" id="node42" href="$_thermal_loggable_8h.html" title="Abstract interface for things which the ThermalLogger can call logging functions on. " alt="" coords="235,200,429,227"/>
+<area shape="rect" id="node45" href="$_cart_config_8h.html" title="declares data structures for cartridge configuration items as&#45;loaded from the config database..." alt="" coords="504,200,651,227"/>
+<area shape="rect" id="node32" href="$_f_e_hardware_device_8h.html" title="FEHardwareDevice.h" alt="" coords="931,275,1073,301"/>
+<area shape="rect" id="node48" href="$_lookup_tables_8h.html" title="declares lookup tables of cartridge parameters which may vary with LO frequency. " alt="" coords="717,275,829,301"/>
+</map>

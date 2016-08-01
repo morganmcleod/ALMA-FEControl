@@ -1,0 +1,5 @@
+<map id="ColdCartImpl" name="ColdCartImpl">
+<area shape="rect" id="node2" href="$class_cold_cart_impl_base.html" title="ColdCartImplBase" alt="" coords="7,155,133,181"/>
+<area shape="rect" id="node4" href="$class_f_e_hardware_device.html" title="FEHardwareDevice is a base class common to all front end ImplBase classes. " alt="" coords="5,80,136,107"/>
+<area shape="rect" id="node8" href="$class_thermal_loggable.html" title="Abstract interface for things which the ThermalLogger can call logging functions on. " alt="" coords="159,155,279,181"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="MeasureIVCurve" name="MeasureIVCurve">
+<area shape="rect" id="node2" href="$class_optimize_base.html" title="OptimizeBase" alt="" coords="148,277,252,304"/>
+<area shape="rect" id="node4" href="$struct_optimize_base_1_1optimize_data.html" title="Data structure shared between the main thread and the worker thread: worker accesses it through owner..." alt="" coords="5,187,192,213"/>
+<area shape="rect" id="node6" href="$class_cold_cart_impl.html" title="ColdCartImpl" alt="" coords="304,277,400,304"/>
+<area shape="rect" id="node8" href="$class_cold_cart_impl_base.html" title="ColdCartImplBase" alt="" coords="217,187,343,213"/>
+<area shape="rect" id="node10" href="$class_f_e_hardware_device.html" title="FEHardwareDevice is a base class common to all front end ImplBase classes. " alt="" coords="215,109,345,136"/>
+<area shape="rect" id="node14" href="$class_f_e_hardware_device_1_1_log_interface.html" title="declare an interface for CAN transaction logging. " alt="" coords="267,5,476,32"/>
+<area shape="rect" id="node16" href="$class_thermal_loggable.html" title="Abstract interface for things which the ThermalLogger can call logging functions on. " alt="" coords="368,187,488,213"/>
+<area shape="rect" id="node18" href="$class_x_y_plot_array.html" title="XYPlotArray" alt="" coords="515,277,607,304"/>
+</map>

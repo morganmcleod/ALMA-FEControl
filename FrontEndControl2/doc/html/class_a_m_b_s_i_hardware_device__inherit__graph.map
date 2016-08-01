@@ -1,0 +1,8 @@
+<map id="AMBSIHardwareDevice" name="AMBSIHardwareDevice">
+<area shape="rect" id="node7" href="$class_compressor_impl_base.html" title="CompressorImplBase" alt="" coords="5,229,152,256"/>
+<area shape="rect" id="node11" href="$class_front_end_impl_base.html" title="FrontEndImplBase" alt="" coords="177,229,305,256"/>
+<area shape="rect" id="node2" href="$class_f_e_hardware_device.html" title="FEHardwareDevice is a base class common to all front end ImplBase classes. " alt="" coords="95,80,225,107"/>
+<area shape="rect" id="node9" href="$class_compressor_impl.html" title="implementation class for the Compressor M&amp;C module " alt="" coords="21,304,136,331"/>
+<area shape="rect" id="node13" href="$class_front_end_impl.html" title="The top&#45;level FrontEnd class, giving the entire control interface for the Front End. " alt="" coords="176,304,275,331"/>
+<area shape="rect" id="node15" href="$class_signal_source_impl.html" title="SignalSource is a FEMC module with one WCA attached. " alt="" coords="299,304,421,331"/>
+</map>

@@ -1,0 +1,21 @@
+<map id="CONFIG/FrontEndDatabase.h" name="CONFIG/FrontEndDatabase.h">
+<area shape="rect" id="node5" href="$_cold_cart_impl_8h.html" title="ColdCartImpl.h" alt="" coords="337,80,444,107"/>
+<area shape="rect" id="node40" href="$_configuration_8h.html" title="declaration of class FEConfig::Configuration. " alt="" coords="149,80,256,107"/>
+<area shape="rect" id="node44" href="$_cryostat_impl_8h.html" title="CryostatImpl.h" alt="" coords="905,80,1012,107"/>
+<area shape="rect" id="node50" href="$_f_e_t_i_m_impl_8h.html" title="FETIMImpl.h" alt="" coords="1037,80,1131,107"/>
+<area shape="rect" id="node56" href="$_i_f_switch_impl_8h.html" title="IFSwitchImpl.h" alt="" coords="668,80,775,107"/>
+<area shape="rect" id="node62" href="$_l_p_r_impl_8h.html" title="LPRImpl.h" alt="" coords="799,80,881,107"/>
+<area shape="rect" id="node68" href="$_power_module_impl_8h.html" title="PowerModuleImpl.h" alt="" coords="1483,80,1617,107"/>
+<area shape="rect" id="node73" href="$_w_c_a_impl_8h.html" title="WCAImpl.h" alt="" coords="556,80,644,107"/>
+<area shape="rect" id="node7" href="$_cold_cart_impl_base_8h.html" title="FEBASE/ColdCartImplBase.h" alt="" coords="293,155,488,181"/>
+<area shape="rect" id="node21" href="$_thermal_loggable_8h.html" title="Abstract interface for things which the ThermalLogger can call logging functions on. " alt="" coords="712,155,907,181"/>
+<area shape="rect" id="node25" href="$_cart_config_8h.html" title="declares data structures for cartridge configuration items as&#45;loaded from the config database..." alt="" coords="72,155,219,181"/>
+<area shape="rect" id="node9" href="$_f_e_hardware_device_8h.html" title="FEHardwareDevice.h" alt="" coords="957,229,1099,256"/>
+<area shape="rect" id="node29" href="$_lookup_tables_8h.html" title="declares lookup tables of cartridge parameters which may vary with LO frequency. " alt="" coords="634,229,747,256"/>
+<area shape="rect" id="node46" href="$_cryostat_impl_base_8h.html" title="FEBASE/CryostatImplBase.h" alt="" coords="1343,155,1536,181"/>
+<area shape="rect" id="node52" href="$_f_e_t_i_m_impl_base_8h.html" title="FEBASE/FETIMImplBase.h" alt="" coords="1561,155,1743,181"/>
+<area shape="rect" id="node58" href="$_i_f_switch_impl_base_8h.html" title="FEBASE/IFSwitchImplBase.h" alt="" coords="931,155,1125,181"/>
+<area shape="rect" id="node64" href="$_l_p_r_impl_base_8h.html" title="FEBASE/LPRImplBase.h" alt="" coords="1150,155,1319,181"/>
+<area shape="rect" id="node70" href="$_power_module_impl_base_8h.html" title="FEBASE/PowerModuleImplBase.h" alt="" coords="1767,155,1989,181"/>
+<area shape="rect" id="node75" href="$_w_c_a_impl_base_8h.html" title="FEBASE/WCAImplBase.h" alt="" coords="513,155,687,181"/>
+</map>

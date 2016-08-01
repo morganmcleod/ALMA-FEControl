@@ -1,0 +1,4 @@
+<map id="FEConfig::ConfigProvider" name="FEConfig::ConfigProvider">
+<area shape="rect" id="node3" href="$class_f_e_config_1_1_config_provider_ini_file.html" title="Loads FE configuration data from a MySQL database connection. " alt="" coords="5,81,171,122"/>
+<area shape="rect" id="node5" href="$class_f_e_config_1_1_config_provider_my_s_q_l.html" title="Loads FE configuration data from a MySQL database connection. " alt="" coords="195,81,360,122"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$class_f_e_config_1_1_config_provider.html" title="A ConfigProver loads FE configuration data from a database. " alt="" coords="5,45,171,72"/>
+<area shape="rect" id="node3" href="$class_f_e_config_1_1_config_provider_ini_file.html" title="Loads FE configuration data from a MySQL database connection. " alt="" coords="219,5,384,46"/>
+<area shape="rect" id="node5" href="$class_f_e_config_1_1_config_provider_my_s_q_l.html" title="Loads FE configuration data from a MySQL database connection. " alt="" coords="219,70,384,111"/>
+</map>
