@@ -22,8 +22,8 @@
 
 /************************************************************************
  * Simple string to/from arbitrary type conversions.
- * adapted from from John Torjo's article:
- * http://articles.techrepublic.com.com/5100-10878_11-1050226.html
+ * adapted from from John Torjo's article formerly available on techrepublic.com.
+ * http://www.torjo.com/index.html
  * 
  *----------------------------------------------------------------------
  */
