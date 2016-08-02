@@ -1,7 +1,0 @@
-<map id="WCAImpl.h" name="WCAImpl.h">
-<area shape="rect" id="node3" href="$_w_c_a_impl_base_8h.html" title="FEBASE/WCAImplBase.h" alt="" coords="331,80,505,107"/>
-<area shape="rect" id="node17" href="$_thermal_loggable_8h.html" title="Abstract interface for things which the ThermalLogger can call logging functions on. " alt="" coords="764,80,959,107"/>
-<area shape="rect" id="node21" href="$_cart_config_8h.html" title="declares data structures for cartridge configuration items as&#45;loaded from the config database..." alt="" coords="561,80,708,107"/>
-<area shape="rect" id="node5" href="$_f_e_hardware_device_8h.html" title="FEHardwareDevice.h" alt="" coords="301,155,443,181"/>
-<area shape="rect" id="node25" href="$_lookup_tables_8h.html" title="declares lookup tables of cartridge parameters which may vary with LO frequency. " alt="" coords="483,155,596,181"/>
-</map>

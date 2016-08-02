@@ -1,6 +1,0 @@
-<map id="FrontEndImpl" name="FrontEndImpl">
-<area shape="rect" id="node2" href="$class_front_end_impl_base.html" title="FrontEndImplBase" alt="" coords="18,229,147,256"/>
-<area shape="rect" id="node4" href="$class_a_m_b_s_i_hardware_device.html" title="AMBSIHardwareDevice" alt="" coords="5,155,160,181"/>
-<area shape="rect" id="node6" href="$class_f_e_hardware_device.html" title="FEHardwareDevice is a base class common to all front end ImplBase classes. " alt="" coords="17,80,148,107"/>
-<area shape="rect" id="node10" href="$class_thermal_loggable.html" title="Abstract interface for things which the ThermalLogger can call logging functions on. " alt="" coords="172,229,292,256"/>
-</map>

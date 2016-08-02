@@ -1,6 +1,0 @@
-<map id="FEConfig::ParamTable" name="FEConfig::ParamTable">
-<area shape="rect" id="node5" href="$class_f_e_config_1_1_magnet_params.html" title="lookup table for SIS magnet bias parameters " alt="" coords="464,5,635,32"/>
-<area shape="rect" id="node7" href="$class_f_e_config_1_1_mixer_params.html" title="lookup table for SIS mixer voltage and current vs LO frequency " alt="" coords="469,56,629,83"/>
-<area shape="rect" id="node9" href="$class_f_e_config_1_1_power_amp_params.html" title="lookup table for LO power amp bias parameters " alt="" coords="454,107,645,133"/>
-<area shape="rect" id="node11" href="$class_f_e_config_1_1_preamp_params.html" title="lookup table for LNA bias parameters for a single polirization and sideband " alt="" coords="463,157,636,184"/>
-</map>

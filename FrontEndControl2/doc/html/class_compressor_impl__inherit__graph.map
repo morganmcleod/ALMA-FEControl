@@ -1,6 +1,0 @@
-<map id="CompressorImpl" name="CompressorImpl">
-<area shape="rect" id="node2" href="$class_compressor_impl_base.html" title="CompressorImplBase" alt="" coords="9,229,156,256"/>
-<area shape="rect" id="node4" href="$class_a_m_b_s_i_hardware_device.html" title="AMBSIHardwareDevice" alt="" coords="5,155,160,181"/>
-<area shape="rect" id="node6" href="$class_f_e_hardware_device.html" title="FEHardwareDevice is a base class common to all front end ImplBase classes. " alt="" coords="17,80,148,107"/>
-<area shape="rect" id="node10" href="$class_thermal_loggable.html" title="Abstract interface for things which the ThermalLogger can call logging functions on. " alt="" coords="180,229,300,256"/>
-</map>

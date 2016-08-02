@@ -1,4 +1,0 @@
-<map id="AmbTransactionLogger" name="AmbTransactionLogger">
-<area shape="rect" id="node2" href="$class_f_e_hardware_device_1_1_log_interface.html" title="declare an interface for CAN transaction logging. " alt="" coords="5,13,213,40"/>
-<area shape="rect" id="node4" href="$class_amb_transaction_logger_1_1_log_buffer.html" title="Define the class for the log buffer, a circular buffer of pointers to LogEntry with a mutex to protec..." alt="" coords="239,6,393,47"/>
-</map>

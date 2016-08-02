@@ -1,5 +1,0 @@
-<map id="OPTIMIZE/ThermalLogger.h" name="OPTIMIZE/ThermalLogger.h">
-<area shape="rect" id="node3" href="$_optimize_base_8h.html" title="A generic base class which defines a common interface and worker thread for optimization procedures..." alt="" coords="173,80,288,107"/>
-<area shape="rect" id="node15" href="$_thermal_loggable_8h.html" title="Abstract interface for things which the ThermalLogger can call logging functions on. " alt="" coords="395,155,525,181"/>
-<area shape="rect" id="node7" href="$_f_e_m_c_event_queue_8h.html" title="FEMCEventQueue.h" alt="" coords="129,155,268,181"/>
-</map>

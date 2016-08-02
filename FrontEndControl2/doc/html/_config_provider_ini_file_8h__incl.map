@@ -1,6 +1,0 @@
-<map id="CONFIG/ConfigProviderIniFile.h" name="CONFIG/ConfigProviderIniFile.h">
-<area shape="rect" id="node3" href="$_config_provider_8h.html" title="declaration of class FEConfig::ConfigProvider. " alt="" coords="141,96,256,123"/>
-<area shape="rect" id="node7" href="$_configuration_8h.html" title="declaration of class FEConfig::Configuration. " alt="" coords="145,171,252,197"/>
-<area shape="rect" id="node10" href="$_cart_config_8h.html" title="declares data structures for cartridge configuration items as&#45;loaded from the config database..." alt="" coords="173,245,267,272"/>
-<area shape="rect" id="node13" href="$_lookup_tables_8h.html" title="declares lookup tables of cartridge parameters which may vary with LO frequency. " alt="" coords="251,320,364,347"/>
-</map>
