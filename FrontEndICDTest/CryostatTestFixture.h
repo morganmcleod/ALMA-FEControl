@@ -7,22 +7,22 @@
 class CryostatTestFixture : public AmbDeviceTestFixture {
     CPPUNIT_TEST_SUITE(CryostatTestFixture);
     
-    //Monitor points, include exercising related commands.
+    //Register unit tests.   Comment out tests to skip here.
     CPPUNIT_TEST(testGET_CRYOSTAT_TEMPS);
     CPPUNIT_TEST(testGET_CRYOSTAT_TURBO_PUMP_ENABLE);
     CPPUNIT_TEST(testGET_CRYOSTAT_TURBO_PUMP_STATE);
     CPPUNIT_TEST(testGET_CRYOSTAT_TURBO_PUMP_SPEED);
-    CPPUNIT_TEST(testGET_CRYOSTAT_GATE_VALVE_STATE);
     CPPUNIT_TEST(testGET_CRYOSTAT_SOLENOID_VALVE_STATE);
+    CPPUNIT_TEST(testGET_CRYOSTAT_GATE_VALVE_STATE);
     CPPUNIT_TEST(testGET_CRYOSTAT_VACUUM_GAUGE_SENSOR_PRESSURE);
     CPPUNIT_TEST(testGET_CRYOSTAT_VACUUM_GAUGE_STATE);
     CPPUNIT_TEST(testGET_CRYOSTAT_SUPPLY_CURRENT_230V);
-
-    //Control points, include exercising related monitor points.
+    CPPUNIT_TEST(testGET_CRYOSTAT_COLD_HEAD_HOURS);
+    CPPUNIT_TEST(testSET_CRYOSTAT_RESET_COLD_HEAD_HOURS);
     CPPUNIT_TEST(testSET_CRYOSTAT_BACKING_PUMP_ENABLE);
     CPPUNIT_TEST(testSET_CRYOSTAT_TURBO_PUMP_ENABLE);
-    CPPUNIT_TEST(testSET_CRYOSTAT_GATE_SOLENOID_VALVES);
     CPPUNIT_TEST(testSET_CRYOSTAT_VACUUM_GAUGE_ENABLE);
+    CPPUNIT_TEST(testSET_CRYOSTAT_GATE_SOLENOID_VALVES);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -30,24 +30,23 @@ public:
     void setUp();
     void tearDown();
     
+    // Declare the tests.
     void testGET_CRYOSTAT_TEMPS();
-    ///< cryostat temperatures can always be monitored.
-
     void testGET_CRYOSTAT_TURBO_PUMP_ENABLE();
     void testGET_CRYOSTAT_TURBO_PUMP_STATE();
     void testGET_CRYOSTAT_TURBO_PUMP_SPEED();
-    ///< turbo pump status can only be monitored when the backing pump is enabled.
-
-    void testGET_CRYOSTAT_GATE_VALVE_STATE();
     void testGET_CRYOSTAT_SOLENOID_VALVE_STATE();
+    void testGET_CRYOSTAT_GATE_VALVE_STATE();
     void testGET_CRYOSTAT_VACUUM_GAUGE_SENSOR_PRESSURE();
     void testGET_CRYOSTAT_VACUUM_GAUGE_STATE();
     void testGET_CRYOSTAT_SUPPLY_CURRENT_230V();
+    void testGET_CRYOSTAT_COLD_HEAD_HOURS();
+    void testSET_CRYOSTAT_RESET_COLD_HEAD_HOURS();
     void testSET_CRYOSTAT_BACKING_PUMP_ENABLE();
     void testSET_CRYOSTAT_TURBO_PUMP_ENABLE();
-    void testSET_CRYOSTAT_GATE_SOLENOID_VALVES();
     void testSET_CRYOSTAT_VACUUM_GAUGE_ENABLE();
-    
+    void testSET_CRYOSTAT_GATE_SOLENOID_VALVES();
+
 private:
     enum MonitorControlOffset {
         CRYOSTAT_TEMP           = 0x0000,
@@ -62,6 +61,9 @@ private:
         VACUUM_GAUGE_ENABLE     = 0x0046,
         VACUUM_GAUGE_STATE      = 0x0047,
         SUPPLY_CURRENT_230V     = 0x0048,
+        COLD_HEAD_HOURS         = 0x004C,
+        RESET_COLD_HEAD_HOURS   = 0x004D,
+
         controlRCA              = 0x10000,  /// add this to the monitor RCA to get the corresponding command RCA
         baseRCA                 = 0xC000,   /// all cryostat M&C points are in this range
         backingPumpEnable_RCA       = baseRCA + BACKING_PUMP_ENABLE,
@@ -74,7 +76,9 @@ private:
         vacuumPortPressure_RCA      = baseRCA + VACUUM_PORT_PRES,
         vacuumGaugeEnable_RCA       = baseRCA + VACUUM_GAUGE_ENABLE,
         vacuumGaugeErrorState_RCA   = baseRCA + VACUUM_GAUGE_STATE,
-        supplyCurrent230V_RCA       = baseRCA + SUPPLY_CURRENT_230V
+        supplyCurrent230V_RCA       = baseRCA + SUPPLY_CURRENT_230V,
+        coldHeadHours_RCA           = baseRCA + COLD_HEAD_HOURS,
+        coldHeadHoursReset_RCA      = baseRCA + RESET_COLD_HEAD_HOURS
     };
 
     // helper functions for the above test cases:
@@ -87,7 +91,7 @@ private:
     ///< Enables or disables the backing pump.
     ///< checkSuccess is passed through to base class command()
 
-    void implSetTurboPump(bool enable, const std::string &callerDescription, bool checkSuccess = true);
+    void implSetTurboPump(bool enable, const std::string &callerDescription, std::string *cmdDetails = NULL, bool checkSuccess = true);
     ///< Enables or disables the turbo pump.
     ///< checkSuccess is passed through to base class command()
 

@@ -7,7 +7,7 @@
 
 #include "CartridgeTestFixture.h"
 #include <cppunit/extensions/HelperMacros.h>
-#include <FrontEndAMB/logger.h>
+#include <logger.h>
 #include <string>
 #include <cmath>
 #include <iostream>
@@ -131,7 +131,7 @@ void CartridgeTestFixture::implGenericTest(
 	bool InValidRange;
 	unsigned int i;
 	float OriginalMonitorValue;
-	char statusByte;
+	unsigned char statusByte;
 
 	//LOG(LM_INFO) << "Number of elements in array=" << test_values.size() << endl;
 
@@ -222,7 +222,7 @@ void CartridgeTestFixture::implGenericTest(
 
 void CartridgeTestFixture::implGetFloat( AmbRelativeAddr monitor_RCA, const float validmin, const float validmax, const std::string &callerDescription) {
 
-	char statusByte;
+    unsigned char statusByte;
 	string info,strReturn;
 	ostringstream bufReturn;
 

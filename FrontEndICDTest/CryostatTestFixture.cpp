@@ -1,5 +1,5 @@
 #include "CryostatTestFixture.h"
-#include <FrontEndAMB/logger.h>
+#include <logger.h>
 #include <sstream>
 #include <string>
 using namespace std;
@@ -9,6 +9,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(CryostatTestFixture);
 
 void CryostatTestFixture::setUp() {
     AmbDeviceTestFixture::setUp();
+    // Write the special monitor point to establish comms between the AMBSI and ARCOM boards:
+    monitor(0x20001, "GET_SETUP_INFO", NULL);
 }
 
 void CryostatTestFixture::tearDown() {
@@ -20,7 +22,7 @@ void CryostatTestFixture::testGET_CRYOSTAT_TEMPS() {
     //Valid range: 2° to 325° K
     string details;
     float temp;
-    char statusByte;
+    unsigned char statusByte;
     for (unsigned index = 0; index < 13; ++index) {
         stringstream streamName;
         streamName << "GET_CRYOSTAT_TEMP_" << index;
@@ -35,23 +37,151 @@ void CryostatTestFixture::testGET_CRYOSTAT_TEMPS() {
 }
 
 void CryostatTestFixture::testGET_CRYOSTAT_TURBO_PUMP_ENABLE() {
-    implGetBackingPumpDependent(turboPumpEnable_RCA, 0, 1, "GET_CRYOSTAT_TURBO_PUMP_ENABLE");
+    // interpretation of ICD:
+    //  If backing pump is off:
+    //    Monitor will return (unknown) value plus HW_BLOCKED status byte
+    //    Control(0) no effect
+    //      Monitor on control will return 0 plus HW_BLOCKED
+    //      Monitor same as before
+    //    Control(1) no effect
+    //      Monitor on control will return 1 plus HW_BLOCKED
+    //      Monitor same as before
+    //  If backing pump is on:
+    //    Monitor will return 0 plus NO_ERROR
+    //    Control(0) no effect
+    //      Monitor on control will return 0 plus NO_ERROR
+    //    Control(1) start pump
+    //      Monitor on control will return 1 plus NO_ERROR
+    //      Monitor will return 1 plus NO_ERROR
+
+    string details;
+    string cmdDetails;
+
+    // Start with the backing pump off:
+    implSetBackingPump(false, "1. Backing pump OFF", false);
+
+    monitor(turboPumpEnable_RCA, "GET_CRYOSTAT_TURBO_PUMP_ENABLE", &details);
+    // We expect a value (unknown) plus a hardware blocked error since the backing pump is off:
+    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
+    // no check on data_m[0]
+    CPPUNIT_ASSERT_MESSAGE(details, statusByteEqual(data_m[1], FEMC_HARDW_BLOCKED_ERR));
+
+    // Command to disable the pump:
+    implSetTurboPump(false, "SET_CRYOSTAT_TURBO_PUMP_ENABLE(0)", &cmdDetails, false);
+
+    // Check results of last MON_ON_CMD:
+    CPPUNIT_ASSERT_MESSAGE(cmdDetails, dataLength_m == 2);      // value set + status byte
+    CPPUNIT_ASSERT_MESSAGE(cmdDetails, data_m[0] == 0);         // last value set
+    CPPUNIT_ASSERT_MESSAGE(cmdDetails, statusByteEqual(data_m[1], FEMC_HARDW_BLOCKED_ERR));    // blocked
+
+    // Monitor results same as before:
+    monitor(turboPumpEnable_RCA, "GET_CRYOSTAT_TURBO_PUMP_ENABLE", &details);
+    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
+    // no check on data_m[0]
+    CPPUNIT_ASSERT_MESSAGE(details, statusByteEqual(data_m[1], FEMC_HARDW_BLOCKED_ERR));
+
+    // Command to enable the pump:
+    implSetTurboPump(true, "SET_CRYOSTAT_TURBO_PUMP_ENABLE(1)", &cmdDetails, false);
+
+    // Check results of last MON_ON_CMD:
+    CPPUNIT_ASSERT_MESSAGE(cmdDetails, dataLength_m == 2);      // value set + status byte
+    CPPUNIT_ASSERT_MESSAGE(cmdDetails, data_m[0] == 1);         // last value set
+    CPPUNIT_ASSERT_MESSAGE(cmdDetails, statusByteEqual(data_m[1], FEMC_HARDW_BLOCKED_ERR));    // blocked
+
+    // Monitor results same as before:
+    monitor(turboPumpEnable_RCA, "GET_CRYOSTAT_TURBO_PUMP_ENABLE", &details);
+    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
+    // no check on data_m[0]
+    CPPUNIT_ASSERT_MESSAGE(details, statusByteEqual(data_m[1], FEMC_HARDW_BLOCKED_ERR));
+
+    // Now enable the backing pump:
+    implSetBackingPump(true, "2. Backing pump ON", false);
+
+    monitor(turboPumpEnable_RCA, "GET_CRYOSTAT_TURBO_PUMP_ENABLE", &details);
+    // We expect 0 plus NO_ERROR
+    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == 0);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
+
+    // Command to disable the pump.  Takes care of checking MON_ON_CMD.
+    implSetTurboPump(false, "SET_CRYOSTAT_TURBO_PUMP_ENABLE(0)", &cmdDetails, true);
+
+    // Monitor results same as before:
+    monitor(turboPumpEnable_RCA, "GET_CRYOSTAT_TURBO_PUMP_ENABLE", &details);
+    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == 0);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
+
+    // Command to enable the pump.  Takes care of checking MON_ON_CMD.
+    implSetTurboPump(true, "SET_CRYOSTAT_TURBO_PUMP_ENABLE(1)", &cmdDetails, true);
+
+    // Monitor results show pump is on:
+    monitor(turboPumpEnable_RCA, "GET_CRYOSTAT_TURBO_PUMP_ENABLE", &details);
+    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == 1);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
+
+    // Finish with the backing pump off:
+    implSetBackingPump(false, "3. Backing pump OFF", false);
 }
 
 void CryostatTestFixture::testGET_CRYOSTAT_TURBO_PUMP_STATE() {
+    // interpretation of ICD:
+    //  If backing pump is off:
+    //    Monitor will return (unknown) value plus HW_BLOCKED status byte
+    //  If backing pump is on:
+    //    Monitor will return 0 or 1, plus NO_ERROR
     implGetBackingPumpDependent(turboPumpErrorState_RCA, 0, 1, "GET_CRYOSTAT_TURBO_PUMP_STATE");
 }
 
 void CryostatTestFixture::testGET_CRYOSTAT_TURBO_PUMP_SPEED() {
+    // interpretation of ICD:
+    //  If backing pump is off:
+    //    Monitor will return (unknown) value plus HW_BLOCKED status byte
+    //  If backing pump is on:
+    //    Monitor will return 0 or 1, plus NO_ERROR
     implGetBackingPumpDependent(turboPumpHighSpeed_RCA, 0, 1, "GET_CRYOSTAT_TURBO_PUMP_SPEED");
 }
 
-void CryostatTestFixture::testGET_CRYOSTAT_GATE_VALVE_STATE() {
-    implGetBackingPumpDependent(gateValveState_RCA, 0, 3, "GET_CRYOSTAT_GATE_VALVE_STATE");
+void CryostatTestFixture::testGET_CRYOSTAT_SOLENOID_VALVE_STATE() {
+    // interpretation of ICD:
+    //  If backing pump is off:
+    //    Monitor will return (unknown) value plus HW_BLOCKED status byte
+    //  If backing pump is on:
+    //    Monitor will return [0123], plus NO_ERROR
+    implGetBackingPumpDependent(solenoidValveState_RCA, 0, 3, "GET_CRYOSTAT_SOLENOID_VALVE_STATE");
 }
 
-void CryostatTestFixture::testGET_CRYOSTAT_SOLENOID_VALVE_STATE() {
-    implGetBackingPumpDependent(solenoidValveState_RCA, 0, 3, "GET_CRYOSTAT_SOLENOID_VALVE_STATE");
+// private implementation helper for the above few.
+void CryostatTestFixture::implGetBackingPumpDependent(AmbRelativeAddr monRCA, char min, char max, const std::string &callerDescription) {
+    string details;
+    // Several monitor points behave differently depending on whether the backing pump is on.
+    // Start with the backing pump off:
+    implSetBackingPump(false, "1. Backing pump OFF");
+    // Attempt to get the specified monitor data:
+    monitor(monRCA, callerDescription, &details);
+    // We expect a value (unknown) plus a hardware blocked error since the backing pump is off:
+    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
+    CPPUNIT_ASSERT_MESSAGE(details, statusByteEqual(data_m[1], FEMC_HARDW_BLOCKED_ERR));
+    // Now enable the backing pump:
+    implSetBackingPump(true, "2. Backing pump ON");
+    // Attempt to get the specified monitor data:
+    monitor(monRCA, callerDescription, &details);
+    // Now we expect valid data with no error and either 0 or 1:
+    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
+    CPPUNIT_ASSERT_MESSAGE(details + " NOTE this will fail if the interlock is in effect!", data_m[1] == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[0] >= min && data_m[0] <= max);
+    // Finish with the backing pump off:
+    implSetBackingPump(false, "3. Backing pump OFF");
+}
+
+
+void CryostatTestFixture::testGET_CRYOSTAT_GATE_VALVE_STATE() {
+    string details;
+    monitor(gateValveState_RCA, "GET_CRYOSTAT_GATE_VALVE_STATE", &details);
+    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[0] <= char(4));  // values in [01234]
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 }
 
 void CryostatTestFixture::testGET_CRYOSTAT_VACUUM_GAUGE_SENSOR_PRESSURE() {
@@ -59,7 +189,7 @@ void CryostatTestFixture::testGET_CRYOSTAT_VACUUM_GAUGE_SENSOR_PRESSURE() {
     string details;
     float temp;
     stringstream streamOut;
-    char statusByte;
+    unsigned char statusByte;
     monitor(vacuumCryostatPressure_RCA, "GET_CRYOSTAT_VACUUM_GAUGE_CRYOSTAT_PRESSURE", &details);
     LOG(LM_INFO) << details << endl;
     CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 5);
@@ -91,26 +221,69 @@ void CryostatTestFixture::testGET_CRYOSTAT_VACUUM_GAUGE_STATE() {
 
 void CryostatTestFixture::testGET_CRYOSTAT_SUPPLY_CURRENT_230V() {
     string details;
-    char statusByte;
+    float current;
+    unsigned char statusByte;
     // Behaves differently when the backing pump is on or off:
     // Start with the backing pump off:
     implSetBackingPump(false, "1. Backing pump OFF");
     // Attempt to get the specified monitor data:
     monitor(supplyCurrent230V_RCA, "GET_CRYOSTAT_SUPPLY_CURRENT_230V", &details);
+    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 5);
+    current = unpackSGL(&statusByte);
     // We expect a hardware blocked error since the backing pump is off:
-    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 1);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[0]) == FEMC_HARDW_BLOCKED_ERR);
+    CPPUNIT_ASSERT_MESSAGE(details, statusByteEqual(statusByte, FEMC_HARDW_BLOCKED_ERR));
+
     // Now enable the backing pump:
     implSetBackingPump(true, "2. Backing pump ON");
+    SLEEP(5000);
     // Attempt to get the specified monitor data:
     monitor(supplyCurrent230V_RCA, "GET_CRYOSTAT_SUPPLY_CURRENT_230V", &details);
     // Now we expect valid data with no error and either 0 or 1:
     CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 5);
-    float current = unpackSGL(&statusByte);
+    current = unpackSGL(&statusByte);
     CPPUNIT_ASSERT_MESSAGE(details, statusByte == FEMC_NO_ERROR);
     CPPUNIT_ASSERT_MESSAGE(details, current >= 0.0 && current <= 14.88);
     // Finish with the backing pump off:
     implSetBackingPump(false, "3. Backing pump OFF");
+}
+
+void CryostatTestFixture::testGET_CRYOSTAT_COLD_HEAD_HOURS() {
+    string details;
+    // request the cold head hours:
+    monitor(coldHeadHours_RCA, "GET_CRYOSTAT_COLD_HEAD_HOURS", &details);
+    unsigned char statusByte;
+    unpackU16(&statusByte);
+
+    // check data length and status byte:
+    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 3);
+    CPPUNIT_ASSERT_MESSAGE(details, statusByte == FEMC_NO_ERROR);
+
+    // attempt to set the corresponding, nonexistent control RCA:
+    resetAmbVars();
+    packU16(123);
+    command(coldHeadHours_RCA + controlRCA, "GET_CRYOSTAT_COLD_HEAD_HOURS", &details, false);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] != FEMC_NO_ERROR);
+}
+
+void CryostatTestFixture::testSET_CRYOSTAT_RESET_COLD_HEAD_HOURS() {
+    string details;
+    // send the command to do nothing, then check for no errors:
+    resetAmbVars();
+    dataLength_m = 1;
+    data_m[0] = 0;
+    command(coldHeadHoursReset_RCA + controlRCA, "SET_CRYOSTAT_RESET_COLD_HEAD_HOURS(0)", &details, true);
+
+    // send the command to reset the cold head hours and check for no errors:
+    resetAmbVars();
+    dataLength_m = 1;
+    data_m[0] = 1;
+    command(coldHeadHoursReset_RCA + controlRCA, "SET_CRYOSTAT_RESET_COLD_HEAD_HOURS(1)", &details, true, 300);
+
+    // check that the hours are now zero, not sufficient if they were zero before this test.
+    monitor(coldHeadHours_RCA, "GET_CRYOSTAT_COLD_HEAD_HOURS", &details);
+    unsigned char statusByte;
+    unsigned short hours = unpackU16(&statusByte);
+    CPPUNIT_ASSERT_MESSAGE(details, hours == 0);
 }
 
 void CryostatTestFixture::testSET_CRYOSTAT_BACKING_PUMP_ENABLE() {
@@ -156,6 +329,26 @@ void CryostatTestFixture::testSET_CRYOSTAT_TURBO_PUMP_ENABLE() {
     implSetBackingPump(false, "5. Backing pump OFF");
 }
 
+void CryostatTestFixture::testSET_CRYOSTAT_VACUUM_GAUGE_ENABLE() {
+    string details;
+    // Start with the vacuum gauge enabled (default state):
+    implSetVacuumGauge(true, "1. Vacuum gauge ON");
+    // Read the vacuum gauge monitor point:
+    monitor(vacuumGaugeEnable_RCA, "GET_CRYOSTAT_VACUUM_GAUGE_ENABLE", &details);
+    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == 1);
+    // Now turn the vacuum gauge off:
+    implSetVacuumGauge(false, "2. Vacuum gauge OFF");
+    // Read the vacuum gauge monitor point:
+    monitor(vacuumGaugeEnable_RCA, "GET_CRYOSTAT_VACUUM_GAUGE_ENABLE", &details);
+    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == 0);
+    // Finish with the vacuum gauge enabled (default state):
+    implSetVacuumGauge(true, "3. Vacuum gauge ON");
+}
+
 void CryostatTestFixture::testSET_CRYOSTAT_GATE_SOLENOID_VALVES() {
     // This test goes through the normal operating sequence for the pumps and valves.
     // For safety, this test will only run if the cryostat pressure is below 30 mBar.
@@ -167,7 +360,7 @@ void CryostatTestFixture::testSET_CRYOSTAT_GATE_SOLENOID_VALVES() {
 
     // check that cryostat pressure is below 30 mBar
     monitor(vacuumCryostatPressure_RCA, "GET_CRYOSTAT_VACUUM_GAUGE_CRYOSTAT_PRESSURE", &details);
-    char statusByte;
+    unsigned char statusByte;
     float pressure = unpackSGL(&statusByte);
     CPPUNIT_ASSERT_MESSAGE(details, statusByte == FEMC_NO_ERROR);
     {
@@ -295,49 +488,7 @@ void CryostatTestFixture::testSET_CRYOSTAT_GATE_SOLENOID_VALVES() {
     LOG(LM_INFO) << "testSET_CRYOSTAT_GATE_SOLENOID_VALVES: test complete." << endl;
 }
 
-void CryostatTestFixture::testSET_CRYOSTAT_VACUUM_GAUGE_ENABLE() {
-    string details;
-    // Start with the vacuum gauge enabled (default state):
-    implSetVacuumGauge(true, "1. Vacuum gauge ON");
-    // Read the vacuum gauge monitor point:
-    monitor(vacuumGaugeEnable_RCA, "GET_CRYOSTAT_VACUUM_GAUGE_ENABLE", &details);
-    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
-    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
-    CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == 1);
-    // Now turn the vacuum gauge off:
-    implSetVacuumGauge(false, "2. Vacuum gauge OFF");
-    // Read the vacuum gauge monitor point:
-    monitor(vacuumGaugeEnable_RCA, "GET_CRYOSTAT_VACUUM_GAUGE_ENABLE", &details);
-    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
-    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
-    CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == 0);
-    // Finish with the vacuum gauge enabled (default state):
-    implSetVacuumGauge(true, "3. Vacuum gauge ON");
-}
-
 // private implementation functions:
-
-void CryostatTestFixture::implGetBackingPumpDependent(AmbRelativeAddr monRCA, char min, char max, const std::string &callerDescription) {
-    string details;
-    // Several monitor points behave differently depending on whether the backing pump is on.
-    // Start with the backing pump off:
-    implSetBackingPump(false, "1. Backing pump OFF");
-    // Attempt to get the specified monitor data:
-    monitor(monRCA, callerDescription, &details);
-    // We expect a hardware blocked error since the backing pump is off:
-    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 1);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[0]) == FEMC_HARDW_BLOCKED_ERR);
-    // Now enable the backing pump:
-    implSetBackingPump(true, "2. Backing pump ON");
-    // Attempt to get the specified monitor data:
-    monitor(monRCA, callerDescription, &details);
-    // Now we expect valid data with no error and either 0 or 1:
-    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
-    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
-    CPPUNIT_ASSERT_MESSAGE(details, data_m[0] >= min && data_m[0] <= max);
-    // Finish with the backing pump off:
-    implSetBackingPump(false, "3. Backing pump OFF");
-}
 
 void CryostatTestFixture::implSetBackingPump(bool enable, const std::string &callerDescription, bool checkSuccess) {
     string details;
@@ -345,20 +496,22 @@ void CryostatTestFixture::implSetBackingPump(bool enable, const std::string &cal
     unsigned char newVal = (enable) ? 1 : 0;
     data_m[0] = newVal;
     dataLength_m = 1;
-    command(controlRCA + backingPumpEnable_RCA, callerDescription + " SET_CRYOSTAT_BACKING_PUMP_ENABLE", &details, checkSuccess);
+    command(controlRCA + backingPumpEnable_RCA, callerDescription + " SET_CRYOSTAT_BACKING_PUMP_ENABLE", &details, checkSuccess, 300);
     // 1 second delay after setting backing pump:
-    SLEEP(1000);
+    SLEEP(500);
 }
 
-void CryostatTestFixture::implSetTurboPump(bool enable, const std::string &callerDescription, bool checkSuccess) {
+void CryostatTestFixture::implSetTurboPump(bool enable, const std::string &callerDescription, std::string *cmdDetails, bool checkSuccess) {
     string details;
     resetAmbVars();
     unsigned char newVal = (enable) ? 1 : 0;
     data_m[0] = newVal;
     dataLength_m = 1;
     command(controlRCA + turboPumpEnable_RCA, callerDescription + " SET_CRYOSTAT_TURBO_PUMP_ENABLE", &details, checkSuccess);
+    if (cmdDetails)
+        *cmdDetails = details;
     // 1 second delay after setting turbo pump:
-    SLEEP(1000);
+    SLEEP(500);
 }
 
 void CryostatTestFixture::implSetVacuumGauge(bool enable, const std::string &callerDescription, bool checkSuccess) {

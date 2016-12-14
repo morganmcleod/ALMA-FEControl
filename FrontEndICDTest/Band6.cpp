@@ -27,10 +27,10 @@ const std::vector<float> &Band6CCATestFixture::getTestValuesSISVoltage() const {
         firstTime = false;
         values.reserve(5);
         values.resize(0);
-        values.push_back(-25.0);    // in-range value
+        values.push_back(-12.0);    // in-range value
         values.push_back(0.0);      // in-range value
         values.push_back(5.0);      // in-range value
-        values.push_back(25.0);     // in-range value
+        values.push_back(12.0);     // in-range value
         values.push_back(100.0);    // impossible value
     }
     return values;
@@ -40,8 +40,8 @@ void Band6CCATestFixture::getLimitsSisVoltage(float &min, float &max, float &tol
     //const float ColdCartridgeTestFixture::ValidMinSISVoltage = -25.0;
     //const float ColdCartridgeTestFixture::ValidMaxSISVoltage = 25.0;
     //const float ColdCartridgeTestFixture::ToleranceSISVoltage = 0.5;
-    min = -25.0;
-    max = 25.0;
+    min = -12.0;
+    max = 12.0;
     tolerance = 5.0;
 }
 

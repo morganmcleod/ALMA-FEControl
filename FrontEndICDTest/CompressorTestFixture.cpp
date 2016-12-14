@@ -57,7 +57,7 @@ void CompressorTestFixture::testGET_PRESSURE()
 	monitor(PRESSURE_RCA, "GET_PRESSURE", &details);
 	CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 4);
 
-	char statusByte;
+	unsigned char statusByte;
 	float monValue = unpackSGL(&statusByte);
 
 	std::stringstream streamOut;
@@ -103,7 +103,7 @@ void CompressorTestFixture::implCheckTemp(AmbRelativeAddr monitor_RCA,const std:
 	monitor(monitor_RCA,callerDescription, &details);
 	CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 4);
 
-	char statusByte;
+	unsigned char statusByte;
 	float monValue = unpackSGL(&statusByte);
 
 	std::stringstream streamOut;
@@ -118,7 +118,7 @@ void CompressorTestFixture::implCheckAux(AmbRelativeAddr monitor_RCA,const std::
 	monitor(monitor_RCA,callerDescription, &details);
 	CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 4);
 
-	char statusByte;
+	unsigned char statusByte;
 	float monValue = unpackSGL(&statusByte);
 
 	std::stringstream streamOut;

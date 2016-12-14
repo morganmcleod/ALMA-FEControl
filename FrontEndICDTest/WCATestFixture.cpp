@@ -36,7 +36,7 @@
 
 #include "WCATestFixture.h"
 #include <string>
-#include <FrontEndAMB/logger.h>
+#include <logger.h>
 #include <cmath>
 using namespace std;
 
@@ -203,7 +203,7 @@ void WCATestFixture::testGET_CARTRIDGE_LO_AMC_DRAIN_E_CURRENT(){
     implGetFloat(amcDrainECurrent_RCA,-500.0, 500.0,"GET_CARTRIDGE_LO_AMC_DRAIN_E_CURRENT");
 }
 void WCATestFixture::testGET_CARTRIDGE_LO_AMC_MULTIPLIER_D_COUNTS(){
-    char val, statusByte;
+    unsigned char val, statusByte;
     val = monitorU8(amcMultiplierDCounts_RCA, "testGET_CARTRIDGE_LO_AMC_MULTIPLIER_D_COUNTS", NULL, &statusByte);
 }
 void WCATestFixture::testGET_CARTRIDGE_LO_AMC_MULTIPLIER_D_CURRENT(){
@@ -362,7 +362,7 @@ void WCATestFixture::implSET_WCA_VALUE_FLOAT(AmbRelativeAddr monitor_RCA,AmbRela
 	bool InValidRange;
 	unsigned int i;
 	float OriginalMonitorValue;
-	char statusByte;
+	unsigned char statusByte;
 
 	//LOG(LM_INFO) << "Number of elements in array=" << test_values.size() << endl;
 
@@ -453,7 +453,7 @@ void WCATestFixture::implSET_WCA_VALUE_U16(AmbRelativeAddr monitor_RCA,AmbRelati
 	bool InValidRange;
 	unsigned int i;
 	unsigned short OriginalMonitorValue;
-	char statusByte;
+	unsigned char statusByte;
 
 	//LOG(LM_INFO) << "Number of elements in array=" << test_values.size() << endl;
 

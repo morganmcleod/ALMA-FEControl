@@ -19,7 +19,7 @@ void CPDSTestFixture::testGET_POWER_DISTRIBUTION_POWERERED_MODULES()
 	string details;
 	monitor(0xA0A0, "GET_POWER_DISTRIBUTION_POWERED_MODULES", &details);
 	CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
-	CPPUNIT_ASSERT_MESSAGE(details, data_m[0] >= 0 && data_m[0] <= 3);
+	CPPUNIT_ASSERT_MESSAGE(details, data_m[0] <= 3);    // valid range [0123]
 	CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 }
 void CPDSTestFixture::testSET_POWER_DISTRIBUTION_MODULE1_ENABLE()
@@ -153,7 +153,7 @@ void CPDSTestFixture::checkCurrentandVoltage(AmbRelativeAddr monitor_RCA,const s
 	monitor(monitor_RCA,callerDescription,&details);
 	CPPUNIT_ASSERT_MESSAGE(details,dataLength_m==5);
 
-	char statusByte;
+	unsigned char statusByte;
 	float monValue = unpackSGL(&statusByte);
 
 	std::stringstream streamOut;
@@ -170,7 +170,7 @@ void CPDSTestFixture::checkCurrentWhenBandSet(AmbRelativeAddr monitor_RCA,const 
 	monitor(monitor_RCA,callerDescription,&details);
 	CPPUNIT_ASSERT_MESSAGE(details,dataLength_m==5);
 
-	char statusByte;
+	unsigned char statusByte;
 	float monValue = unpackSGL(&statusByte);
 
 	std::stringstream streamOut;
@@ -190,12 +190,12 @@ void CPDSTestFixture::checkVoltageWhenBandSet(AmbRelativeAddr monitor_RCA,float 
 	monitor(monitor_RCA,callerDescription,&details);
 	CPPUNIT_ASSERT_MESSAGE(details,dataLength_m==5);
 
-	char statusByte;
+	unsigned char statusByte;
 	float monValue = unpackSGL(&statusByte);
 
 	std::stringstream streamOut;
-	streamOut << details << " Nominal value= " << volt << " Readout Value=" << monValue
-	          << "Upper limit= " << u_volt << "Lower limit= " << l_volt;
+	streamOut << details << " Nominal value=" << volt << " Readout Value=" << monValue
+	          << " Upper limit=" << u_volt << " Lower limit=" << l_volt;
 	string moreDetails = streamOut.str();
 
 	//check if voltage is within 10% of nominal value.

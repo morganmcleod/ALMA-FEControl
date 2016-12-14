@@ -86,6 +86,15 @@ FrontEndICDTest.exe : $(FRONTENDSRC)
 	g++ $(CPPFLAGS) -o Debug/FrontEndICDTest.exe \
 	$(FRONTENDSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
+
+# target FrontEnd2Test:
+#  for testing the band6 STANDBY2 feature
+FRONTEND2SRC = AmbDeviceTestFixture.cpp TestApp.cpp STANDBY2TestFixture.cpp
+
+FrontEnd2Test.exe : $(FRONTEND2SRC)
+	g++ $(CPPFLAGS) -o Debug/FrontEnd2Test.exe \
+	$(FRONTEND2SRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
+
 # target LPRICDTest:
 LPRSRC = AmbDeviceTestFixture.cpp LPRTestFixture_deepika.cpp TestApp.cpp
 
@@ -101,7 +110,7 @@ PowerSupplyICDTest.exe : $(POWERSUPPLYSRC)
 	$(POWERSUPPLYSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
 # target all:
-all : CompressorICDTest.exe CryostatICDTest.exe FrontEndICDTest.exe LPRICDTest.exe PowerSupplyICDTest.exe
+all : CompressorICDTest.exe CryostatICDTest.exe FrontEndICDTest.exe FrontEnd2Test.exe LPRICDTest.exe PowerSupplyICDTest.exe
 
 # target clean:
 clean:

@@ -121,7 +121,7 @@ void LPRTestFixture::testSET_LPR_EDFA_MODULATION_INPUT_VALUE()
 		monitor(EDFAModulationInput_RCA,"GET_LPR_EDFA_MODULATION_INPUT_VALUE",&info);
 
 		/// add the set and readback float vals to the info string
-		char statusByte;
+		unsigned char statusByte;
 		float monValue = unpackSGL(&statusByte);
 
 		std::stringstream streamOut;
@@ -226,7 +226,7 @@ void LPRTestFixture::implOpticalSwitchPort(unsigned int bandMinusOne,const std::
 	CPPUNIT_ASSERT_MESSAGE(monDetails, dataLength_m == 2);
 	//check range is 0-9
     if (bandMinusOne > 9)
-        CPPUNIT_ASSERT_MESSAGE(monDetails, data_m[0] >= 0x00 && data_m[0] <= 0x09);
+        CPPUNIT_ASSERT_MESSAGE(monDetails, data_m[0] <= 0x09);
     else
         CPPUNIT_ASSERT_MESSAGE(monDetails, data_m[0] == bandMinusOne);
 

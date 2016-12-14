@@ -21,7 +21,7 @@
 #include "ColdCartridgeTestFixture.h"
 #include <string>
 #include <cmath>
-#include <FrontEndAMB/logger.h>
+#include <logger.h>
 using namespace std;
 
 ColdCartridgeTestFixture::ColdCartridgeTestFixture(int band,
@@ -377,118 +377,6 @@ void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB2_LNA_ST3_DRAIN_VOLTAGE(
 	SET_LNA_SIS_VALUE(lnaPol1Sb2St3DrainVoltage_RCA,ctrllnaPol1Sb2St3DrainVoltage_RCA,
             getTestValuesLNAVd(), min, max, tolerance,
 			"SET_CARTRIDGE_POL1_SB2_LNA_ST3_DRAIN_VOLTAGE");
-}
-
-//////////////////////////////////////
-// LNA Drain Current Pol 0 SB 1
-//////////////////////////////////////
-void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB1_LNA_ST1_DRAIN_CURRENT() {
-    float min, max, tolerance;
-    getLimitsLNAId(min, max, tolerance);
-	SET_LNA_VALUE_Id(ctrllnaPol0Sb1St1DrainVoltage_RCA,lnaPol0Sb1St1DrainCurrent_RCA, ctrllnaPol0Sb1St1DrainCurrent_RCA,
-            getTestValuesLNAId(), min, max, tolerance,
-			"SET_CARTRIDGE_POL0_SB1_LNA_ST1_DRAIN_CURRENT");
-}
-void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB1_LNA_ST2_DRAIN_CURRENT() {
-    float min, max, tolerance;
-    getLimitsLNAId(min, max, tolerance);
-	SET_LNA_VALUE_Id(ctrllnaPol0Sb1St2DrainVoltage_RCA,lnaPol0Sb1St2DrainCurrent_RCA, ctrllnaPol0Sb1St2DrainCurrent_RCA,
-            getTestValuesLNAId(), min, max, tolerance,
-			"SET_CARTRIDGE_POL0_SB1_LNA_ST2_DRAIN_CURRENT");
-}
-void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB1_LNA_ST3_DRAIN_CURRENT() {
-    float min, max, tolerance;
-    getLimitsLNAId(min, max, tolerance);
-	SET_LNA_VALUE_Id(ctrllnaPol0Sb1St3DrainVoltage_RCA,lnaPol0Sb1St3DrainCurrent_RCA, ctrllnaPol0Sb1St3DrainCurrent_RCA,
-            getTestValuesLNAId(), min, max, tolerance,
-			"SET_CARTRIDGE_POL0_SB1_LNA_ST3_DRAIN_CURRENT");
-}
-
-//////////////////////////////////////
-// LNA Drain Current Pol 0 SB 2
-//////////////////////////////////////
-void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB2_LNA_ST1_DRAIN_CURRENT() {
-    if (band_m == 9)
-        return; // not checking SB2 for band 9
-    float min, max, tolerance;
-    getLimitsLNAId(min, max, tolerance);
-	SET_LNA_VALUE_Id(ctrllnaPol0Sb2St1DrainVoltage_RCA,lnaPol0Sb2St1DrainCurrent_RCA, ctrllnaPol0Sb2St1DrainCurrent_RCA,
-            getTestValuesLNAId(), min, max, tolerance,
-			"SET_CARTRIDGE_POL0_SB2_LNA_ST1_DRAIN_CURRENT");
-
-}
-void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB2_LNA_ST2_DRAIN_CURRENT() {
-    if (band_m == 9)
-        return; // not checking SB2 for band 9
-    float min, max, tolerance;
-    getLimitsLNAId(min, max, tolerance);
-	SET_LNA_VALUE_Id(ctrllnaPol0Sb2St2DrainVoltage_RCA,lnaPol0Sb2St2DrainCurrent_RCA, ctrllnaPol0Sb2St2DrainCurrent_RCA,
-            getTestValuesLNAId(), min, max, tolerance,
-			"SET_CARTRIDGE_POL0_SB2_LNA_ST2_DRAIN_CURRENT");
-}
-void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB2_LNA_ST3_DRAIN_CURRENT() {
-    if (band_m == 9)
-        return; // not checking SB2 for band 9
-    float min, max, tolerance;
-    getLimitsLNAId(min, max, tolerance);
-	SET_LNA_VALUE_Id(ctrllnaPol0Sb2St3DrainVoltage_RCA,lnaPol0Sb2St3DrainCurrent_RCA, ctrllnaPol0Sb2St3DrainCurrent_RCA,
-            getTestValuesLNAId(), min, max, tolerance,
-			"SET_CARTRIDGE_POL0_SB2_LNA_ST3_DRAIN_CURRENT");
-}
-
-//////////////////////////////////////
-// LNA Drain Current Pol 1 SB 1
-//////////////////////////////////////
-void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB1_LNA_ST1_DRAIN_CURRENT() {
-    float min, max, tolerance;
-    getLimitsLNAId(min, max, tolerance);
-	SET_LNA_VALUE_Id(ctrllnaPol1Sb1St1DrainVoltage_RCA,lnaPol1Sb1St1DrainCurrent_RCA, ctrllnaPol1Sb1St1DrainCurrent_RCA,
-            getTestValuesLNAId(), min, max, tolerance,
-			"SET_CARTRIDGE_POL1_SB1_LNA_ST1_DRAIN_CURRENT");
-}
-void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB1_LNA_ST2_DRAIN_CURRENT() {
-    float min, max, tolerance;
-    getLimitsLNAId(min, max, tolerance);
-	SET_LNA_VALUE_Id(ctrllnaPol1Sb1St2DrainVoltage_RCA,lnaPol1Sb1St2DrainCurrent_RCA, ctrllnaPol1Sb1St2DrainCurrent_RCA,
-            getTestValuesLNAId(), min, max, tolerance,
-			"SET_CARTRIDGE_POL1_SB1_LNA_ST2_DRAIN_CURRENT");
-}
-void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB1_LNA_ST3_DRAIN_CURRENT() {
-    float min, max, tolerance;
-    getLimitsLNAId(min, max, tolerance);
-	SET_LNA_VALUE_Id(ctrllnaPol1Sb1St3DrainVoltage_RCA,lnaPol1Sb1St3DrainCurrent_RCA, ctrllnaPol1Sb1St3DrainCurrent_RCA,
-            getTestValuesLNAId(), min, max, tolerance,
-			"SET_CARTRIDGE_POL1_SB1_LNA_ST3_DRAIN_CURRENT");
-}
-//////////////////////////////////////
-// LNA Drain Current Pol 1 SB 2
-//////////////////////////////////////
-void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB2_LNA_ST1_DRAIN_CURRENT() {
-    if (band_m == 9)
-        return; // not checking SB2 for band 9
-    float min, max, tolerance;
-    getLimitsLNAId(min, max, tolerance);
-	SET_LNA_VALUE_Id(ctrllnaPol1Sb2St1DrainVoltage_RCA,lnaPol1Sb2St1DrainCurrent_RCA, ctrllnaPol1Sb2St1DrainCurrent_RCA,
-            getTestValuesLNAId(), min, max, tolerance,
-			"SET_CARTRIDGE_POL1_SB2_LNA_ST1_DRAIN_CURRENT");
-}
-void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB2_LNA_ST2_DRAIN_CURRENT() {
-    if (band_m == 9)
-        return; // not checking SB2 for band 9
-    float min, max, tolerance;
-    getLimitsLNAId(min, max, tolerance);
-	SET_LNA_VALUE_Id(ctrllnaPol1Sb2St2DrainVoltage_RCA,lnaPol1Sb2St2DrainCurrent_RCA, ctrllnaPol1Sb2St2DrainCurrent_RCA,
-            getTestValuesLNAId(), min, max, tolerance,
-			"SET_CARTRIDGE_POL1_SB2_LNA_ST2_DRAIN_CURRENT");
-}
-void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB2_LNA_ST3_DRAIN_CURRENT() {
-    if (band_m == 9)
-        return; // not checking SB2 for band 9
-    float min, max, tolerance;
-    getLimitsLNAId(min, max, tolerance);
-	SET_LNA_VALUE_Id(ctrllnaPol1Sb2St3DrainVoltage_RCA,lnaPol1Sb2St3DrainCurrent_RCA, ctrllnaPol1Sb2St3DrainCurrent_RCA,
-            getTestValuesLNAId(), min, max, tolerance,
-			"SET_CARTRIDGE_POL1_SB2_LNA_ST3_DRAIN_CURRENT");
 }
 
 //////////////////////////////////////
@@ -898,7 +786,7 @@ void ColdCartridgeTestFixture::SET_LNA_SIS_VALUE(AmbRelativeAddr monitor_RCA,Amb
     bool InValidRange;
     unsigned int i;
     float OriginalMonitorValue;
-    char statusByte;
+    unsigned char statusByte;
 
     //LOG(LM_INFO) << "Number of elements in array=" << test_values.size() << endl;
 
@@ -929,7 +817,7 @@ void ColdCartridgeTestFixture::SET_LNA_SIS_VALUE(AmbRelativeAddr monitor_RCA,Amb
         //set control value
         packSGL(test_values[i]);
         command(control_RCA, strSet, &strSet, false);
-        SLEEP(100);
+        SLEEP(3000);
 
         //assert correct datalength
         CPPUNIT_ASSERT_MESSAGE(strSet, dataLength_m == 5);
@@ -995,7 +883,7 @@ void ColdCartridgeTestFixture::implTestHeaters(
         const std::string &callerDescription){
 
     string strReturn;
-    char statusByte;
+    unsigned char statusByte;
 
     //disable the heater
     dataLength_m = 1;

@@ -1,5 +1,6 @@
 #include "AmbDeviceTestFixture.h"
 #include <cppunit/TestAssert.h>
+#include <logger.h>
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -19,7 +20,7 @@ void AmbDeviceTestFixture::tearDown() {
 
 //TODO:  move unpack routines into FrontEndAMBLib:
 
-unsigned short AmbDeviceTestFixture::unpackU16(char *statusByte) const {
+unsigned short AmbDeviceTestFixture::unpackU16(unsigned char *statusByte) const {
     // get the status byte from after the data payload:
     char ret(FEMC_NO_ERROR);
     if (dataLength_m == 1 || dataLength_m == 3)
@@ -31,7 +32,7 @@ unsigned short AmbDeviceTestFixture::unpackU16(char *statusByte) const {
     return result;
 }
 
-unsigned long AmbDeviceTestFixture::unpackU32(char *statusByte) const {
+unsigned long AmbDeviceTestFixture::unpackU32(unsigned char *statusByte) const {
     // get the status byte from after the data payload:
     char ret(FEMC_NO_ERROR);
     if (dataLength_m == 1 || dataLength_m == 5)
@@ -59,7 +60,7 @@ typedef union { // A union for unsigned long/can conversion
     unsigned long long_val;
 } AmbULConv;
 
-float AmbDeviceTestFixture::unpackSGL(char *statusByte) const {
+float AmbDeviceTestFixture::unpackSGL(unsigned char *statusByte) const {
     char ret(FEMC_NO_ERROR);
     float target(0.0);
     AmbDataLength_t dataLength(dataLength_m);
@@ -142,7 +143,7 @@ void AmbDeviceTestFixture::monitor(const AmbRelativeAddr &RCA, const std::string
     CPPUNIT_ASSERT_MESSAGE((monDetails) ? (*monDetails) : (callerDescription), status_m == AMBERR_NOERR);
 }
 
-unsigned char AmbDeviceTestFixture::monitorU8(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails, char *statusByte) {
+unsigned char AmbDeviceTestFixture::monitorU8(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails, unsigned char *statusByte) {
     monitor(RCA, callerDescription, monDetails);
     CPPUNIT_ASSERT_MESSAGE((monDetails) ? (*monDetails) : (callerDescription), dataLength_m == (expectStatusByte_m ? 2 : 1));
     if (statusByte)
@@ -150,19 +151,19 @@ unsigned char AmbDeviceTestFixture::monitorU8(const AmbRelativeAddr &RCA, const 
     return data_m[0];
 }
 
-unsigned short AmbDeviceTestFixture::monitorU16(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails, char *statusByte) {
+unsigned short AmbDeviceTestFixture::monitorU16(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails, unsigned char *statusByte) {
     monitor(RCA, callerDescription, monDetails);
     CPPUNIT_ASSERT_MESSAGE((monDetails) ? (*monDetails) : (callerDescription), dataLength_m == (expectStatusByte_m ? 3 : 2));
     return unpackU16(statusByte);
 }
 
-unsigned long AmbDeviceTestFixture::monitorU32(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails, char *statusByte) {
+unsigned long AmbDeviceTestFixture::monitorU32(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails, unsigned char *statusByte) {
     monitor(RCA, callerDescription, monDetails);
     CPPUNIT_ASSERT_MESSAGE((monDetails) ? (*monDetails) : (callerDescription), dataLength_m == (expectStatusByte_m ? 5 : 4));
     return unpackU32(statusByte);
 }
 
-float AmbDeviceTestFixture::monitorSGL(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails, char *statusByte) {
+float AmbDeviceTestFixture::monitorSGL(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails, unsigned char *statusByte) {
     monitor(RCA, callerDescription, monDetails);
     CPPUNIT_ASSERT_MESSAGE((monDetails) ? (*monDetails) : (callerDescription), dataLength_m == (expectStatusByte_m ? 5 : 4));
     return unpackSGL(statusByte);
@@ -182,19 +183,36 @@ void AmbDeviceTestFixture::monitorImpl(const AmbRelativeAddr &RCA, const std::st
     }
 }
 
-void AmbDeviceTestFixture::command(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *cmdDetails, bool checkSuccess) {
+void AmbDeviceTestFixture::command(const AmbRelativeAddr &RCA,
+                                   const std::string &callerDescription,
+                                   std::string *cmdDetails,
+                                   bool checkSuccess,
+                                   int monOnCmdDelay_ms)
+{
     CPPUNIT_ASSERT_MESSAGE(callerDescription + ": FEDevice pointer is NULL", device_p);
     // send the command:
     commandImpl(RCA, callerDescription, cmdDetails);
     CPPUNIT_ASSERT_MESSAGE((cmdDetails) ? (*cmdDetails) : (callerDescription), status_m == AMBERR_NOERR);
 
-    // now monitor on command RCA:
+    // From the ICD:  "Monitor requests on Control RCAs
+    //   For every Control RCA, a monitor request may be sent which will return the last value set
+    //   to the control point, plus a status byte indicating the outcome of the setting."
+
     // we expect the same amount of data as we sent plus a status byte if expectStatusByte_m is true:
     AmbDataLength_t expectDataLength(dataLength_m + (expectStatusByte_m ? 1 : 0));
 
+    // copy the payload we sent so we can compare what comes back:
+    AmbDataMem_t data0[8];
+    for (int i = 0; i < 8; i++)
+        data0[i] = (i < dataLength_m) ? data_m[i] : 0;
+
+    // wait a bit
+    SLEEP(monOnCmdDelay_ms);
+
+    // Now monitor on the command RCA:
     resetAmbVars();
     string monDetails;
-    string callerDesc2(callerDescription + " monOnCommand");
+    string callerDesc2(callerDescription + " MON_ON_CMD");
     monitor(RCA, callerDesc2, &monDetails);
     {
         std::stringstream streamOut;
@@ -203,14 +221,24 @@ void AmbDeviceTestFixture::command(const AmbRelativeAddr &RCA, const std::string
                   << " dataLength=" << dataLength_m << " expectDataLength=" << expectDataLength
                   << " data=" << getDataStr();
         monDetails = streamOut.str();
+
+        // save the monitor on command details to the caller's string:
+        if (cmdDetails)
+            *cmdDetails = monDetails;
     }
-    CPPUNIT_ASSERT_MESSAGE(monDetails, dataLength_m == expectDataLength);
-    // catch data range errors unless suppressed by checkSuccess==false or if no status byte is expected:
-    if (checkSuccess && expectStatusByte_m)
-        CPPUNIT_ASSERT_MESSAGE(monDetails, data_m[dataLength_m - 1] == FEMC_NO_ERROR);
-    // save the monitor on command details to the caller's string:
-    if (cmdDetails)
-        *cmdDetails = monDetails;
+    // check for errors unless suppressed by caller:
+    if (checkSuccess) {
+        // catch data length error:
+        CPPUNIT_ASSERT_MESSAGE(monDetails, dataLength_m == expectDataLength);
+        // catch status byte error:
+        if (expectStatusByte_m)
+            CPPUNIT_ASSERT_MESSAGE(monDetails, data_m[dataLength_m - 1] == FEMC_NO_ERROR);
+        // catch command not matching sent payload:
+        for (int i = 0; i < (dataLength_m - 1); i++) {
+            // note: not comparing the status byte, only the original payload bytes
+            CPPUNIT_ASSERT_MESSAGE(monDetails, data_m[i] == data0[i]);
+        }
+    }
 }
 
 void AmbDeviceTestFixture::commandU8(const AmbRelativeAddr &RCA, unsigned char value, const std::string &callerDescription, std::string *cmdDetails, bool checkSuccess) {
@@ -240,6 +268,11 @@ void AmbDeviceTestFixture::commandSGL(const AmbRelativeAddr &RCA, float value, c
 
 
 void AmbDeviceTestFixture::commandImpl(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *cmdDetails) {
+    if (!device_p) {
+        LOG(LM_ERROR) << "AmbDeviceTestFixture::commandImpl device_p is NULL!" << endl;
+        return;
+    }
+
     RCA_m = RCA;
     device_p -> command(RCA_m, dataLength_m, data_m, &synchLock_m, &timestamp_m, &status_m);
     sem_wait(&synchLock_m);

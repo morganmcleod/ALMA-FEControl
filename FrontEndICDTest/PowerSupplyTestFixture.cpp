@@ -1,5 +1,5 @@
 #include "PowerSupplyTestFixture.h"
-#include <FrontEndAMB/logger.h>
+#include <logger.h>
 #include <string>
 #include <iostream>
 #include <sstream>

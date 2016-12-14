@@ -66,7 +66,7 @@ void IFSwitchTestFixture::testSET_IF_SWITCH_CHANNEL12_TEMP_SERVO_ENABLE() {
 
 void IFSwitchTestFixture::implGetTemperaure(AmbRelativeAddr ctrlTempServoEnable_RCA, AmbRelativeAddr assemblyTemp_RCA, const std::string &callerDescription) {
 	string details;
-	char statusByte;
+	unsigned char statusByte;
 
 	//check that when Servo is disabled, HARDW_BLKD_ERR occurs
     data_m[0] = 0; //Servo Enable OFF
@@ -81,8 +81,8 @@ void IFSwitchTestFixture::implGetTemperaure(AmbRelativeAddr ctrlTempServoEnable_
     //get statusbyte
     unpackSGL(&statusByte);
 
-    //check that we get FEMC_HARDW_BLOCKED_ERR:
-    CPPUNIT_ASSERT_MESSAGE(details + ": Expected Error not set.", statusByte == FEMC_HARDW_BLOCKED_ERR);
+    //Should get no error
+    CPPUNIT_ASSERT_MESSAGE(details + ": Got unexpected error.", statusByteEqual(statusByte, FEMC_NO_ERROR));
 
     data_m[0] = 1; //Servo Enable ON
     dataLength_m = 1;
@@ -94,8 +94,8 @@ void IFSwitchTestFixture::implGetTemperaure(AmbRelativeAddr ctrlTempServoEnable_
     CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 5);
     float num = unpackSGL(&statusByte);
 
-    //check that we don't get FEMC_HARDW_BLOCKED_ERR:
-    CPPUNIT_ASSERT_MESSAGE(details + ": Got unexpected error.", statusByte != FEMC_HARDW_BLOCKED_ERR);
+    //Should get no error
+    CPPUNIT_ASSERT_MESSAGE(details + ": Got unexpected error.", statusByteEqual(statusByte, FEMC_NO_ERROR));
 
     bool inRange;
     if (   num > IFSwitchTestFixture::assemblyTempLowerLimit_m
@@ -122,7 +122,7 @@ void IFSwitchTestFixture::implSwitchCartridge(unsigned int bandMinusOne, const s
     //check 1 data byte + 1 status byte
     CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
     //check range is 0-9
-    CPPUNIT_ASSERT_MESSAGE(details, data_m[0] >= 0x00 || data_m[0] <= 0x09);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[0] <= 0x09);
 }
 
 void IFSwitchTestFixture::implSetAttenuation(AmbRelativeAddr ctrlAttenuation_RCA, AmbRelativeAddr getAttenuation_RCA, const std::string &callerDescription){
@@ -153,6 +153,7 @@ void IFSwitchTestFixture::implSetTempServo(AmbRelativeAddr ctrlTempServoEnable_R
 	data_m[0] = 0;
     dataLength_m = 1;
     command(ctrlTempServoEnable_RCA, callerDescription, &details);
+    SLEEP(1000);
     monitor(getTempServoEnable_RCA, callerDescription, &details);
     CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
     CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == 0);
@@ -175,6 +176,7 @@ void IFSwitchTestFixture::implSetTempServo(AmbRelativeAddr ctrlTempServoEnable_R
     data_m[0] = 1;
     dataLength_m = 1;
     command(ctrlTempServoEnable_RCA, callerDescription, &details);
+    SLEEP(1000);
     monitor(getTempServoEnable_RCA, callerDescription, &details);
     CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
     CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == 1);

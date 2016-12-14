@@ -1,6 +1,6 @@
 #include "FEMCTestFixture.h"
 #include <FrontEndAMB/ds1820.h>
-#include <FrontEndAMB/logger.h>
+#include <logger.h>
 #include <string>
 using namespace std;
 
@@ -82,9 +82,10 @@ void FEMCTestFixture::testGET_AMBSI1_VERSION() {
 
 void FEMCTestFixture::testGET_SETUP_INFO() {
     string details;
-    monitor(0x20001, "GET_SETUP_details", &details);
+    monitor(0x20001, "GET_SETUP_INFO", &details);
     CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 1);
     CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == 0x00 || data_m[0] == 0x05);
+//    SLEEP(1000);
 }
 
 void FEMCTestFixture::testGET_VERSION_INFO() {
@@ -156,7 +157,9 @@ void FEMCTestFixture::testCONSOLE_ENABLE() {
     resetAmbVars();
     data_m[0] = newMode;
     dataLength_m = 1;
-    command(0x21009, "SET_CONSOLE_ENABLE", &details);
+
+    // Use commandImpl because we don't want to monitor on the control RCA
+    commandImpl(0x21009, "SET_CONSOLE_ENABLE", &details);
     // check that it changed:
     monitor(0x20009, "GET_CONSOLE_ENABLE", &details);
     CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 1);
@@ -166,7 +169,9 @@ void FEMCTestFixture::testCONSOLE_ENABLE() {
     resetAmbVars();
     data_m[0] = priorMode;
     dataLength_m = 1;
-    command(0x21009, "SET_CONSOLE_ENABLE", &details);
+
+    // Use commandImpl because we don't want to monitor on the control RCA
+    commandImpl(0x21009, "SET_CONSOLE_ENABLE", &details);
     // check that it changed:
     monitor(0x20009, "GET_CONSOLE_ENABLE", &details);
     CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 1);
@@ -234,7 +239,8 @@ void FEMCTestFixture::testFE_MODE() {
         resetAmbVars();
         data_m[0] = newMode;
         dataLength_m = 1;
-        command(0x2100E, "SET_FE_MODE", &details);
+        // Use commandImpl because we don't want to monitor on the control RCA
+        commandImpl(0x2100E, "SET_FE_MODE", &details);
         // check that it changed:
         monitor(0x2000E, "GET_FE_MODE", &details);
         CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 1);
@@ -244,7 +250,8 @@ void FEMCTestFixture::testFE_MODE() {
     resetAmbVars();
     data_m[0] = priorMode;
     dataLength_m = 1;
-    command(0x2100E, "SET_FE_MODE", &details);
+    // Use commandImpl because we don't want to monitor on the control RCA
+    commandImpl(0x2100E, "SET_FE_MODE", &details);
 }
 
 void FEMCTestFixture::testSET_EXIT_PROGRAM() {

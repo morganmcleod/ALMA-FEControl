@@ -84,7 +84,7 @@ private:
         ctrlPol0Sb1TempServoEnable_RCA  = pol0Sb1TempServoEnable_RCA + controlRCA,
         ctrlPol0Sb2TempServoEnable_RCA  = pol0Sb2TempServoEnable_RCA + controlRCA,
         ctrlPol1Sb1TempServoEnable_RCA  = pol1Sb1TempServoEnable_RCA + controlRCA,
-        ctrlPol1Sb2TempServoEnable_RCA  = pol0Sb2TempServoEnable_RCA + controlRCA
+        ctrlPol1Sb2TempServoEnable_RCA  = pol1Sb2TempServoEnable_RCA + controlRCA
     };
 
 	//TODO: put in the valid range from the ICD (in the CPP file.)

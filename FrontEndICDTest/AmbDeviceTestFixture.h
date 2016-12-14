@@ -19,16 +19,17 @@ public:
                          AmbChannel channel = 0, 
                          AmbNodeAddr nodeAddress = 0x13,
                          bool expectStatusByte = true)
-      : name_m(name),
+      : device_p(NULL),
+        expectStatusByte_m(expectStatusByte),
+        name_m(name),
         channel_m(channel),
-        nodeAddress_m(nodeAddress),
-        expectStatusByte_m(expectStatusByte)
+        nodeAddress_m(nodeAddress)
         {}
     ///< Construct this base class with:
     ///< - the name of your derived test fixture (optional)
     ///< - the CAN channel to use.  0 is the usual value.
     ///< - the CAN node address to use.  0x13 is the front end.  Other values for other assemblies.
-    ///< - expectStatusByte as true for the front end and false for all other assemblies.
+    ///< - expectStatusByte as true for the FE STANDARD assemblies and false for all other assemblies.
     
     void setUp();
     void tearDown();
@@ -43,15 +44,18 @@ protected:
     Time timestamp_m;               ///< timestamp for CAN request
     AmbErrorCode_t status_m;        ///< result of CAN request
 
-    unsigned short unpackU16(char *statusByte = NULL) const;
+    bool expectStatusByte_m;        ///< True for the front end subassemblies,
+                                    ///< False for FE SPECIAL RCAs, AMBSII1, and other CAN nodes.
+
+    unsigned short unpackU16(unsigned char *statusByte = NULL) const;
     ///< Unpack the contents of data_m into a 2-byte unsigned integer.
     ///< Also return the FE status byte if a pointer is provided.
 
-    unsigned long unpackU32(char *statusByte = NULL) const;
+    unsigned long unpackU32(unsigned char *statusByte = NULL) const;
     ///< Unpack the contents of data_m into a 4-byte unsigned integer.
     ///< Also return the FE status byte if a pointer is provided.
 
-    float unpackSGL(char *statusByte = NULL) const;
+    float unpackSGL(unsigned char *statusByte = NULL) const;
     ///< Unpack the contents of data_m into a 4-byte floating point.
     ///< Also return the FE status byte if a pointer is provided.
     
@@ -83,22 +87,22 @@ protected:
     ///<        This function appends callerDescription to monDetails, plus CAN-level details of the call.
     ///< Will raise an error if this object is not set up correctly or if there is a communication error.
 
-    unsigned char monitorU8(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails = NULL, char *statusByte = NULL);
+    unsigned char monitorU8(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails = NULL, unsigned char *statusByte = NULL);
     ///< Specialized version of monitor() which returns a single byte.
     ///< Takes care of unpacking the data and checking the data length.
     ///< If statusByte is provided, the FEMC status byte will be placed there.
 
-    unsigned short monitorU16(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails = NULL, char *statusByte = NULL);
+    unsigned short monitorU16(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails = NULL, unsigned char *statusByte = NULL);
     ///< Specialized version of monitor() which returns an unsigned short.
     ///< Takes care of unpacking the data and checking the data length.
     ///< If statusByte is provided, the FEMC status byte will be placed there.
 
-    unsigned long monitorU32(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails = NULL, char *statusByte = NULL);
+    unsigned long monitorU32(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails = NULL, unsigned char *statusByte = NULL);
     ///< Specialized version of monitor() which returns an unsigned long.
     ///< Takes care of unpacking the data and checking the data length.
     ///< If statusByte is provided, the FEMC status byte will be placed there.
 
-    float monitorSGL(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails = NULL, char *statusByte = NULL);
+    float monitorSGL(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails = NULL, unsigned char *statusByte = NULL);
     ///< Specialized version of monitor() which returns an unsigned long.
     ///< Takes care of unpacking the data and checking the data length.
     ///< If statusByte is provided, the FEMC status byte will be placed there.
@@ -106,7 +110,11 @@ protected:
     void monitorImpl(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *monDetails = NULL);
     ///< Same as monitor() above but does no CPPUNIT error checking and therefore always returns, even if failed.
 
-    void command(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *cmdDetails = NULL, bool checkSuccess = true);
+    void command(const AmbRelativeAddr &RCA,
+                 const std::string &callerDescription,
+                 std::string *cmdDetails = NULL,
+                 bool checkSuccess = true,
+                 int monOnCmdDelay_ms = 0);
     ///< Sends a command and then monitors on the command RCA.
     ///< Upon return, dataLength_m and data_m contain the results of the monitor-on-command RCA.
     ///< params:
@@ -117,6 +125,7 @@ protected:
     ///<        This function appends callerDescription to cmdDetails, plus CAN-level details of the call.
     ///<    checkSuccess: Pass true (the default) for commands which you expect to succeed,
     ///<        false for commands you expect to fail so that you may inspect the results in your calling test case.
+    ///<    monOnCmdDelay_ms: wait this many milliseconds after the command before monitoring on the command RCA.
     ///< Will raise an error if this object is not set up correctly or if there is a communication error.
     ///< Will raise an error if checkSuccess is true and the monitor-on-command status byte is not FEMC_NO_ERROR.
 
@@ -137,7 +146,7 @@ protected:
     ///< Takes care of packing the data and dataLength.
 
     void commandImpl(const AmbRelativeAddr &RCA, const std::string &callerDescription, std::string *cmdDetails = NULL);
-    ///< Same as command() above but does not monitor the command RCA and does not CPPUNIT error checking and therefore always returns, even if failed.
+    ///< Same as command() above but does not monitor the command RCA and does no CPPUNIT error checking and therefore always returns, even if failed.
 
     enum FEMC_ERROR {
         FEMC_NO_ERROR           = 0,    //!< No error during the monitor operation.
@@ -157,12 +166,16 @@ protected:
         FEMC_UNPACK_ERROR       = -45,  //!< Unpacking monitor data failed
         FEMC_NOT_CONNECTED      = -46   //!< Cannot monitor because not connected to FE.
     };
-    
+
+    static bool statusByteEqual(AmbDataMem_t &data, FEMC_ERROR code)
+      { signed char i(code);
+        return data == *((unsigned char *) &i); }
+    ///< helper to test data bytes for equality with FEMC_ERROR codes
+
 private:
     std::string name_m;                 ///< The name of this test fixture, for logging.
     AmbChannel channel_m;               ///< The CAN channel to use.
     AmbNodeAddr nodeAddress_m;          ///< The CAN node address to talk to.
-    bool expectStatusByte_m;            ///< True for the front end, false for other assemblies.
 };    
     
 #endif  // AMBDEVICETESTFIXTURE_H

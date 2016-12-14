@@ -5,6 +5,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 class FEMCTestFixture : public AmbDeviceTestFixture {
+
     CPPUNIT_TEST_SUITE(FEMCTestFixture);
     
     CPPUNIT_TEST(testAMBSI_SERIALNUM);
@@ -15,7 +16,7 @@ class FEMCTestFixture : public AmbDeviceTestFixture {
     CPPUNIT_TEST(testAMBSI_SOFTWARE_REV);
     CPPUNIT_TEST(testAMBSI_HARDWARE_REV);
     CPPUNIT_TEST(testAMBSI_HARDWARE_RESET);
-    
+
     CPPUNIT_TEST(testGET_AMBSI1_VERSION);
     CPPUNIT_TEST(testGET_SETUP_INFO);
     CPPUNIT_TEST(testGET_VERSION_INFO);
@@ -29,13 +30,18 @@ class FEMCTestFixture : public AmbDeviceTestFixture {
     CPPUNIT_TEST(testESNS);
     CPPUNIT_TEST(testERRORS);
     CPPUNIT_TEST(testFE_MODE);
-    
+
     CPPUNIT_TEST(testSET_EXIT_PROGRAM);
     CPPUNIT_TEST(testSET_REBOOT);
     
     CPPUNIT_TEST_SUITE_END();
     
 public:
+
+    FEMCTestFixture()
+      : AmbDeviceTestFixture(std::string("FEMCTestFixture"))
+        { expectStatusByte_m = false; }
+
     void setUp();
     void tearDown();
     
