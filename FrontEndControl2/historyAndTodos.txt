@@ -38,13 +38,25 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 
 Revision history:
+2.5.3-beta1
+Added RCAS for CRYOSTAT_COLD_HEAD_HOURS and EDFA_PHOTODETECT_COEFF
+WCAImpl::getAltLoopBW fix for prototype band 2
 
-2.5.0-beta2
-Removed redundant and unused utility functions from FrontEndAMBLib. 
+2.5.2 2016-11-08
+New lock search and detection strategy for band 1 called LOCK_DETECT_2XVOLTAGE.
+The former experimental "Alternate" lock strategy is now called LOCK_DETECT_CORR_V.
+Normal lock strategy is called LOCK_DETECT_VOLTAGE.
 
-2.5.0-beta1
+2.5.1 2016-11-07
+Warm multiplier = 2 for the band 1 source only, not LO.
+Band1 using alternate LO loop BW (which has no effect, actually.)
+Fix compiler warnings.
+
+2.5.0 2016-08-17
+Cryostat pumping process: Report error if backing pump is not on when started.
 GetNextEvent now includes an auto-incrementing sequence number.
-This breaks LV code relying on the 2.4.x GetNextEvent interface.
+  This breaks LV code relying on the 2.4.x GetNextEvent interface.
+Removed redundant and unused utility functions from FrontEndAMBLib. 
 
 2.4.8.3 2016-04-07
 Mixer heater operation supported for band 3.

@@ -253,6 +253,13 @@ bool SignalSourceImpl::cartSetLOFrequency(double freqLO, double freqFLOOG, int s
     if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         LOG(LM_INFO) << "SignalSourceImpl::cartSetLOFrequency port=" << port_m << " freqLO= " << freqLO
             << " freqFLOOG=" << freqFLOOG << " sbLock=" << sbLock << endl;
+
+        // the band 1 signal source has a x2 multiplier that the LO doesn't have:
+        if (cart_mp -> getBand() == 1) {
+            freqLO /= 2.0;
+            LOG(LM_INFO) << "SignalSourceImpl::cartSetLOFrequency divide by 2=" << freqLO << endl;
+        }
+
         return cart_mp -> setLOFrequency(freqLO, freqFLOOG, sbLock);
     } else {
         LOG(LM_INFO) << "SignalSourceImpl::cartSetLOFrequency port=" << port_m << " WCA does not exist or is disabled." << endl;
@@ -265,9 +272,15 @@ bool SignalSourceImpl::cartSetLOFrequency(double freqLO, double freqFLOOG, int s
 }
 
 bool SignalSourceImpl::cartGetLOFrequency(double &freqLO, double &freqREF) const {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA())
-        return cart_mp -> getLOFrequency(freqLO, freqREF);
-    else {
+    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+        bool ret = cart_mp -> getLOFrequency(freqLO, freqREF);
+
+        // the band 1 signal source has a x2 multiplier that the LO doesn't have:
+        if (cart_mp -> getBand() == 1) {
+            freqLO *= 2.0;
+        }
+        return ret;
+    } else {
         freqLO = freqREF = 0;
         return false;
     }

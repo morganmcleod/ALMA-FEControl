@@ -22,6 +22,7 @@
 #include "CryostatImpl.h"
 #include "logger.h"
 #include "stringConvert.h"
+#include "FEMCEventQueue.h"
 #include "OPTIMIZE/CryostatPumping.h"
 using namespace std;
 
@@ -43,17 +44,20 @@ CryostatImpl::~CryostatImpl() {
 }
 
 bool CryostatImpl::cryoPumpingEnable(bool val) {
-	if (val) {
+    if (val) {
 	    if (!backingPumpEnable()) {
-	        LOG(LM_INFO) << "CryostatImpl::cryoPumpingEnable(true): backing pump is not enabled." << endl;
+	        string msg("Cryostat pumping process: Backing pump is not enabled.");
+            FEMCEventQueue::addStatusMessage(false, msg);
+            LOG(LM_ERROR) << msg << endl;
 	        return false;
 	    }
-	    LOG(LM_INFO) << "CryostatImpl::cryoPumpingEnable(true): starting cryostat pumping process..." << endl;
+	    LOG(LM_INFO) << "Cryostat pumping process: Starting..." << endl;
 		if (!cryoPumpMonitor_mp)
 			cryoPumpMonitor_mp = new CryostatPumping(*this);
 		cryoPumpMonitor_mp -> start();
+
 	} else if (cryoPumpMonitor_mp) {
-	    LOG(LM_INFO) << "CryostatImpl::cryoPumpingEnable(false): stopping cryostat pumping process..." << endl;
+	    LOG(LM_INFO) << "Cryostat pumping process: Stopping..." << endl;
 	    cryoPumpMonitor_mp -> stop();
 	}
 	return true;

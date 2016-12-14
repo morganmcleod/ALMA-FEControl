@@ -21,6 +21,6 @@
 
 #include "SWVersion.h"
 
-const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.5.0-beta2");
+const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.5.3-beta1");
 
 // See the file historyAndTodos.txt for version history descriptions.

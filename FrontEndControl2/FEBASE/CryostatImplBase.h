@@ -94,8 +94,9 @@ protected:
         VACUUM_PORT_PRES        = 0x0045,
         VACUUM_GAUGE_ENABLE     = 0x0046,
         VACUUM_GAUGE_STATE      = 0x0047,
-        SUPPLY_CURRENT_230V     = 0x0048
-        
+        SUPPLY_CURRENT_230V     = 0x0048,
+        COLD_HEAD_HOURS         = 0x004C,
+        RESET_COLD_HEAD_HOURS   = 0x004D
     };
 
     float cryostatTemperature0_value;

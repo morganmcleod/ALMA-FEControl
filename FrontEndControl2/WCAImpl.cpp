@@ -68,7 +68,8 @@ void WCAImpl::reset() {
     paDrainVoltage_m[0] = paDrainVoltage_m[1] = 0.0;
     paGateVoltage_m[0] = paGateVoltage_m[1] = 0.0;
     amcDrainEVoltage_m = amcGateEVoltage_m = 0.0;
-    isLockedLO_m = alternateLockTest_m = false;
+    isLockedLO_m = false;
+    LockDetectStrategy_m = LOCK_DETECT_VOLTAGE;
     resetPllCorrectionVoltageStats();
 }
 
@@ -86,11 +87,11 @@ void WCAImpl::queryCartridgeState() {
     
     // Check whether locked:
     isLockedLO_m = testNormalLockDetect();
-    alternateLockTest_m = false;
+    LockDetectStrategy_m = LOCK_DETECT_VOLTAGE;
 
     LOG(LM_INFO) << "WCAImpl::queryCartridgeState: port=" << port_m << " band=" << band_m << " YTO=" << ytoCoarseTune_m
         << " sbLock=" <<  ((pllSidebandLockSelect_m == 1) ? "1-aboveRef" : "0-belowRef") 
-        << " isLocked=" << isLockedLO_m << " altLock=" << alternateLockTest_m
+        << " isLocked=" << isLockedLO_m
         << " nullInt=" << pllNullLoopIntegrator_m << " paEnable=" << paEnable_m << " photomixerEnable=" << photomixerEnable_m
         << " VD0=" << paDrainVoltage_m[0] << " VD1=" << paDrainVoltage_m[1]
         << " VG0=" << paGateVoltage_m[0] << " VG1=" << paGateVoltage_m[1] << endl;
@@ -132,7 +133,7 @@ const float WCAImpl::lowRefTotalPower(0.5);
 
 float WCAImpl::pllLockDetectVoltage() {
     float val = WCAImplBase::pllLockDetectVoltage();
-    if (FrontEndLVWrapper::defeatNormalLockDetect && bandSupportsAlternateLockMethod())
+    if (FrontEndLVWrapper::defeatNormalLockDetect)
         return 0.0;
     else
         return val;
@@ -183,9 +184,24 @@ bool WCAImpl::testNormalLockDetect() {
     return (testPLLLockDetectVoltage() && testPLLPowerLevels());
 }
 
-bool WCAImpl::testAlternateLockDetect() {
+bool WCAImpl::testPLLLockDetectVoltage2X() {
+    bool lock = testPLLLockDetectVoltage();
+    SLEEP(3);
+    lock &= testPLLLockDetectVoltage();
+    return lock;
+}
+
+bool WCAImpl::test2XVoltageLockDetect() {
+    return (testPLLLockDetectVoltage2X() && testPLLPowerLevels());
+}
+
+bool WCAImpl::testCorrVoltageLockDetect() {
+    if (band_m < 9) {
+        LOG(LM_ERROR) << "WCAImpl::testCorrVoltageLockDetect: only supported for band 9 and 10." << endl;
+        return false;
+    }
     if (!testPLLPowerLevels()) {
-        LOG(LM_DEBUG) << "WCAImpl::testAlternateLockDetect: failed testPLLPowerLevels" << endl;
+        LOG(LM_DEBUG) << "WCAImpl::testCorrVoltageLockDetect: failed testPLLPowerLevels" << endl;
         return false;
     }
     short yto = getYTOCoarseTuneSetting();
@@ -194,7 +210,7 @@ bool WCAImpl::testAlternateLockDetect() {
     bool stepsOk(false), statsOk(false);
     // move the YTO to +2 steps, then +1, measuring CV at each step:
     if (testPLLCVInRange(cv0)) {
-        LOG(LM_INFO) << "WCAImpl::testAlternateLock: yto=" << yto << " cv0=" << cv0 << endl;
+        LOG(LM_INFO) << "WCAImpl::testCorrVoltageLockDetect: yto=" << yto << " cv0=" << cv0 << endl;
         ytoCoarseTune(yto + 2);
         SLEEP(1);
         cv2 = pllCorrectionVoltage();
@@ -221,7 +237,7 @@ bool WCAImpl::testAlternateLockDetect() {
         statsOk = testPLLCorrectionVoltageStats();
     }
     if (stepsOk) {
-        LOG(LM_INFO) << "WCAImpl::testAlternateLock: cv1=" << cv1 << " cv2=" << cv2
+        LOG(LM_INFO) << "WCAImpl::testCorrVoltageLockDetect: cv1=" << cv1 << " cv2=" << cv2
                      << " success=" << (stepsOk && statsOk)
                      << " cvSize=" << pllCorrectionVoltage_count
                      << " cvMin=" << pllCorrectionVoltage_min
@@ -232,13 +248,20 @@ bool WCAImpl::testAlternateLockDetect() {
 }
 
 bool WCAImpl::interrogateLock() {
-    if (!alternateLockTest_m)
-        return testNormalLockDetect();
-    else
-        return (testPLLCorrectionVoltageStats()
-             && !pllNullLoopIntegrator_m
-             && testPLLPowerLevels()
-             && testPLLCVInRange(pllCorrectionVoltage()));
+    switch (LockDetectStrategy_m) {
+        case LOCK_DETECT_CORR_V:
+            return (testPLLCorrectionVoltageStats()
+                         && !pllNullLoopIntegrator_m
+                         && testPLLPowerLevels()
+                         && testPLLCVInRange(pllCorrectionVoltage()));
+
+        case LOCK_DETECT_2XVOLTAGE:
+            return test2XVoltageLockDetect();
+
+        case LOCK_DETECT_VOLTAGE:
+        default:
+            return testNormalLockDetect();
+    }
 }
 
 bool WCAImpl::monitorLockForDisplay() const {
@@ -247,23 +270,29 @@ bool WCAImpl::monitorLockForDisplay() const {
     if (fabsf(pllIfTotalPower_value) < lowIFTotalPower)
         return false;   // the IF total power is now too low.
 
-    if (!alternateLockTest_m) {
-        // we were previously locked in the 'normal' way.
-        if (pllLockDetectVoltage_value < lowLockDetectVoltage)
-            return false;   // ...but lock detect voltage has dropped below threshold.
-    } else {
-        // previous lock was in the 'alternate' way.
-        if (pllNullLoopIntegrator_value)
-            return false;   // ...but now the PLL is defeated so it can't be considered locked.
-        if (!testPLLCVInRange(pllCorrectionVoltage_value))
-            return false;   // ...but now the PLL cv is out of range.
-        if (!testPLLCorrectionVoltageStats()) {
-            LOG(LM_DEBUG) << "WCAImpl::monitorLockForDisplay: no lock"
-                         << " cvSize=" << pllCorrectionVoltage_count
-                         << " cvMin=" << pllCorrectionVoltage_min
-                         << " cvMax=" << pllCorrectionVoltage_max << endl;
-            return false;   // ...but now the correction voltage variance is too large.
-        }
+    switch (LockDetectStrategy_m) {
+        case LOCK_DETECT_CORR_V:
+            // previous lock was in the 'CORR_V' way.
+            if (pllNullLoopIntegrator_value)
+                return false;   // ...but now the PLL is defeated so it can't be considered locked.
+            if (!testPLLCVInRange(pllCorrectionVoltage_value))
+                return false;   // ...but now the PLL cv is out of range.
+            if (!testPLLCorrectionVoltageStats()) {
+                LOG(LM_DEBUG) << "WCAImpl::monitorLockForDisplay: no lock"
+                             << " cvSize=" << pllCorrectionVoltage_count
+                             << " cvMin=" << pllCorrectionVoltage_min
+                             << " cvMax=" << pllCorrectionVoltage_max << endl;
+                return false;   // ...but now the correction voltage variance is too large.
+            }
+            break;
+
+        case LOCK_DETECT_VOLTAGE:
+        case LOCK_DETECT_2XVOLTAGE:
+        default:
+            // we were previously locked in the 'normal' or '2XVOLTAGE' way.
+            if (pllLockDetectVoltage_value < lowLockDetectVoltage)
+                return false;   // ...but lock detect voltage has dropped below threshold.
+            break;
     }
     // appears we are still locked:
     return true;
@@ -284,24 +313,41 @@ bool WCAImpl::searchForLock(int &coarseYIG, int windowSteps, int stepSize) {
     bool lock = false;
     bool error = false;
 
-    isLockedLO_m = alternateLockTest_m = false;
+    isLockedLO_m = false;
+    LockDetectStrategy_m = LOCK_DETECT_VOLTAGE;
+    if (band_m == 1 || band_m == 2) {
+        // Use the 2XVOLTAGE lock detect for bands 1 and 2:
+        LockDetectStrategy_m = LOCK_DETECT_2XVOLTAGE;
+        // Band1 seems to have a slower YTO:
+        stepSleep = 10;
+    }
 
     // outer loop tries normal lock search and then alternateLockTest for bands 9 & 10:
     while (!lock && !error) {
         ytoCoarseTuneWithTrace(coarseYIG, "WCAImpl::searchForLock initial");
         // give the YTO time to slew:
         SLEEP(stepSleep);
-        LOG(LM_INFO) << "Searching for Lock" << ((alternateLockTest_m) ? " with alternateLockTest..." : "...") << endl;
+        LOG(LM_INFO) << "Searching for Lock with strategy " << LockDetectStrategy_m << "..." << endl;
 
         // initialize stepping size and direction:
         int step = stepSize;
 
         // inner loop searches for lock using standard or alternateLockTest strategy:
         while (!lock && !error) {
-            if (!alternateLockTest_m)
-                lock = testPLLLockDetectVoltage();
-            else
-                lock = testAlternateLockDetect();
+            switch (LockDetectStrategy_m) {
+                case LOCK_DETECT_CORR_V:
+                    lock = testCorrVoltageLockDetect();
+                    break;
+
+                case LOCK_DETECT_2XVOLTAGE:
+                    lock = test2XVoltageLockDetect();
+                    break;
+
+                case LOCK_DETECT_VOLTAGE:
+                default:
+                    lock = testPLLLockDetectVoltage();
+                    break;
+            }
 
             if (!lock) {
                 // no lock so move the YTO to the next try frequency:
@@ -311,7 +357,7 @@ bool WCAImpl::searchForLock(int &coarseYIG, int windowSteps, int stepSize) {
                     ytoCoarseTuneWithTrace(tryCoarseYIG, "WCAImpl::searchForLock");
                     SLEEP(stepSleep);
                     pllNullLoopIntegrator(false);
-                    clearUnlockDetect();
+                    SLEEP(stepSleep);   // was clearUnlockDetect() but that shouldn't be needed inside the loop.
                 }
                 // step increases by stepsize or alternates sign each iteration
                 //  to expand the search outward from the starting value:
@@ -324,17 +370,17 @@ bool WCAImpl::searchForLock(int &coarseYIG, int windowSteps, int stepSize) {
                 }
             }
         }
-        // can we try again with the alternateLockTest strategy?
-        if (!lock && !alternateLockTest_m && tryAlternateLockMethod && bandSupportsAlternateLockMethod()) {
+        // can we try again with the correction voltage strategy?
+        if (!lock && LockDetectStrategy_m == LOCK_DETECT_VOLTAGE
+                  && tryAlternateLockMethod)
+        {
             // retry inner loop again:
-            alternateLockTest_m = true;
+            LockDetectStrategy_m = LOCK_DETECT_CORR_V;
             error = false;
         }
     }
     if (lock)
         coarseYIG = tryCoarseYIG;
-    else
-        alternateLockTest_m = false;
     isLockedLO_m = lock;
     return isLockedLO_m;
 }

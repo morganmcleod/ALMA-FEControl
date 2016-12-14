@@ -34,7 +34,8 @@ namespace FEConfig {
     public:
         ColdCartConfig(unsigned keyFacility = 0, unsigned keyColdCart = 0)
           : keyFacility_m(keyFacility),
-            keyColdCart_m(keyColdCart)
+            keyColdCart_m(keyColdCart),
+            band_m(0)
             {}
         ///< construct with the primary key values keyFacility and keyColdCart
         ~ColdCartConfig()
@@ -80,6 +81,7 @@ namespace FEConfig {
         WCAConfig(unsigned keyFacility = 0, unsigned keyWCA = 0)
           : keyFacility_m(keyFacility),
             keyWCA_m(keyWCA),
+            band_m(0),
             FLOYIG_m(0.0),
             FHIYIG_m(0.0)
             {}

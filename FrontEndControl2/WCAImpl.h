@@ -123,12 +123,14 @@ public:
     bool testNormalLockDetect();
     ///< Normal lock detection using the lock detect voltage and the IF and reference power levels.
 
-    bool bandSupportsAlternateLockMethod() const
-      { return band_m == 9 || band_m == 10; }
-    ///< True if this band can be used with the alternate lock method.
+    bool testPLLLockDetectVoltage2X();
+    ///< Test the lock detect voltage twice with short delay, ANDing the results.
 
-    bool testAlternateLockDetect();
-    ///< Alternate lock detection algorithm which ignores lock detect voltage.
+    bool test2XVoltageLockDetect();
+    ///< Read the voltage twice and the IF and reference power levels.
+
+    bool testCorrVoltageLockDetect();
+    ///< Ignores lock detect voltage, uses the PLL correction voltage instead.
 
     bool interrogateLock();
     ///< Interrogate normal and, if appropriate, alternate lock signals.
@@ -251,10 +253,10 @@ public:
     static bool getAltLoopBW(int band)
       { static bool selects[11] = {
             false,  // band 0: none
-            false,  // band 1
-            true,   // band 2
-            true,   // band 3  1 -> 15MHz/V (Band 2,3,5,6,7,10)
-            false,  // band 4  0 -> 7.5MHz/V (Band 4,8,9)
+            false,  // band 1: don't care. fixed 2.5 MHz/V
+            true,   // band 2: 1 -> 15MHz/V (Band 2,3,5,6,7,10)
+            true,   // band 3
+            false,  // band 4: 0 -> 7.5MHz/V (Band 4,8,9)
             true,   // band 5
             true,   // band 6
             true,   // band 7
@@ -364,7 +366,14 @@ private:
     float amcDrainEVoltage_m;       ///< caches latest control value set.
     float amcGateEVoltage_m;        ///< caches latest control value set.
     bool isLockedLO_m;              ///< true if the LO is currently locked.
-    bool alternateLockTest_m;       ///< true if the lock was found using the alternate lock test method.
+
+    typedef enum {
+        LOCK_DETECT_VOLTAGE,        ///< Normal: Use the lock detector voltage.
+        LOCK_DETECT_CORR_V,         ///< Alternate: Use the behavior of the correction voltage.
+        LOCK_DETECT_2XVOLTAGE       ///< Alternate: Read the lock detector twice with a short delay.  AND result.
+    } LockDetectStrategy_t;
+
+    LockDetectStrategy_t LockDetectStrategy_m;
 
     int pllCorrectionVoltage_count;     ///< accumulate sample size of PLL CV since last tuning or reset.
     float pllCorrectionVoltage_max;     ///< accumulate max PLL CV in sample.
