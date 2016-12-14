@@ -25,7 +25,7 @@
 # FrontEndAMBLib for low-level CAN communications
 # 
 #
-BUILD = L:/cpp
+BUILD = ..
 
 # includes and libs for "portable" code = POSIX threads:
 PTHREADINC = -I$(BUILD)/3rdparty/include/pthreads_win32

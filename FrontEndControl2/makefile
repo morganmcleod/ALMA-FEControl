@@ -25,7 +25,7 @@
 # NI-CAN 2.2 from National Instruments via nicanmsc.lib which is the API for Microsoft VCPP.
 # MySQL C API version 4.1 or later from http://www.mysql.com/
 #
-export BUILD = L:/cpp
+export BUILD = L:/ALMA-FEControl
 
 # includes and libs for "portable" code = POSIX threads:
 PTHREADINC = -I$(BUILD)/3rdparty/include/pthreads_win32
