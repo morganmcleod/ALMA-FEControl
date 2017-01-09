@@ -32,14 +32,16 @@ namespace FrontEndTestApp {
     const AmbInterface *ambItf_p(NULL);
     CANBusInterface *canBus_p(NULL);
     FILE *logStream = NULL;
-    const char *versionString = "1.3.1:  2016-12-05  Used to verify FEMC 2.8.0";
-//                              "1.3.0:  2016-11-30  Added CRYOSTAT_COLD_HEAD_HOURS, strict ICD for the cryostat";
-//                              "1.2.0:  2016-11-15  Added band6 STANDBY2 support.";
-//                              "1.1.0:  2014-09-02  Modified timing of CPDSTestFixture::implPwrDistributionModule";
-//                              "        Fix incorrect RCA enum for band 9 CPDS enable/monitor.";
-//                              "        Loop to turn off bands 1-10 before CPDS test.";
-//                              "1.0.1:  2013-04-24  Recompiled in 3.4.5 (mingw-vista special r3)";
-//                              "1.0.0:  2010-10-22  Initial release, was used for report FEND-40.00.00.00-0416-A-REP";
+    const char *versionString = "1.3.3: 2017-01-06  Used to verify FEMC 2.8.4.  No delay after STANDBY2 command.";
+//                              "1.3.2: 2016-12-31  Used to verify FEMC 2.8.2.  No CRYOSTAT_COLD_HEAD_HOURS.  CAN timeout=2ms";
+//                              "1.3.1: 2016-12-05  Used to verify FEMC 2.8.0";
+//                              "1.3.0: 2016-11-30  Added CRYOSTAT_COLD_HEAD_HOURS, strict ICD for the cryostat";
+//                              "1.2.0: 2016-11-15  Added band6 STANDBY2 support.";
+//                              "1.1.0: 2014-09-02  Modified timing of CPDSTestFixture::implPwrDistributionModule";
+//                              "       Fix incorrect RCA enum for band 9 CPDS enable/monitor.";
+//                              "       Loop to turn off bands 1-10 before CPDS test.";
+//                              "1.0.1: 2013-04-24  Recompiled in 3.4.5 (mingw-vista special r3)";
+//                              "1.0.0: 2010-10-22  Initial release, was used for report FEND-40.00.00.00-0416-A-REP";
 };
 using namespace FrontEndTestApp;
 
@@ -68,7 +70,7 @@ int main(int argc, char* argv[]) {
         ambItf_p -> setBus(canBus_p);
     
         // Set the CAN timeout to the minimum:
-        canBus_p -> monitorTimeout_m = 500;   //ms
+        canBus_p -> monitorTimeout_m = 2;   //ms
         
         // Get the top level suite from the registry
         CPPUNIT_NS::Test *suite = CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest();

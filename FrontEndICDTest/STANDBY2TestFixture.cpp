@@ -1128,7 +1128,6 @@ void STANDBY2TestFixture::testColdElectronicsOff() {
     data_m[0] = 2;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    SLEEP(1000);
 
     // Monitor LNA enable:
     monitor(monRCA10, "LNA_ENABLE", &details);

@@ -6,7 +6,7 @@ const float LPRTestFixture::TempSensorLL = 200.0; //degrees Kelvin
 const float LPRTestFixture::TempSensorUL=400.0; //degrees Kelvin
 const float LPRTestFixture::LaserDriveCurrentLL=0.0; //mA
 const float LPRTestFixture::LaserDriveCurrentUL=250.0; //mA
-const float LPRTestFixture::LaserPhotoDetectCurrentLL=0.0; //micro amps
+const float LPRTestFixture::LaserPhotoDetectCurrentLL=-1.0; //micro amps
 const float LPRTestFixture::LaserPhotoDetectCurrentUL=2000.0;//micro amps
 const float LPRTestFixture::PhotoDetectorCurrentLL=0.0; //mA
 const float LPRTestFixture::PhotoDetectorCurrentUL=500.0;//mA
@@ -21,6 +21,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(LPRTestFixture);
 void LPRTestFixture::setUp()
 {
     AmbDeviceTestFixture::setUp();
+    // Write the special monitor point to establish comms between the AMBSI and ARCOM boards:
+    monitor(0x20001, "GET_SETUP_INFO", NULL);
 }
 void LPRTestFixture::tearDown()
 {
