@@ -136,6 +136,7 @@ DLLEXPORT short FEFinishHealthCheck();
 
 DLLEXPORT short FESetCartridgeOff(short port);
 DLLEXPORT short FESetCartridgeOn(short port);
+DLLEXPORT short FESetCartridgeStandby2(short port, short enable);
 DLLEXPORT short FESetCartridgeObserving(short port);
 DLLEXPORT short FEClearCartridgeObserving(short port);
 

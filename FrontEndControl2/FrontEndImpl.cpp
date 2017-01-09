@@ -879,9 +879,24 @@ bool FrontEndImpl::setCartridgeOn(int port) {
     return true;
 }
     
-bool FrontEndImpl::setCartridgeReady(int port) {
-    return carts_mp -> getEnable(port);
-    // TODO: send command to put cartridge in ready state.
+bool FrontEndImpl::setCartridgeStandby2(int port, bool enable) {
+    if (port != 6) {
+        string msg("STANDBY2 mode not supported for cartridge band ");
+        msg += to_string(port);
+        FEMCEventQueue::addStatusMessage(true, msg);
+        LOG(LM_ERROR) << msg;
+        return false;
+
+    } else {
+        LOG(LM_INFO) << "FrontEndImpl::setCartridgeStandby2 port=" << port << endl;
+        powerStandby2Module(port, enable);
+        string msg("Cartridge band ");
+        msg += to_string(port);
+        msg += (enable ? " entered" : " exited");
+        msg += " STANDBY2 mode.";
+        FEMCEventQueue::addStatusMessage(true, msg);
+        return true;
+    }
 }
 
 bool FrontEndImpl::setCartridgeObserving(int port) {

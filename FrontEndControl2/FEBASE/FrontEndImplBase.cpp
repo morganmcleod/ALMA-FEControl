@@ -153,6 +153,17 @@ void FrontEndImplBase::powerEnableModule(int port, bool val) {
     }
 }
 
+void FrontEndImplBase::powerStandby2Module(int port, bool _val) {
+    if (port >= 1 && port <= 10) {
+        unsigned char val(_val ? 2 : 1);
+        AmbRelativeAddr RCA(powerEnableModule_RCA);
+        RCA |= ((port - 1) << 4);
+        syncCommand(RCA + 0x10000, val);
+        int status(0);
+        getLogger().log(FEMC_LOG_COMMAND, "POWER_ENABLE_MODULE(STANDBY2)", RCA, (signed char) status, val ? 1 : 0, 0.0);
+    }
+}
+
 void FrontEndImplBase::specialExitProgram(bool val) {
     AmbDataLength_t dataLength;
     AmbDataMem_t data[8];

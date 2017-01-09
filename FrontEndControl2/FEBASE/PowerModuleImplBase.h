@@ -59,6 +59,8 @@ public:
 // control points:
     virtual void enableModule(bool val);
 
+    virtual void standby2Module(bool val);
+
 protected:
     virtual void monitorAction(Time *timestamp_p);
     

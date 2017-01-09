@@ -163,7 +163,7 @@ DLLEXPORT short FEControlInit() {
         tmp = configINI.GetValue("logger", "logAmbErrors");
         if (!tmp.empty())
             logAmbErrors = from_string<unsigned long>(tmp);
-        FEHardwareDevice::logAmbErrors(logMonitors);
+        FEHardwareDevice::logAmbErrors(logAmbErrors);
         LOG(LM_INFO) << "logAmbErrors=" << logAmbErrors << endl;
         
         // get the facility code from the new key facilityId:
@@ -624,6 +624,23 @@ DLLEXPORT short FESetCartridgeOn(short port) {
             return -1;
         if (correctSISVoltageError)
             frontEnd -> measureSISVoltageError(port);
+        return 0;
+    }
+}
+
+DLLEXPORT short FESetCartridgeStandby2(short port, short enable) {
+    bool isSignalSource(false);
+    if (!validatePortNumber(port, &isSignalSource))
+        return -1;
+
+    if (isSignalSource) {
+        return -1;
+
+    } else {
+        if (!FEValid)
+            return -1;
+        if (!frontEnd -> setCartridgeStandby2(port, (enable!=0)))
+            return -1;
         return 0;
     }
 }

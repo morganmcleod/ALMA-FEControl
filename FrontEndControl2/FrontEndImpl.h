@@ -108,8 +108,8 @@ public:
 
 // Functions to manage the enabled/standby/observing status of the cartridges:    
     bool setCartridgeOff(int port);
-    bool setCartridgeOn(int port);    
-    bool setCartridgeReady(int port);
+    bool setCartridgeOn(int port);
+    bool setCartridgeStandby2(int port, bool enable);
     bool setCartridgeObserving(int port);
     void clearCartridgeObserving();
     int getCartridgeObserving() const;

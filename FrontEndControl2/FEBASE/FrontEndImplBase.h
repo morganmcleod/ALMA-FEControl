@@ -59,6 +59,7 @@ public:
 
 // control points:
     virtual void powerEnableModule(int port, bool val);
+    virtual void powerStandby2Module(int port, bool val);
     virtual void specialExitProgram(bool val);
     virtual void specialReadESNs(bool val);
     virtual void setFEMode(unsigned char val);

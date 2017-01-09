@@ -151,6 +151,11 @@ void PowerModuleImplBase::enableModule(bool val) {
     SYNCCMD_LOG_INT(enableModule, val, "POWER_DIST_ENABLE_MODULE")
 }
 
+void PowerModuleImplBase::standby2Module(bool _val) {
+    unsigned char val(_val ? 2 : 1);
+    SYNCCMD_LOG_INT(enableModule, val, "POWER_DIST_ENABLE_MODULE(STANDBY2)")
+}
+
 void PowerModuleImplBase::monitorAction(Time *timestamp_p) {
     if (!timestamp_p)
         return;

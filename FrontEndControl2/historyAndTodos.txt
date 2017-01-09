@@ -38,7 +38,12 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 
 Revision history:
-2.5.3-beta1
+2.5.4 2017-01-09
+Added command to send STANDBY2 mode
+STANDBY2 allowed for band 1 and 2  (2.5.4-beta2 not checked in.)
+
+2.5.3 2016-12-31
+Fixed bug loading config item [logger] logAmbErrors
 Added RCAS for CRYOSTAT_COLD_HEAD_HOURS and EDFA_PHOTODETECT_COEFF
 WCAImpl::getAltLoopBW fix for prototype band 2
 
