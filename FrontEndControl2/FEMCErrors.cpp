@@ -20,6 +20,7 @@
 */
 
 #include "FEMCErrors.h"
+#include <cstdio>
 
 #define ERR_ERROR               0x00 //!< Error in the Error Module
 //    #define ERR_CPU                 0x01 //!< Error in the Pegasus Module
