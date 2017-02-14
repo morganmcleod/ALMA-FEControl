@@ -1,5 +1,5 @@
 # ALMA - Atacama Large Millimiter Array
-# (c) Associated Universities Inc., 2006
+# (c) Associated Universities Inc., 2006-2017
 #
 # This library is free software; you can redistribute it and/or modify it 
 # under the terms of the GNU Library General Public License as published by 
@@ -15,21 +15,21 @@
 # along with this library; if not, write to the Free Software Foundation, 
 # Inc., 675 Massachusetts Ave, Cambridge, MA, 02139, USA.
 #
-# Morgan McLeod <mmcleod@nrao.edu> 30 August 2006
+# Morgan McLeod <mmcleod@nrao.edu> 15 February 2017
 #
 # makefile for ALMA FrontEnd low-level control library for Windows.
 #
 # uses:
-# MinGW from http://www.mingw.org/ provides a POSIX build environment including GCC 3.4.2.
+# MinGW from http://www.mingw.org/ provides a POSIX build environment including GCC 3.4.5.
 # Pthreads-win32 from http://sourceware.org/pthreads-win32/
 # NI-CAN 2.2 from National Instruments via nicanmsc.lib which is the API for Microsoft VCPP.
 # MySQL C API version 4.1 or later from http://www.mysql.com/
 #
 export BUILD = L:/ALMA-FEControl
 
-# includes and libs for "portable" code = POSIX threads:
-PTHREADINC = -I$(BUILD)/3rdparty/include/pthreads_win32
-PTHREADLIB = -L$(BUILD)/3rdparty/lib/pthreads_win32 -lpthreadGC2
+# includes and libs for "portable" code = POSIX threads.  2.6.0: Using pthreds from MinGW now.
+PTHREADINC =
+PTHREADLIB = -lpthreadGC2
 STATICGCCLIB = -static-libgcc
 
 export PORTABLEINC = $(PTHREADINC)
@@ -48,12 +48,12 @@ export AMBINC = -I$(BUILD)/FrontEndAmbLib/include
 AMBLIB = -L$(BUILD)/FrontEndAmbLib/Debug -lFrontEndAmb
 
 # includes and libs for MySQL library:
-export MYSQLINC = -I$(BUILD)/3rdparty/include/MySQL41
-MYSQLLIB = -L$(BUILD)/3rdparty/lib/MySQL41/debug -llibmysql
+export MYSQLINC = -I$(BUILD)/3rdparty/MySQL41/include
+MYSQLLIB = -L$(BUILD)/3rdparty/MySQL41/lib/debug -llibmysql
 
 # includes and libs for the NI CAN interface library: 
-export NICANINC = -I$(BUILD)/3rdparty/include/Nican
-NICANLIB = $(BUILD)/3rdparty/lib/Nican/nicanmsc.lib
+export NICANINC = -I$(BUILD)/3rdparty/Nican/include
+NICANLIB = $(BUILD)/3rdparty/Nican/lib/nicanmsc.lib
 
 # project includes are CppUtilityLib, FEICDBLib, FrontEndAMBLib, and this directory:
 export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) -I$(CURDIR)
@@ -62,9 +62,8 @@ export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) -I$(CURDIR)
 WINLIBS = -lwinmm -lwsock32
 
 # flags for compiling C++ code:
-export CPPFLAGS = -g 
-#-std=c++0x 
-#-Wall ALL warnings.
+export CPPFLAGS = -O0 -g -fmessage-length=0
+#-DHAVE_STRUCT_TIMESPEC -Wall 
 
 # list of output files in subdirectories:
 CONFIGOUT = CONFIG/CartConfig.o CONFIG/ConfigManager.o CONFIG/Configuration.o CONFIG/ConfigProviderIniFile.o CONFIG/ConfigProviderMySQL.o \

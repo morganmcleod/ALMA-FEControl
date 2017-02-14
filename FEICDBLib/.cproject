@@ -32,7 +32,7 @@
 								<option id="gnu.cpp.compiler.option.include.paths.1307278673" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../include"/>
 									<listOptionValue builtIn="false" value="../../CppUtilityLib/include"/>
-									<listOptionValue builtIn="false" value="../../3rdparty/include/MySQL41"/>
+									<listOptionValue builtIn="false" value="../../3rdparty/MySQL41/include"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.279682213" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -141,7 +141,6 @@
 		<buildTargets>
 			<target name="all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
-				<buildArguments/>
 				<buildTarget>all</buildTarget>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
