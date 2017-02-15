@@ -11,16 +11,14 @@ CPPUnit: https://sourceforge.net/projects/cppunit/
 $ ls -R 3rdparty/
 
 3rdparty/:
+MySQL41/
+Nican/
+
+3rdparty/MySQL41:
 include/
 lib/
 
-3rdparty/include:
-MySQL41/
-Nican/
-cppunit/
-pthreads_win32/
-
-3rdparty/include/MySQL41:
+3rdparty/MySQL41/include:
 config-netware.h
 config-os2.h
 config-win.h
@@ -45,31 +43,13 @@ mysqld_error.h
 raid.h
 typelib.h
 
-3rdparty/include/Nican:
-Nican.h
-
-3rdparty/include/cppunit/cppunit:
-...
-
-3rdparty/include/pthreads_win32:
-md5.sum
-pthread.h
-sched.h
-semaphore.h
-
-3rdparty/lib:
-MySQL41/
-Nican/
-cppunit/
-pthreads_win32/
-
-3rdparty/lib/MySQL41:
+3rdparty/MySQL41/lib:
 debug/
 opt/
 
-3rdparty/lib/MySQL41/debug:
-LIBMYSQL.def
+3rdparty/MySQL41/lib/debug:
 liblibmysql.a
+LIBMYSQL.def
 libmysql.dll*
 libmysql.lib
 mysqlclient.lib
@@ -78,32 +58,25 @@ regex.lib
 strings.lib
 zlib.lib
 
-3rdparty/lib/MySQL41/opt:
+3rdparty/MySQL41/lib/opt:
 libmysql.dll*
 libmysql.lib
 mysqlclient.lib
-mysys-max.lib
 mysys.lib
 mysys_tls.lib
+mysys-max.lib
 regex.lib
 strings.lib
 zlib.lib
 
-3rdparty/lib/Nican:
-README.txt
+3rdparty/Nican:
+include/
+lib/
+
+3rdparty/Nican/include:
+Nican.h
+
+3rdparty/Nican/lib:
 libnicanmsc.a
 nicanmsc.lib
-
-3rdparty/lib/cppunit:
-Debug/
-Release/
-
-3rdparty/lib/cppunit/Debug:
-...
-
-3rdparty/lib/cppunit/Release:
-
-3rdparty/lib/pthreads_win32:
-libpthreadGC2.a
-md5.sum
-pthreadGC2.dll*
+README.txt

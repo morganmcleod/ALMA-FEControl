@@ -27,9 +27,9 @@
 #
 export BUILD = L:/ALMA-FEControl
 
-# includes and libs for "portable" code = POSIX threads.  2.6.0: Using pthreds from MinGW now.
+# includes and libs for "portable" code = POSIX threads.  2.6.0: Using pthreds from MinGW 0.6 now.
 PTHREADINC =
-PTHREADLIB = -lpthreadGC2
+PTHREADLIB = -lpthreadGC-3
 STATICGCCLIB = -static-libgcc
 
 export PORTABLEINC = $(PTHREADINC)
@@ -62,8 +62,8 @@ export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) -I$(CURDIR)
 WINLIBS = -lwinmm -lwsock32
 
 # flags for compiling C++ code:
-export CPPFLAGS = -O0 -g -fmessage-length=0
-#-DHAVE_STRUCT_TIMESPEC -Wall 
+export CPPFLAGS = -O0 -g3 -fmessage-length=0
+#-Wall 
 
 # list of output files in subdirectories:
 CONFIGOUT = CONFIG/CartConfig.o CONFIG/ConfigManager.o CONFIG/Configuration.o CONFIG/ConfigProviderIniFile.o CONFIG/ConfigProviderMySQL.o \
@@ -76,7 +76,8 @@ FEBASEOUT = FEBASE/AMBSIHardwareDevice.o \
 LOGGEROUT = LOGGER/ambTransactionLogger.o LOGGER/feAddressMeta.o LOGGER/logDir.o
 OPTIMIZEOUT = OPTIMIZE/CartHealthCheck.o OPTIMIZE/CryostatPumping.o \
     OPTIMIZE/Maximizer.o OPTIMIZE/MaximizeIFPower.o OPTIMIZE/MeasureFineLOSweep.o \
-	OPTIMIZE/MeasureIVCurve.o OPTIMIZE/MeasureSISCurrent.o OPTIMIZE/MeasureIFPower.o OPTIMIZE/MixerDeflux.o OPTIMIZE/MixerHeating.o \
+	OPTIMIZE/MeasureIVCurve.o OPTIMIZE/MeasureSISCurrent.o OPTIMIZE/MeasureSISVoltageError.o \
+	OPTIMIZE/MeasureIFPower.o OPTIMIZE/MixerDeflux.o OPTIMIZE/MixerHeating.o \
     OPTIMIZE/OptimizeBase.o OPTIMIZE/OptimizeLOPowerAmp.o OPTIMIZE/ThermalLogger.o
 
 # rules to build all library files in subdirectories:
@@ -174,7 +175,9 @@ t_FEICDataBase.exe : tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp
 	$(DBLIB) $(UTILLIB) $(MYSQLLIB) $(PORTABLELIB)
 
 .PHONY: all
-all: allout dll tests
+all: allout dll 
+
+#tests
 
 current:
 	$(MAKE) -C OPTIMIZE
