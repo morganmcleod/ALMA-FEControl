@@ -311,13 +311,14 @@ public:
                         const float *VJstep_p = NULL,
                         int repeatCount = 1);
     ///< Take an I-V curve for the given  pol, and sb.
+    ///< pol may be -1, indicating both pols are to be measured.
+    ///< sb  may be -1, indicating both sbs are to be measured.
     ///< If VJlow, VJhigh, or VJstep is NULL it will be computed from the nominal VJ.
     ///< Measurement happens on a worker thread.
     ///< Sends the event EVENT_IVCURVE_DONE via the client app event queue when finished.
 
-    bool measureIVCurveSingleSynchronous(int pol, int sb);
+    bool measureIVCurveSingleSynchronous(int pol, int sb, float VJlow, float VJhigh, float VJstep);
     ///< Measure the I-V curve once in a synchronous fashion -- not on the worker thread.
-    ///< Uses default stepping for the band.
     ///< Sends the event EVENT_IVCURVE_DONE via the client app event queue when finished.
 
     bool getIVCurveDefaults(int pol, int sb, float *VJlow_p, float *VJhigh_p, float *VJstep_p);

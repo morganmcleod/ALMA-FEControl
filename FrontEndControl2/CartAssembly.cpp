@@ -2152,8 +2152,11 @@ bool CartAssembly::measureIVCurve(int pol, int sb, const float *VJlow_p, const f
         return false;
     }
     
-    if (pol < 0 || pol > 1 || sb < 1 || sb > 2)
-           return false;
+    if (pol < -1 || pol > 1)			// -1 means measure both pols.
+    	return false;
+
+    if (sb < -1 || sb == 0 || sb > 2)	// -1 means measure both sbs.  0 is an illegal value.
+    	return false;
 
     float VJLow_default = 0;
     float VJHigh_default = 0;
@@ -2166,7 +2169,7 @@ bool CartAssembly::measureIVCurve(int pol, int sb, const float *VJlow_p, const f
     float VJstep = (VJstep_p) ? *VJstep_p : VJStep_default;
 
     if (!measureIV_mp)
-        measureIV_mp = new MeasureIVCurve(*coldCart_mp, *XYData_mp);
+        measureIV_mp = new MeasureIVCurve(*this, *XYData_mp);
     
     if (measureIV_mp -> start(pol, sb, VJlow, VJhigh, VJstep, repeatCount))
         return true;
@@ -2175,16 +2178,10 @@ bool CartAssembly::measureIVCurve(int pol, int sb, const float *VJlow_p, const f
     return false;
 }
 
-bool CartAssembly::measureIVCurveSingleSynchronous(int pol, int sb) {
-    float VJLow_default = 0;
-    float VJHigh_default = 0;
-    float VJStep_default = 0;
-
-    if (getIVCurveDefaults(pol, sb, &VJLow_default, &VJHigh_default, &VJStep_default)) {
-        if (coldCart_mp -> measureIVCurve(*XYData_mp, pol, sb, VJLow_default, VJHigh_default, VJStep_default)) {
-            FEMCEventQueue::addEvent(FEMCEventQueue::Event(FEMCEventQueue::EVENT_IVCURVE_DONE, band_m, -1, 0, 100));
-            return true;
-        }
+bool CartAssembly::measureIVCurveSingleSynchronous(int pol, int sb, float VJlow, float VJhigh, float VJstep) {
+    if (coldCart_mp -> measureIVCurve(*XYData_mp, pol, sb, VJlow, VJhigh, VJstep)) {
+		FEMCEventQueue::addEvent(FEMCEventQueue::Event(FEMCEventQueue::EVENT_IVCURVE_DONE, band_m, -1, 0, 100));
+		return true;
     }
     return false;
 }
@@ -2203,8 +2200,8 @@ bool CartAssembly::getIVCurveDefaults(int pol, int sb, float *VJlow_p, float *VJ
         }
 
         float VJNom(0);
-        if (pol == 0) {
-            if (sb == 1)
+        if (pol == 0 || pol == -1) {
+            if (sb == 1 || sb == -1)
                 VJNom = row[MixerParams::VJ01];
             else
                 VJNom = row[MixerParams::VJ02];

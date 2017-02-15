@@ -28,6 +28,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CppUtilityLib/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FEICDBLib/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FrontEndAMB/include/FrontEndAMB}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FrontEndControl2}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.959356085" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -73,7 +74,7 @@
 				<buildCommand>make</buildCommand>
 				<buildArguments>-k</buildArguments>
 				<buildTarget>all</buildTarget>
-				<stopOnError>false</stopOnError>
+				<stopOnError>true</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
 				<runAllBuilders>true</runAllBuilders>
 			</target>
@@ -88,7 +89,7 @@
 				<buildCommand>make</buildCommand>
 				<buildArguments>-k</buildArguments>
 				<buildTarget>current</buildTarget>
-				<stopOnError>false</stopOnError>
+				<stopOnError>true</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
 				<runAllBuilders>true</runAllBuilders>
 			</target>

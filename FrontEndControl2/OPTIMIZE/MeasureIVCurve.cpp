@@ -23,6 +23,7 @@
 #include "logger.h"
 #include "setTimeStamp.h"
 #include "stringConvert.h"
+#include "CartAssembly.h"
 #include "ColdCartImpl.h"
 #include <fstream>
 #include <iomanip>
@@ -52,7 +53,7 @@ bool MeasureIVCurve::start(int pol, int sb, float VJlow, float VJhigh, float VJs
 } 
 
 void MeasureIVCurve::requestStop() {
-    coldCart_m.stopIVCurve();
+    ca_m.useColdCart() -> stopIVCurve();
     OptimizeBase::requestStop();
 }
 
@@ -61,22 +62,53 @@ void MeasureIVCurve::optimizeAction() {
     LOG(LM_INFO) << "MeasureIVCurve::optimizeAction pol=" << pol_m << " sb=" << sb_m << fixed << setprecision(3) 
         << " VJlow=" << VJlow_m << " VJhigh=" << VJhigh_m << " VJstep=" << VJstep_m << " repeatCount=" << repeatCount_m << endl;
     
+
     bool success = true;
+
+    ca_m.pauseMonitor(false, true, "Measure I-V curve.");
+
     int iter = 0;
     while (iter < repeatCount_m && !stopRequested()) {
         ++iter;
-        setProgress(0);
-        coldCart_m.pauseMonitor(true, "Measure I-V curve.");
-        success = coldCart_m.measureIVCurve(data_m, pol_m, sb_m, VJlow_m, VJhigh_m, VJstep_m);
-        coldCart_m.pauseMonitor(false);
-    }
+        if (pol_m == 0 || pol_m == -1) {
+        	if (sb_m == 1 || sb_m == -1)
+        		success &= actionImpl(0, 1);
+
+        	if (sb_m == 2  || sb_m == -1)
+        		success &= actionImpl(0, 2);
+        }
+        if (pol_m == 1 || pol_m == -1) {
+			if (sb_m == 1 || sb_m == -1)
+				success &= actionImpl(1, 1);
+
+			if (sb_m == 2  || sb_m == -1)
+				success &= actionImpl(1, 2);
+		}
+	}
+    ca_m.pauseMonitor(false, false);
     setFinished(success);
 }
 
+bool MeasureIVCurve::actionImpl(int pol, int sb) {
+    bool measError = false;
+    bool fileError = false;
+
+    ColdCartImpl *cca = ca_m.useColdCart();
+    setProgress(0);
+
+	if (!ca_m.measureIVCurveSingleSynchronous(pol, sb, VJlow_m, VJhigh_m, VJstep_m))
+		measError = true;
+	else {
+		SLEEP(3000);    // TODO:  this sleep is a hack to allow the GUI to grab the trace data.
+
+		// save the I-V curve text data file:
+		if (!cca -> saveIVCurveData(ca_m.getXYData(), logDir_m, pol, sb))
+			fileError = true;
+	}
+	return !measError && !fileError;
+}
+
 void MeasureIVCurve::exitAction(bool success) {
-    if (success)
-        success = coldCart_m.saveIVCurveData(data_m, logDir_m, pol_m, sb_m);
-    setEvent(FEMCEventQueue::EVENT_IVCURVE_DONE, coldCart_m.getBand(), -1, 0, 100);
     if (success)
         setStatusMessage(true, "MeasureIVCurve: finished successfully.");
     else if (stopRequested())

@@ -26,13 +26,13 @@
 #include "OptimizeBase.h"
 #include <iostream>
 class XYPlotArray;
-class ColdCartImpl;
+class CartAssembly;
 
 class MeasureIVCurve : public OptimizeBase {
 public:    
-    MeasureIVCurve(ColdCartImpl &ColdCart, XYPlotArray &target)
+    MeasureIVCurve(CartAssembly &ca, XYPlotArray &target)
       : OptimizeBase("MeasureIVCurve"),
-        coldCart_m(ColdCart),
+		ca_m(ca),
         data_m(target),
         dataFile_mp(NULL)
         { reset(); }
@@ -55,9 +55,9 @@ protected:
 
 private:
 
-    bool actionImpl(); 
+    bool actionImpl(int pol, int sb);
 
-    ColdCartImpl &coldCart_m;
+    CartAssembly &ca_m;
 
     int pol_m;
     int sb_m;

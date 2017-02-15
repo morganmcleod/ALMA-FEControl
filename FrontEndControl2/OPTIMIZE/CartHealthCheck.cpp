@@ -492,12 +492,16 @@ void CartHealthCheck::optimizeAction() {
         if (dbError)
             LOG(LM_ERROR) << context << ": database insertSISMonitorData failed." << endl;
 
-        // if front end is cold, capture I-V curves:
+        // if front end is cold and we have mixer configs, capture I-V curves:
+        float VJLow = 0;
+        float VJHigh = 0;
+        float VJStep = 0;
         if (receiverIsCold_m) {
 
             const ColdCartImpl *cca_p = ca_m.getColdCart();
 
             string msg, legend;
+            bool cfgError = false;
             bool dbError = false;
             bool measError = false;
             bool fileError = false;
@@ -515,7 +519,9 @@ void CartHealthCheck::optimizeAction() {
 
                 for (pol = 0; pol <= 1; ++pol) {
                     for (sb = 1; sb <= (hasSb2 ? 2 : 1); ++sb) {
-                        if (!ca_m.measureIVCurveSingleSynchronous(pol, sb))
+                    	if (!ca_m.getIVCurveDefaults(pol, sb, &VJLow, &VJHigh, &VJStep))
+                    		cfgError = true;
+                    	else if (!ca_m.measureIVCurveSingleSynchronous(pol, sb, VJLow, VJHigh, VJStep))
                             measError = true;
                         else {
                             SLEEP(3000);    // TODO:  this sleep is a hack to allow the GUI to grab the trace data.
@@ -545,7 +551,9 @@ void CartHealthCheck::optimizeAction() {
 
             for (pol = 0; pol <= 1; ++pol) {
                 for (sb = 1; sb <= (hasSb2 ? 2 : 1); ++sb) {
-                    if (!ca_m.measureIVCurveSingleSynchronous(pol, sb))
+                	if (!ca_m.getIVCurveDefaults(pol, sb, &VJLow, &VJHigh, &VJStep))
+						cfgError = true;
+					else if (!ca_m.measureIVCurveSingleSynchronous(pol, sb, VJLow, VJHigh, VJStep))
                         measError = true;
                     else {
                         SLEEP(3000);    // TODO:  this sleep is a hack to allow the GUI to grab the trace data.

@@ -324,6 +324,8 @@ DLLEXPORT short cartMeasureFineLOSweep(short port, float tiltAngle, short pol,
 DLLEXPORT short cartMeasureIVCurve(short port, short pol, short sb, 
                                    float VJLow, float VJHigh, float VJStep, short repeatCount);
 ///< Take an I-V curve for the given port, pol, and sb.
+///< pol may be -1, indicating both pols are to be measured.
+///< sb  may be -1, indicating both sbs are to be measured.
 ///< If VJlow, VJhigh, or VJstep is +Inf or -Inf it will be computed from the nominal VJ.
 ///< Measurement happens on a worker thread.
 ///< Sends the event EVENT_IVCURVE_DONE via getNextEvent whene finished.                        
