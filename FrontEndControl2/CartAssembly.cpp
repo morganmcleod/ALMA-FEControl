@@ -38,6 +38,7 @@
 #include "OPTIMIZE/MeasureIVCurve.h"
 #include "OPTIMIZE/MeasureIFPower.h"
 #include "OPTIMIZE/MeasureSISCurrent.h"
+#include "OPTIMIZE/MeasureSISVoltageError.h"
 #include "OPTIMIZE/MixerDeflux.h"
 #include "OPTIMIZE/MixerHeating.h"
 #include "OPTIMIZE/XYPlotArray.h"
@@ -56,6 +57,7 @@ std::string CartAssembly::FineLoSweepIni_m = std::string();
 CartAssembly::CartAssembly(const std::string &name, WCAImpl *WCA, ColdCartImpl *coldCart)
   : WCA_mp(WCA),
     coldCart_mp(coldCart),
+	measureSISVoltageErr_mp(NULL),
     cartHealthCheck_mp(NULL),
     optimizerPA_mp(NULL),
     measureLOSweep_mp(NULL),
@@ -92,6 +94,7 @@ CartAssembly::CartAssembly(const std::string &name, WCAImpl *WCA, ColdCartImpl *
 }
 
 CartAssembly::~CartAssembly() {
+	delete measureSISVoltageErr_mp;
     delete cartHealthCheck_mp;
     delete optimizerPA_mp;
     delete measureLOSweep_mp;
@@ -146,47 +149,14 @@ void CartAssembly::measureSISVoltageError() {
         // No SIS mixers in band 1 and 2.  Nothing to do.
         return;
     }
-    if (coldCart_mp) {
-        // pause CCA monitoring while measuring voltage errors:
-        pauseMonitor(true, true, "measureSISVoltageError");
-
-        // If band 5 or above, save the prior enabled state of the magnets:
-        float iSet01(0.0), iSet02(0.0), iSet11(0.0), iSet12(0.0);
-        bool magnetPrior(false);
-
-        if (band_m <= 4)
-            // delay to allow cartridge with no magnets to fully bias up:
-            SLEEP(1500);
-
-        else {
-            magnetPrior = coldCart_mp -> getSISMagnetEnableSetting();
-
-            // save the prior current settings voltages, if enabled:
-            if (magnetPrior) {
-                iSet01 = coldCart_mp -> getSISMagnetCurrentSetting(0, 1);
-                iSet02 = coldCart_mp -> getSISMagnetCurrentSetting(0, 2);
-                iSet11 = coldCart_mp -> getSISMagnetCurrentSetting(1, 1);
-                iSet12 = coldCart_mp -> getSISMagnetCurrentSetting(1, 2);
-            }
-
-            // enable the magnets normally, using the configuration database for settings:
-            setSISMagnet(true);
-        }
-        // measure the voltage offset errors:
-        coldCart_mp -> measureSISVoltageError();
-
-        // set the magnets back to their prior state:
-        if (magnetPrior) {
-            setSISMagnet(true, 0, 1, &iSet01);
-            setSISMagnet(true, 0, 2, &iSet02);
-            setSISMagnet(true, 1, 1, &iSet11);
-            setSISMagnet(true, 1, 2, &iSet12);
-        } else
-            setSISMagnet(false);
-
-        // resume monitoring:
-        pauseMonitor(false, false);
+    if (!coldCart_mp) {
+    	// No cold cartridge configured.  Nothing to do.
+    	return;
     }
+    if (!measureSISVoltageErr_mp)
+    	measureSISVoltageErr_mp = new MeasureSISVoltageError(*this);
+
+    measureSISVoltageErr_mp -> start();
 }
 
 void CartAssembly::setEnable() {
@@ -300,7 +270,7 @@ bool CartAssembly::setLOFrequency(double freqLO, double freqFLOOG, int sbLock) {
     multAMC_m = WCAImpl::getMultiplier(WCA_mp -> getBand());
     // set the proper loop bandwidth for this band:
     bool altLoopBW = WCAImpl::getAltLoopBW(WCA_mp -> getBand());
-    LOG(LM_DEBUG) << "CartAssembly: Setting loop BW = " << (altLoopBW ? "ALTERNATE" : "NORMAL") << endl;
+    LOG(LM_INFO) << "CartAssembly: Setting loop BW = " << (altLoopBW ? "ALTERNATE" : "NORMAL") << endl;
     WCA_mp -> pllLoopBandwidthSelect(altLoopBW);
     
     double bandFreqMin = config_m.WCA_m.FLOYIG_m * multAMC_m * multCold_m;
@@ -327,7 +297,7 @@ bool CartAssembly::setLOFrequency(double freqLO, double freqFLOOG, int sbLock) {
     freqFLOOG_m = freqFLOOG;
     freqREF_m = freqREF; 
    
-    LOG(LM_DEBUG) << "CartAssembly: Setting PLL_LOCK_POL = " << ((sbLock == 1) ? "1 Above Ref." : "0 Below Ref.") << endl;
+    LOG(LM_INFO) << "CartAssembly: Setting PLL_LOCK_POL = " << ((sbLock == 1) ? "1 Above Ref." : "0 Below Ref.") << endl;
     WCA_mp -> pllSidebandLockSelect(sbLock);
 
     bool lastNull = WCA_mp -> pllNullLoopIntegrator(); 
@@ -451,7 +421,7 @@ double CartAssembly::YIGCourseToFreq(int coarseYIG) const {
 bool CartAssembly::nullPLLIntegrator(bool enable) {
     if (!checkWCA("CartAssembly::nullPLLIntegrator"))
         return false;
-    LOG(LM_DEBUG) << "Setting PLL_NULL_INTEGRATOR=" <<  (enable ? "1" : "0") << endl;
+    LOG(LM_INFO) << "Setting PLL_NULL_INTEGRATOR=" <<  (enable ? "1" : "0") << endl;
     WCA_mp -> pllNullLoopIntegrator(enable);
     return true;    
 }
@@ -504,7 +474,7 @@ bool CartAssembly::setLNABias(int pol, int sb,
             LOG(LM_INFO) << "Getting LNA parameters failed" << endl;
             return false;
         }
-        LOG(LM_INFO) << fixed << setprecision(2)
+        LOG(LM_DEBUG) << fixed << setprecision(2)
             << "Setting LNA_POL0_SB1_VD1 to " << VD1 << endl
             << "Setting LNA_POL0_SB1_VD2 to " << VD2 << endl
             << "Setting LNA_POL0_SB1_VD3 to " << VD3 << endl
@@ -541,7 +511,7 @@ bool CartAssembly::setLNABias(int pol, int sb,
             LOG(LM_INFO) << "Getting LNA parameters failed" << endl;
             return false;
         }
-        LOG(LM_INFO) << fixed << setprecision(2)
+        LOG(LM_DEBUG) << fixed << setprecision(2)
             << "Setting LNA_POL0_SB2_VD1 to " << VD1 << endl
             << "Setting LNA_POL0_SB2_VD2 to " << VD2 << endl
             << "Setting LNA_POL0_SB2_VD3 to " << VD3 << endl
@@ -578,7 +548,7 @@ bool CartAssembly::setLNABias(int pol, int sb,
             LOG(LM_INFO) << "Getting LNA parameters failed" << endl;
             return false;
         }
-        LOG(LM_INFO) << fixed << setprecision(2)
+        LOG(LM_DEBUG) << fixed << setprecision(2)
             << "Setting LNA_POL1_SB1_VD1 to " << VD1 << endl
             << "Setting LNA_POL1_SB1_VD2 to " << VD2 << endl
             << "Setting LNA_POL1_SB1_VD3 to " << VD3 << endl
@@ -615,7 +585,7 @@ bool CartAssembly::setLNABias(int pol, int sb,
             LOG(LM_INFO) << "Getting LNA parameters failed" << endl;
             return false;
         }
-        LOG(LM_INFO) << fixed << setprecision(2)
+        LOG(LM_DEBUG) << fixed << setprecision(2)
             << "Setting LNA_POL1_SB2_VD1 to " << VD1 << endl
             << "Setting LNA_POL1_SB2_VD2 to " << VD2 << endl
             << "Setting LNA_POL1_SB2_VD3 to " << VD3 << endl
@@ -690,40 +660,40 @@ bool CartAssembly::setSISBias(bool enable, int pol, int sb, const float *_VJ, in
         if (setAll || (pol == 0 && sb == 1)) {
             if (!_VJ)
                 VJ = row[MixerParams::VJ01];
-            LOG(LM_INFO) << "Setting SIS_POL0_SB1_VOLTAGE to " << VJ << endl;
+            LOG(LM_DEBUG) << "Setting SIS_POL0_SB1_VOLTAGE to " << VJ << endl;
             coldCart_mp -> setSISVoltage(0, 1, VJ);
             if (_openLoop >= 0) {
-                LOG(LM_INFO) << "Setting SIS_POL0_SB1 mode to " << ((openLoop) ? "open loop" : "closed loop") << endl;
+                LOG(LM_DEBUG) << "Setting SIS_POL0_SB1 mode to " << ((openLoop) ? "open loop" : "closed loop") << endl;
                 coldCart_mp -> sisPol0Sb1OpenLoop(openLoop);                      
             }
         }
         if (coldCart_mp -> hasSb2() && (setAll || (pol == 0 && sb == 2))) {
             if (!_VJ)
                 VJ = row[MixerParams::VJ02];
-            LOG(LM_INFO) << "Setting SIS_POL0_SB2_VOLTAGE to " << VJ << endl;
+            LOG(LM_DEBUG) << "Setting SIS_POL0_SB2_VOLTAGE to " << VJ << endl;
             coldCart_mp -> setSISVoltage(0, 2, VJ);
             if (_openLoop >= 0) {
-                LOG(LM_INFO) << "Setting SIS_POL0_SB2 mode to " << ((openLoop) ? "open loop" : "closed loop") << endl;
+                LOG(LM_DEBUG) << "Setting SIS_POL0_SB2 mode to " << ((openLoop) ? "open loop" : "closed loop") << endl;
                 coldCart_mp -> sisPol0Sb2OpenLoop(openLoop);                      
             }
         }
         if (setAll || (pol == 1 && sb == 1)) {
             if (!_VJ)
                 VJ = row[MixerParams::VJ11];
-            LOG(LM_INFO) << "Setting SIS_POL1_SB1_VOLTAGE to " << VJ << endl;
+            LOG(LM_DEBUG) << "Setting SIS_POL1_SB1_VOLTAGE to " << VJ << endl;
             coldCart_mp -> setSISVoltage(1, 1, VJ);
             if (_openLoop >= 0) {
-                LOG(LM_INFO) << "Setting SIS_POL1_SB1 mode to " << ((openLoop) ? "open loop" : "closed loop") << endl;
+                LOG(LM_DEBUG) << "Setting SIS_POL1_SB1 mode to " << ((openLoop) ? "open loop" : "closed loop") << endl;
                 coldCart_mp -> sisPol1Sb1OpenLoop(openLoop);                      
             }
         }
         if (coldCart_mp -> hasSb2() && (setAll || (pol == 1 && sb == 2))) {
             if (!_VJ)
                 VJ = row[MixerParams::VJ12];
-            LOG(LM_INFO) << "Setting SIS_POL1_SB2_VOLTAGE to " << VJ << endl;
+            LOG(LM_DEBUG) << "Setting SIS_POL1_SB2_VOLTAGE to " << VJ << endl;
             coldCart_mp -> setSISVoltage(1, 2, VJ);
             if (_openLoop >= 0) {
-                LOG(LM_INFO) << "Setting SIS_POL1_SB2 mode to " << ((openLoop) ? "open loop" : "closed loop") << endl;
+                LOG(LM_DEBUG) << "Setting SIS_POL1_SB2 mode to " << ((openLoop) ? "open loop" : "closed loop") << endl;
                 coldCart_mp -> sisPol1Sb2OpenLoop(openLoop);                      
             }
         }
@@ -773,19 +743,19 @@ bool CartAssembly::setSISMagnet(bool enable, int pol, int sb, const float *_IMag
                 return false;
 
         if (setAll || (pol == 0 && sb == 1)) {
-            LOG(LM_INFO) << "Setting SIS_POL0_SB1_MAGNET_CURRENT to " << IMag01 << endl;
+            LOG(LM_DEBUG) << "Setting SIS_POL0_SB1_MAGNET_CURRENT to " << IMag01 << endl;
             coldCart_mp -> setSISMagnetCurrent(0, 1, IMag01);
         }
         if (coldCart_mp -> hasSb2() && (setAll || (pol == 0 && sb == 2))) {
-            LOG(LM_INFO) << "Setting SIS_POL0_SB2_MAGNET_CURRENT to " << IMag02 << endl;
+            LOG(LM_DEBUG) << "Setting SIS_POL0_SB2_MAGNET_CURRENT to " << IMag02 << endl;
             coldCart_mp -> setSISMagnetCurrent(0, 2, IMag02);
         }
         if (setAll || (pol == 1 && sb == 1)) {
-            LOG(LM_INFO) << "Setting SIS_POL1_SB1_MAGNET_CURRENT to " << IMag11 << endl;
+            LOG(LM_DEBUG) << "Setting SIS_POL1_SB1_MAGNET_CURRENT to " << IMag11 << endl;
             coldCart_mp -> setSISMagnetCurrent(1, 1, IMag11);
         }
         if (coldCart_mp -> hasSb2() && (setAll || (pol == 1 && sb == 2))) {
-            LOG(LM_INFO) << "Setting SIS_POL1_SB2_MAGNET_CURRENT to " << IMag12 << endl;
+            LOG(LM_DEBUG) << "Setting SIS_POL1_SB2_MAGNET_CURRENT to " << IMag12 << endl;
             coldCart_mp -> setSISMagnetCurrent(1, 2, IMag12);
         }
     }
@@ -862,13 +832,13 @@ bool CartAssembly::setLOPowerAmps(bool enable,
             VGP0 = row[PowerAmpParams::VG0];    
         if (!_VGP1)
             VGP1 = row[PowerAmpParams::VG1];    
-        LOG(LM_INFO) << "Setting LO_PA_POL0_DRAIN_VOLTAGE to " << VDP0 << endl;
+        LOG(LM_DEBUG) << "Setting LO_PA_POL0_DRAIN_VOLTAGE to " << VDP0 << endl;
         WCA_mp -> paPol0DrainVoltage(VDP0);
-        LOG(LM_INFO) << "Setting LO_PA_POL1_DRAIN_VOLTAGE to " << VDP1 << endl;
+        LOG(LM_DEBUG) << "Setting LO_PA_POL1_DRAIN_VOLTAGE to " << VDP1 << endl;
         WCA_mp -> paPol1DrainVoltage(VDP1);
-        LOG(LM_INFO) << "Setting LO_PA_POL0_GATE_VOLTAGE to " << VGP0 << endl;
+        LOG(LM_DEBUG) << "Setting LO_PA_POL0_GATE_VOLTAGE to " << VGP0 << endl;
         WCA_mp -> paPol0GateVoltage(VGP0);
-        LOG(LM_INFO) << "Setting LO_PA_POL1_GATE_VOLTAGE to " << VGP1 << endl;
+        LOG(LM_DEBUG) << "Setting LO_PA_POL1_GATE_VOLTAGE to " << VGP1 << endl;
         WCA_mp -> paPol1GateVoltage(VGP1);
     }    
     return true;
@@ -1912,32 +1882,32 @@ bool CartAssembly::setVJVD(int pol, float *VJ1, float *VJ2, float *VD)
     if (pol == 0) {
         if (coldCart_mp) {
             if (VJ1) {
-                LOG(LM_INFO) << "Setting SIS_POL0_SB1_VOLTAGE to " << fixed << setprecision(2) << *VJ1 << endl;
+                LOG(LM_DEBUG) << "Setting SIS_POL0_SB1_VOLTAGE to " << fixed << setprecision(2) << *VJ1 << endl;
                 coldCart_mp -> setSISVoltage(0, 1, *VJ1);
             }
             if (VJ2) {
-                LOG(LM_INFO) << "Setting SIS_POL0_SB2_VOLTAGE to " << fixed << setprecision(2) << *VJ2 << endl;
+                LOG(LM_DEBUG) << "Setting SIS_POL0_SB2_VOLTAGE to " << fixed << setprecision(2) << *VJ2 << endl;
                 coldCart_mp -> setSISVoltage(0, 2, *VJ2);
             }
         }
         if (WCA_mp && VD) {
-            LOG(LM_INFO) << "Setting LO_PA_POL0_DRAIN_VOLTAGE to " << fixed << setprecision(3) << *VD << endl;
+            LOG(LM_DEBUG) << "Setting LO_PA_POL0_DRAIN_VOLTAGE to " << fixed << setprecision(3) << *VD << endl;
             WCA_mp -> paPol0DrainVoltage(*VD);
         }
     
     } else {
         if (coldCart_mp) {
             if (VJ2) {
-                LOG(LM_INFO) << "Setting SIS_POL1_SB1_VOLTAGE to " << fixed << setprecision(2) << *VJ2 << endl;
+                LOG(LM_DEBUG) << "Setting SIS_POL1_SB1_VOLTAGE to " << fixed << setprecision(2) << *VJ2 << endl;
                 coldCart_mp -> setSISVoltage(1, 1, *VJ1);
             }
             if (VJ2) {
-                LOG(LM_INFO) << "Setting SIS_POL1_SB2_VOLTAGE to " << fixed << setprecision(2) << *VJ2 << endl;
+                LOG(LM_DEBUG) << "Setting SIS_POL1_SB2_VOLTAGE to " << fixed << setprecision(2) << *VJ2 << endl;
                 coldCart_mp -> setSISVoltage(1, 2, *VJ2);
             }
         }
         if (WCA_mp && VD) {
-            LOG(LM_INFO) << "Setting LO_PA_POL1_DRAIN_VOLTAGE to " << fixed << setprecision(3) << *VD << endl;
+            LOG(LM_DEBUG) << "Setting LO_PA_POL1_DRAIN_VOLTAGE to " << fixed << setprecision(3) << *VD << endl;
             WCA_mp -> paPol1DrainVoltage(*VD);
         }
     }        
@@ -2183,7 +2153,7 @@ bool CartAssembly::measureIVCurve(int pol, int sb, const float *VJlow_p, const f
     }
     
     if (pol < 0 || pol > 1 || sb < 1 || sb > 2)
-        return false;
+           return false;
 
     float VJLow_default = 0;
     float VJHigh_default = 0;

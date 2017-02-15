@@ -99,8 +99,9 @@ public:
     void queryCartridgeState();
     ///< determine the cartridge state data based on monitor values.
 
-    void measureSISVoltageError();
+    void measureSISVoltageError(std::string *resultStr = NULL);
     ///< find and store the offset between the set and readback SIS voltage.
+    ///< resultStr, if provided, will be assigned like "(0.003, 0.005, 0.001, 0.040)".
     
     float measureSISVoltageErrorImpl(int pol, int sb);
     ///< Implementation of find and store the offset between the set and readback SIS voltage.

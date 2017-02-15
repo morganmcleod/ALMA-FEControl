@@ -27,7 +27,8 @@
 
 OPTIMIZECPP = CartHealthCheck.cpp CryostatPumping.cpp \
     Maximizer.cpp MaximizeIFPower.cpp MeasureFineLOSweep.cpp \
-	MeasureIVCurve.cpp MeasureSISCurrent.cpp MeasureIFPower.cpp MixerDeflux.cpp MixerHeating.cpp \
+	MeasureIVCurve.cpp MeasureSISCurrent.cpp MeasureSISVoltageError.cpp \
+	MeasureIFPower.cpp MixerDeflux.cpp MixerHeating.cpp \
     OptimizeBase.cpp OptimizeLOPowerAmp.cpp ThermalLogger.cpp
 
 .PHONY: optimize

@@ -32,6 +32,7 @@ class MaximizeIFPower;
 class MeasureFineLOSweep;
 class MeasureIVCurve;
 class MeasureSISCurrent;
+class MeasureSISVoltageError;
 class MeasureIFPower;
 class MixerDeflux;
 class MixerHeating;
@@ -428,16 +429,17 @@ private:
     WCAImpl *WCA_mp;                        ///< WCA sub-object.
     ColdCartImpl *coldCart_mp;              ///< cold cartridge sub-object.
     
-    CartHealthCheck *cartHealthCheck_mp;            ///< worker object for cartridge health check
-    OptimizeLOPowerAmp *optimizerPA_mp;             ///< optimizer object for adjustLOPowerAmps()
-    MeasureFineLOSweep *measureLOSweep_mp;          ///< worker object for fine LO sweep measurement
-    mutable MeasureIVCurve *measureIV_mp;           ///< worker object for I-V curve measurement
-    mutable MeasureSISCurrent *measureSISCurrent_mp;///< worker object for IJ vs SIS magnet measurement
-    MeasureIFPower *measureIFPower_mp;              ///< worker object for IF Power vs VJ or VD measurement
-    MaximizeIFPower *optimizerIFPower_mp;           ///< optimizer for IF power vs LO drive.
-    MixerDeflux *mixerDefluxer_mp;                  ///< worker object for mixer defluxing
-    MixerHeating *mixerHeater_mp;                   ///< worker object for mixer heating
-    XYPlotArray *XYData_mp;                         ///< X-Y data storage for various measurements.
+    MeasureSISVoltageError *measureSISVoltageErr_mp;	///< worker object for measure SIS voltage error
+    CartHealthCheck *cartHealthCheck_mp;            	///< worker object for cartridge health check
+    OptimizeLOPowerAmp *optimizerPA_mp;             	///< optimizer object for adjustLOPowerAmps()
+    MeasureFineLOSweep *measureLOSweep_mp;          	///< worker object for fine LO sweep measurement
+    mutable MeasureIVCurve *measureIV_mp;           	///< worker object for I-V curve measurement
+    mutable MeasureSISCurrent *measureSISCurrent_mp;	///< worker object for IJ vs SIS magnet measurement
+    MeasureIFPower *measureIFPower_mp;              	///< worker object for IF Power vs VJ or VD measurement
+    MaximizeIFPower *optimizerIFPower_mp;           	///< optimizer for IF power vs LO drive.
+    MixerDeflux *mixerDefluxer_mp;                  	///< worker object for mixer defluxing
+    MixerHeating *mixerHeater_mp;                   	///< worker object for mixer heating
+    XYPlotArray *XYData_mp;                         	///< X-Y data storage for various measurements.
 
     int band_m;         ///< what band this cartridge assembly is.  Cached here after querying WCA or ColdCart.  
     bool enable_m;      ///< true if this cartridge is enabled.           

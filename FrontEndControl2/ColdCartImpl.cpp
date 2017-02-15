@@ -198,7 +198,7 @@ void ColdCartImpl::setSISVoltage(int pol, int sb, float val, bool sweep) {
     (this ->* pf)(val);    
 }    
 
-void ColdCartImpl::measureSISVoltageError() {
+void ColdCartImpl::measureSISVoltageError(std::string *resultStr) {
     // ignore if no SIS:
     if (!hasSIS())
         return;
@@ -209,7 +209,19 @@ void ColdCartImpl::measureSISVoltageError() {
     float e1 = measureSISVoltageErrorImpl(0, 2);
     float e2 = measureSISVoltageErrorImpl(1, 1);
     float e3 = measureSISVoltageErrorImpl(1, 2);
-    LOG(LM_INFO) << "ColdCartImpl: SIS voltage errors are (" << e0 << ", " << e1 << ", " << e2 << ", " << e3 << ")" << endl;      
+    string result = "(";
+    result += to_string(e0);
+    result += ", ";
+    result += to_string(e1);
+    result += ", ";
+    result += to_string(e2);
+    result += ", ";
+    result += to_string(e3);
+    result += ")";
+    if (resultStr)
+    	*resultStr = result;
+
+    LOG(LM_INFO) << "ColdCartImpl: SIS voltage errors are " << result << endl;
 }
 
 float ColdCartImpl::measureSISVoltageErrorImpl(int pol, int sb) {
