@@ -45,7 +45,8 @@ public:
       { delete dataFile_mp; }
     
     virtual void reset();
-    ///< reset all state to initial/just constructed.
+    ///< reset all state to initial/just constructed EXCEPT for MixerParams, PowerAmpParams results
+    ///<   -- those are cleared using resetParamsResult().
     
     bool start(double freqLO,        ///< for which frequency to store the results. 
                bool doPol0,          ///< true means optimize pol0
@@ -63,6 +64,11 @@ public:
     bool setIFPower(int pol, float powerSb1, float powerSb2);
     ///< called by main thread to feed IF power readings into the optimization process.
     
+    void resetParamsResult()
+      { mixerParams_m.clear();
+        paParams_m.clear(); }
+    ///< clear the optimized parameters results.
+
     const MixerParams &getMixerParamsResult() const
       { return mixerParams_m; }
     ///< get the resulting optimized mixer parameters vs. LO frequency.

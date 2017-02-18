@@ -1181,6 +1181,13 @@ DLLEXPORT short cartOptimizeIFPower(short port, short pol) {
     return 0;                                           
 }   
 
+DLLEXPORT short cartGetOptimizedResult(short port) {
+    if (!validatePortNumber(port))
+        return -1;
+    if (!FEValid)
+        return -1;
+    return 0;
+}
 
 DLLEXPORT short cartSetIFPower(short port, short pol, float powerSB1, float powerSB2) {
     if (!validatePortNumber(port))

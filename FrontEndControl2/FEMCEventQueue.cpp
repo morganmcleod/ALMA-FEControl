@@ -72,7 +72,8 @@ void FEMCEventQueue::addEvent(const Event &source) {
     pthread_mutex_lock(&(instance_mp -> queueLock_m));
 
     // Assign the next sequence number and increment:
-    copy.seq_m = instance_mp -> nextSeq_m++;
+    copy.seq_m = instance_mp -> nextSeq_m;
+    instance_mp -> nextSeq_m++;
 
     // only add it to the queue if there are subscribers:
     if (instance_mp -> subcribers_m > 0)

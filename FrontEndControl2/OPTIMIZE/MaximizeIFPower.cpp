@@ -39,8 +39,6 @@ void MaximizeIFPower::reset() {
     startVJ1_m = startVJ2_m = startVD_m = VJ1_m = VJ2_m = VD_m = powerSb1_m = powerSb2_m = 0.0;
     VJ01opt_m = VJ02opt_m = VJ11opt_m = VJ12opt_m = VD0opt_m = VD1opt_m = 0.0;
     opPhase_m = failPhase_m = OP_PHASE_NONE;
-    mixerParams_m.clear();
-    paParams_m.clear();
     if (dataFile_mp) {
         delete dataFile_mp;
         dataFile_mp = NULL;
@@ -211,10 +209,11 @@ void MaximizeIFPower::optimizeAction() {
 
 void MaximizeIFPower::exitAction(bool success) {
     // stop requesting IF power updates:
-    setEvent(FEMCEventQueue::EVENT_STOP_IFPOWER, coldCart_m.getBand(), currentPol_m);
+    setEvent(FEMCEventQueue::EVENT_STOP_IFPOWER, coldCart_m.getBand(), currentPol_m, 0, progress_m);
 
     // Send the measurement finished event:
-    setEvent(FEMCEventQueue::EVENT_PA_ADJUST_DONE, coldCart_m.getBand(), -1, 0, 100);
+    progress_m = 100;
+    setEvent(FEMCEventQueue::EVENT_PA_ADJUST_DONE, coldCart_m.getBand(), -1, 0, progress_m);
 
     // restart monitoring:
     coldCart_m.pauseMonitor(false);
@@ -257,8 +256,22 @@ void MaximizeIFPower::exitAction(bool success) {
                  << "," << VJ01opt_m << "," << VJ02opt_m << "," << VJ11opt_m << "," << VJ12opt_m
                  << "," << IJ01 << "," << IJ02 << "," << IJ11 << "," << IJ12 << endl;
 
+    mixerParams_m.set(freqLO_m, MixerParams::VJ01, VJ01opt_m);
+    mixerParams_m.set(freqLO_m, MixerParams::VJ02, VJ02opt_m);
+    mixerParams_m.set(freqLO_m, MixerParams::VJ11, VJ11opt_m);
+    mixerParams_m.set(freqLO_m, MixerParams::VJ12, VJ12opt_m);
+    mixerParams_m.set(freqLO_m, MixerParams::IJ01, IJ01);
+    mixerParams_m.set(freqLO_m, MixerParams::IJ02, IJ02);
+    mixerParams_m.set(freqLO_m, MixerParams::IJ11, IJ11);
+    mixerParams_m.set(freqLO_m, MixerParams::IJ12, IJ12);
+
     LOG(LM_INFO) << fixed << "LOParam=" << setprecision(1) << freqLO_m << setprecision(2)
                  << "," << VD0opt_m << "," << VD1opt_m << "," << setprecision(3) << VG0 << "," << VG1 << endl;
+
+    paParams_m.set(freqLO_m, PowerAmpParams::VD0, VD0opt_m);
+    paParams_m.set(freqLO_m, PowerAmpParams::VD1, VD1opt_m);
+    paParams_m.set(freqLO_m, PowerAmpParams::VG0, VG0);
+    paParams_m.set(freqLO_m, PowerAmpParams::VG1, VG1);
 }
 
 bool MaximizeIFPower::optimizeSinglePol(int pol) {
@@ -281,7 +294,7 @@ bool MaximizeIFPower::optimizeSinglePol(int pol) {
 
     // Set the power meter reading and averaging:
     static int averaging = 32;
-    setEvent(FEMCEventQueue::EVENT_REQUEST_IFPOWER, coldCart_m.getBand(), currentPol_m, averaging);
+    setEvent(FEMCEventQueue::EVENT_REQUEST_IFPOWER, coldCart_m.getBand(), currentPol_m, averaging, progress_m);
 
     // Wait for the first power meter reading:
     float tmp;
@@ -343,9 +356,9 @@ bool MaximizeIFPower::optimizeSinglePol(int pol) {
         setStatusMessage(false, msg.str());
     }
     // reset the averaging to 1-sample:
-    setEvent(FEMCEventQueue::EVENT_REQUEST_IFPOWER, coldCart_m.getBand(), currentPol_m, 1);
+    setEvent(FEMCEventQueue::EVENT_REQUEST_IFPOWER, coldCart_m.getBand(), currentPol_m, 1, progress_m);
     // stop reading power meters.
-    setEvent(FEMCEventQueue::EVENT_STOP_IFPOWER, coldCart_m.getBand(), currentPol_m);
+    setEvent(FEMCEventQueue::EVENT_STOP_IFPOWER, coldCart_m.getBand(), currentPol_m, 0, progress_m);
 
     return (failPhase_m == OP_PHASE_NONE);
 }
@@ -358,7 +371,7 @@ bool MaximizeIFPower::performPhase(OperationPhases phase, float step, bool direc
     logOutput(true);
 
     // Set the power meter reading and averaging:
-    setEvent(FEMCEventQueue::EVENT_REQUEST_IFPOWER, coldCart_m.getBand(), currentPol_m, averaging);
+    setEvent(FEMCEventQueue::EVENT_REQUEST_IFPOWER, coldCart_m.getBand(), currentPol_m, averaging, progress_m);
 
     // Clear the control values history array:
     controlHistory.clear();

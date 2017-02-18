@@ -36,6 +36,11 @@ The user manual for the LabVIEW software which uses this library is here:
 FEND-40.09.03.00-053-A-MAN
 http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
+2.6.0-beta3
+Changes for band 3 bias optimization.
+
+2.6.0-beta1
+New build system GCC 5.3.0, pthreadGC-3 from MinGW
 
 Revision history:
 2.5.4 2017-01-09

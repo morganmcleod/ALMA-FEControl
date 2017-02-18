@@ -271,12 +271,15 @@ DLLEXPORT short cartSetLOPower(short port, short pol, float percent);
 ///< set the LO output power level as a percentage (0.0 - 100.0) of maximum
 
 DLLEXPORT short cartOptimizeIFPower(short port, short pol);
-///< Perform optmization of IF power vs. LO drive and junction voltage.
+///< Perform optimization of IF power vs. LO drive and junction voltage.
 ///< works in conjunction with setIFPower() which injects ongoing power readings.
 ///< Optimization happens on a worker thread.
 ///< if pol is -1, both polarizations are optimized in turn.
 ///< Sends the event EVENT_REQUEST_IFPOWER via the client app event queue when power readings are required.
 ///< Sends the event EVENT_PA_ADJUST_DONE  when finished.                        
+
+DLLEXPORT short cartGetOptimizedResult(short port);
+///< Get the optimized MixerParams and PowerAmpParams from the last call to cartOptimizeIFPower
 
 DLLEXPORT short cartSetIFPower(short port, short pol, float powerSB1, float powerSB2);
 ///< Inject the current IF power level readings for a single port and polarization.

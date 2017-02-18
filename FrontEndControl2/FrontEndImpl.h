@@ -199,6 +199,8 @@ public:
     
     bool cartOptimizeIFPower(int port, bool doPol0, bool doPol1);
 
+    bool cartGetOptimizedResult(int port);
+
     bool cartSetIFPower(int port, int pol, float powerSB1, float powerSB2);
     ///< Inject the current IF power level readings for a single port and polarization.
     ///< Used for optimizing mixer and LO power amp bias voltages.
@@ -323,6 +325,9 @@ private:
     // disallow copy and assignment:
     FrontEndImpl(const FrontEndImpl &other);
     FrontEndImpl &operator =(const FrontEndImpl &other);
+
+    // private helper for logging and error reporting:
+    void reportBadCartridge(int port, std::string where, std::string msg = std::string());
 
     // configuration data for the front end:
     unsigned SN_m;      ///< this front end's serial number, numeric portion only.

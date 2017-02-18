@@ -1134,11 +1134,7 @@ bool FrontEndImpl::cartSetLNABias(int port, int pol, int sb,
             << " VD3=" << (VD3 ? *VD3 : 0) << " ID3=" << (ID3 ? *ID3 : 0) << endl;
         return ca -> setLNABias(pol, sb, VD1, ID1, VD2, ID2, VD3, ID3);
     } else {
-        LOG(LM_INFO) << "FrontEndImpl::cartSetLNABias port=" << port << " cartridge does not exist or is disabled." << endl;
-        string msg("Setting the LNA bias failed for band ");
-        msg += to_string(port);
-        msg += ". The cartridge does not exist or is disabled.";
-        FEMCEventQueue::addStatusMessage(false, msg);
+        reportBadCartridge(port, "FrontEndImpl::cartSetLNABias", "Setting the LNA bias failed");
         return false;
     }
 }
@@ -1149,11 +1145,7 @@ bool FrontEndImpl::cartSetEnableLNABias(int port, bool enable, int pol, int sb) 
         LOG(LM_INFO) << "FrontEndImpl::cartSetEnableLNABias port=" << port << " enable=" << enable << " pol=" << pol << " sb=" << sb << endl; 
         return ca -> setEnableLNABias(enable, pol, sb);
     } else {
-        LOG(LM_INFO) << "FrontEndImpl::cartSetEnableLNABias port=" << port << " cartridge does not exist or is disabled." << endl;
-        string msg("Enabling the LNA bias failed for band ");
-        msg += to_string(port);
-        msg += ". The cartridge does not exist or is disabled.";
-        FEMCEventQueue::addStatusMessage(false, msg);
+        reportBadCartridge(port, "FrontEndImpl::cartSetEnableLNABias", "Enabling the LNA bias failed");
         return false;
     }
 }
@@ -1175,11 +1167,7 @@ bool FrontEndImpl::cartSetSISBias(int port, bool enable, int pol, int sb,
             << " VJ=" << (VJ ? *VJ : 0) << " openLoop=" << openLoop << endl;
         return ca -> setSISBias(enable, pol, sb, VJ, openLoop);
     } else {
-        LOG(LM_INFO) << "FrontEndImpl::cartSetSISBias port=" << port << " cartridge does not exist or is disabled." << endl;
-        string msg("Setting the SIS bias failed for band ");
-        msg += to_string(port);
-        msg += ". The cartridge does not exist or is disabled.";
-        FEMCEventQueue::addStatusMessage(false, msg);
+        reportBadCartridge(port, "FrontEndImpl::cartSetSISBias", "Setting the SIS bias failed");
         return false;
     }
 }
@@ -1199,11 +1187,7 @@ bool FrontEndImpl::cartSetSISMagnet(int port, bool enable, int pol, int sb, cons
             << " Imag=" << (IMag ? *IMag : 0) << endl;
         return ca -> setSISMagnet(enable, pol, sb, IMag);
     } else {
-        LOG(LM_INFO) << "FrontEndImpl::cartSetSISMagnet port=" << port << " cartridge does not exist or is disabled." << endl;
-        string msg("Setting the SIS magnet bias failed for band ");
-        msg += to_string(port);
-        msg += ". The cartridge does not exist or is disabled.";
-        FEMCEventQueue::addStatusMessage(false, msg);
+        reportBadCartridge(port, "FrontEndImpl::cartSetSISMagnet", "Setting the SIS magnet bias failed");
         return false;
     }
 }
@@ -1239,11 +1223,7 @@ bool FrontEndImpl::cartSetLOPowerAmps(int port, bool enable,
             << " VDP1=" << (VDP1 ? *VDP1 : 0) << " VGP1=" << (VGP1 ? *VGP1 : 0) << endl;
         return ca -> setLOPowerAmps(enable, VDP0, VGP0, VDP1, VGP1);
     } else {
-        LOG(LM_INFO) << "FrontEndImpl::cartSetLOPowerAmps port=" << port << " WCA does not exist or is disabled." << endl;
-        string msg("Setting the LO power amplifier bias failed for band ");
-        msg += to_string(port);
-        msg += ". The cartridge does not exist or is disabled.";
-        FEMCEventQueue::addStatusMessage(false, msg);
+        reportBadCartridge(port, "FrontEndImpl::cartSetLOPowerAmps", "Setting the LO power amplifier bias failed");
         return false;
     }
 }
@@ -1288,11 +1268,7 @@ bool FrontEndImpl::cartAdjustLOPowerAmps(int port, int repeatCount) {
         LOG(LM_INFO) << "FrontEndImpl::cartAdjustLOPowerAmps port=" << port << endl;
         return ca -> adjustLOPowerAmps(repeatCount);
     } else {
-        LOG(LM_INFO) << "FrontEndImpl::cartAdjustLOPowerAmps port=" << port << " cartridge does not exist or is disabled." << endl;
-        string msg("Adjusting the LO power amplifier bias failed for band ");
-        msg += to_string(port);
-        msg += ". The cartridge does not exist or is disabled.";
-        FEMCEventQueue::addStatusMessage(false, msg);
+        reportBadCartridge(port, "FrontEndImpl::cartAdjustLOPowerAmps", "Adjusting the LO power amplifier bias failed");
         return false;
     }
 }
@@ -1331,11 +1307,16 @@ bool FrontEndImpl::cartOptimizeIFPower(int port, bool doPol0, bool doPol1) {
         LOG(LM_INFO) << "FrontEndImpl::cartOptimizeIFPower port=" << port << " doPol0=" << doPol0 << " doPol1=" << doPol1 << endl;
         return ca -> optimizeIFPower(doPol0, doPol1);
     }
-    LOG(LM_INFO) << "FrontEndImpl::cartOptimizeIFPower port=" << port << " cartridge does not exist or is disabled." << endl;
-    string msg("IF power optimization failed for band ");
-    msg += to_string(port);
-    msg += ". The cartridge does not exist or is disabled.";
-    FEMCEventQueue::addStatusMessage(false, msg);
+    reportBadCartridge(port, "FrontEndImpl::cartOptimizeIFPower", "IF power optimization failed");
+    return false;
+}
+
+bool FrontEndImpl::cartGetOptimizedResult(int port) {
+    CartAssembly *ca = carts_mp -> getCartAssembly(port);
+    if (ca) {
+        return ca -> getOptimizedResult();
+    }
+    reportBadCartridge(port, "FrontEndImpl::cartGetOptimizedResult");
     return false;
 }
 
@@ -1358,11 +1339,7 @@ bool FrontEndImpl::cartSetVJVD(int port, int pol, float *VJ1, float *VJ2, float 
             << " VJ1=" << (VJ1 ? *VJ1 : 0) << " VJ2=" << (VJ2 ? *VJ2 : 0) << " VD=" << (VD ? *VD : 0) << endl;
         return ret;
     } else {
-        LOG(LM_INFO) << "FrontEndImpl::cartSetVJVD port=" << port << " cartridge does not exist or is disabled." << endl;
-        string msg("Setting the SIS and PA bias failed for band ");
-        msg += to_string(port);
-        msg += ". The cartridge does not exist or is disabled.";
-        FEMCEventQueue::addStatusMessage(false, msg);
+        reportBadCartridge(port, "FrontEndImpl::cartSetVJVD", "Setting the SIS and PA bias failed");
         return false;
     }
 }
@@ -1373,11 +1350,7 @@ bool FrontEndImpl::cartGetVJVD(int port, int pol, float *VJ1, float *VJ2, float 
         bool ret = ca -> getVJVD(pol, VJ1, VJ2, VD); 
         return ret;
     } else {
-        LOG(LM_INFO) << "FrontEndImpl::cartGetVJVD port=" << port << " cartridge does not exist or is disabled." << endl;
-        string msg("Getting the SIS and PA bias failed for band ");
-        msg += to_string(port);
-        msg += ". The cartridge does not exist or is disabled.";
-        FEMCEventQueue::addStatusMessage(false, msg);
+        reportBadCartridge(port, "FrontEndImpl::cartGetVJVD", "Getting the SIS and PA bias failed");
         return false;
     }
 }
@@ -1416,12 +1389,8 @@ bool FrontEndImpl::cartMeasureFineLOSweep(int port, float tiltAngle, int pol,
         FEICDataBase::DATASTATUS_TYPES dataStatus = FEICDataBase::DS_COLD_PAI;
         return ca -> measureFineLOSweep(*dbObject_mp, configId, dataStatus, tiltAngle, pol, VJ, IJ, fixedVD, LOStart, LOStop, LOStep, repeatCount);
     } else {
-       LOG(LM_INFO) << "FrontEndImpl::cartMeasureFineLOSweep port=" << port << " cartridge does not exist or is disabled." << endl;
-       string msg("Measuring fine LO sweep failed for band ");
-       msg += to_string(port);
-       msg += ". The cartridge does not exist or is disabled.";
-       FEMCEventQueue::addStatusMessage(false, msg);
-       return false;
+        reportBadCartridge(port, "FrontEndImpl::cartMeasureFineLOSweep", "Measuring fine LO sweep failed");
+        return false;
     }
 }
 
@@ -1438,12 +1407,8 @@ bool FrontEndImpl::cartMeasureIVCurve(int port, int pol, int sb,
             << "  VJstep=" << (VJstep_p ? *VJstep_p : 0) << " repeatCount=" << repeatCount << endl;
         return ca -> measureIVCurve(pol, sb, VJlow_p, VJhigh_p, VJstep_p, repeatCount);
     } else {
-       LOG(LM_INFO) << "FrontEndImpl::cartMeasureIVCurve port=" << port << " cartridge does not exist or is disabled." << endl;
-       string msg("Measuring the IV curve failed for band ");
-       msg += to_string(port);
-       msg += ". The cartridge does not exist or is disabled.";
-       FEMCEventQueue::addStatusMessage(false, msg);
-       return false;
+        reportBadCartridge(port, "FrontEndImpl::cartMeasureIVCurve", "Measuring the IV curve failed");
+        return false;
     }
 }
 
@@ -1460,12 +1425,8 @@ bool FrontEndImpl::cartMeasureIJvsSISMagnet(int port, int pol, int sb,
             << " repeatCount=" << repeatCount << endl;
         return ca -> measureIJvsSISMagnet(pol, sb, IMagStart, IMagStop, IMagStep, VJLow, VJHigh, VJStep, repeatCount);
     } else {
-       LOG(LM_INFO) << "FrontEndImpl::cartMeasureIJvsSISMagnet port=" << port << " cartridge does not exist or is disabled." << endl;
-       string msg("Measuring the SIS bias vs. magnet current failed for band ");
-       msg += to_string(port);
-       msg += ". The cartridge does not exist or is disabled.";
-       FEMCEventQueue::addStatusMessage(false, msg);
-       return false;
+        reportBadCartridge(port, "FrontEndImpl::cartMeasureIJvsSISMagnet", "Measuring the SIS bias vs. magnet current failed");
+        return false;
     }
 }
 
@@ -1487,12 +1448,8 @@ bool FrontEndImpl::cartMeasureIFPowerVsVJ(int port, int pol, int sb,
             << " doYFactor=" << doYFactor << " repeatCount=" << repeatCount << endl;
         return ca -> measureIFPowerVsVJ(pol, sb, description, VJStart, VJStop, VJStep, doYFactor, repeatCount);
     } else {
-       LOG(LM_INFO) << "FrontEndImpl::cartMeasureIFPowerVsVJ port=" << port << " cartridge does not exist or is disabled." << endl;
-       string msg("Measuring the IF power vs. SIS bias failed for band ");
-       msg += to_string(port);
-       msg += ". The cartridge does not exist or is disabled.";
-       FEMCEventQueue::addStatusMessage(false, msg);
-       return false;
+        reportBadCartridge(port, "FrontEndImpl::cartMeasureIFPowerVsVJ", "Measuring the IF power vs. SIS bias failed");
+        return false;
     }
 }
 
@@ -1513,12 +1470,8 @@ bool FrontEndImpl::cartMeasureIFPowerVsVD(int port, int pol,
             << " doYFactor=" << doYFactor << " repeatCount=" << repeatCount << endl;
         return ca -> measureIFPowerVsVD(pol, description, VDStart, VDStop, VDStep, doYFactor, repeatCount);
     } else {
-       LOG(LM_INFO) << "FrontEndImpl::cartMeasureIFPowerVsVD port=" << port << " cartridge does not exist or is disabled." << endl;
-       string msg("Measuring the IF power vs. PA bias failed for band ");
-       msg += to_string(port);
-       msg += ". The cartridge does not exist or is disabled.";
-       FEMCEventQueue::addStatusMessage(false, msg);
-       return false;
+        reportBadCartridge(port, "FrontEndImpl::cartMeasureIFPowerVsVD", "Measuring the IF power vs. PA bias failed");
+        return false;
     }
 }
 
@@ -1529,12 +1482,8 @@ bool FrontEndImpl::cartMixerDeflux(int port, int pol, int sb, int IMagMax) {
             << " IMagMax=" << IMagMax << endl;
         return ca -> mixerDeflux(pol, sb, IMagMax);
     } else {
-       LOG(LM_INFO) << "FrontEndImpl::mixerDeflux port=" << port << " cartridge does not exist or is disabled." << endl;
-       string msg("SIS mixer defluxing failed for band ");
-       msg += to_string(port);
-       msg += ". The cartridge does not exist or is disabled.";
-       FEMCEventQueue::addStatusMessage(false, msg);
-       return false;
+        reportBadCartridge(port, "FrontEndImpl::mixerDeflux", "SIS mixer defluxing failed");
+        return false;
     }
 }
 
@@ -1559,11 +1508,7 @@ bool FrontEndImpl::cartSetEnableLNALEDs(int port, bool enable) {
         LOG(LM_INFO) << "FrontEndImpl::cartSetEnableLNALEDs port=" << port << " enable=" << enable << endl;
         return ca -> setEnableLNALEDs(enable);
     } else {
-        LOG(LM_INFO) << "FrontEndImpl::cartSetEnableLNALEDs port=" << port << " cartridge does not exist or is disabled." << endl;
-        string msg("Enabling the LNA LEDs failed for band ");
-        msg += to_string(port);
-        msg += ". The cartridge does not exist or is disabled.";
-        FEMCEventQueue::addStatusMessage(false, msg);
+        reportBadCartridge(port, "FrontEndImpl::cartSetEnableLNALEDs", "Enabling the LNA LEDs failed");
         return false;
     }
 }
@@ -1574,11 +1519,7 @@ bool FrontEndImpl::cartSetEnableSISHeaters(int port, bool enable, int pol, float
         LOG(LM_INFO) << "FrontEndImpl::cartSetEnableSISHeaters port=" << port << " enable=" << enable << endl;
         return ca -> setEnableSISHeaters(enable, pol, targetTemp, timeout);
     } else {
-        LOG(LM_INFO) << "FrontEndImpl::cartSetEnableSISHeaters port=" << port << " cartridge does not exist or is disabled." << endl;
-        string msg("Enabling the SIS heaters failed for band ");
-        msg += to_string(port);
-        msg += ". The cartridge does not exist or is disabled.";
-        FEMCEventQueue::addStatusMessage(false, msg);
+        reportBadCartridge(port, "FrontEndImpl::cartSetEnableSISHeaters", "Enabling the SIS heaters failed");
         return false;
     }
 }
@@ -1823,4 +1764,12 @@ void FrontEndImpl::appendThermalLog(std::string &target) const {
         carts_mp -> appendThermalLog(target);
 }
 
-
+void FrontEndImpl::reportBadCartridge(int port, std::string where, std::string msg) {
+    LOG(LM_INFO) << where << " port=" << port << " cartridge does not exist or is disabled." << endl;
+    if (!msg.empty()) {
+        msg += " for band ";
+        msg += to_string(port);
+        msg += ". The cartridge does not exist or is disabled.";
+        FEMCEventQueue::addStatusMessage(false, msg);
+    }
+}

@@ -253,8 +253,11 @@ public:
     ///< works in conjunction with setIFPower() which injects ongoing power readings.
     ///< Optimization happens on a worker thread.
     ///< Sends the event EVENT_REQUEST_IFPOWER via the client app event queue power readings are required.
-    ///< Sends the event EVENT_PA_ADJUST_DONE  whene finished.                        
+    ///< Sends the event EVENT_PA_ADJUST_DONE when finished.
     
+    bool getOptimizedResult();
+    ///< Get the results from optimizeIFPower.   TODO: finish interface.
+
     bool setIFPower(int pol, float powerSB1, float powerSB2);
     ///< Inject the current IF power level readings for a single polarization.
     ///< Used for optimizing mixer and LO power amp bias voltages.

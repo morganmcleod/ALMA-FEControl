@@ -1861,6 +1861,18 @@ bool CartAssembly::optimizeIFPower(bool doPol0, bool doPol1) {
     return ret;
 }
 
+bool CartAssembly::getOptimizedResult() {
+    if (!optimizerIFPower_mp)
+        return false;
+
+    const MixerParams &mp = optimizerIFPower_mp -> getMixerParamsResult();
+    const PowerAmpParams &pp = optimizerIFPower_mp -> getPowerAmpParamsResult();
+
+    LOG(LM_INFO) << mp << endl;
+    LOG(LM_INFO) << pp << endl;
+    return true;
+}
+
 bool CartAssembly::setIFPower(int pol, float powerSB1, float powerSB2) {
 //    LOG(LM_INFO) << "CartAssembly::setIFPower: pol=" << pol << setprecision(4) << scientific
 //                 << " powerSB1=" << powerSB1 << " powerSB2=" << powerSB2 << fixed << endl;
