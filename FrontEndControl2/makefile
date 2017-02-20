@@ -62,7 +62,7 @@ export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) -I$(CURDIR)
 WINLIBS = -lwinmm -lwsock32
 
 # flags for compiling C++ code:
-export CPPFLAGS = -O0 -g3 -fmessage-length=0
+export CPPFLAGS = -O0 -g -fmessage-length=0
 #-Wall 
 
 # list of output files in subdirectories:
@@ -118,7 +118,7 @@ dll: FrontEndControl.dll DLL/libFrontEndControl.a DLL/FrontEndControl.def
 DLLCPP = DLL/DllMain.c DLL/lv_structs.cpp DLL/lv_wrapper.cpp DLL/lv_wrapper_Compressor.cpp DLL/lv_wrapper_FE.cpp DLL/lv_wrapper_LORTM.cpp DLL/lv_wrapper_sigSrc.cpp
 
 FrontEndControl.dll DLL/FrontEndControl.def: $(DLLCPP) $(ALLOUT)
-	g++ $(CPPFLAGS) -DBUILD_FRONTENDCONTROL -shared -o FrontEndControl.dll \
+	g++ $(CPPFLAGS) -DBUILD_FRONTENDCONTROL -s -shared -o FrontEndControl.dll \
 	$(DLLCPP) $(ALLOUT) \
 	$(PROJECTINC) $(PORTABLEINC) $(MYSQLINC) \
 	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIBS) $(NICANLIB) $(PORTABLELIB) \
@@ -175,13 +175,11 @@ t_FEICDataBase.exe : tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp
 	$(DBLIB) $(UTILLIB) $(MYSQLLIB) $(PORTABLELIB)
 
 .PHONY: all
-all: allout dll 
-
-#tests
+all: allout dll tests
 
 current:
 	$(MAKE) -C OPTIMIZE
-	
+
 oneFile:
 	$(MAKE) FEMCEventQueue.o
 	

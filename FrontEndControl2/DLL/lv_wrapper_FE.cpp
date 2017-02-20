@@ -620,10 +620,12 @@ DLLEXPORT short FESetCartridgeOn(short port) {
     } else {
         if (!FEValid)
             return -1;
-        if (!frontEnd -> setCartridgeOn(port))
-            return -1;
-        if (correctSISVoltageError)
-            frontEnd -> measureSISVoltageError(port);
+        if (!frontEnd -> getCartridgeOn(port)) {
+            if (!frontEnd -> setCartridgeOn(port))
+                return -1;
+            if (correctSISVoltageError)
+                frontEnd -> measureSISVoltageError(port);
+        }
         return 0;
     }
 }
@@ -1181,11 +1183,27 @@ DLLEXPORT short cartOptimizeIFPower(short port, short pol) {
     return 0;                                           
 }   
 
-DLLEXPORT short cartGetOptimizedResult(short port) {
+DLLEXPORT short cartClearOptimizedResult(short port) {
     if (!validatePortNumber(port))
         return -1;
     if (!FEValid)
         return -1;
+    if (!frontEnd -> cartClearOptimizedResult(port))
+        return -1;
+    return 0;
+}
+
+DLLEXPORT short cartGetOptimizedResult(short port, char *_mixerParamsText) {
+    if (!validatePortNumber(port))
+        return -1;
+    if (!FEValid || !_mixerParamsText)
+        return -1;
+
+    std::string mixerParamsText;
+    if (!frontEnd -> cartGetOptimizedResult(port, mixerParamsText))
+        return -1;
+
+    strcpy(_mixerParamsText, mixerParamsText.c_str());
     return 0;
 }
 

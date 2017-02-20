@@ -219,7 +219,7 @@ namespace FEConfig {
             return (PARAM_COLS) (IJ01 + pol * 2 + (sb - 1)); }
         ///< get the parameter name for IJ at the given pol and sb.
 
-        void streamOut(std::ostream& out) const;
+        void streamOut(std::ostream& out, bool asIniFileRecord = false) const;
         ///< stream output for debugging
     };
 

@@ -19,6 +19,8 @@
 */
 
 #include "LookupTables.h"
+#include <sstream>
+#include <iomanip>
 using namespace std;
 
 namespace FEConfig {
@@ -139,10 +141,40 @@ void ParamTable::streamOut(std::ostream& out) const {
     }
 }
 
-void MixerParams::streamOut(std::ostream& out) const {
-    out << "FreqLO: VJ01 VJ02 VJ11 VJ12 IJ01 IJ02 IJ11 IJ12" << std::endl;
-    ParamTable::streamOut(out);
+void MixerParams::streamOut(std::ostream& out, bool asIniFileRecord) const {
+    if (!asIniFileRecord) {
+        out << "FreqLO: VJ01 VJ02 VJ11 VJ12 IJ01 IJ02 IJ11 IJ12" << std::endl;
+        ParamTable::streamOut(out);
+
+    } else {
+        std::stringstream tmp;
+        int count(0);
+
+        const_iterator it;
+        for (it = begin(); it != end(); ++it) {
+            count++;
+
+            char prevFill = tmp.fill('0');
+            tmp << "MixerParam" << setw(2) << count << "=";
+
+            tmp.fill(prevFill);
+            tmp << fixed << setw(freqWidth_m) << setprecision(freqPrecision_m) << it -> first << ",";
+
+            const ParamTableRow &row = it -> second;
+
+            tmp << fixed << setw(row.fWidth_m) << setprecision(row.fPrecision_m)
+                << row.get(MixerParams::VJ01) << "," << row.get(MixerParams::VJ02) << ","
+                << row.get(MixerParams::VJ11) << "," << row.get(MixerParams::VJ11) << ","
+                << row.get(MixerParams::IJ01) << "," << row.get(MixerParams::IJ02) << ","
+                << row.get(MixerParams::IJ11) << "," << row.get(MixerParams::IJ12) << endl;
+        }
+        out << "MixerParams=" << count << endl;
+        out << tmp.str() << endl;
+    }
 }
+
+
+
 
 void MagnetParams::streamOut(std::ostream& out) const {
     out << "FreqLO: IMag01 IMag02 IMag11 IMag12" << std::endl;

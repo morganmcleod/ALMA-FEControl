@@ -223,7 +223,7 @@ void CartridgesContainer::stopMonitor() {
 bool CartridgesContainer::pauseMonitor(int port, bool pauseWCA, bool pauseCC) {
     CartAssembly *ca = carts_mp -> use(port);
     if (ca) {
-        ca -> pauseMonitor(pauseWCA, pauseCC, "User Command");
+        ca -> pauseMonitor(pauseWCA, pauseCC);
         return true;
     }
     return false;

@@ -199,7 +199,9 @@ public:
     
     bool cartOptimizeIFPower(int port, bool doPol0, bool doPol1);
 
-    bool cartGetOptimizedResult(int port);
+    bool cartClearOptimizedResult(short port);
+
+    bool cartGetOptimizedResult(int port, std::string &mixerParamsText);
 
     bool cartSetIFPower(int port, int pol, float powerSB1, float powerSB2);
     ///< Inject the current IF power level readings for a single port and polarization.

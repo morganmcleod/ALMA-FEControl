@@ -255,8 +255,13 @@ public:
     ///< Sends the event EVENT_REQUEST_IFPOWER via the client app event queue power readings are required.
     ///< Sends the event EVENT_PA_ADJUST_DONE when finished.
     
-    bool getOptimizedResult();
-    ///< Get the results from optimizeIFPower.   TODO: finish interface.
+    bool clearOptimizedResult();
+    ///< Clear out tables accumulating results from cartOptimizeIFPower for the given port.
+
+    bool getOptimizedResult(std::string &mixerParamsText);
+    ///< Get the optimized MixerParams as text from recent calls to optimizeIFPower.
+    ///<    since the last call to clearOptimizedResult().
+    ///< Returns a text section of the collectd CCA MixerParams.
 
     bool setIFPower(int pol, float powerSB1, float powerSB2);
     ///< Inject the current IF power level readings for a single polarization.

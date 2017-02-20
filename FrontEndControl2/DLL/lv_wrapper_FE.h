@@ -278,8 +278,13 @@ DLLEXPORT short cartOptimizeIFPower(short port, short pol);
 ///< Sends the event EVENT_REQUEST_IFPOWER via the client app event queue when power readings are required.
 ///< Sends the event EVENT_PA_ADJUST_DONE  when finished.                        
 
-DLLEXPORT short cartGetOptimizedResult(short port);
-///< Get the optimized MixerParams and PowerAmpParams from the last call to cartOptimizeIFPower
+DLLEXPORT short cartClearOptimizedResult(short port);
+///< Clear out tables accumulating results from cartOptimizeIFPower for the given port.
+
+DLLEXPORT short cartGetOptimizedResult(short port, char *mixerParamsText);
+///< Get the optimized MixerParams as text from recent calls to cartOptimizeIFPower.
+///<    since the last call to cartClearOptimizedResult().
+///< Returns a text section of the collectd CCA MixerParams.
 
 DLLEXPORT short cartSetIFPower(short port, short pol, float powerSB1, float powerSB2);
 ///< Inject the current IF power level readings for a single port and polarization.

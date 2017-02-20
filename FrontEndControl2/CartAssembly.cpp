@@ -1861,15 +1861,28 @@ bool CartAssembly::optimizeIFPower(bool doPol0, bool doPol1) {
     return ret;
 }
 
-bool CartAssembly::getOptimizedResult() {
+bool CartAssembly::clearOptimizedResult() {
+    if (!optimizerIFPower_mp)
+        return false;
+    optimizerIFPower_mp -> resetParamsResult();
+    return true;
+}
+
+bool CartAssembly::getOptimizedResult(std::string &mixerParamsText) {
+    mixerParamsText.clear();
+
     if (!optimizerIFPower_mp)
         return false;
 
     const MixerParams &mp = optimizerIFPower_mp -> getMixerParamsResult();
     const PowerAmpParams &pp = optimizerIFPower_mp -> getPowerAmpParamsResult();
 
-    LOG(LM_INFO) << mp << endl;
-    LOG(LM_INFO) << pp << endl;
+    std::stringstream tmp;
+    mp.streamOut(tmp, true);
+    mixerParamsText = tmp.str();
+
+    LOG(LM_INFO) << "CartAssembly::getOptimizedResult band=" << band_m << ":" << endl;
+    LOG(LM_INFO) << mixerParamsText << endl;
     return true;
 }
 

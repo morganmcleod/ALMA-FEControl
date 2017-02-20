@@ -1311,10 +1311,19 @@ bool FrontEndImpl::cartOptimizeIFPower(int port, bool doPol0, bool doPol1) {
     return false;
 }
 
-bool FrontEndImpl::cartGetOptimizedResult(int port) {
+bool FrontEndImpl::cartClearOptimizedResult(short port) {
     CartAssembly *ca = carts_mp -> getCartAssembly(port);
     if (ca) {
-        return ca -> getOptimizedResult();
+        return ca -> clearOptimizedResult();
+    }
+    reportBadCartridge(port, "FrontEndImpl::cartClearOptimizedResult");
+    return false;
+}
+
+bool FrontEndImpl::cartGetOptimizedResult(int port, std::string &mixerParamsText) {
+    CartAssembly *ca = carts_mp -> getCartAssembly(port);
+    if (ca) {
+        return ca -> getOptimizedResult(mixerParamsText);
     }
     reportBadCartridge(port, "FrontEndImpl::cartGetOptimizedResult");
     return false;
