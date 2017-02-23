@@ -38,6 +38,9 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.6.1-beta1
+adjustLOPASinglePol back to FECONTROL2_5 algorithm
+
 2.6.0 2017-02-20
 New build system GCC 5.3.0, pthreadGC-3.dll using MinGW 0.6 libs, not separate 3rdparty
 lv_wrapper: 
