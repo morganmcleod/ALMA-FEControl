@@ -940,11 +940,11 @@ bool CartAssembly::adjustLOPASinglePol(int pol, float &VD, float targetIJ1, bool
     bool foundMin = false;      // true if a minimum has been seen
 
 
-#define FECONTROL2_5
+//#define FECONTROL2_5
 //#define TRUNK_20151228
 //#define CCAOPT_PY
 //#define B2015_08_ICT_6284_B
-//#define MMPROPOSED
+#define MMPROPOSED
 
 #ifdef MMPROPOSED
 

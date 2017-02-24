@@ -153,7 +153,7 @@ bool ConfigProviderIniFile::getFrontEndConfig(unsigned keyFacility, unsigned key
     unsigned fkCryostat(0), fkLPR(0), numCarts(0);
 
     target.SN_m = iniFile_mp -> GetValue(sectionName, "SN");
-    target.ESN_m = iniFile_mp -> GetValue(sectionName, "RSN");
+    target.ESN_m = iniFile_mp -> GetValue(sectionName, "ESN");
 
     tmp = iniFile_mp -> GetValue(sectionName, "Cryostat");
     if (!tmp.empty())
