@@ -133,11 +133,14 @@ void CartAssembly::queryCartridgeState() {
         int CCBand((coldCart_mp) ? coldCart_mp -> getBand() : band_m);
         multCold_m = ColdCartImpl::getMultiplier(CCBand);
         multAMC_m = WCAImpl::getMultiplier(WCA_mp -> getBand());
+        bool sbLock = WCA_mp -> getPLLSidebandLockSelectSetting();
 
-        // get the LO frequency, rounded to the nearest GHz:
-        freqREF_m = multCold_m * YIGCourseToFreq(WCA_mp -> getYTOCoarseTuneSetting());
-        freqLO_m = multAMC_m * freqREF_m;
-        freqLO_m = floor(freqLO_m + 0.5);
+        // get the LO frequency, rounded to the nearest 100 MHz:
+        double freqFLOOG((freqFLOOG_m > 0.0) ? freqFLOOG_m : 0.0315);  // Assume 31.5 MHz unless told otherwise.
+        double freqWCA = multAMC_m * YIGCourseToFreq(WCA_mp -> getYTOCoarseTuneSetting());
+        freqLO_m = multCold_m * freqWCA;
+        freqLO_m = (floor(freqLO_m * 10 + 0.5) / 10);
+        freqREF_m = freqWCA + ((sbLock == 0) ? freqFLOOG : -freqFLOOG);
         isTunedLO_m = true;
     }
     if (coldCart_mp)
@@ -386,13 +389,13 @@ bool CartAssembly::adjustYTO(int steps) {
 int CartAssembly::getCoarseYIG(double &freqYIG, double &freqREF,
                                double freqLO, double freqFLOOG, int sbLock) const
 {
-    double freqWCALO = freqLO / multCold_m;
+    double freqWCA = freqLO / multCold_m;
         ///< the frequency at the WCA LO output ports.
 
-    freqREF = freqWCALO + ((sbLock == 0) ? freqFLOOG : -freqFLOOG);
+    freqREF = freqWCA + ((sbLock == 0) ? freqFLOOG : -freqFLOOG);
         ///< the required frequency at the WCA reference input port.
 
-    freqYIG = freqWCALO / multAMC_m;
+    freqYIG = freqWCA / multAMC_m;
         ///< the target YTO frequency.
 
     int coarseYIG = YIGFreqToCoarse(freqYIG);

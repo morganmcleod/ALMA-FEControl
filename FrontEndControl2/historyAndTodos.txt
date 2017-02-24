@@ -42,6 +42,7 @@ Revision history:
 adjustLOPASinglePol using MMPROPOSED algorithm again.  
   Wait for computing to decide http://ictjira.alma.cl/browse/ICT-6284
 Added DLL version resource
+queryCartridgeState(): round to 100 MHz.  Fix bugs computing freqREF_m.
 
 2.6.1-beta1
 adjustLOPASinglePol temporarily using FECONTROL2_5 algorithm
