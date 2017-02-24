@@ -106,10 +106,14 @@ $(FRONTENDOUT): $(FRONTENDCPP)
 	-c $(FRONTENDCPP)
 
 # List of all output files:
-ALLOUT = $(CONFIGOUT) $(FEBASEOUT) $(FRONTENDOUT) $(LOGGEROUT) $(OPTIMIZEOUT)
+ALLOUT = $(CONFIGOUT) $(FEBASEOUT) $(FRONTENDOUT) $(LOGGEROUT) $(OPTIMIZEOUT) DLL/resource.o
 
 .PHONY: allout
 allout: $(ALLOUT)
+
+# Rule to compile the resource file:
+DLL/resource.o: DLL/resource.rc
+	windres -i DLL/resource.rc -o DLL/resource.o
 
 # Rule to make the DLL:
 .PHONY: dll
@@ -182,6 +186,9 @@ current:
 
 oneFile:
 	$(MAKE) FEMCEventQueue.o
+	
+copyDLL:
+	cp FrontEndControl.dll "../../labview2013/drivers/FE Control/"
 	
 clean:
 	@for dir in CONFIG FEBASE LOGGER OPTIMIZE; do \
