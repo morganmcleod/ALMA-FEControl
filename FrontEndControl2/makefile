@@ -29,7 +29,7 @@ export BUILD = L:/ALMA-FEControl
 
 # includes and libs for "portable" code = POSIX threads.  2.6.0: Using pthreds from MinGW 0.6 now.
 PTHREADINC =
-PTHREADLIB = -lpthreadGC-3
+PTHREADLIB = -lpthreadGC-3.dll
 STATICGCCLIB =
 
 export PORTABLEINC = $(PTHREADINC)
@@ -62,7 +62,7 @@ export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) -I$(CURDIR)
 WINLIBS = -lwinmm -lwsock32
 
 # flags for compiling C++ code:
-export CPPFLAGS = -O0 -g -fmessage-length=0
+export CPPFLAGS = -O0 -g3 -fmessage-length=0
 #-Wall 
 
 # list of output files in subdirectories:
@@ -142,6 +142,7 @@ t_lv_wrapper.exe : tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a
 	g++ $(CPPFLAGS) -o t_lv_wrapper.exe \
 	tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a \
 	$(PORTABLEINC) $(PROJECTINC)
+	- cp ../3rdparty/MySQL41/lib/debug/libmysql.dll .
 
 # This test uses the DLL:
 t_lv_wrapper_sigSrc.exe : tests/t_lv_wrapper_sigSrc.cpp DLL/libFrontEndControl.a 

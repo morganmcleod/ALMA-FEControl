@@ -235,8 +235,10 @@ DLLEXPORT short sigSrcLoadConfiguration(short configId) {
 	
     ConfigManager configMgr(*provider);
     Configuration config(facilityIdSigSrc, configId);
-    if (!config.load(*provider))
+    if (!config.load(*provider)) {
+        LOG(LM_ERROR) << "sigSrcLoadConfiguration: failed config.load(*provider)" << endl;
         return -1;
+    }
 
     delete provider;
     
