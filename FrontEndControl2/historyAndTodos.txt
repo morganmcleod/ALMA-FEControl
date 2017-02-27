@@ -38,6 +38,13 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.6.1 2017-02-27
+2.6.1-beta4
+Rebuilt with -lpthreadGC-3.dll
+
+2.6.1-beta3
+Rebuilt.
+
 2.6.1-beta2
 adjustLOPASinglePol using MMPROPOSED algorithm again.  
   Wait for computing to decide http://ictjira.alma.cl/browse/ICT-6284
