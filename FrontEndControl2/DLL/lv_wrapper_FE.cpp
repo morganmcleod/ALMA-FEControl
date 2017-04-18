@@ -163,8 +163,13 @@ DLLEXPORT short FEControlInit() {
         tmp = configINI.GetValue("logger", "logAmbErrors");
         if (!tmp.empty())
             logAmbErrors = from_string<unsigned long>(tmp);
+        if (!CAN_noTransmit) {
+            LOG(LM_INFO) << "logAmbErrors=" << logAmbErrors << endl;
+        } else {
+            logAmbErrors = false;
+            LOG(LM_INFO) << "logAmbErrors=0 because CAN_noTransmit=1" << endl;
+        }
         FEHardwareDevice::logAmbErrors(logAmbErrors);
-        LOG(LM_INFO) << "logAmbErrors=" << logAmbErrors << endl;
         
         // get the facility code from the new key facilityId:
         tmp = configINI.GetValue("configuration", "facilityId");

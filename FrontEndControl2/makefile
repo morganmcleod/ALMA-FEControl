@@ -134,8 +134,16 @@ DLL/libFrontEndControl.a: FrontEndControl.dll DLL/FrontEndControl.def
 	dlltool --dllname FrontEndControl.dll --def DLL/FrontEndControl.def --output-lib DLL/libFrontEndControl.a -k
 
 .PHONY: tests
-tests: t_lv_wrapper.exe t_lv_wrapper_sigSrc.exe t_SocketClient.exe \
+tests: t_lv_static.exe t_lv_wrapper.exe t_lv_wrapper_sigSrc.exe t_SocketClient.exe \
 	t_LookupTables.exe t_semaphore_leaks.exe t_StreamLogger.exe t_FEICDataBase.exe
+
+# This test links the DLL code statically:
+t_lv_static.exe : tests/t_lv_wrapper.cpp $(DLLCPP) $(ALLOUT)
+	g++ $(CPPFLAGS) -DSTATIC_FRONTENDCONTROL -o t_lv_static.exe \
+	tests/t_lv_wrapper.cpp $(DLLCPP) $(ALLOUT) \
+	$(PORTABLEINC) $(PROJECTINC) \
+	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIBS) $(NICANLIB) $(PORTABLELIB) \
+	-Wl,--enable-auto-import
 
 # This test uses the DLL:
 t_lv_wrapper.exe : tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a 
@@ -143,7 +151,7 @@ t_lv_wrapper.exe : tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a
 	tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a \
 	$(PORTABLEINC) $(PROJECTINC)
 	- cp ../3rdparty/MySQL41/lib/debug/libmysql.dll .
-
+	
 # This test uses the DLL:
 t_lv_wrapper_sigSrc.exe : tests/t_lv_wrapper_sigSrc.cpp DLL/libFrontEndControl.a 
 	g++ $(CPPFLAGS) -o t_lv_wrapper_sigSrc.exe \

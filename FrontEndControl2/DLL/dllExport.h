@@ -34,12 +34,16 @@
      #define cppfudge
 #endif
 
-#ifdef BUILD_FRONTENDCONTROL
-     // the dll exports
-     #define DLLEXPORT __declspec(dllexport) __cdecl
+#ifdef STATIC_FRONTENDCONTROL
+     // use the code statically
+     #define DLLEXPORT extern cppfudge
 #else
-     // the exe imports
-     #define DLLEXPORT extern cppfudge __declspec(dllimport) __cdecl
+    #ifdef BUILD_FRONTENDCONTROL
+         // the dll exports
+         #define DLLEXPORT __declspec(dllexport) __cdecl
+    #else
+         // the exe imports
+         #define DLLEXPORT extern cppfudge __declspec(dllimport) __cdecl
+    #endif
 #endif
-
 #endif /*_FRONTENDCONTROL_LV_WRAPPER_DLL_EXPORT_H_*/
