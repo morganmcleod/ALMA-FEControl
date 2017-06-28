@@ -207,17 +207,21 @@ bool FrontEndImpl::startHealthCheck(bool isPASData, bool fullAuto) {
     getDbConfigId(feConfig);
 
     // enable IF switch temperature servo so we can collect the temperatures:
-    if (!ifSwitchSetEnableTempServo(-1, -1, true))
-        LOG(LM_ERROR) << context << ": ifSwitchSetEnableTempServo failed." << endl;
-    else
-        LOG(LM_INFO) << context << ": enabled IF switch temp servo." << endl;
+    if (ifSwitch_mp) {
+        if (!ifSwitchSetEnableTempServo(-1, -1, true))
+            LOG(LM_ERROR) << context << ": ifSwitchSetEnableTempServo failed." << endl;
+        else
+            LOG(LM_INFO) << context << ": enabled IF switch temp servo." << endl;
+    }
 
     // set LPR EDFA modulation so that we can collect the photomixer responses in the main cartrige loop:
-    float EDFANom = 1.90;
-    if (!lprSetEDFAModulationInput(EDFANom))
-        LOG(LM_ERROR) << context << ": lprSetEDFAModulationInput failed." << endl;
-    else
-        LOG(LM_INFO) << context << ": set LPR EDFA modulation to " << EDFANom << " V." << endl;
+    if (lpr_mp) {
+        float EDFANom = 1.90;
+        if (!lprSetEDFAModulationInput(EDFANom))
+            LOG(LM_ERROR) << context << ": lprSetEDFAModulationInput failed." << endl;
+        else
+            LOG(LM_INFO) << context << ": set LPR EDFA modulation to " << EDFANom << " V." << endl;
+    }
 
     // pause to allow monitor data to be collected:
     int waitTime = 10;  // seconds;  TODO: is this long enough to complete a monitor cycle for IF switch, LPR, and cryostat data?
@@ -230,94 +234,100 @@ bool FrontEndImpl::startHealthCheck(bool isPASData, bool fullAuto) {
     // get cryostat temperatures and determine if the receiver is cold:
     hcReceiverIsCold_m = false;  // Assume warm unless we can discover otherwise.
 
-    CryostatImpl::Cryostat_t cryoData;
-    if (!cryostatGetMonitorModule(cryoData))
-        LOG(LM_ERROR) << context << ": cryostatGetMonitorModule failed." << endl;
-    else {
-        float switchTemperature = 30.0;
-        float maxTemperature = 350.0;
-        // check the 4K & 15K stage temps.  If they are out of range, health check cannot proceed:
-        if ((cryoData.cryostatTemperature0_value <= 0 || cryoData.cryostatTemperature0_value > maxTemperature) &&
-            (cryoData.cryostatTemperature5_value <= 0 || cryoData.cryostatTemperature5_value > maxTemperature))
-        {
-            LOG(LM_ERROR) << context << ": Cryostat 4K and 15K temperatures are both out of range.  Health check cannot continue!" << endl;
-            return false;
-        }
-        // check the 4K & 15K stage temps.  If either are below the threshold, consider it cold:
-        if (cryoData.cryostatTemperature0_value < switchTemperature || cryoData.cryostatTemperature5_value < switchTemperature) {
-            LOG(LM_INFO) << context << ": cryostat is cold." << endl;
-            if (isPASData)
-                dataStatus = FEICDataBase::DS_COLD_PAS;
-            hcReceiverIsCold_m = true;
-        } else {
-            LOG(LM_INFO) << context << ": cryostat is warm." << endl;
-            if (isPASData)
-                dataStatus = FEICDataBase::DS_WARM_PAS;
-            hcReceiverIsCold_m = false;
-        }
-        // log the data output.
-        LOG(LM_INFO) << "4k_CryoCooler,4k_PlateLink1,4k_PlateLink2,4k_PlateFarSide1,4k_PlateFarSide2,15k_CryoCooler,15k_PlateLink,15k_PlateFarSide,15k_Shield,110k_CryoCooler,110k_PlateLink,110k_PlateFarSide,110k_Shield" << endl;
-        LOG(LM_INFO) << fixed << setprecision(2)
-                     << cryoData.cryostatTemperature0_value << ","
-                     << cryoData.cryostatTemperature1_value << ","
-                     << cryoData.cryostatTemperature2_value << ","
-                     << cryoData.cryostatTemperature3_value << ","
-                     << cryoData.cryostatTemperature4_value << ","
-                     << cryoData.cryostatTemperature5_value << ","
-                     << cryoData.cryostatTemperature6_value << ","
-                     << cryoData.cryostatTemperature7_value << ","
-                     << cryoData.cryostatTemperature8_value << ","
-                     << cryoData.cryostatTemperature9_value << ","
-                     << cryoData.cryostatTemperature10_value << ","
-                     << cryoData.cryostatTemperature11_value << ","
-                     << cryoData.cryostatTemperature12_value << endl;
+    if (cryostat_mp) {
+        CryostatImpl::Cryostat_t cryoData;
+        if (!cryostatGetMonitorModule(cryoData))
+            LOG(LM_ERROR) << context << ": cryostatGetMonitorModule failed." << endl;
+        else {
+            float switchTemperature = 30.0;
+            float maxTemperature = 350.0;
+            // check the 4K & 15K stage temps.  If they are out of range, health check cannot proceed:
+            if ((cryoData.cryostatTemperature0_value <= 0 || cryoData.cryostatTemperature0_value > maxTemperature) &&
+                (cryoData.cryostatTemperature5_value <= 0 || cryoData.cryostatTemperature5_value > maxTemperature))
+            {
+                LOG(LM_ERROR) << context << ": Cryostat 4K and 15K temperatures are both out of range.  Health check cannot continue!" << endl;
+                return false;
+            }
+            // check the 4K & 15K stage temps.  If either are below the threshold, consider it cold:
+            if (cryoData.cryostatTemperature0_value < switchTemperature || cryoData.cryostatTemperature5_value < switchTemperature) {
+                LOG(LM_INFO) << context << ": cryostat is cold." << endl;
+                if (isPASData)
+                    dataStatus = FEICDataBase::DS_COLD_PAS;
+                hcReceiverIsCold_m = true;
+            } else {
+                LOG(LM_INFO) << context << ": cryostat is warm." << endl;
+                if (isPASData)
+                    dataStatus = FEICDataBase::DS_WARM_PAS;
+                hcReceiverIsCold_m = false;
+            }
+            // log the data output.
+            LOG(LM_INFO) << "4k_CryoCooler,4k_PlateLink1,4k_PlateLink2,4k_PlateFarSide1,4k_PlateFarSide2,15k_CryoCooler,15k_PlateLink,15k_PlateFarSide,15k_Shield,110k_CryoCooler,110k_PlateLink,110k_PlateFarSide,110k_Shield" << endl;
+            LOG(LM_INFO) << fixed << setprecision(2)
+                         << cryoData.cryostatTemperature0_value << ","
+                         << cryoData.cryostatTemperature1_value << ","
+                         << cryoData.cryostatTemperature2_value << ","
+                         << cryoData.cryostatTemperature3_value << ","
+                         << cryoData.cryostatTemperature4_value << ","
+                         << cryoData.cryostatTemperature5_value << ","
+                         << cryoData.cryostatTemperature6_value << ","
+                         << cryoData.cryostatTemperature7_value << ","
+                         << cryoData.cryostatTemperature8_value << ","
+                         << cryoData.cryostatTemperature9_value << ","
+                         << cryoData.cryostatTemperature10_value << ","
+                         << cryoData.cryostatTemperature11_value << ","
+                         << cryoData.cryostatTemperature12_value << endl;
 
-        // save data to database:
-        if (!dbObject_mp -> insertCryostatData(feConfig, dataStatus, cryoData))
-            LOG(LM_ERROR) << context << ": database insertCryostatData failed." << endl;
+            // save data to database:
+            if (!dbObject_mp -> insertCryostatData(feConfig, dataStatus, cryoData))
+                LOG(LM_ERROR) << context << ": database insertCryostatData failed." << endl;
+        }
     }
 
     // store the dataStatus for later use in cartHealthCheck:
     hcDataStatus_m = (int) dataStatus;
 
     // Get IF switch temperatures:
-    IFSwitchImpl::IFSwitch_t ifswData;
-    if (!ifSwitchGetMonitorModule(ifswData))
-        LOG(LM_ERROR) << context << ": ifSwitchGetMonitorModule failed." << endl;
-    else {
-        LOG(LM_INFO) << context << ": got IF switch monitor data." << endl;
-        // log the data output.
-        LOG(LM_INFO) << "pol0sb1,pol0sb2,pol1sb1,pol1sb2" << endl;
-        LOG(LM_INFO) << fixed << setprecision(2)
-                     << ifswData.pol0Sb1AssemblyTemp_value << ","
-                     << ifswData.pol0Sb2AssemblyTemp_value << ","
-                     << ifswData.pol1Sb1AssemblyTemp_value << ","
-                     << ifswData.pol1Sb2AssemblyTemp_value << endl;
+    if (ifSwitch_mp) {
+        IFSwitchImpl::IFSwitch_t ifswData;
+        if (!ifSwitchGetMonitorModule(ifswData))
+            LOG(LM_ERROR) << context << ": ifSwitchGetMonitorModule failed." << endl;
+        else {
+            LOG(LM_INFO) << context << ": got IF switch monitor data." << endl;
+            // log the data output.
+            LOG(LM_INFO) << "pol0sb1,pol0sb2,pol1sb1,pol1sb2" << endl;
+            LOG(LM_INFO) << fixed << setprecision(2)
+                         << ifswData.pol0Sb1AssemblyTemp_value << ","
+                         << ifswData.pol0Sb2AssemblyTemp_value << ","
+                         << ifswData.pol1Sb1AssemblyTemp_value << ","
+                         << ifswData.pol1Sb2AssemblyTemp_value << endl;
 
-        if (!dbObject_mp -> insertIfSwitchData(feConfig, dataStatus, ifswData))
-            LOG(LM_ERROR) << context << ": database insertIfSwitchData failed." << endl;
+            if (!dbObject_mp -> insertIfSwitchData(feConfig, dataStatus, ifswData))
+                LOG(LM_ERROR) << context << ": database insertIfSwitchData failed." << endl;
+        }
     }
 
     // Get LPR monitor data:
-    LPRImpl::LPR_t lprData;
-    if (!lprGetMonitorModule(lprData))
-        LOG(LM_ERROR) << context << ": lprGetMonitorModule failed." << endl;
-    else {
-        LOG(LM_INFO) << context << ": got LPR monitor data." << endl;
-        // log the data output.
-        LOG(LM_INFO) << "LaserPumpTemp,LaserDrive,LaserPhotodetector,Photodetector_mA,Photodetector_mW,ModInput,Temperature0,Tempearature1" << endl;
-        LOG(LM_INFO) << fixed << setprecision(2)
-                     << lprData.EDFALaserPumpTemperature_value << ","
-                     << lprData.EDFALaserDriveCurrent_value << ","
-                     << lprData.EDFALaserPhotoDetectCurrent_value << ","
-                     << lprData.EDFAPhotoDetectCurrent_value << ","
-                     << lprData.EDFAPhotoDetectPower_value << ","
-                     << lprData.EDFAModulationInput_value << ","
-                     << lprData.LPRTemperature0_value << ","
-                     << lprData.LPRTemperature1_value << endl;
+    if (lpr_mp) {
+        LPRImpl::LPR_t lprData;
+        if (!lprGetMonitorModule(lprData))
+            LOG(LM_ERROR) << context << ": lprGetMonitorModule failed." << endl;
+        else {
+            LOG(LM_INFO) << context << ": got LPR monitor data." << endl;
+            // log the data output.
+            LOG(LM_INFO) << "LaserPumpTemp,LaserDrive,LaserPhotodetector,Photodetector_mA,Photodetector_mW,ModInput,Temperature0,Tempearature1" << endl;
+            LOG(LM_INFO) << fixed << setprecision(2)
+                         << lprData.EDFALaserPumpTemperature_value << ","
+                         << lprData.EDFALaserDriveCurrent_value << ","
+                         << lprData.EDFALaserPhotoDetectCurrent_value << ","
+                         << lprData.EDFAPhotoDetectCurrent_value << ","
+                         << lprData.EDFAPhotoDetectPower_value << ","
+                         << lprData.EDFAModulationInput_value << ","
+                         << lprData.LPRTemperature0_value << ","
+                         << lprData.LPRTemperature1_value << endl;
 
-        if (!dbObject_mp -> insertLPRMonitorData(feConfig, dataStatus, lprData))
-            LOG(LM_ERROR) << context << ": database insertLPRMonitorData failed." << endl;
+            if (!dbObject_mp -> insertLPRMonitorData(feConfig, dataStatus, lprData))
+                LOG(LM_ERROR) << context << ": database insertLPRMonitorData failed." << endl;
+        }
     }
 
     // Set flag to indicate that health check has started:
@@ -544,12 +554,13 @@ bool FrontEndImpl::cartHealthCheckSaveIFPowerData(int port, const IFPowerDataSet
 bool FrontEndImpl::finishHealthCheck() {
     static const string context("FrontEndImpl::finishHealthCheck");
 
-    // set LPR EDFA back to 0:
-    if (!lprSetEDFAModulationInput(0.0))
-        LOG(LM_ERROR) << context << ": lprSetEDFAModulationInput failed." << endl;
-    else
-        LOG(LM_INFO) << context << ": set LPR EDFA modulation to 0 V." << endl;
-
+    if (lpr_mp) {
+        // set LPR EDFA back to 0:
+        if (!lprSetEDFAModulationInput(0.0))
+            LOG(LM_ERROR) << context << ": lprSetEDFAModulationInput failed." << endl;
+        else
+            LOG(LM_INFO) << context << ": set LPR EDFA modulation to 0 V." << endl;
+    }
     hcStarted_m = hcReceiverIsCold_m = false;
     hcFacility_m = hcDataStatus_m = 0;
     return true;
