@@ -1,0 +1,15 @@
+.settings
+.p4ignore
+3rdparty
+*.o
+*.a
+*.exe
+*.dll
+*.def
+cinifile_example
+CppUnit*
+IFSUploader
+iniparser_example
+MZM-LORTM
+Debug
+html
