@@ -568,6 +568,10 @@ bool FrontEndImpl::finishHealthCheck() {
     return true;
 }
 
+bool FrontEndImpl::existsCartAssembly(int port) {
+    return carts_mp -> existsCartAssembly(port);
+}
+
 void FrontEndImpl::queryCartridgeState() {
     char buf[20];
     int observingBand = 0;

@@ -500,35 +500,22 @@ DLLEXPORT short FELoadConfiguration(short keyFacility, short configId) {
 
 DLLEXPORT short FEGetNextSerialNum(short reset, char *serialNum, unsigned long *frontEndId) {
     return -1;
+// TODO: this function not used in client code.  Not creating dbObject in wrapper.  If needed, move into a helper class.
+}
 
-/*  if (!FEValid)               TODO: this function not used in client code.  Not creating dbObject in wrapper.  If needed, move into a helper class.
+DLLEXPORT short FEGetConfiguredBands(short *size, short *bands) {
+    if (!FEValid)
         return -1;
-
-    if (!dbObject)
+    if (!size || !bands)
         return -1;
-
-    if (!serialNum || !frontEndId)
-        return -1;
-
-    static FEICDataBase::IDList_T idList;
-    static FEICDataBase::IDList_T::const_iterator it = idList.end();
-
-    if (reset) {
-        int facility = dbObject -> getDefaultFacility();
-        dbObject -> getFrontEndList(facility, idList);
-        it = idList.begin();
-    } else
-        ++it;
-
-    if (it != idList.end()) {
-        strcpy(serialNum, (*it).first.c_str());
-        *frontEndId = (*it).second.keyId;
-    } else {
-        strcpy(serialNum, "");
-        *frontEndId = 0;
+    *size = 0;
+    for (short band = 1; band <= 10; ++band) {
+        if (frontEnd -> existsCartAssembly(band)) {
+            bands[*size] = band;
+            size++;
+        }
     }
     return 0;
-*/
 }
 
 DLLEXPORT short FEStartHealthCheck(short isPASData, short fullAuto) {

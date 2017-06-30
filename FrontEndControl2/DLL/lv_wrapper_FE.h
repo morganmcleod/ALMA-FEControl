@@ -116,6 +116,12 @@ DLLEXPORT short FELoadConfiguration(short keyFacility, short configId);
 DLLEXPORT short FEGetNextSerialNum(short reset, char *serialNum, unsigned long *frontEndId);
 ///< Iterate through the list of available front end serial numbers and their associated keys.
 
+DLLEXPORT short FEGetConfiguredBands(short *size, short *bands);
+///< Retrieve an array of configured band numbers.
+///< bands points to a data array. size and bands are required.
+///< *size specifies how many elements are in the bands array before the call
+///<  and how many valid elements are there after the call.  Array memory must be pre-allocated.
+
 DLLEXPORT short FEStartHealthCheck(short isPASData, short fullAuto);
 ///< Set initial conditions for front end overall and cartridge health check.
 ///< if isPASData is nonzero, data will be stored as PAS reference data, else as healthcheck data.

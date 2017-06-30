@@ -69,6 +69,7 @@ public:
     bool cartHealthCheck(int port, int warmUpTimeSeconds);
     bool cartHealthCheckSaveIFPowerData(int port, const IFPowerDataSet &source);
     bool finishHealthCheck();
+    bool existsCartAssembly(int port);
 
 // query enabled/observing status of powermodules and cartridges:
     void queryCartridgeState();
