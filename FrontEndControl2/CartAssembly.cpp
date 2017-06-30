@@ -2353,7 +2353,7 @@ bool CartAssembly::mixerDeflux(int pol, int sb, int IMagMax) {
     return false;
 }
 
-bool CartAssembly::prepareHealtCheck(FrontEndDatabase &dbObject, const FEICDataBase::ID_T &feConfig, FEICDataBase::DATASTATUS_TYPES dataStatus,
+bool CartAssembly::prepareHealthCheck(FrontEndDatabase &dbObject, const FEICDataBase::ID_T &feConfig, FEICDataBase::DATASTATUS_TYPES dataStatus,
         double &freqLOret, bool receiverIsCold, int warmUpTimeSeconds)
 {
     if (!cartHealthCheck_mp)

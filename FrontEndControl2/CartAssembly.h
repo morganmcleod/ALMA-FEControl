@@ -369,7 +369,7 @@ public:
     ///< Defluxing happens on a worker thread.
     ///< Sends the event EVENT_OPTIMIZE_DONE via getNextEvent when finished.     
     
-    bool prepareHealtCheck(FrontEndDatabase &dbObject, const FEICDataBase::ID_T &feConfig, FEICDataBase::DATASTATUS_TYPES dataStatus,
+    bool prepareHealthCheck(FrontEndDatabase &dbObject, const FEICDataBase::ID_T &feConfig, FEICDataBase::DATASTATUS_TYPES dataStatus,
             double &freqLOret, bool receiverIsCold, int warmUpTimeSeconds);
     ///< set up the cartridge for performing the health check and wait the specified warmUpTimeSeconds.
     ///< executes on calling thread.
@@ -380,7 +380,7 @@ public:
     ///<  warmUpTimeSeconds specifies how long to wait before starting to take data.
 
     bool startHealthCheck();
-    ///< complete the health check last set up with prepareHealtCheck.  executes on worker thread.
+    ///< complete the health check last set up with prepareHealthCheck.  executes on worker thread.
 
     void abortMeasurement();
     ///< Stops all optimization measurements which are in progress.

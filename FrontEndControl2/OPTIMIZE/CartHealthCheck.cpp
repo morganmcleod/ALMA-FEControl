@@ -157,6 +157,9 @@ bool CartHealthCheck::prepare(const FEICDataBase::ID_T &feConfig, FEICDataBase::
 
     // Get the center LO frequency for the band:
     switch (band) {
+        case 1:
+            freqLO_m = 35.0;
+            break;
         case 2:
             freqLO_m = 72.0;
             break;
@@ -465,63 +468,96 @@ void CartHealthCheck::optimizeAction() {
             LOG(LM_ERROR) << context << ": database createSISMonitorDataHeader failed." << endl;
 
         // Get cold cartridge SIS monitor data:
-        ColdCartImpl::SIS_t sisData;
-        LOG(LM_INFO) << context << ": SIS monitor data for band=" << band << "..." << endl;
-        // log the data header.
-        LOG(LM_INFO) << "Band,FreqLO,Pol,SB,VjRead,IjRead,VmagRead,ImagRead" << endl;
-        ok = false;
-        dbError = false;
-        for (int pol = 0; pol <= 1; ++pol) {
-            for (int sb = 1; sb <= 2; ++sb) {
-                if (cca_p -> getMonitorSIS(pol, sb, sisData)) {
-                    ok = true;
-                    // log the data output.
-                    LOG(LM_INFO) << band << "," << fixed << setprecision(3) << freqLO_m << "," << pol << "," << sb << ","
-                                 << sisData.sisVoltage_value << ","
-                                 << 1000 * sisData.sisCurrent_value << ","
-                                 << sisData.sisMagnetVoltage_value << ","
-                                 << sisData.sisMagnetCurrent_value << endl;
+        if (cca_p -> hasSIS()) {
+            ColdCartImpl::SIS_t sisData;
+            LOG(LM_INFO) << context << ": SIS monitor data for band=" << band << "..." << endl;
+            // log the data header.
+            LOG(LM_INFO) << "Band,FreqLO,Pol,SB,VjRead,IjRead,VmagRead,ImagRead" << endl;
+            ok = false;
+            dbError = false;
+            for (int pol = 0; pol <= 1; ++pol) {
+                for (int sb = 1; sb <= 2; ++sb) {
+                    if (cca_p -> getMonitorSIS(pol, sb, sisData)) {
+                        ok = true;
+                        // log the data output.
+                        LOG(LM_INFO) << band << "," << fixed << setprecision(3) << freqLO_m << "," << pol << "," << sb << ","
+                                     << sisData.sisVoltage_value << ","
+                                     << 1000 * sisData.sisCurrent_value << ","
+                                     << sisData.sisMagnetVoltage_value << ","
+                                     << sisData.sisMagnetCurrent_value << endl;
 
-                    if (!dbObject_m.insertSISMonitorData(headerId, freqLO_m, pol, sb, sisData))
-                        dbError = true;
+                        if (!dbObject_m.insertSISMonitorData(headerId, freqLO_m, pol, sb, sisData))
+                            dbError = true;
+                    }
                 }
             }
-        }
-        if (!ok)
-            LOG(LM_ERROR) << context << ": getMonitorSIS failed for band=" << band << endl;
-        if (dbError)
-            LOG(LM_ERROR) << context << ": database insertSISMonitorData failed." << endl;
+            if (!ok)
+                LOG(LM_ERROR) << context << ": getMonitorSIS failed for band=" << band << endl;
+            if (dbError)
+                LOG(LM_ERROR) << context << ": database insertSISMonitorData failed." << endl;
 
-        // if front end is cold and we have mixer configs, capture I-V curves:
-        float VJLow = 0;
-        float VJHigh = 0;
-        float VJStep = 0;
-        if (receiverIsCold_m) {
+            // if front end is cold and we have mixer configs, capture I-V curves:
+            float VJLow = 0;
+            float VJHigh = 0;
+            float VJStep = 0;
+            if (receiverIsCold_m) {
 
-            const ColdCartImpl *cca_p = ca_m.getColdCart();
+                const ColdCartImpl *cca_p = ca_m.getColdCart();
 
-            string msg, legend;
-            bool cfgError = false;
-            bool dbError = false;
-            bool measError = false;
-            bool fileError = false;
-            unsigned pol, sb;
+                string msg, legend;
+                bool cfgError = false;
+                bool dbError = false;
+                bool measError = false;
+                bool fileError = false;
+                unsigned pol, sb;
 
-            // pause other monitoring of the CCA and WCA:
-            ca_m.pauseMonitor(true, true, "Measure I-V curves.");
+                // pause other monitoring of the CCA and WCA:
+                ca_m.pauseMonitor(true, true, "Measure I-V curves.");
 
-            // If a WCA is present, measure pumped I-V curves first:
-            WCAImpl *wca_p = ca_m.useWCA();
-            if (wca_p) {
-                msg = "cartHealthCheck: measuring I-V curves: PUMPED...";
+                // If a WCA is present, measure pumped I-V curves first:
+                WCAImpl *wca_p = ca_m.useWCA();
+                if (wca_p) {
+                    msg = "cartHealthCheck: measuring I-V curves: PUMPED...";
+                    FEMCEventQueue::addStatusMessage(true, msg);
+                    LOG(LM_INFO) << msg << endl;
+
+                    for (pol = 0; pol <= 1; ++pol) {
+                        for (sb = 1; sb <= (hasSb2 ? 2 : 1); ++sb) {
+                            if (!ca_m.getIVCurveDefaults(pol, sb, &VJLow, &VJHigh, &VJStep))
+                                cfgError = true;
+                            else if (!ca_m.measureIVCurveSingleSynchronous(pol, sb, VJLow, VJHigh, VJStep))
+                                measError = true;
+                            else {
+                                SLEEP(3000);    // TODO:  this sleep is a hack to allow the GUI to grab the trace data.
+
+                                // save the I-V curve text data file:
+                                if (!cca_p -> saveIVCurveData(ca_m.getXYData(), logDir_m, pol, sb))
+                                    fileError = true;
+
+                                // and insert it into the datbase:
+                                legend = " pol" + to_string(pol) + " sis" + to_string(sb) + " PUMPED";
+                                if (!dbObject_m.insertIVCurveData(feConfig_m, dataStatus_m, band, freqLO_m, pol, sb, legend, ca_m.getXYData()))
+                                    dbError = true;
+                            }
+                        }
+                    }
+                }
+
+                // measure unpumped curves with the LO disabled:
+                if (wca_p) {
+                    wca_p -> setEnableLO(false);
+                    SLEEP(1000);    // pause to make sure it is off.  TODO:  ugly hack really necessary?
+                }
+
+                msg = "cartHealthCheck: measuring I-V curves: UN-PUMPED...";
                 FEMCEventQueue::addStatusMessage(true, msg);
                 LOG(LM_INFO) << msg << endl;
 
                 for (pol = 0; pol <= 1; ++pol) {
                     for (sb = 1; sb <= (hasSb2 ? 2 : 1); ++sb) {
-                    	if (!ca_m.getIVCurveDefaults(pol, sb, &VJLow, &VJHigh, &VJStep))
-                    		cfgError = true;
-                    	else if (!ca_m.measureIVCurveSingleSynchronous(pol, sb, VJLow, VJHigh, VJStep))
+                        if (!ca_m.getIVCurveDefaults(pol, sb, &VJLow, &VJHigh, &VJStep))
+                            cfgError = true;
+                        else if (!ca_m.measureIVCurveSingleSynchronous(pol, sb, VJLow, VJHigh, VJStep))
                             measError = true;
                         else {
                             SLEEP(3000);    // TODO:  this sleep is a hack to allow the GUI to grab the trace data.
@@ -531,58 +567,27 @@ void CartHealthCheck::optimizeAction() {
                                 fileError = true;
 
                             // and insert it into the datbase:
-                            legend = " pol" + to_string(pol) + " sis" + to_string(sb) + " PUMPED";
+                            legend = " pol" + to_string(pol) + " sis" + to_string(sb) + " UN-PUMPED";
                             if (!dbObject_m.insertIVCurveData(feConfig_m, dataStatus_m, band, freqLO_m, pol, sb, legend, ca_m.getXYData()))
                                 dbError = true;
                         }
                     }
                 }
+
+                // resume monitoring of the CCA and WCA:
+                ca_m.pauseMonitor(false, false);
+
+                // re-enable the LO PA:
+                if (wca_p)
+                    wca_p -> setEnableLO(true);
+
+                if (measError)
+                    LOG(LM_ERROR) << context << ": measureIVCurveSingleSynchronous failed for band=" << band << endl;
+                if (fileError)
+                    LOG(LM_ERROR) << context << ": saveIVCurveData failed for band=" << band << endl;
+                if (dbError)
+                    LOG(LM_ERROR) << context << ": database insertIVCurveData failed." << endl;
             }
-
-            // measure unpumped curves with the LO disabled:
-            if (wca_p) {
-                wca_p -> setEnableLO(false);
-                SLEEP(1000);    // pause to make sure it is off.  TODO:  ugly hack really necessary?
-            }
-
-            msg = "cartHealthCheck: measuring I-V curves: UN-PUMPED...";
-            FEMCEventQueue::addStatusMessage(true, msg);
-            LOG(LM_INFO) << msg << endl;
-
-            for (pol = 0; pol <= 1; ++pol) {
-                for (sb = 1; sb <= (hasSb2 ? 2 : 1); ++sb) {
-                	if (!ca_m.getIVCurveDefaults(pol, sb, &VJLow, &VJHigh, &VJStep))
-						cfgError = true;
-					else if (!ca_m.measureIVCurveSingleSynchronous(pol, sb, VJLow, VJHigh, VJStep))
-                        measError = true;
-                    else {
-                        SLEEP(3000);    // TODO:  this sleep is a hack to allow the GUI to grab the trace data.
-
-                        // save the I-V curve text data file:
-                        if (!cca_p -> saveIVCurveData(ca_m.getXYData(), logDir_m, pol, sb))
-                            fileError = true;
-
-                        // and insert it into the datbase:
-                        legend = " pol" + to_string(pol) + " sis" + to_string(sb) + " UN-PUMPED";
-                        if (!dbObject_m.insertIVCurveData(feConfig_m, dataStatus_m, band, freqLO_m, pol, sb, legend, ca_m.getXYData()))
-                            dbError = true;
-                    }
-                }
-            }
-
-            // resume monitoring of the CCA and WCA:
-            ca_m.pauseMonitor(false, false);
-
-            // re-enable the LO PA:
-            if (wca_p)
-                wca_p -> setEnableLO(true);
-
-            if (measError)
-                LOG(LM_ERROR) << context << ": measureIVCurveSingleSynchronous failed for band=" << band << endl;
-            if (fileError)
-                LOG(LM_ERROR) << context << ": saveIVCurveData failed for band=" << band << endl;
-            if (dbError)
-                LOG(LM_ERROR) << context << ": database insertIVCurveData failed." << endl;
         }
     }
     setFinished(true);

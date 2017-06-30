@@ -425,38 +425,40 @@ bool FrontEndImpl::cartHealthCheck(int port, int warmUpTimeSeconds) {
 
     // set up the cartridge for health check:
     double freqLO;
-    if (!ca -> prepareHealtCheck(*dbObject_mp, feConfig, dataStatus, freqLO, hcReceiverIsCold_m, warmUpTimeSeconds)) {
-        LOG(LM_ERROR) << context << ": prepareHealtCheck failed." << endl;
+    if (!ca -> prepareHealthCheck(*dbObject_mp, feConfig, dataStatus, freqLO, hcReceiverIsCold_m, warmUpTimeSeconds)) {
+        LOG(LM_ERROR) << context << ": prepareHealthCheck failed." << endl;
         return false;
     }
 
     // Get CPDS monitor data:
-    PowerModuleImpl::PowerModule_t cpdsData;
-    if (!powerGetMonitorModule(port, cpdsData))
-        LOG(LM_ERROR) << context << ": powerGetMonitorModule failed for port=" << port << " band=" << ca -> getBand() << endl;
-    else {
-        LOG(LM_INFO) << context << ": got CPDS monitor data for port=" << port << " band=" << ca -> getBand() << endl;
-        // log the data output.
-        LOG(LM_INFO) << "Band,FreqLO,P6V_V,N6V_V,P15V_V,N15V_V,P24V_V,P8V_V,P6V_I,N6V_I,P15V_I,N15V_I,P24V_I,P8V_I" << endl;
-        LOG(LM_INFO) << ca -> getBand() << "," << fixed << setprecision(3) << freqLO << ","
-                     << cpdsData.voltageP6V_value << ","
-                     << cpdsData.voltageN6V_value << ","
-                     << cpdsData.voltageP15V_value << ","
-                     << cpdsData.voltageN15V_value << ","
-                     << cpdsData.voltageP24V_value << ","
-                     << cpdsData.voltageP8V_value << ","
-                     << cpdsData.currentP6V_value << ","
-                     << cpdsData.currentN6V_value << ","
-                     << cpdsData.currentP15V_value << ","
-                     << cpdsData.currentN15V_value << ","
-                     << cpdsData.currentP24V_value << ","
-                     << cpdsData.currentP8V_value << endl;
+    if (cpds_m) {
+        PowerModuleImpl::PowerModule_t cpdsData;
+        if (!powerGetMonitorModule(port, cpdsData))
+            LOG(LM_ERROR) << context << ": powerGetMonitorModule failed for port=" << port << " band=" << ca -> getBand() << endl;
+        else {
+            LOG(LM_INFO) << context << ": got CPDS monitor data for port=" << port << " band=" << ca -> getBand() << endl;
+            // log the data output.
+            LOG(LM_INFO) << "Band,FreqLO,P6V_V,N6V_V,P15V_V,N15V_V,P24V_V,P8V_V,P6V_I,N6V_I,P15V_I,N15V_I,P24V_I,P8V_I" << endl;
+            LOG(LM_INFO) << ca -> getBand() << "," << fixed << setprecision(3) << freqLO << ","
+                         << cpdsData.voltageP6V_value << ","
+                         << cpdsData.voltageN6V_value << ","
+                         << cpdsData.voltageP15V_value << ","
+                         << cpdsData.voltageN15V_value << ","
+                         << cpdsData.voltageP24V_value << ","
+                         << cpdsData.voltageP8V_value << ","
+                         << cpdsData.currentP6V_value << ","
+                         << cpdsData.currentN6V_value << ","
+                         << cpdsData.currentP15V_value << ","
+                         << cpdsData.currentN15V_value << ","
+                         << cpdsData.currentP24V_value << ","
+                         << cpdsData.currentP8V_value << endl;
 
-        FEICDataBase::ID_T headerId;
-        if (!dbObject_mp -> findOrCreatePowerModuleDataHeader(headerId, feConfig, dataStatus))
-            LOG(LM_ERROR) << context << ": database findOrCreatePowerModuleDataHeader failed." << endl;
-        else if (!dbObject_mp -> insertPowerModuleData(headerId, port, freqLO, cpdsData))
-            LOG(LM_ERROR) << context << ": database insertPowerModuleData failed." << endl;
+            FEICDataBase::ID_T headerId;
+            if (!dbObject_mp -> findOrCreatePowerModuleDataHeader(headerId, feConfig, dataStatus))
+                LOG(LM_ERROR) << context << ": database findOrCreatePowerModuleDataHeader failed." << endl;
+            else if (!dbObject_mp -> insertPowerModuleData(headerId, port, freqLO, cpdsData))
+                LOG(LM_ERROR) << context << ": database insertPowerModuleData failed." << endl;
+        }
     }
 
     // complete the health check procedure on the worker thread:
