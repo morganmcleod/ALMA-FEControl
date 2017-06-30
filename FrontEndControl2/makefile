@@ -45,7 +45,7 @@ DBLIB = -L$(BUILD)/FEICDBLib/Debug -lFEICDBLib
 
 # includes and libs for the FrontEndAMB library:
 export AMBINC = -I$(BUILD)/FrontEndAmbLib/include
-AMBLIB = -L$(BUILD)/FrontEndAmbLib/Debug -lFrontEndAmb
+AMBLIB = -L$(BUILD)/FrontEndAmbLib/Debug -lFrontEndAmbLib
 
 # includes and libs for MySQL library:
 export MYSQLINC = -I$(BUILD)/3rdparty/MySQL41/include
