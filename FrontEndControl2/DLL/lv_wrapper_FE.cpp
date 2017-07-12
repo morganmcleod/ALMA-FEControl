@@ -508,20 +508,21 @@ DLLEXPORT short FEGetConfiguredBands(short *size, short *bands) {
         return -1;
     if (!size || !bands)
         return -1;
-    *size = 0;
+    int index = 0;
     for (short band = 1; band <= 10; ++band) {
-        if (frontEnd -> existsCartAssembly(band)) {
-            bands[*size] = band;
-            size++;
+        if (index < *size && frontEnd -> existsCartAssembly(band)) {
+            bands[index] = band;
+            index++;
         }
     }
+    *size = index;
     return 0;
 }
 
-DLLEXPORT short FEStartHealthCheck(short isPASData, short fullAuto) {
+DLLEXPORT short FEStartHealthCheck(short dataStatus) {
     if (!FEValid)
         return -1;
-    if (!frontEnd -> startHealthCheck(isPASData != 0, fullAuto != 0))
+    if (!frontEnd -> startHealthCheck(dataStatus))
         return -1;
     return 0;
 }

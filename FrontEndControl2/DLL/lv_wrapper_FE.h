@@ -122,10 +122,9 @@ DLLEXPORT short FEGetConfiguredBands(short *size, short *bands);
 ///< *size specifies how many elements are in the bands array before the call
 ///<  and how many valid elements are there after the call.  Array memory must be pre-allocated.
 
-DLLEXPORT short FEStartHealthCheck(short isPASData, short fullAuto);
+DLLEXPORT short FEStartHealthCheck(short dataStatus);
 ///< Set initial conditions for front end overall and cartridge health check.
-///< if isPASData is nonzero, data will be stored as PAS reference data, else as healthcheck data.
-///< if fullAuto is nonzero, all cartridges will be tested one at a time with 15 minutes warm-up time.
+///< if dataStatus is 0, use the default data status for healthcheck.  Otherwise, use the provided value.
 
 DLLEXPORT short cartHealthCheck(short port, short warmUpTimeSeconds);
 ///< Peform a health check on the cartridge assembly at the given port.

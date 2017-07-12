@@ -20,7 +20,7 @@ BEGIN
     BEGIN
       VALUE "CompanyName", "NRAO"
       VALUE "FileDescription", "Front End Control DLL"
-      VALUE "FileVersion", "2.7.0-beta1"
+      VALUE "FileVersion", "2.7.0-beta3"
       VALUE "InternalName", "FEControl"
       VALUE "LegalCopyright", "©2017 NRAO"
       VALUE "OriginalFilename", "FrontEndControl.dll"

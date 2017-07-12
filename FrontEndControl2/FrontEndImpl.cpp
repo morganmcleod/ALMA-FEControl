@@ -177,10 +177,18 @@ bool FrontEndImpl::getDbConfigId(FEICDataBase::ID_T &configId) const {
 }
 
 
-bool FrontEndImpl::startHealthCheck(bool isPASData, bool fullAuto) {
+bool FrontEndImpl::startHealthCheck(short _dataStatus) {
     static const string context("FrontEndImpl::startHealthCheck");
 
-    LOG(LM_INFO) << context << ": fullAuto=" << fullAuto << endl;
+    // status of the data we are about to insert into the database:
+    FEICDataBase::DATASTATUS_TYPES dataStatus = (_dataStatus == 0)
+        ? FEICDataBase::DS_HEALTH_CHECK
+        : static_cast<FEICDataBase::DATASTATUS_TYPES>(_dataStatus);
+
+    // store the dataStatus for later use in cartHealthCheck:
+    hcDataStatus_m = static_cast<int>(dataStatus);
+
+    LOG(LM_INFO) << context << ": dataStatus=" << dataStatus << endl;
 
     // get the facility code to use with the database:
     hcFacility_m = dbObject_mp -> getDefaultFacility();
@@ -228,9 +236,6 @@ bool FrontEndImpl::startHealthCheck(bool isPASData, bool fullAuto) {
     LOG(LM_INFO) << context << ": waiting " << waitTime << " seconds for IF switch, LPR, and cryostat monitor data..." << endl;
     SLEEP(1000 * waitTime);
 
-    // store the status of the data we are about to insert into the database:
-    FEICDataBase::DATASTATUS_TYPES dataStatus = FEICDataBase::DS_HEALTH_CHECK;
-
     // get cryostat temperatures and determine if the receiver is cold:
     hcReceiverIsCold_m = false;  // Assume warm unless we can discover otherwise.
 
@@ -251,13 +256,9 @@ bool FrontEndImpl::startHealthCheck(bool isPASData, bool fullAuto) {
             // check the 4K & 15K stage temps.  If either are below the threshold, consider it cold:
             if (cryoData.cryostatTemperature0_value < switchTemperature || cryoData.cryostatTemperature5_value < switchTemperature) {
                 LOG(LM_INFO) << context << ": cryostat is cold." << endl;
-                if (isPASData)
-                    dataStatus = FEICDataBase::DS_COLD_PAS;
                 hcReceiverIsCold_m = true;
             } else {
                 LOG(LM_INFO) << context << ": cryostat is warm." << endl;
-                if (isPASData)
-                    dataStatus = FEICDataBase::DS_WARM_PAS;
                 hcReceiverIsCold_m = false;
             }
             // log the data output.
@@ -282,9 +283,6 @@ bool FrontEndImpl::startHealthCheck(bool isPASData, bool fullAuto) {
                 LOG(LM_ERROR) << context << ": database insertCryostatData failed." << endl;
         }
     }
-
-    // store the dataStatus for later use in cartHealthCheck:
-    hcDataStatus_m = (int) dataStatus;
 
     // Get IF switch temperatures:
     if (ifSwitch_mp) {
@@ -329,47 +327,8 @@ bool FrontEndImpl::startHealthCheck(bool isPASData, bool fullAuto) {
                 LOG(LM_ERROR) << context << ": database insertLPRMonitorData failed." << endl;
         }
     }
-
     // Set flag to indicate that health check has started:
     hcStarted_m = true;
-
-    // if not doing fullAuto test, exit successful now:
-    if (!fullAuto)
-        return true;
-
-    // build a list of the configured cartridges:
-    vector<int> cartsList;
-    vector<int>::iterator it;
-
-    for (int port = 1; port <= 10; ++port) {
-        if (carts_mp -> existsCartAssembly(port)) {
-            // start with all cartridges turned off:
-            setCartridgeOff(port);
-            cartsList.push_back(port);
-            LOG(LM_INFO) << context << ": found cartridge at port=" << port << endl;
-        }
-    }
-    // if not carts found, exit successful:
-    LOG(LM_INFO) << context << ": found " << cartsList.size() << " configured cartridges." << endl;
-    if (cartsList.size() == 0)
-        return true;
-
-    // main cartridge loop:
-    int port(0);
-    int warmUpTimeSeconds(900);  // 15 minutes.
-    for (it = cartsList.begin(); it != cartsList.end(); ++ it) {
-        port = *it;
-        if (!setCartridgeOn(port))
-            LOG(LM_ERROR) << context << ": setCartridgeOn failed for port=" << port << endl;
-        else {
-            LOG(LM_INFO) << context << ": enabled cartridge at port=" << port << endl;
-            if (!cartHealthCheck(port, warmUpTimeSeconds))
-                LOG(LM_ERROR) << context << ": cartHealthCheck failed for port=" << port << endl;
-            if (!setCartridgeOff(port))
-                LOG(LM_ERROR) << context << ": setCartridgeOff failed for port=" << port << endl;
-        }
-    }
-    finishHealthCheck();
     return true;
 }
 
@@ -421,7 +380,7 @@ bool FrontEndImpl::cartHealthCheck(int port, int warmUpTimeSeconds) {
 
     // get the front end configuration ID and data status to which we will attach all the monitor data:
     FEICDataBase::ID_T feConfig = dbObject_mp -> getConfigId(hcFacility_m, SN_m);
-    FEICDataBase::DATASTATUS_TYPES dataStatus = (FEICDataBase::DATASTATUS_TYPES) hcDataStatus_m;
+    FEICDataBase::DATASTATUS_TYPES dataStatus = static_cast<FEICDataBase::DATASTATUS_TYPES>(hcDataStatus_m);
 
     // set up the cartridge for health check:
     double freqLO;
@@ -488,7 +447,7 @@ bool FrontEndImpl::cartHealthCheckSaveIFPowerData(int port, const IFPowerDataSet
 
     // get the front end configuration ID and data status to which we will attach the IF power and Y-factor data:
     FEICDataBase::ID_T configId = dbObject_mp -> getConfigId(hcFacility_m, SN_m);
-    FEICDataBase::DATASTATUS_TYPES dataStatus = (FEICDataBase::DATASTATUS_TYPES) hcDataStatus_m;
+    FEICDataBase::DATASTATUS_TYPES dataStatus = static_cast<FEICDataBase::DATASTATUS_TYPES>(hcDataStatus_m);
 
     // get the current LO frequency:
     double freqLO, freqREF;

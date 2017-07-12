@@ -38,8 +38,13 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
-2.7.0-beta1
-Added FEGetConfiguredBands()
+2.7.0-beta3
+Changed interface to FEStartHealthCheck():
+  pass dataStatus or 0 to use default.
+  removed fullAuto option.
+
+2.7.0-beta2
+Added and fixed FEGetConfiguredBands()
 
 2.6.3-beta1
 Gate health checks for cryostat, LPR, IF switch.
