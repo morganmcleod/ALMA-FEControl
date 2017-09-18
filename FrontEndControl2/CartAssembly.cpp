@@ -312,6 +312,11 @@ bool CartAssembly::setLOFrequency(double freqLO, double freqFLOOG, int sbLock) {
     return true;
 };
 
+bool CartAssembly::overrideLoopBW(bool altLoopBW) {
+    LOG(LM_INFO) << "CartAssembly: overrideLoopBW = " << (altLoopBW ? "ALTERNATE" : "NORMAL") << endl;
+    WCA_mp -> pllLoopBandwidthSelect(altLoopBW);
+}
+
 bool CartAssembly::getMonitorYTO(WCAImpl::YTO_t &target) const {
     target.reset();
     if (WCA_mp && WCA_mp -> getMonitorYTO(target)) {

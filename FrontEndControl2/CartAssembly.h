@@ -140,6 +140,9 @@ public:
     ///< sbLock = 0 means lock below the reference:  freqREF = freqLO + freqFLOOG;
     ///< sbLock = 1 means lock above the reference:  freqREF = freqLO - freqFLOOG.
     
+    bool overrideLoopBW(bool altLoopBW);
+    ///< set the loop bandwidth to the value given, rather than the normal value for the current band.
+
     bool getLOFrequency(double &freqLO, double &freqREF) const
       { freqLO = freqLO_m; 
         freqREF = freqREF_m;
@@ -171,7 +174,7 @@ public:
 
     bool getNullPLLIntegrator() const;
     ///< return the state of the LO_PLL_NULL_LOOP_INTEGRATOR
-    
+
 // Other cold cartridge bias:
 
     bool setLNABias(int pol = -1, int sb = -1, 

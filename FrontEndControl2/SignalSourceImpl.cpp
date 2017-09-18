@@ -260,7 +260,15 @@ bool SignalSourceImpl::cartSetLOFrequency(double freqLO, double freqFLOOG, int s
             LOG(LM_INFO) << "SignalSourceImpl::cartSetLOFrequency divide by 2=" << freqLO << endl;
         }
 
-        return cart_mp -> setLOFrequency(freqLO, freqFLOOG, sbLock);
+        bool ret = cart_mp -> setLOFrequency(freqLO, freqFLOOG, sbLock);
+
+        // HACK!  Overriding the loop bw for the band 2 B02-2:
+        if (cart_mp -> getBand() == 2) {
+            cart_mp -> overrideLoopBW(false);
+        }
+        // end HACK!
+
+        return ret;
     } else {
         LOG(LM_INFO) << "SignalSourceImpl::cartSetLOFrequency port=" << port_m << " WCA does not exist or is disabled." << endl;
         string msg("Setting the LO frequency failed for band ");
