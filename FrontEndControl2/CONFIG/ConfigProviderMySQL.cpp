@@ -277,6 +277,8 @@ bool ConfigProviderMySQL::getWCAConfig(unsigned keyFacility, unsigned keyWCA, WC
     target.ESN_m = comp.ESN1_m;
     target.description_m = comp.desc_m;
 
+    // TODO since 2.7.0:  load LoopBW option!
+
     bool success = true;
 
     if (!dbObject_mp -> getWCAYIGLimits(componentId, target.FLOYIG_m, target.FHIYIG_m)) {

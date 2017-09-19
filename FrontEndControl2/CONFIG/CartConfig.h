@@ -83,7 +83,8 @@ namespace FEConfig {
             keyWCA_m(keyWCA),
             band_m(0),
             FLOYIG_m(0.0),
-            FHIYIG_m(0.0)
+            FHIYIG_m(0.0),
+            loopBW_m(LOOPBW_DEFAULT)
             {}
         ///< construct with the primary key values keyFacility and keyWCA
         ~WCAConfig()
@@ -96,6 +97,12 @@ namespace FEConfig {
         ///< stream output for debugging 
     
     public:
+        enum LOOPBW_OPTS {
+            LOOPBW_DEFAULT  = -1,   ///< use the default loop bandwidth for the band's normal warm multiplier.
+            LOOPBW_NORMAL   = 0,    ///< override to use the "normal" loop BW:   7.5MHz/V (Band 4,8,9)
+            LOOPBW_ALT      = 1     ///< override to use the "alternate" loop BW: 15MHz/V (Band 3,5,6,7,10)
+        };
+
         unsigned keyFacility_m;     ///< the provider portion of the primary key.
         unsigned keyWCA_m;          ///< along with provider, uniquely identifies a record in ColdCarts table.
         unsigned band_m;            ///< the cartridge band.
@@ -105,6 +112,7 @@ namespace FEConfig {
         double FHIYIG_m;            ///< the upper YiG oscillator limit, in GHz.
         PowerAmpParams PAParams_m;  ///< contains the LO PA bias values which vary with LO frequency.
         std::string description_m;  ///< description of the WCA
+        LOOPBW_OPTS loopBW_m;       ///< loop bandwidth option.
     };
 
     inline std::ostream &operator << (std::ostream& out, const WCAConfig &config)

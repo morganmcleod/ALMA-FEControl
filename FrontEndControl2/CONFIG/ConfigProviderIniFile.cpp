@@ -393,7 +393,11 @@ bool ConfigProviderIniFile::getWCAConfig(unsigned keyFacility, unsigned keyWCA, 
     tmp = iniFile_mp -> GetValue(sectionName, "LOParams");
     if (!tmp.empty())
         numParams = from_string<unsigned>(tmp);
-        
+
+    tmp = iniFile_mp -> GetValue(sectionName, "LoopBW");
+    if (!tmp.empty())
+        target.loopBW_m = static_cast<WCAConfig::LOOPBW_OPTS>(from_string<int>(tmp));
+
     if (numParams) {       
         double freqLO;
         float VD0, VD1, VG0, VG1;

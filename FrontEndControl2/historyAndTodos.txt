@@ -38,6 +38,13 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.7.0 2017-09-19
+Released version for CDL, OSF, ASIAA
+
+2.7.0-beta5
+Loading LoopBW override from FrontEndControlDLL.ini or SignalSource.ini
+  Resolves previous HACK!
+
 2.7.0-beta4
 Added CartAssembly::overrideLoopBW()
   HACK! temporarily set to false for band 2 B02-2

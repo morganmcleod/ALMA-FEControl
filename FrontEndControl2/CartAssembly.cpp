@@ -269,10 +269,23 @@ bool CartAssembly::setLOFrequency(double freqLO, double freqFLOOG, int sbLock) {
 
     int CCBand((coldCart_mp) ? coldCart_mp -> getBand() : band_m);
     multCold_m = ColdCartImpl::getMultiplier(CCBand);
-    
     multAMC_m = WCAImpl::getMultiplier(WCA_mp -> getBand());
-    // set the proper loop bandwidth for this band:
+    
+    // Get the default WCA loop bandwidth for this band:
     bool altLoopBW = WCAImpl::getAltLoopBW(WCA_mp -> getBand());
+
+    // Get whether it is overridden in the WCAConfig:
+    switch (config_m.WCA_m.loopBW_m) {
+        case WCAConfig::LOOPBW_NORMAL:
+            altLoopBW = false;
+            break;
+        case WCAConfig::LOOPBW_ALT:
+            altLoopBW = true;
+            break;
+        case WCAConfig::LOOPBW_DEFAULT:
+        default:
+            break;
+    }
     LOG(LM_INFO) << "CartAssembly: Setting loop BW = " << (altLoopBW ? "ALTERNATE" : "NORMAL") << endl;
     WCA_mp -> pllLoopBandwidthSelect(altLoopBW);
     

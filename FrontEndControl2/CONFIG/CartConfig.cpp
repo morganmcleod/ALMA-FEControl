@@ -64,6 +64,7 @@ void WCAConfig::reset(unsigned keyFacility, unsigned keyWCA) {
     SN_m = ESN_m = "";
     FLOYIG_m = FHIYIG_m = 0.0;      
     PAParams_m.clear(); 
+    loopBW_m = LOOPBW_DEFAULT;
 }
 
 void WCAConfig::streamOut(std::ostream& out) const {
@@ -71,8 +72,22 @@ void WCAConfig::streamOut(std::ostream& out) const {
     if (!(keyFacility_m && keyWCA_m)) {
         out << "empty" << endl;
     } else {
+        string loopBW;
+        switch (loopBW_m) {
+            case LOOPBW_NORMAL:
+                loopBW = "override_NORMAL";
+                break;
+            case LOOPBW_ALT:
+                loopBW = "override_ALT";
+                break;
+            case LOOPBW_DEFAULT:
+            default:
+                loopBW = "band_default";
+                break;
+        }
         out  << "band=" << band_m <<" SN='" << SN_m << "' ESN='" << ESN_m << "'"
              << setprecision(4) << " FLOYIG=" << FLOYIG_m << " FHIYIG=" << FHIYIG_m
+             << " loopBW=" << loopBW
              << " '" << description_m << "'" << endl;
         if (DEBUG_CONFIG_PARAMS) {
             out << " - PowerAmpParams:" << endl << PAParams_m;
