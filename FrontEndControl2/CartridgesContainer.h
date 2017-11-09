@@ -41,7 +41,7 @@ public:
 
 // query subsystem status of powermodules and cartridges:
     void queryCartridgeState();
-    void measureSISVoltageError(int port);
+    void measureSISVoltageError(int port, bool measureOnMainThread);
     
 // Access to the contained CartAssembly, ColdCart, and WCA objects:
     bool existsCartAssembly(int port) const;

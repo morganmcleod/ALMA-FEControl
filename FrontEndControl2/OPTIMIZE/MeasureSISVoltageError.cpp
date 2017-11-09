@@ -15,7 +15,12 @@ bool MeasureSISVoltageError::start() {
 	msg += to_string(ca_m.getBand());
 	msg += ": process started.";
 	setStatusMessage(true, msg);
-	return OptimizeBase::startWorkerThread();
+	if (measureOnMainThread_m) {
+	    optimizeAction();
+	    exitAction(true);
+	    return true;
+	} else
+	    return OptimizeBase::startWorkerThread();
 }
 
 void MeasureSISVoltageError::optimizeAction() {

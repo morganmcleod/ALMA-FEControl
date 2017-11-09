@@ -159,6 +159,9 @@ DLLEXPORT short cartPauseMonitor(short port, short pauseWCA, short pauseCC);
 DLLEXPORT short randomizeAnalogMonitors(short enable);
 ///< enable/disble random ordering on analog monitor points.
 
+DLLEXPORT short setCorrectSISOnMainThread(short enable);
+///< enable/disable debug setting 'correctSISOnMainThread'
+
 //----------------------------------------------------------------------------
 // Cartridge control operations.
 

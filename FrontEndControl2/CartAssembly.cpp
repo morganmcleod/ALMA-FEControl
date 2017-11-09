@@ -147,7 +147,7 @@ void CartAssembly::queryCartridgeState() {
         coldCart_mp -> queryCartridgeState();
 }
 
-void CartAssembly::measureSISVoltageError() {
+void CartAssembly::measureSISVoltageError(bool measureOnMainThread) {
     if (band_m <= 2) {
         // No SIS mixers in band 1 and 2.  Nothing to do.
         return;
@@ -157,7 +157,7 @@ void CartAssembly::measureSISVoltageError() {
     	return;
     }
     if (!measureSISVoltageErr_mp)
-    	measureSISVoltageErr_mp = new MeasureSISVoltageError(*this);
+    	measureSISVoltageErr_mp = new MeasureSISVoltageError(*this, measureOnMainThread);
 
     measureSISVoltageErr_mp -> start();
 }

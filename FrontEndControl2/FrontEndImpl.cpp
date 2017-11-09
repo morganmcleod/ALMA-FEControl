@@ -556,16 +556,16 @@ void FrontEndImpl::queryCartridgeState() {
     FEMCEventQueue::addEvent(FEMCEventQueue::Event(FEMCEventQueue::EVENT_INITIALIZE));
 }
 
-void FrontEndImpl::measureSISVoltageError(int port) {
+void FrontEndImpl::measureSISVoltageError(int port, bool measureOnMainThread) {
     if (port < 0 || port > 10)
         return;
     
     if (port != 0)
-        carts_mp -> measureSISVoltageError(port);    
+        carts_mp -> measureSISVoltageError(port, measureOnMainThread);
         
     else {
         for (port = 1; port <= 10; ++port)
-            carts_mp -> measureSISVoltageError(port);    
+            carts_mp -> measureSISVoltageError(port, measureOnMainThread);
     }
 }
 

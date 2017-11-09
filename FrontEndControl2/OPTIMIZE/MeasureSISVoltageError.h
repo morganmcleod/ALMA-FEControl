@@ -14,8 +14,9 @@ class CartAssembly;
 
 class MeasureSISVoltageError: public OptimizeBase {
 public:
-	MeasureSISVoltageError(CartAssembly &ca)
-	  : ca_m(ca)
+	MeasureSISVoltageError(CartAssembly &ca, bool measureOnMainThread = false)
+	  : ca_m(ca),
+	    measureOnMainThread_m(measureOnMainThread)
 		{}
 
 	virtual ~MeasureSISVoltageError()
@@ -31,5 +32,6 @@ protected:
 private:
     CartAssembly &ca_m;
     std::string result_m;
+    bool measureOnMainThread_m;
 };
 #endif /* OPTIMIZE_MEASURESISVOLTAGEERROR_H_ */

@@ -78,7 +78,7 @@ public:
     void queryCartridgeState();
     ///< Uses monitor requests to synchronize state variables to the FE hardware state.
 
-    void measureSISVoltageError();
+    void measureSISVoltageError(bool measureOnMainThread);
     ///< find and store the offset between the set and readback SIS voltage.
     
 // State control:

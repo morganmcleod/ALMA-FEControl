@@ -64,6 +64,7 @@ namespace FrontEndLVWrapper {
     extern bool tryAlternateLockMethod;
     extern bool defeatNormalLockDetect;
     bool correctSISVoltageError = true;
+    bool correctSISOnMainThread = false;
     bool randomizeMonitors = false;
     bool logMonitors = false;
     bool logAmbErrors = true;
@@ -127,6 +128,11 @@ DLLEXPORT short FEControlInit() {
         if (!tmp.empty())
             correctSISVoltageError = from_string<unsigned long>(tmp);
         LOG(LM_INFO) << "correctSISVoltageError=" << correctSISVoltageError << endl;
+
+        tmp = configINI.GetValue("debug", "correctSISOnMainThread");
+        if (!tmp.empty())
+            correctSISOnMainThread = from_string<unsigned long>(tmp);
+        LOG(LM_INFO) << "correctSISOnMainThread=" << correctSISOnMainThread << endl;
 
         tmp = configINI.GetValue("debug", "SISOpenLoop");
         if (!tmp.empty())
@@ -257,7 +263,7 @@ DLLEXPORT short FEControlInit() {
 
     // If specified and possible, measure the SIS voltage setting error for all carts which are already powered on:
     if (ret == 0 && correctSISVoltageError && !CAN_noTransmit)
-        frontEnd -> measureSISVoltageError();
+        frontEnd -> measureSISVoltageError(0, correctSISOnMainThread);
 
     return ret;
 }
@@ -617,7 +623,7 @@ DLLEXPORT short FESetCartridgeOn(short port) {
             if (!frontEnd -> setCartridgeOn(port))
                 return -1;
             if (correctSISVoltageError)
-                frontEnd -> measureSISVoltageError(port);
+                frontEnd -> measureSISVoltageError(port, correctSISOnMainThread);
         }
         return 0;
     }
@@ -750,6 +756,12 @@ DLLEXPORT short cartPauseMonitor(short port, short pauseWCA, short pauseCC) {
 
 DLLEXPORT short randomizeAnalogMonitors(short enable) {
     FEHardwareDevice::randomizeAnalogMonitors(enable != 0);
+    return 0;
+}
+
+DLLEXPORT short setCorrectSISOnMainThread(short enable) {
+    correctSISOnMainThread = (enable != 0);
+    LOG(LM_INFO) << "setCorrectSISOnMainThread=" << correctSISOnMainThread << endl;
     return 0;
 }
 
