@@ -36,31 +36,26 @@ bool ConfigManager::configure(const Configuration &config, FrontEndImpl &target)
 
         const CryostatConfig *cryoConfig = feConfig -> getCryostatConfig();
         if (cryoConfig) {
-            target.addCryostat();
             configureCryostat(*cryoConfig, target);
         }
 
         unsigned fetimConfig = feConfig -> getFETIMConfig();
         if (fetimConfig) {
-            target.addFETIM();
             LOG(LM_INFO) << "ConfigManager: Configured FETIM " << fetimConfig << "." <<  endl;
         }
 
         unsigned ifSwitchConfig = feConfig -> getIFSwitchConfig();
         if (ifSwitchConfig) {
-            target.addIFSwitch();
             LOG(LM_INFO) << "ConfigManager: Configured IF switch " << ifSwitchConfig << "." <<  endl;
         }
         
         const LPRConfig *lprConfig = feConfig -> getLPRConfig();
         if (lprConfig) {
-            target.addLPR();
             configureLPR(*lprConfig, target);
         }
 
         unsigned powerDistConfig = feConfig -> getPowerDistConfig();
         if (powerDistConfig) {
-            target.addCPDS();
             LOG(LM_INFO) << "ConfigManager: Configured CPDS " << ifSwitchConfig << "." <<  endl;
         }
 

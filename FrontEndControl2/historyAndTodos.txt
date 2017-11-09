@@ -38,6 +38,11 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.8.1 2017-11-09
+Option and DLL interface to run measureSISVoltageError on the main thread.
+Modified startup sequence and configuration so that FELoadConfiguration can be called to reload settings.
+CartridgesContainer prints only the ESNs of the latest added cartAssy, not all ESNs.
+
 2.8.0 2017-11-02
 Prevent IF power measurements when called from FETMS Automated Test
   Changes DLL interface for cartHealthCheck() 

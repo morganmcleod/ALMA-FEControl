@@ -107,8 +107,9 @@ DLLEXPORT short FEMCSetFEMode(short mode);
 //----------------------------------------------------------------------------
 // Functions for configuring the hardware installed in the front end.                                    
 
-DLLEXPORT short FELoadConfiguration(short keyFacility, short configId);
+DLLEXPORT short FELoadConfiguration(short configId);
 ///< Configure the FE from the configuration database according to the given configId.
+///< If configId is 0, use the default configuration given in the FrontEndControlDLL.ini file.
 
 //----------------------------------------------------------------------------
 // Front end and cartridge health check operations.

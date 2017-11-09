@@ -81,6 +81,14 @@ namespace FrontEndLVWrapper {
 };
 using namespace FrontEndLVWrapper;
 
+// forward declare some helpers defined below:
+void loadConfigIds();
+void createCartridge(int port, const FrontEndConfig &feConfig,
+                     WCAImpl **WCA,
+                     ColdCartImpl **coldCart,
+                     PowerModuleImpl **powerMod);
+
+
 DLLEXPORT short FEControlInit() {
     ++connectedFEClients;
     if (frontEnd && FEValid) {
@@ -176,28 +184,11 @@ DLLEXPORT short FEControlInit() {
             LOG(LM_INFO) << "logAmbErrors=0 because CAN_noTransmit=1" << endl;
         }
         FEHardwareDevice::logAmbErrors(logAmbErrors);
-        
-        // get the facility code from the new key facilityId:
-        tmp = configINI.GetValue("configuration", "facilityId");
-        if (!tmp.empty())
-            facilityId = from_string<unsigned long>(tmp);
-        else {
-            // but fall back on the old name if that doesn't work:
-            tmp = configINI.GetValue("configuration", "providerCode");
-            if (!tmp.empty())
-                facilityId = from_string<unsigned long>(tmp);
-        }
-
-        tmp = configINI.GetValue("configuration", "configId");
-        if (!tmp.empty())
-            configId = from_string<unsigned long>(tmp);
-        LOG(LM_INFO) << "Using configuration facilityId=" << facilityId << " configId=" << configId << endl;
 
         tmp = configINI.GetValue("configuration", "configFromDatabase");
         if (!tmp.empty())
             configFromDatabase = from_string<unsigned long>(tmp);
         LOG(LM_INFO) << "configFromDatabase=" << configFromDatabase << endl;
-
 
         // look for the item specifying a separate file for FineLOSweep
         tmp = configINI.GetValue("configFiles", "FineLOSweep");
@@ -245,9 +236,49 @@ DLLEXPORT short FEControlInit() {
         }
     }
 
-    // Load the specified front end configuration:
-    if (ret == 0)
-        ret = FELoadConfiguration((short) facilityId, (short) configId);
+    // Load the default front end configuration:
+    loadConfigIds();
+    ConfigProvider *provider(NULL);
+    if (!configFromDatabase)
+        provider = new ConfigProviderIniFile(iniFileName);
+    else
+        provider = new ConfigProviderMySQL();
+
+    ConfigManager configMgr(*provider);
+    Configuration config(facilityId, configId);
+    if (!config.load(*provider))
+        ret = -1;
+    WHACK(provider);
+
+    // Create the FE subsystems:
+    if (ret == 0) {
+        const FrontEndConfig *feConfig = config.getFrontEndConfig();
+        if (feConfig) {
+            for (int index = 0; index < 10; ++index) {
+                createCartridge(index + 1, *feConfig, &(WCAs[index]), &(coldCarts[index]), &(powerMods[index]));
+            }
+
+            if (feConfig -> getCryostatConfig())
+                frontEnd -> addCryostat();
+
+            if (feConfig -> getFETIMConfig())
+                frontEnd -> addFETIM();
+
+            if (feConfig -> getIFSwitchConfig())
+                frontEnd -> addIFSwitch();
+
+            if (feConfig -> getLPRConfig())
+                frontEnd -> addLPR();
+
+            if (feConfig -> getPowerDistConfig())
+                frontEnd -> addCPDS();
+
+            // Apply the configuration:
+            configMgr.configure(config, *frontEnd);
+            FEValid = true;
+            LOG(LM_INFO) << "FEControlInit successful" << endl;
+        }
+    }
 
     // Start the thermal logger:
     if (ret == 0)
@@ -474,32 +505,54 @@ void createCartridge(int port, const FrontEndConfig &feConfig,
     }
 }
 
-DLLEXPORT short FELoadConfiguration(short keyFacility, short configId) {
-
-	ConfigProvider *provider(NULL);
-	if (!configFromDatabase)
-	    provider = new ConfigProviderIniFile(iniFileName);
-	else
-	    provider = new ConfigProviderMySQL();
-	
-    ConfigManager configMgr(*provider);
-    Configuration config(keyFacility, configId);
-    if (!config.load(*provider))
-        return -1;
-
-    delete provider;
-    
-    const FrontEndConfig *feConfig = config.getFrontEndConfig();
-    if (feConfig) {
-        for (int index = 0; index < 10; ++index)
-            createCartridge(index + 1, *feConfig, &(WCAs[index]), &(coldCarts[index]), &(powerMods[index]));
+void loadConfigIds() {
+    // get the facility code from the new key facilityId:
+    CIniFile configINI(iniFileName);
+    configINI.ReadFile();
+    std::string tmp = configINI.GetValue("configuration", "facilityId");
+    if (!tmp.empty())
+        facilityId = from_string<unsigned long>(tmp);
+    else {
+        // but fall back on the old name if that doesn't work:
+        tmp = configINI.GetValue("configuration", "providerCode");
+        if (!tmp.empty())
+            facilityId = from_string<unsigned long>(tmp);
     }
 
-    configMgr.configure(config, *frontEnd);
-    
-    FEValid = true;
-    LOG(LM_INFO) << "FELoadConfiguration successful" << endl;
-    return 0;
+    tmp = configINI.GetValue("configuration", "configId");
+    if (!tmp.empty())
+        configId = from_string<unsigned long>(tmp);
+    LOG(LM_INFO) << "Using configuration facilityId=" << facilityId << " configId=" << configId << endl;
+}
+
+DLLEXPORT short FELoadConfiguration(short configId_in) {
+    short ret = 0;
+
+    loadConfigIds();
+    if (configId_in)
+        configId = configId_in;
+
+    // Load the default front end configuration:
+    ConfigProvider *provider(NULL);
+    if (!configFromDatabase)
+        provider = new ConfigProviderIniFile(iniFileName);
+    else
+        provider = new ConfigProviderMySQL();
+
+    ConfigManager configMgr(*provider);
+    Configuration config(facilityId, configId);
+    if (!config.load(*provider))
+        ret = -1;
+    WHACK(provider);
+
+    // Create the FE subsystems:
+    if (ret == 0) {
+        // Apply the configuration:
+        configMgr.configure(config, *frontEnd);
+        FEValid = true;
+        LOG(LM_INFO) << "FELoadConfiguration successful" << endl;
+    }
+    return ret;
 }
 
 //----------------------------------------------------------------------------
