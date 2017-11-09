@@ -35,11 +35,12 @@ void CartHealthCheck::reset() {
     dataStatus_m = FEICDataBase::DS_UNKOWN;
     receiverIsCold_m = false;
     warmUpTimeSeconds_m = 10;
+    includeIFPower_m = true;
     freqLO_m = 0;
 }
 
 bool CartHealthCheck::prepare(const FEICDataBase::ID_T &feConfig, FEICDataBase::DATASTATUS_TYPES dataStatus,
-        double &freqLOret, bool receiverIsCold, int warmUpTimeSeconds)
+        double &freqLOret, bool receiverIsCold, int warmUpTimeSeconds, bool includeIFPower)
 {
     static const string context("CartHealthCheck::prepare");
 
@@ -48,6 +49,7 @@ bool CartHealthCheck::prepare(const FEICDataBase::ID_T &feConfig, FEICDataBase::
     dataStatus_m = dataStatus;
     receiverIsCold_m = receiverIsCold;
     warmUpTimeSeconds_m = warmUpTimeSeconds;
+    includeIFPower_m = includeIFPower;
     if (warmUpTimeSeconds_m < 10)
         warmUpTimeSeconds_m = 10;
 
@@ -597,7 +599,10 @@ void CartHealthCheck::optimizeAction() {
 void CartHealthCheck::exitAction(bool success) {
     if (success) {
         // Send the measurement finished event.  Optional param indicates whether a CCA is present:
-        setEvent(FEMCEventQueue::EVENT_CARTHC_DONE, ca_m.getBand(), -1, (ca_m.existsColdCart() ? 1 : 0), 100);
+        short param = 0;
+        if (includeIFPower_m && ca_m.existsColdCart())
+            param = 1;
+        setEvent(FEMCEventQueue::EVENT_CARTHC_DONE, ca_m.getBand(), -1, param, 100);
         string msg("CartHealthCheck: finished successfully.");
         setStatusMessage(true, msg);
         LOG(LM_INFO) << msg << endl;

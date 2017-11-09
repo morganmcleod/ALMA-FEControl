@@ -66,7 +66,7 @@ public:
 // Health check:
     bool getDbConfigId(FEICDataBase::ID_T &onfigId) const;
     bool startHealthCheck(short dataStatus);
-    bool cartHealthCheck(int port, int warmUpTimeSeconds);
+    bool cartHealthCheck(int port, int warmUpTimeSeconds, bool includeIFPower);
     bool cartHealthCheckSaveIFPowerData(int port, const IFPowerDataSet &source);
     bool finishHealthCheck();
     bool existsCartAssembly(int port);

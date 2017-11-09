@@ -332,7 +332,7 @@ bool FrontEndImpl::startHealthCheck(short _dataStatus) {
     return true;
 }
 
-bool FrontEndImpl::cartHealthCheck(int port, int warmUpTimeSeconds) {
+bool FrontEndImpl::cartHealthCheck(int port, int warmUpTimeSeconds, bool includeIFPower) {
     static const string context("FrontEndImpl::startHealthCheck");
 
     // Check that we are in health check mode:
@@ -384,7 +384,7 @@ bool FrontEndImpl::cartHealthCheck(int port, int warmUpTimeSeconds) {
 
     // set up the cartridge for health check:
     double freqLO;
-    if (!ca -> prepareHealthCheck(*dbObject_mp, feConfig, dataStatus, freqLO, hcReceiverIsCold_m, warmUpTimeSeconds)) {
+    if (!ca -> prepareHealthCheck(*dbObject_mp, feConfig, dataStatus, freqLO, hcReceiverIsCold_m, warmUpTimeSeconds, includeIFPower)) {
         LOG(LM_ERROR) << context << ": prepareHealthCheck failed." << endl;
         return false;
     }
@@ -881,13 +881,13 @@ bool FrontEndImpl::setCartridgeObserving(int port) {
         return false;
     }
         
-    LOG(LM_INFO) << "FrontEndImpl::setCartridgeObserving port=" << port << endl;
-    
     // check for no change:
     if (carts_mp -> getObserving() == port) {
         LOG(LM_INFO) << "FrontEndImpl::setCartridgeObserving port=" << port << " is already observing." << endl;
         return true;
     }
+
+    LOG(LM_INFO) << "FrontEndImpl::setCartridgeObserving port=" << port << endl;
 
     string msg("The observing band is ");
     msg += to_string(port);

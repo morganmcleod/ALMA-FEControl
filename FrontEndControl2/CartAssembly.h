@@ -373,7 +373,7 @@ public:
     ///< Sends the event EVENT_OPTIMIZE_DONE via getNextEvent when finished.     
     
     bool prepareHealthCheck(FrontEndDatabase &dbObject, const FEICDataBase::ID_T &feConfig, FEICDataBase::DATASTATUS_TYPES dataStatus,
-            double &freqLOret, bool receiverIsCold, int warmUpTimeSeconds);
+            double &freqLOret, bool receiverIsCold, int warmUpTimeSeconds, bool includeIFPower);
     ///< set up the cartridge for performing the health check and wait the specified warmUpTimeSeconds.
     ///< executes on calling thread.
     ///<  dbObject is the database connection object to use
@@ -381,6 +381,7 @@ public:
     ///<  returns the cartridge LO frequency in ref freqLOret.
     ///<  receiverIsCold controls which measurements are performed.
     ///<  warmUpTimeSeconds specifies how long to wait before starting to take data.
+    ///<  includeIFPower=false: don't wait for IF power data.
 
     bool startHealthCheck();
     ///< complete the health check last set up with prepareHealthCheck.  executes on worker thread.

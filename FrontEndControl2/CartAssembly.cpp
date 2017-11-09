@@ -2372,13 +2372,13 @@ bool CartAssembly::mixerDeflux(int pol, int sb, int IMagMax) {
 }
 
 bool CartAssembly::prepareHealthCheck(FrontEndDatabase &dbObject, const FEICDataBase::ID_T &feConfig, FEICDataBase::DATASTATUS_TYPES dataStatus,
-        double &freqLOret, bool receiverIsCold, int warmUpTimeSeconds)
+        double &freqLOret, bool receiverIsCold, int warmUpTimeSeconds, bool includeIFPower)
 {
     if (!cartHealthCheck_mp)
         cartHealthCheck_mp = new CartHealthCheck(dbObject, *this, *XYData_mp);
 
     freqLOret = 0.0;
-    return cartHealthCheck_mp -> prepare(feConfig, dataStatus, freqLOret, receiverIsCold, warmUpTimeSeconds);
+    return cartHealthCheck_mp -> prepare(feConfig, dataStatus, freqLOret, receiverIsCold, warmUpTimeSeconds, includeIFPower);
 }
 
 bool CartAssembly::startHealthCheck() {

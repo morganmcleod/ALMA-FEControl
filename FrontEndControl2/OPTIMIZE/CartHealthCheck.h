@@ -50,7 +50,8 @@ public:
                  FEICDataBase::DATASTATUS_TYPES dataStatus, ///< data status for saving results
                  double &freqLOret,                         ///< LO frequency for the cartridge is returned here.
                  bool receiverIsCold,                       ///< true if the receiver is cold
-                 int warmUpTimeSeconds);                    ///< how long to wait before taking health check data
+                 int warmUpTimeSeconds,                     ///< how long to wait before taking health check data
+                 bool includeIFPower);                      ///< controls whether the EVENT_CARTHC_DONE is called with param=1
     ///< set up the cartridge for performing the health check.   Returns the cartridge LO frequency in reference parameter freqLOret.
 
     bool start();
@@ -73,6 +74,7 @@ private:
     FEICDataBase::DATASTATUS_TYPES dataStatus_m;    ///< data status for saving results
     bool receiverIsCold_m;          ///< true if receiver is cold
     int warmUpTimeSeconds_m;        ///< how long to wait before taking health check data
+    bool includeIFPower_m;          ///< controls whether the EVENT_CARTHC_DONE is called with param=1
     double freqLO_m;                ///< LO frequency for cartridge operation
 };
 

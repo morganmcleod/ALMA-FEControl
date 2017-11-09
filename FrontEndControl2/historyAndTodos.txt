@@ -38,6 +38,10 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.8.0 2017-11-02
+Prevent IF power measurements when called from FETMS Automated Test
+  Changes DLL interface for cartHealthCheck() 
+
 2.7.0 2017-09-19
 Released version for CDL, OSF, ASIAA
 

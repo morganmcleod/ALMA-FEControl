@@ -126,9 +126,10 @@ DLLEXPORT short FEStartHealthCheck(short dataStatus);
 ///< Set initial conditions for front end overall and cartridge health check.
 ///< if dataStatus is 0, use the default data status for healthcheck.  Otherwise, use the provided value.
 
-DLLEXPORT short cartHealthCheck(short port, short warmUpTimeSeconds);
+DLLEXPORT short cartHealthCheck(short port, short warmUpTimeSeconds, short includeIFPower);
 ///< Peform a health check on the cartridge assembly at the given port.
 ///< Wait the specified number of seconds before taking data.
+///< includeIFPower=false: don't include waiting for IF power measurements.
 
 DLLEXPORT short cartHealthCheckSaveIFPowerData(short port, CartIFPowerData_t *source);
 ///< Save the provided IF power and Y-factor data to the datbase as part of the health check in progress.

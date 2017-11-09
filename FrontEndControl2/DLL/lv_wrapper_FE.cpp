@@ -527,10 +527,10 @@ DLLEXPORT short FEStartHealthCheck(short dataStatus) {
     return 0;
 }
 
-DLLEXPORT short cartHealthCheck(short port, short warmUpTimeSeconds) {
+DLLEXPORT short cartHealthCheck(short port, short warmUpTimeSeconds, short includeIFPower) {
     if (!FEValid)
         return -1;
-    if (!frontEnd -> cartHealthCheck(port, warmUpTimeSeconds))
+    if (!frontEnd -> cartHealthCheck(port, warmUpTimeSeconds, (includeIFPower != 0)))
         return -1;
     return 0;
 }
