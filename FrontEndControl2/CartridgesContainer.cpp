@@ -300,12 +300,9 @@ void CartridgesContainer::print(const string &callerName, int port) const {
     text += buf;
     
     string portTxt;
-    const CartAssembly *ca;
-    for (port = 1; port <= 10; ++port) {
-        ca = carts_mp -> get(port);
-        if (ca)
-            text += ca -> asString(portTxt);
-    }
+    const CartAssembly *ca = carts_mp -> get(port);
+    if (ca)
+        text += ca -> asString(portTxt);
     LOG(LM_INFO) << text << endl;
 }
 
