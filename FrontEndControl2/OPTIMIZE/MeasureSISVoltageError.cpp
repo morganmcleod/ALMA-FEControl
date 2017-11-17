@@ -35,11 +35,10 @@ void MeasureSISVoltageError::optimizeAction() {
 
 	ColdCartImpl *cc = ca_m.useColdCart();
 
-	if (cc -> getBand() <= 4)
-		// delay to allow cartridge with no magnets to fully bias up:
-		SLEEP(1500);
+    // delay to allow cartridge to fully bias up:
+    SLEEP(1500);
 
-	else {
+	if (cc -> getBand() > 4) {
 		magnetPrior = cc -> getSISMagnetEnableSetting();
 
 		// save the prior current settings voltages, if enabled:

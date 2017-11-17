@@ -38,6 +38,10 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.8.2 2017-11-17
+Delay 1.5 sec for all bands before measureSISVoltageError
+Fixes crash in lock test?
+
 2.8.1 2017-11-09
 Option and DLL interface to run measureSISVoltageError on the main thread.
 Modified startup sequence and configuration so that FELoadConfiguration can be called to reload settings.
