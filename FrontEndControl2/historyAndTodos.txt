@@ -38,7 +38,7 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
-2.8.3-beta2
+2.8.3-beta2 2017-11-30
 Removed using pointer to member functions in get/set SIS bias.
   Now correctly (?) calling ColdCartImpl members, not ColdCartImplBase!
 
