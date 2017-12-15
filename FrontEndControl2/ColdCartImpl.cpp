@@ -158,24 +158,8 @@ void ColdCartImpl::setSISVoltage(int pol, int sb, float val, bool sweep) {
     if (band_m <= 6)
         sweep = false;
     
-    // cache the prior value as valNow:
+    // get the prior value as valNow:
     float valNow = getSISVoltageSetting(pol, sb);
-    
-    // declare a pointer to void member function with float parameter:
-    void (ColdCartImpl::* pf) (float) = NULL;
-        
-    // assign the appropriate member function to the pointer:
-    if (pol == 0) {
-        if (sb == 1)
-            pf = &ColdCartImpl::sisPol0Sb1Voltage;
-        else if (sb == 2)
-            pf = &ColdCartImpl::sisPol0Sb2Voltage;
-    } else if (pol == 1) {
-        if (sb == 1)
-            pf = &ColdCartImpl::sisPol1Sb1Voltage;
-        else if (sb == 2)
-            pf = &ColdCartImpl::sisPol1Sb2Voltage;
-    }
     
     // decide whether to sweep from the current value to the new value:    
     float span = val - valNow;
@@ -188,14 +172,34 @@ void ColdCartImpl::setSISVoltage(int pol, int sb, float val, bool sweep) {
             if ((neg && valNow <= val) || (!neg && valNow >= val)) 
                 done = true;
             else {
-                // set the junction voltage using the function pointer:
-                (this ->* pf)(valNow);
+                // set the junction voltage:
+                if (pol == 0) {
+                    if (sb == 1)
+                        ColdCartImpl::sisPol0Sb1Voltage(valNow);
+                    else if (sb == 2)
+                        ColdCartImpl::sisPol0Sb2Voltage(valNow);
+                } else if (pol == 1) {
+                    if (sb == 1)
+                        ColdCartImpl::sisPol1Sb1Voltage(valNow);
+                    else if (sb == 2)
+                        ColdCartImpl::sisPol1Sb2Voltage(valNow);
+                }
                 valNow += step;
             }
         }
     }
-    // set the final value using the function pointer:
-    (this ->* pf)(val);    
+    // set the final value:
+    if (pol == 0) {
+        if (sb == 1)
+            ColdCartImpl::sisPol0Sb1Voltage(val);
+        else if (sb == 2)
+            ColdCartImpl::sisPol0Sb2Voltage(val);
+    } else if (pol == 1) {
+        if (sb == 1)
+            ColdCartImpl::sisPol1Sb1Voltage(val);
+        else if (sb == 2)
+            ColdCartImpl::sisPol1Sb2Voltage(val);
+    }
 }    
 
 void ColdCartImpl::measureSISVoltageError(std::string *resultStr) {
@@ -269,6 +273,9 @@ float ColdCartImpl::measureSISVoltageErrorImpl(int pol, int sb) {
     if (print)
         LOG(LM_INFO) << "measureSISVoltageErrorImpl pol=" << pol << " sis=" << sb << "..." << endl; 
     
+    // clear the previous correction:
+    sisVoltageError_m[pol * 2 + sb - 1] = 0.0;
+
     // cache the prior value as VJprior:
     float VJprior = getSISVoltageSetting(pol, sb);    
     
@@ -426,30 +433,24 @@ float ColdCartImpl::getSISVoltage(int pol, int sb, int average, bool print) {
         return 0;
     if (average < 1)
         return 0;    
-
-    // declare a pointer to float member function with void parameter:
-    float (ColdCartImpl::* pf) (void) = NULL;
-        
-    // assign the appropriate member function to the pointer:
-    if (pol == 0) {
-        if (sb == 1)
-            pf = &ColdCartImpl::sisPol0Sb1Voltage;
-        else if (sb == 2)
-            pf = &ColdCartImpl::sisPol0Sb2Voltage;
-    } else if (pol == 1) {
-        if (sb == 1)
-            pf = &ColdCartImpl::sisPol1Sb1Voltage;
-        else if (sb == 2)
-            pf = &ColdCartImpl::sisPol1Sb2Voltage;
-    }
     
-    // compute the average, using the pointer to member function to get the values:
+    // compute the average:
     double sum = 0;
     float val =  0;
     int i;
     vector<float> *data(print ? new vector<float>(average, 0.0) : NULL);
     for (i = 0; i < average; ++i) {
-        val = (this ->* pf)();
+        if (pol == 0) {
+            if (sb == 1)
+                val = ColdCartImpl::sisPol0Sb1Voltage();
+            else if (sb == 2)
+                val = ColdCartImpl::sisPol0Sb2Voltage();
+        } else if (pol == 1) {
+            if (sb == 1)
+                val = ColdCartImpl::sisPol1Sb1Voltage();
+            else if (sb == 2)
+                val = ColdCartImpl::sisPol1Sb2Voltage();
+        }
         if (print)
             (*data)[i] = val;
         sum += val;
@@ -551,22 +552,6 @@ void ColdCartImpl::setSISMagnetCurrent(int pol, int sb, float val, bool sweep, f
     // cache the prior setting value as valNow:
     float valNow = getSISMagnetCurrentSetting(pol, sb);
     
-    // declare a pointer to void member function with float parameter:
-    void (ColdCartImpl::* pf) (float) = NULL;
-        
-    // assign the appropriate member function to the pointer:
-    if (pol == 0) {
-        if (sb == 1)
-            pf = &ColdCartImpl::sisMagnetPol0Sb1Current;
-        else if (sb == 2)
-            pf = &ColdCartImpl::sisMagnetPol0Sb2Current;
-    } else if (pol == 1) {
-        if (sb == 1)
-            pf = &ColdCartImpl::sisMagnetPol1Sb1Current;
-        else if (sb == 2)
-            pf = &ColdCartImpl::sisMagnetPol1Sb2Current;
-    }
-    
     // decide whether to sweep from the current value to the new value:    
     float span = val - valNow;
     if (sweep && span != 0.0) {
@@ -578,8 +563,18 @@ void ColdCartImpl::setSISMagnetCurrent(int pol, int sb, float val, bool sweep, f
             if ((neg && valNow <= val) || (!neg && valNow >= val)) 
                 done = true;
             else {
-                // set the magnet current using the function pointer:
-                (this ->* pf)(valNow);
+                // set the magnet current:
+                if (pol == 0) {
+                    if (sb == 1)
+                        ColdCartImpl::sisMagnetPol0Sb1Current(valNow);
+                    else if (sb == 2)
+                        ColdCartImpl::sisMagnetPol0Sb2Current(valNow);
+                } else if (pol == 1) {
+                    if (sb == 1)
+                        ColdCartImpl::sisMagnetPol1Sb1Current(valNow);
+                    else if (sb == 2)
+                        ColdCartImpl::sisMagnetPol1Sb2Current(valNow);
+                }
                 // sleep for the specified dwell time:
                 SLEEP(sweepDwell);
                 // and move to the next step:
@@ -587,8 +582,18 @@ void ColdCartImpl::setSISMagnetCurrent(int pol, int sb, float val, bool sweep, f
             }
         }
     }
-    // set the final value using the function pointer:
-    (this ->* pf)(val);
+    // set the final value:
+    if (pol == 0) {
+        if (sb == 1)
+            ColdCartImpl::sisMagnetPol0Sb1Current(val);
+        else if (sb == 2)
+            ColdCartImpl::sisMagnetPol0Sb2Current(val);
+    } else if (pol == 1) {
+        if (sb == 1)
+            ColdCartImpl::sisMagnetPol1Sb1Current(val);
+        else if (sb == 2)
+            ColdCartImpl::sisMagnetPol1Sb2Current(val);
+    }
 }
 
 float ColdCartImpl::getSISMagnetCurrent(int pol, int sb) {

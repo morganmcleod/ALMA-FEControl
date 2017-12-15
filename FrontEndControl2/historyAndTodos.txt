@@ -38,6 +38,10 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.8.3-beta2
+Removed using pointer to member functions in get/set SIS bias.
+  Now correctly (?) calling ColdCartImpl members, not ColdCartImplBase!
+
 2.8.2 2017-11-17
 Delay 1.5 sec for all bands before measureSISVoltageError
 Fixes crash in lock test?
