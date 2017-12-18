@@ -67,13 +67,9 @@ public:
         FEMC_NOT_CONNECTED      = -46   //!< Cannot monitor because not connected to FE.
     };
 
-    inline bool valueIgnorableError(FEMC_ERROR &err)
+    inline bool monitorIgnorableError(FEMC_ERROR &err)
       { return (err == FEMC_NO_ERROR || err == FEMC_HARDW_UPDATE_WARN || err == FEMC_HARDW_RETRY_WARN); }
     ///< returns true if the data associated with the error can perhaps be used anyway.
-
-    inline bool monitorIgnorableError(FEMC_ERROR &err)
-      { return (valueIgnorableError(err) || err == FEMC_HARDW_BLOCKED_ERR); }
-    ///< returns true this error should not contribute to the monitor thread errorCount.
     
 // monitor thread operations:    
 
@@ -145,9 +141,6 @@ public:
     LogInterface &getLogger()
       { return (logger_mp) ? *logger_mp : defaultLogger_m; }
     ///< get a reference to the current logger   
-
-    static void setMaxMonitorErrors(unsigned max)
-      { maxErrorCount = max; }
 
 protected:
 
@@ -228,7 +221,7 @@ protected:
             }
         }
         if (!monitorIgnorableError(ret))
-            ++errorCount;   // increment error counter.
+            ++errorCount_m;   // increment error counter.
         return ret;
     }
 
@@ -288,9 +281,12 @@ protected:
 
     virtual void monitorAction(Time *timestamp_p) = 0;
     ///< derived classes must declare a monitorAction method for the monitor thread to call.
+
+    inline bool exceededErrorCount() const
+      { return (maxErrorCount_m > 0) && (errorCount_m >= maxErrorCount_m); }
     
-    unsigned errorCount;    ///< count of errors seen by the monitor thread since started/unpaused. 
-    static unsigned maxErrorCount;   ///< global maximum error count before the thread is paused.
+    unsigned errorCount_m;      ///< count of errors seen by the monitor thread since started/unpaused.
+    unsigned maxErrorCount_m;   ///< maximum error count before the thread is paused.
 
 protected:
     bool minimalMonitoring_m;   ///< true if only the bare minimum monitoring should be performed.

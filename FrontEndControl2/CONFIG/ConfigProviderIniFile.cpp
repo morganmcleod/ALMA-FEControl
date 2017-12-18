@@ -165,9 +165,12 @@ bool ConfigProviderIniFile::getFrontEndConfig(unsigned keyFacility, unsigned key
             target.setCryostatConfig(cryoConfig);
     }
         
+    // FETIM: default to 1 unless explicitly set to 0:
     tmp = iniFile_mp -> GetValue(sectionName, "FETIM");
     if (!tmp.empty())
         target.fkFETIM_m = from_string<unsigned>(tmp);
+    else
+        target.fkFETIM_m = 1;
 
     tmp = iniFile_mp -> GetValue(sectionName, "IFSwitch");
     if (!tmp.empty())

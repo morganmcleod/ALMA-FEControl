@@ -5,7 +5,6 @@
 #include <iomanip>
 using namespace std;
 
-unsigned FEHardwareDevice::maxErrorCount(0);
 bool FEHardwareDevice::randomizeAnalogMonitors_m(false); 
 bool FEHardwareDevice::logMonitors_m(false);
 bool FEHardwareDevice::logAmbErrors_m(true);
@@ -19,7 +18,8 @@ FEHardwareDevice::FEHardwareDevice(const std::string &name)
     minimalMonitoring_m(false),
     stopped(true),
     paused(false),
-    errorCount(0)
+    errorCount_m(0),
+    maxErrorCount_m(0)
     {} 
     
 FEHardwareDevice::~FEHardwareDevice() {
@@ -35,7 +35,7 @@ void FEHardwareDevice::startMonitor() {
     pthread_create(&thread_m, NULL, reinterpret_cast<void*(*)(void*)>(monitorThread), this); 
     pthread_detach(thread_m);
     running = true;
-    errorCount = 0;
+    errorCount_m = 0;
 }
 
 void FEHardwareDevice::stopMonitor() {
@@ -57,7 +57,7 @@ void FEHardwareDevice::pauseMonitor(bool pause, const char *reason) {
         LOG(LM_INFO) << "FEHardwareDevice(" << name_m << "): " << ((paused) ? "paused monitoring. " : "resumed monitoring. ")
                      << (reason ? reason : "") << endl; 
         if (!paused)
-            errorCount = 0;
+            errorCount_m = 0;
     }
 }
 
@@ -367,7 +367,7 @@ void *FEHardwareDevice::monitorThread(FEHardwareDevice *dev) {
             dev -> monitorAction(&timestamp);
         }
         // check for too many errors meaning monitoring should be paused:
-        if (maxErrorCount && dev -> errorCount > maxErrorCount)
+        if (dev -> exceededErrorCount())
             dev -> pauseMonitor(true, "Too many AMB/FEMC errors.");
         
         // pause between calls to monitorAction:

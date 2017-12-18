@@ -114,14 +114,6 @@ short LVWrapperInit() {
         if (!tmp.empty())
             CANBusInterface::monitorTimeout_m = from_string<unsigned long>(tmp);
         LOG(LM_INFO) << "CAN monitor timeout=" << CANBusInterface::monitorTimeout_m << endl;
-
-        unsigned maxMonitorErrors(0);
-        tmp = configINI.GetValue("debug", "maxMonitorErrors");
-        if (!tmp.empty()) {
-            maxMonitorErrors = from_string<unsigned long>(tmp);
-            FEHardwareDevice::setMaxMonitorErrors(maxMonitorErrors);
-        }
-        LOG(LM_INFO) << "Max Monitor Errors=" << maxMonitorErrors << endl;
         
         tmp = configINI.GetValue("debug", "debugLVStructures");
         if (!tmp.empty())

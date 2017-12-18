@@ -96,10 +96,11 @@ bool ConfigProviderMySQL::getFrontEndConfig(unsigned keyFacility, unsigned keyFr
             target.setLPRConfig(lprConfig);
     }
 
-    // get the FETIM component ID:
+    // get the FETIM component ID:  Default to 1 unless explicitly 0:
     if (dbObject_mp -> getConfigFETIM(configId, componentId, SN)) {
         target.fkFETIM_m = componentId.keyId;
-    }
+    } else
+        target.fkFETIM_m = 1;
 
     // get the IF Switch Assembly or the IF Switch Subrack component ID:
     if (dbObject_mp -> getConfigIFSwitchAssy(configId, componentId, SN)) {

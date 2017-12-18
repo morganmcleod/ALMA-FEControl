@@ -31,9 +31,13 @@ FETIMImpl::FETIMImpl(unsigned long channel,
 {
     setESN(ESN);
     FETIMImplBase::initialize(channel, nodeAddress);
+    FEHardwareDevice::maxErrorCount_m = 1;
 }
 
 bool FETIMImpl::getMonitorFETIM(FETIM_t &target) {
+    if (FEHardwareDevice::exceededErrorCount())
+        return false;
+
     memset(&target, 0, sizeof(target));
     target.internalTemperature1_value = internalTemperature1_value;
     target.internalTemperature2_value = internalTemperature2_value;

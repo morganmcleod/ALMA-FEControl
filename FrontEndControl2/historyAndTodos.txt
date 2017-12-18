@@ -38,7 +38,16 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
-2.8.3-beta2 2017-11-30
+2.8.5 2017-12-18
+Removed static FEHardwareDevice::maxErrorCount and INI file setting.
+  instead each instance has a maxErrorCount_m defaults to 0.
+  HW_BLKED is now counted as an error.
+  FETIM sets it to 1 so FETIM pauses monitoring when an error is seen.
+  2.8.4 from 2017-12-15 had a fatal bug in this new mechanism.
+  ConfigProviders (INI & MySQL) assume FETIM=1 unless explicitly set as FETIM=0.
+  FETIMImpl: monitoring returns error if maxErrorCount exceeded.
+
+2.8.3 2017-11-30
 Removed using pointer to member functions in get/set SIS bias.
   Now correctly (?) calling ColdCartImpl members, not ColdCartImplBase!
 
