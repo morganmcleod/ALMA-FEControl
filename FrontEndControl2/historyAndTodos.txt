@@ -38,6 +38,9 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.8.6 2018-02-01
+Added I-V-Power curves to Optimize > Measure IF Power vs VD
+
 2.8.5 2017-12-18
 Removed static FEHardwareDevice::maxErrorCount and INI file setting.
   instead each instance has a maxErrorCount_m defaults to 0.

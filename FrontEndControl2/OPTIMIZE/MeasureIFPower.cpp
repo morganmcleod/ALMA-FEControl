@@ -143,7 +143,7 @@ bool MeasureIFPower::startVsVJ(int pol, int sb, const std::string &description,
     
     // Set the initial value to both sidebands and start waiting for the first power meter reading:
     if (sb_m == -1 || sb_m == 1)
-        coldCart_m.setSISVoltage(pol_m, 1, V_m);
+        coldCart_m.setSISVoltage(pol_m, 1, (b6SweepMode_m) ? (-V_m) : (V_m));
     if (sb_m == -1 || sb_m == 2)
         coldCart_m.setSISVoltage(pol_m, 2, V_m);
     waitForPowerReading_m = true;
@@ -408,7 +408,7 @@ void MeasureIFPower::readData(bool printHeader) {
     if (printHeader) {
         if (dataFile_mp) {
             if (mode_m == MODE_VJ)
-                (*dataFile_mp) << "VJ1 mV (set)\tVJ2 mV (set)";
+                (*dataFile_mp) << "VJ1 mV (set)\tVJ2 mV (set)\tIJ1 mA\tIJ2 mA";
             else if (mode_m == MODE_VD)
                 (*dataFile_mp) << "VD (set)";
             if (!doYFactor_m)
@@ -423,15 +423,19 @@ void MeasureIFPower::readData(bool printHeader) {
             if (dataFile_mp) {
                 // output either both VJs or the single VD:
                 if (mode_m == MODE_VJ) {
+                    // record VJ1 (set):
                     if (sb_m == -1 || sb_m == 1)
                         (*dataFile_mp) << ((b6SweepMode_m) ? (-V_m) : (V_m));
                     else
                         (*dataFile_mp) << VJNom1_m;
                     (*dataFile_mp) << "\t";
+                    // record VJ2 (set):
                     if (sb_m == -1 || sb_m == 2)
                         (*dataFile_mp) << V_m;
                     else
                         (*dataFile_mp) << VJNom2_m;
+                    // record IJ1, IJ2:
+                    (*dataFile_mp) << "\t" << coldCart_m.getSISCurrent(pol_m, 1, 8) << "\t" << coldCart_m.getSISCurrent(pol_m, 2, 8);
                 } else if (mode_m == MODE_VD) {
                     (*dataFile_mp) << V_m;
                 }
@@ -463,6 +467,9 @@ void MeasureIFPower::readData(bool printHeader) {
                             (*dataFile_mp) << V_m;
                         else
                             (*dataFile_mp) << VJNom2_m;
+
+                        // output IJ1, IJ2:
+                        (*dataFile_mp) << "\t" << coldCart_m.getSISCurrent(pol_m, 1, 8) << "\t" << coldCart_m.getSISCurrent(pol_m, 2, 8);
                         (*dataFile_mp) << "\t";
                     }
 
