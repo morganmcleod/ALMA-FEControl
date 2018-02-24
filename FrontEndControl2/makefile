@@ -62,8 +62,10 @@ export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) -I$(CURDIR)
 WINLIBS = -lwinmm -lwsock32
 
 # flags for compiling C++ code:
-export CPPFLAGS = -O0 -g3 -fmessage-length=0
+export CPPFLAGS = -O0 -fmessage-length=0
 #-Wall 
+export DEBUGFLAGS = -g3
+#-s  //strip symbols!
 
 # list of output files in subdirectories:
 CONFIGOUT = CONFIG/CartConfig.o CONFIG/ConfigManager.o CONFIG/Configuration.o CONFIG/ConfigProviderIniFile.o CONFIG/ConfigProviderMySQL.o \
@@ -101,7 +103,7 @@ FRONTENDOUT = CartAssembly.o CartridgesContainer.o ColdCartImpl.o CompressorImpl
 .PHONY: frontend
 frontend: $(FRONTENDOUT)
 $(FRONTENDOUT): $(FRONTENDCPP)
-	g++ $(CPPFLAGS) \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) \
 	 $(PROJECTINC) $(PORTABLEINC) $(MYSQLINC) \
 	-c $(FRONTENDCPP)
 
@@ -122,12 +124,12 @@ dll: FrontEndControl.dll DLL/libFrontEndControl.a DLL/FrontEndControl.def
 DLLCPP = DLL/DllMain.c DLL/lv_structs.cpp DLL/lv_wrapper.cpp DLL/lv_wrapper_Compressor.cpp DLL/lv_wrapper_FE.cpp DLL/lv_wrapper_LORTM.cpp DLL/lv_wrapper_sigSrc.cpp
 
 FrontEndControl.dll DLL/FrontEndControl.def: $(DLLCPP) $(ALLOUT)
-	g++ $(CPPFLAGS) -DBUILD_FRONTENDCONTROL -s -shared -o FrontEndControl.dll \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -DBUILD_FRONTENDCONTROL -shared -o FrontEndControl.dll \
 	$(DLLCPP) $(ALLOUT) \
 	$(PROJECTINC) $(PORTABLEINC) $(MYSQLINC) \
 	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIBS) $(NICANLIB) $(PORTABLELIB) \
 	-Wl,--enable-auto-import,--output-def,DLL/FrontEndControl.def
-	- cp FrontEndControl.dll "../../labview2013/drivers/FE Control/"
+#	- cp FrontEndControl.dll "../../labview2013/drivers/FE Control/"
 
 # Build the import library for linking to the DLL:
 DLL/libFrontEndControl.a: FrontEndControl.dll DLL/FrontEndControl.def
@@ -139,7 +141,7 @@ tests: t_lv_static.exe t_lv_wrapper.exe t_lv_wrapper_sigSrc.exe t_SocketClient.e
 
 # This test links the DLL code statically:
 t_lv_static.exe : tests/t_lv_wrapper.cpp $(DLLCPP) $(ALLOUT)
-	g++ $(CPPFLAGS) -DSTATIC_FRONTENDCONTROL -o t_lv_static.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -DSTATIC_FRONTENDCONTROL -o t_lv_static.exe \
 	tests/t_lv_wrapper.cpp $(DLLCPP) $(ALLOUT) \
 	$(PORTABLEINC) $(PROJECTINC) \
 	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIBS) $(NICANLIB) $(PORTABLELIB) \
@@ -147,42 +149,42 @@ t_lv_static.exe : tests/t_lv_wrapper.cpp $(DLLCPP) $(ALLOUT)
 
 # This test uses the DLL:
 t_lv_wrapper.exe : tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a 
-	g++ $(CPPFLAGS) -o t_lv_wrapper.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_lv_wrapper.exe \
 	tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a \
 	$(PORTABLEINC) $(PROJECTINC)
 	- cp ../3rdparty/MySQL41/lib/debug/libmysql.dll .
 	
 # This test uses the DLL:
 t_lv_wrapper_sigSrc.exe : tests/t_lv_wrapper_sigSrc.cpp DLL/libFrontEndControl.a 
-	g++ $(CPPFLAGS) -o t_lv_wrapper_sigSrc.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_lv_wrapper_sigSrc.exe \
 	tests/t_lv_wrapper_sigSrc.cpp DLL/libFrontEndControl.a \
 	$(PORTABLEINC) $(PROJECTINC)
 
 t_SocketClient.exe : tests/t_SocketClient.cpp
-	g++ $(CPPFLAGS) -o t_SocketClient.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_SocketClient.exe \
 	tests/t_SocketClient.cpp DLL/libFrontEndControl.a \
 	$(PORTABLEINC) $(PROJECTINC)
 	
 t_LookupTables.exe : tests/t_LookupTables.cpp
-	g++ $(CPPFLAGS) -o t_LookupTables.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_LookupTables.exe \
 	tests/t_LookupTables.cpp CONFIG/LookupTables.o \
 	$(PORTABLEINC) \
 	$(PORTABLELIB)
 
 t_semaphore_leaks.exe : tests/t_semaphore_leaks.cpp
-	g++ $(CPPFLAGS) -o t_semaphore_leaks.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_semaphore_leaks.exe \
 	tests/t_semaphore_leaks.cpp \
 	$(PORTABLEINC) \
 	$(PORTABLELIB)
 
 t_StreamLogger.exe : tests/t_StreamLogger.cpp
-	g++ $(CPPFLAGS) -o t_StreamLogger.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_StreamLogger.exe \
 	tests/t_StreamLogger.cpp $(AMBOUT) $(BASICOUT) \
 	$(UTILINC) $(PORTABLEINC) $(PROJECTINC) \
 	$(UTILLIB) $(PORTABLELIB) $(AMBLIB)
 
 t_FEICDataBase.exe : tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp
-	g++ $(CPPFLAGS) -o t_FEICDataBase.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_FEICDataBase.exe \
 	tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp CONFIG/LookupTables.cpp DLL/SWVersion.cpp \
 	$(DBINC) $(UTILINC) $(MYSQLINC) $(PORTABLEINC) $(PROJECTINC) \
 	$(DBLIB) $(UTILLIB) $(MYSQLLIB) $(PORTABLELIB)
@@ -196,9 +198,6 @@ current:
 oneFile:
 	$(MAKE) FEMCEventQueue.o
 	
-copyDLL:
-	cp FrontEndControl.dll "../../labview2013/drivers/FE Control/"
-	
 clean:
 	@for dir in CONFIG FEBASE LOGGER OPTIMIZE; do \
 	           $(MAKE) -C $$dir clean; \
@@ -206,7 +205,7 @@ clean:
 	rm -rf *.a
 	rm -rf *.o
 	rm -rf *.exe
-	rm -rf *.dll
+	rm -rf FrontEndControl.dll
 	rm -rf DLL/*.a
 	rm -rf DLL/FrontEndControl.def
 

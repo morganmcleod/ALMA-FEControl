@@ -93,6 +93,10 @@ DLLEXPORT short FEMCGetNumErrors();
 ///< How many unread errors are waiting in the error queue?
 ///< Returns >= 0 if there are unread errors;   -1 if not connected to the FE.
 
+DLLEXPORT short FEMCFlushErrors();
+///< Flush the FEMC module error queue.
+///< Returns 0 normally;   -1 if not connected to the FE.
+
 DLLEXPORT short FEMCGetNextError(short *moduleNum, short *errorNum, char *description);
 ///< Read the next unread error from the error queue.
 ///< Returns {-1, -1, ""} if the queue is empty or an error occurs.

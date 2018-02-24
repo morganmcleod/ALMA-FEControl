@@ -38,6 +38,10 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.8.7
+Build on EA-FETMS
+
+
 2.8.6 2018-02-01
 Added I-V-Power curves to Optimize > Measure IF Power vs VD
 

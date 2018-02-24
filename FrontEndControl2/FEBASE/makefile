@@ -33,7 +33,7 @@ FEBASECPP = AMBSIHardwareDevice.cpp \
 
 .PHONY: febase
 febase: $(FEBASECPP)
-	g++ -g $(CPPFLAGS) \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) \
 	$(PORTABLEINC) $(PROJECTINC) \
 	-c $(FEBASECPP)
 

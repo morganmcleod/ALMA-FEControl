@@ -57,47 +57,27 @@ int main(int, char*[]) {
         SLEEP(10);
     }
 
-    int sigSrcStatus = sigSrcControlInit();
-    if (sigSrcStatus < 0)
-        printf (">>> Not connected to SignalSource.\n");
-    else {
-        short reset = 1;
-        short configId = 0;
-        while (sigSrcGetNextConfiguration(reset, &configId, description) >= 0) {
-            reset = false;
-            printf(">>> sigSrc Config %d: %s\n", configId, description);
-        }
-    }
-
     bool done = false;
     short configId = 0;
     while (!done) {
         fflush(stdout);
         {
-            FESetCartridgeObserving(1);
-            FESetCartridgeObserving(3);
-            FESetCartridgeObserving(4);
-            FESetCartridgeObserving(7);
-            FESetCartridgeObserving(9);
-            FESetCartridgeObserving(10);
-            FESetCartridgeObserving(8);
-            FESetCartridgeObserving(6);
-            FESetCartridgeObserving(2);
-            FESetCartridgeObserving(5);
-            configId++;
-            if (sigSrcLoadConfiguration(configId) < 0)
-                printf(">>> sigSrcLoadConfiguration %d error.\n", configId);
-            configId++;
-            if (sigSrcLoadConfiguration(configId) < 0)
-                printf(">>> sigSrcLoadConfiguration %d error.\n", configId);
-//            SLEEP(5000);
+            for (int band = 1; band <= 10; ++band) {
+            	FESetCartridgeOff(band);
+            }
+            FESetCartridgeOn(3);
+            FESetCartridgeOn(7);
+            FESetCartridgeOn(8);
+        	SLEEP(50000);
+            FESetCartridgeOff(3);
+            FESetCartridgeOff(7);
+            FESetCartridgeOff(8);
+        	SLEEP(10000);
         }
-        if (MessageBox(NULL, "OK to proceed with test.  Cancel to exit", "t_lv_wrapper", MB_OKCANCEL) != IDOK)
-            done = true;
+//        if (MessageBox(NULL, "OK to proceed with test.  Cancel to exit", "t_lv_wrapper", MB_OKCANCEL) != IDOK)
+//            done = true;
 
     }
-    if (sigSrcStatus >= 0)
-        sigSrcControlShutdown();
     FEControlShutdown();
     return 0;   
 }

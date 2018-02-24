@@ -33,7 +33,7 @@ OPTIMIZECPP = CartHealthCheck.cpp CryostatPumping.cpp \
 
 .PHONY: optimize
 optimize: $(OPTIMIZECPP)
-	g++ -g $(CPPFLAGS) \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) \
 	$(PORTABLEINC) $(PROJECTINC) \
 	-c $(OPTIMIZECPP)
 

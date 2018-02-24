@@ -196,7 +196,7 @@ DLLEXPORT short FEControlInit() {
             // not found.
             FineLoSweepIni = "";
         else
-           // Found: use the current ini files path plus the specified name:
+            // Found: use the current ini files path plus the specified name:
             FineLoSweepIni = iniPath + "/" + tmp;
 
         LOG(LM_INFO) << "FineLOSweep ini file='" << FineLoSweepIni  << "'" << endl;
@@ -288,14 +288,19 @@ DLLEXPORT short FEControlInit() {
     if (ret == 0)
         frontEnd -> startMonitor();
 
-    // If possible, query the state of the cartridges:
-    if (ret == 0 && !CAN_noTransmit)
-        frontEnd -> queryCartridgeState();
+    if (!CAN_noTransmit) {
+		// If possible, query the state of the cartridges:
+		if (ret == 0)
+			frontEnd -> queryCartridgeState();
 
-    // If specified and possible, measure the SIS voltage setting error for all carts which are already powered on:
-    if (ret == 0 && correctSISVoltageError && !CAN_noTransmit)
-        frontEnd -> measureSISVoltageError(0, correctSISOnMainThread);
+		// Flush all FEMC errors:
+		if (ret == 0)
+			FEMCFlushErrors();
 
+		// If specified and possible, measure the SIS voltage setting error for all carts which are already powered on:
+		if (ret == 0 && correctSISVoltageError)
+			frontEnd -> measureSISVoltageError(0, correctSISOnMainThread);
+    }
     return ret;
 }
 
@@ -417,6 +422,19 @@ DLLEXPORT short FEMCGetNumErrors() {
         return -1;
     else
         return static_cast<short>(frontEnd -> getNumErrors());
+}
+
+DLLEXPORT short FEMCFlushErrors() {
+    if (!FEValid)
+        return -1;
+    else {
+    	short moduleNum, errorNum;
+    	char description[255];
+    	while (FEMCGetNextError(&moduleNum, &errorNum, description) == 0) {
+    		0;
+    	}
+    }
+    return 0;
 }
 
 DLLEXPORT short FEMCGetNextError(short *moduleNum, short *errorNum, char *description) {
