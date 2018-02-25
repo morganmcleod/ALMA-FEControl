@@ -28,6 +28,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FrontEndControl2}&quot;"/>
 									<listOptionValue builtIn="false" value="../../CppUtilityLib/include"/>
 									<listOptionValue builtIn="false" value="../../FEICDBLib/include"/>
+									<listOptionValue builtIn="false" value="../../FrontEndAMBLib/include"/>
 									<listOptionValue builtIn="false" value="../../FrontEndAMBLib/include/FrontEndAMB"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.959356085" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
