@@ -135,6 +135,7 @@ DLLEXPORT short FEControlInit() {
         if (!tmp.empty())
             correctSISVoltageError = from_string<unsigned long>(tmp);
         LOG(LM_INFO) << "correctSISVoltageError=" << correctSISVoltageError << endl;
+        FrontEndImpl::correctSISVoltageError(correctSISVoltageError);
 
         tmp = configINI.GetValue("debug", "SISOpenLoop");
         if (!tmp.empty())
@@ -283,17 +284,12 @@ DLLEXPORT short FEControlInit() {
         frontEnd -> startMonitor();
 
     if (!CAN_noTransmit) {
-		// If possible, query the state of the cartridges:
+        // Flush all FEMC errors:
+        if (ret == 0)
+            FEMCFlushErrors();
+        // Query the state of the cartridges:
 		if (ret == 0)
 			frontEnd -> queryCartridgeState();
-
-		// Flush all FEMC errors:
-		if (ret == 0)
-			FEMCFlushErrors();
-
-		// If specified and possible, measure the SIS voltage setting error for all carts which are already powered on:
-		if (ret == 0 && correctSISVoltageError)
-			frontEnd -> measureSISVoltageError(0);
     }
     return ret;
 }
@@ -681,8 +677,6 @@ DLLEXPORT short FESetCartridgeOn(short port) {
         if (!frontEnd -> getCartridgeOn(port)) {
             if (!frontEnd -> setCartridgeOn(port))
                 return -1;
-            if (correctSISVoltageError)
-                frontEnd -> measureSISVoltageError(port);
         }
         return 0;
     }

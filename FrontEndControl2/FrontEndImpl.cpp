@@ -41,6 +41,8 @@
 using namespace FEConfig;
 using namespace std;
 
+bool FrontEndImpl::correctSISVoltageError_m(true);
+
 //---------------------------------------------------------------------------
 // private constructor and destructor definitions:
 
@@ -557,16 +559,9 @@ void FrontEndImpl::queryCartridgeState() {
 }
 
 void FrontEndImpl::measureSISVoltageError(int port) {
-    if (port < 0 || port > 10)
+    if (port < 1 || port > 10)
         return;
-    
-    if (port != 0)
-        carts_mp -> measureSISVoltageError(port);
-        
-    else {
-        for (port = 1; port <= 10; ++port)
-            carts_mp -> measureSISVoltageError(port);
-    }
+    carts_mp -> measureSISVoltageError(port);
 }
 
 void FrontEndImpl::setFrontEndSN(const std::string &SN) {
@@ -852,6 +847,9 @@ bool FrontEndImpl::setCartridgeOn(int port) {
     msg += to_string(port);
     msg += " is now powered ON.";
     FEMCEventQueue::addStatusMessage(true, msg);
+    // Measure the SIS voltage setting error if configured to do so:
+    if (correctSISVoltageError_m)
+        measureSISVoltageError(port);
     return true;
 }
     
