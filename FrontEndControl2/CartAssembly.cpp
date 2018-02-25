@@ -147,7 +147,7 @@ void CartAssembly::queryCartridgeState() {
         coldCart_mp -> queryCartridgeState();
 }
 
-void CartAssembly::measureSISVoltageError(bool measureOnMainThread) {
+void CartAssembly::measureSISVoltageError() {
     if (band_m <= 2) {
         // No SIS mixers in band 1 and 2.  Nothing to do.
         return;
@@ -157,7 +157,7 @@ void CartAssembly::measureSISVoltageError(bool measureOnMainThread) {
     	return;
     }
     if (!measureSISVoltageErr_mp)
-    	measureSISVoltageErr_mp = new MeasureSISVoltageError(*this, measureOnMainThread);
+    	measureSISVoltageErr_mp = new MeasureSISVoltageError(*this);
 
     measureSISVoltageErr_mp -> start();
 }
@@ -328,6 +328,7 @@ bool CartAssembly::setLOFrequency(double freqLO, double freqFLOOG, int sbLock) {
 bool CartAssembly::overrideLoopBW(bool altLoopBW) {
     LOG(LM_INFO) << "CartAssembly: overrideLoopBW = " << (altLoopBW ? "ALTERNATE" : "NORMAL") << endl;
     WCA_mp -> pllLoopBandwidthSelect(altLoopBW);
+    return true;
 }
 
 bool CartAssembly::getMonitorYTO(WCAImpl::YTO_t &target) const {

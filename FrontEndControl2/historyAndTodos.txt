@@ -39,10 +39,15 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 Revision history:
 
 2.8.7
-Build on EA-FETMS
-Mutex in lv_wrapper protects client count, valid, and other shared data.
-
-
+beta1:
+  Build on EA-FETMS
+beta2:
+  Mutex in lv_wrapper protects client count, valid, and other shared data.
+beta3:
+  delete CorrectSISOnMainThread option. Constant defaults false in OPTIMIZE/MeasureSISVoltageError.cpp
+  delete deprecated exports FEGetNextSerialNum() cartGetLOPADrainVoltageSetting() setCorrectSISOnMainThread()
+  delete junk TODOs.
+  
 2.8.6 2018-02-01
 Added I-V-Power curves to Optimize > Measure IF Power vs VD
 

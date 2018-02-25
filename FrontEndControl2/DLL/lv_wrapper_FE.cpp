@@ -64,7 +64,6 @@ namespace FrontEndLVWrapper {
     extern bool tryAlternateLockMethod;
     extern bool defeatNormalLockDetect;
     bool correctSISVoltageError = true;
-    bool correctSISOnMainThread = false;
     bool randomizeMonitors = false;
     bool logMonitors = false;
     bool logAmbErrors = true;
@@ -136,11 +135,6 @@ DLLEXPORT short FEControlInit() {
         if (!tmp.empty())
             correctSISVoltageError = from_string<unsigned long>(tmp);
         LOG(LM_INFO) << "correctSISVoltageError=" << correctSISVoltageError << endl;
-
-        tmp = configINI.GetValue("debug", "correctSISOnMainThread");
-        if (!tmp.empty())
-            correctSISOnMainThread = from_string<unsigned long>(tmp);
-        LOG(LM_INFO) << "correctSISOnMainThread=" << correctSISOnMainThread << endl;
 
         tmp = configINI.GetValue("debug", "SISOpenLoop");
         if (!tmp.empty())
@@ -299,7 +293,7 @@ DLLEXPORT short FEControlInit() {
 
 		// If specified and possible, measure the SIS voltage setting error for all carts which are already powered on:
 		if (ret == 0 && correctSISVoltageError)
-			frontEnd -> measureSISVoltageError(0, correctSISOnMainThread);
+			frontEnd -> measureSISVoltageError(0);
     }
     return ret;
 }
@@ -414,7 +408,6 @@ DLLEXPORT short FEMCRescanESNs() {
 
     frontEnd -> specialReadESNs(true);
     return 0;
-    // TODO: delay or loop here to make sure they finished reading?
 }
 
 DLLEXPORT short FEMCGetNumErrors() {
@@ -575,11 +568,6 @@ DLLEXPORT short FELoadConfiguration(short configId_in) {
 
 //----------------------------------------------------------------------------
 
-DLLEXPORT short FEGetNextSerialNum(short reset, char *serialNum, unsigned long *frontEndId) {
-    return -1;
-// TODO: this function not used in client code.  Not creating dbObject in wrapper.  If needed, move into a helper class.
-}
-
 DLLEXPORT short FEGetConfiguredBands(short *size, short *bands) {
     if (!FEValid)
         return -1;
@@ -694,7 +682,7 @@ DLLEXPORT short FESetCartridgeOn(short port) {
             if (!frontEnd -> setCartridgeOn(port))
                 return -1;
             if (correctSISVoltageError)
-                frontEnd -> measureSISVoltageError(port, correctSISOnMainThread);
+                frontEnd -> measureSISVoltageError(port);
         }
         return 0;
     }
@@ -827,12 +815,6 @@ DLLEXPORT short cartPauseMonitor(short port, short pauseWCA, short pauseCC) {
 
 DLLEXPORT short randomizeAnalogMonitors(short enable) {
     FEHardwareDevice::randomizeAnalogMonitors(enable != 0);
-    return 0;
-}
-
-DLLEXPORT short setCorrectSISOnMainThread(short enable) {
-    correctSISOnMainThread = (enable != 0);
-    LOG(LM_INFO) << "setCorrectSISOnMainThread=" << correctSISOnMainThread << endl;
     return 0;
 }
 
@@ -1178,18 +1160,6 @@ DLLEXPORT short cartGetLOPowerAmpsSetting(short port, short *isEnabled,
         return 0;
     }
 }
-
-DLLEXPORT short cartGetLOPADrainVoltageSetting(short port, float *VDP0, float *VDP1) {
-// TODO: DEPRECATED
-    if (!VDP0 || !VDP1)
-        return -1;
-
-    short enable;
-    float VGP0, VGP1;
-
-    return cartGetLOPowerAmpsSetting(port, &enable, VDP0, &VGP0, VDP1, &VGP1);
-}
-
 
 DLLEXPORT short cartAdjustLOPowerAmps(short port, short repeatCount) {
     if (!validatePortNumber(port))

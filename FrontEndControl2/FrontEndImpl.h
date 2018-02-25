@@ -73,8 +73,7 @@ public:
 
 // query enabled/observing status of powermodules and cartridges:
     void queryCartridgeState();
-    void measureSISVoltageError(int port = 0,                       // 0 signifies measure all ports which are on.
-                                bool measureOnMainThread = false);  // false = measure on worker thread.
+    void measureSISVoltageError(int port = 0);  // 0 signifies measure all ports which are on.
 
 // Configuration functions:
     void setFrontEndSN(const std::string &SN);

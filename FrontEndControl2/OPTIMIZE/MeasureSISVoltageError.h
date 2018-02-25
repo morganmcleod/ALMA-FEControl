@@ -14,9 +14,9 @@ class CartAssembly;
 
 class MeasureSISVoltageError: public OptimizeBase {
 public:
-	MeasureSISVoltageError(CartAssembly &ca, bool measureOnMainThread = false)
+	MeasureSISVoltageError(CartAssembly &ca)
 	  : ca_m(ca),
-	    measureOnMainThread_m(measureOnMainThread)
+	    measureOnMainThread_m(false)
 		{}
 
 	virtual ~MeasureSISVoltageError()

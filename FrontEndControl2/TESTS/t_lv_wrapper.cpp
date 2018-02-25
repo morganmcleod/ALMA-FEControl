@@ -7,9 +7,6 @@
 #include <windows.h>
 #include <math.h>
 
-static const float MY_INF = INFINITY;
-// the above line will cause a divide by zero warning.
-
 int main(int, char*[]) {
     char DLLVersion[20];
     if (getSoftwareVersion(DLLVersion) < 0) {

@@ -150,10 +150,10 @@ void CartridgesContainer::queryCartridgeState() {
     }
 }
 
-void CartridgesContainer::measureSISVoltageError(int port, bool measureOnMainThread) {
+void CartridgesContainer::measureSISVoltageError(int port) {
     CartAssembly *ca = carts_mp -> use(port);
     if (ca && ca -> getEnable())
-        ca -> measureSISVoltageError(measureOnMainThread);
+        ca -> measureSISVoltageError();
 }
 
 bool CartridgesContainer::existsCartAssembly(int port) const {

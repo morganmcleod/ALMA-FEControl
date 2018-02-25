@@ -118,9 +118,6 @@ DLLEXPORT short FELoadConfiguration(short configId);
 //----------------------------------------------------------------------------
 // Front end and cartridge health check operations.
 
-DLLEXPORT short FEGetNextSerialNum(short reset, char *serialNum, unsigned long *frontEndId);
-///< Iterate through the list of available front end serial numbers and their associated keys.
-
 DLLEXPORT short FEGetConfiguredBands(short *size, short *bands);
 ///< Retrieve an array of configured band numbers.
 ///< bands points to a data array. size and bands are required.
@@ -163,9 +160,6 @@ DLLEXPORT short cartPauseMonitor(short port, short pauseWCA, short pauseCC);
 
 DLLEXPORT short randomizeAnalogMonitors(short enable);
 ///< enable/disble random ordering on analog monitor points.
-
-DLLEXPORT short setCorrectSISOnMainThread(short enable);
-///< enable/disable debug setting 'correctSISOnMainThread'
 
 //----------------------------------------------------------------------------
 // Cartridge control operations.
@@ -264,10 +258,6 @@ DLLEXPORT short cartGetLOPowerAmpsSetting(short port, short *isEnabled,
                                    float *VDP0, float *VGP0,
                                    float *VDP1, float *VGP1);
 ///< Get the last set state of the LO power amps.  Software readback only.
-
-DLLEXPORT short cartGetLOPADrainVoltageSetting(short port, float *VDP0, float *VDP1);
-///< Retrieve the drain voltage settings for the specified port.
-///< TODO: DEPRECATED in favor of cartGetLOPowerAmpsSetting()
 
 DLLEXPORT short cartAdjustLOPowerAmps(short port, short repeatCount);
 ///< Adjust the LO PA drain voltages until the junction currents are as close as possible to 
