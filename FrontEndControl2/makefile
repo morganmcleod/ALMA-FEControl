@@ -64,7 +64,7 @@ WINLIBS = -lwinmm -lwsock32
 # flags for compiling C++ code:
 export CPPFLAGS = -O0 -fmessage-length=0
 #-Wall 
-export DEBUGFLAGS = -g3
+export DEBUGFLAGS = -g2
 #-s  //strip symbols!
 
 # list of output files in subdirectories:

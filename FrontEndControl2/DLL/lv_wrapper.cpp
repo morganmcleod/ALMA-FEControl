@@ -36,7 +36,8 @@
 using namespace std;
 
 namespace FrontEndLVWrapper {
-	FILE *logStream = NULL;
+    pthread_mutex_t LVWrapperLock = PTHREAD_MUTEX_INITIALIZER;	//< protect this data from race cond.
+    FILE *logStream = NULL;
     bool logTransactions = false;
     bool debugLVStructures = false;
     bool CAN_noTransmit = false;
@@ -51,12 +52,22 @@ namespace FrontEndLVWrapper {
 using namespace FrontEndLVWrapper;
 
 short LVWrapperInit() {
-    ++connectedModules;
-    if (LVWrapperValid) {
-        LOG(LM_INFO) << "LVWrapperInit: connectedModules=" << connectedModules << endl;
+	bool valid;
+	int connected;
+	pthread_mutex_lock(&LVWrapperLock);
+	++connectedModules;
+	connected = connectedModules;
+	valid = LVWrapperValid;
+	pthread_mutex_unlock(&LVWrapperLock);
+
+	if (valid) {
+        LOG(LM_INFO) << "LVWrapperInit: connectedModules=" << connected << endl;
         return 0;
     }
-    char *fn=getenv("FRONTENDCONTROL.INI");
+
+	pthread_mutex_lock(&LVWrapperLock);
+
+	char *fn=getenv("FRONTENDCONTROL.INI");
     iniFileName = (fn) ? fn : "FrontendControlDLL.ini";
     
     try {
@@ -129,6 +140,7 @@ short LVWrapperInit() {
 
     } catch (...) {
     	LOG(LM_ERROR) << "LVWrapperInit exception loading configuration file." << endl;
+    	pthread_mutex_unlock(&LVWrapperLock);
         return -1;
     }
     
@@ -145,16 +157,33 @@ short LVWrapperInit() {
 
     FEMCEventQueue::createInstance();
     LVWrapperValid = true;
+
+    pthread_mutex_unlock(&LVWrapperLock);
+
     return 0;
 }
 
 short LVWrapperShutdown() {
-    if (!LVWrapperValid)
+	bool valid = false;
+	pthread_mutex_lock(&LVWrapperLock);
+	valid = LVWrapperValid;
+	pthread_mutex_unlock(&LVWrapperLock);
+
+	if (!valid)
         return -1;
+
+	int connected;
+	pthread_mutex_lock(&LVWrapperLock);
     --connectedModules;
-    LOG(LM_INFO) << "LVWrapperShutdown: connectedModules=" << connectedModules << endl;
-    if (connectedModules <= 0) {   
-        LVWrapperValid = false;
+    connected = connectedModules;
+    pthread_mutex_unlock(&LVWrapperLock);
+
+    LOG(LM_INFO) << "LVWrapperShutdown: connectedModules=" << connected << endl;
+    if (connected <= 0) {
+
+    	pthread_mutex_lock(&LVWrapperLock);
+
+    	LVWrapperValid = false;
         FEHardwareDevice::clearLogger();
         WHACK(logger);
         LOG(LM_INFO) << "LVWrapperShutdown: logger destroyed" << endl;
@@ -171,6 +200,9 @@ short LVWrapperShutdown() {
             fclose(logStream);
         }
         WHACK(logStream);
+
+        pthread_mutex_unlock(&LVWrapperLock);
+        pthread_mutex_destroy(&LVWrapperLock);
     }
     return 0;
 }

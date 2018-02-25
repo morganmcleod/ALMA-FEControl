@@ -40,6 +40,7 @@ Revision history:
 
 2.8.7
 Build on EA-FETMS
+Mutex in lv_wrapper protects client count, valid, and other shared data.
 
 
 2.8.6 2018-02-01
