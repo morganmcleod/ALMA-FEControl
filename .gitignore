@@ -6,6 +6,7 @@
 *.exe
 *.dll
 *.def
+*.zip
 cinifile_example
 CppUnit*
 IFSUploader
