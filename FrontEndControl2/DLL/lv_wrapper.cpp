@@ -36,7 +36,7 @@
 using namespace std;
 
 namespace FrontEndLVWrapper {
-    pthread_mutex_t LVWrapperLock = PTHREAD_MUTEX_INITIALIZER;	//< protect this data from race cond.
+    pthread_mutex_t LVWrapperLock;
     FILE *logStream = NULL;
     bool logTransactions = false;
     bool debugLVStructures = false;
@@ -52,6 +52,9 @@ namespace FrontEndLVWrapper {
 using namespace FrontEndLVWrapper;
 
 short LVWrapperInit() {
+    if (!connectedModules)
+        pthread_mutex_init(&LVWrapperLock, NULL);
+
 	bool valid;
 	int connected;
 	pthread_mutex_lock(&LVWrapperLock);

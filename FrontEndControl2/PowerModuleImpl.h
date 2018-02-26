@@ -35,9 +35,13 @@ public:
       {}
 
     bool getEnable() const
-      { return enable_m; }
+      { return enabled_m; }
 
-    void setEnable();
+    using PowerModuleImplBase::enableModule;
+    virtual void enableModule(bool val);
+    virtual void standby2Module(bool val);
+
+    bool setEnable();
     void clearEnable();
 
     struct PowerModule_t {
@@ -62,7 +66,7 @@ private:
     PowerModuleImpl(const PowerModuleImpl &other);
     PowerModuleImpl &operator =(const PowerModuleImpl &other);
     
-    bool enable_m;
+    bool enabled_m;
 };
     
 #endif /*POWERMODULEIMPL_H_*/
