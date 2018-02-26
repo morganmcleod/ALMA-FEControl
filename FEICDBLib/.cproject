@@ -30,9 +30,9 @@
 								<option id="gnu.cpp.compiler.mingw.so.debug.option.optimization.level.1375556534" name="Optimization Level" superClass="gnu.cpp.compiler.mingw.so.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.mingw.so.debug.option.debugging.level.451223919" name="Debug Level" superClass="gnu.cpp.compiler.mingw.so.debug.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1307278673" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="../include"/>
-									<listOptionValue builtIn="false" value="../../CppUtilityLib/include"/>
-									<listOptionValue builtIn="false" value="../../3rdparty/MySQL41/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FEICDBLib/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CppUtilityLib/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;L:\ALMA-FEControl\3rdparty\MySQL41\include&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.279682213" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
