@@ -136,7 +136,7 @@ DLL/libFrontEndControl.a: FrontEndControl.dll DLL/FrontEndControl.def
 	dlltool --dllname FrontEndControl.dll --def DLL/FrontEndControl.def --output-lib DLL/libFrontEndControl.a -k
 
 .PHONY: tests
-tests: t_lv_static.exe t_lv_wrapper.exe t_lv_wrapper_sigSrc.exe t_SocketClient.exe \
+tests: t_lv_wrapper.exe t_lv_wrapper_sigSrc.exe t_SocketClient.exe \
 	t_LookupTables.exe t_semaphore_leaks.exe t_StreamLogger.exe t_FEICDataBase.exe
 
 # This test uses the DLL:
