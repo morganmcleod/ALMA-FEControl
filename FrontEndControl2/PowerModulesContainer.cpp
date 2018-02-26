@@ -147,7 +147,7 @@ bool PowerModulesContainer::queryEnable(int port) {
     if (!limitsCheck(port))
         return false;
     PowerModuleImpl *mod = modules_m -> use(port);
-    return (mod && mod -> PowerModuleImpl::enableModule());
+    return (mod && mod -> enableModule());
 }
 
 bool PowerModulesContainer::limitsCheck(int port) const {

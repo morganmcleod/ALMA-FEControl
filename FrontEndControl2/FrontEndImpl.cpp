@@ -824,11 +824,18 @@ bool FrontEndImpl::setYIGLimits(int port, double FLOYIG, double FHIYIG) {
 
 bool FrontEndImpl::setCartridgeOff(int port) {
     LOG(LM_INFO) << "FrontEndImpl::setCartridgeOff port=" << port << endl;
+
+    // set the CartAssembly to powered off state:
     carts_mp -> clearEnable(port);
-    if (cpds_m)
-        powerMods_mp -> clearEnable(port);  // tell CPDS to turn off the cartridge
+
+    // If no CPDS, send the power command anyway so that FEMC is in proper state:
+    if (!cpds_m)
+        powerEnableModule(port, false);
+
+    // tell CPDS to turn off the cartridge:
     else
-        powerEnableModule(port, false);     // send the command anyway so that FEMC is in proper state.
+        powerMods_mp -> clearEnable(port);
+
     string msg("Cartridge band ");
     msg += to_string(port);
     msg += " is now powered OFF.";
@@ -838,13 +845,22 @@ bool FrontEndImpl::setCartridgeOff(int port) {
 
 bool FrontEndImpl::setCartridgeOn(int port) {
     LOG(LM_INFO) << "FrontEndImpl::setCartridgeOn port=" << port << endl;
-    if (cpds_m)
-        powerMods_mp -> setEnable(port);    // tell CPDS to turn on the cartridge
-    else
-        powerEnableModule(port, true);      // send the command anyway so that FEMC is in proper state.
-    carts_mp -> setEnable(port);
     string msg("Cartridge band ");
     msg += to_string(port);
+
+    // If no CPDS, send the power command anyway so that FEMC is in proper state:
+    if (!cpds_m)
+        powerEnableModule(port, true);
+
+    // tell CPDS to turn on the cartridge:
+    else if (!powerMods_mp -> setEnable(port)) {
+        msg += " NOT POWERED ON!";
+        FEMCEventQueue::addStatusMessage(false, msg);
+        return false;
+    }
+
+    // set the CartAssembly to powered on state:
+    carts_mp -> setEnable(port);
     msg += " is now powered ON.";
     FEMCEventQueue::addStatusMessage(true, msg);
     // Measure the SIS voltage setting error if configured to do so:

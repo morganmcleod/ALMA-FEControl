@@ -35,22 +35,46 @@ PowerModuleImpl::PowerModuleImpl(unsigned long channel,
                                  const std::string &name,
                                  int port)
   : PowerModuleImplBase(name, port),
-    enable_m(false)
+    enabled_m(false)
 { 
     PowerModuleImplBase::initialize(channel, nodeAddress);
-    enable_m = PowerModuleImplBase::enableModule();
+    enabled_m = PowerModuleImplBase::enableModule();
 }
 
-void PowerModuleImpl::setEnable() {
-    LOG(LM_INFO) << "PowerModuleImpl::setEnable port=" << port_m << endl;
-    enable_m = true;
-    PowerModuleImplBase::enableModule(true);
+void PowerModuleImpl::enableModule(bool val) {
+    PowerModuleImplBase::enableModule(val);
+    // Was not enabled...
+    if (!enabled_m) {
+        // Going to enabled:
+        if (val && PowerModuleImplBase::enableModule_status == FEMC_NO_ERROR)
+            enabled_m = true;
+    // Was enabled...
+    } else
+        enabled_m = val;
+}
+
+void PowerModuleImpl::standby2Module(bool val) {
+    PowerModuleImplBase::standby2Module(val);
+    // Was not enabled...
+    if (!enabled_m) {
+        // Going to enabled:
+        if (val && PowerModuleImplBase::enableModule_status == FEMC_NO_ERROR)
+            enabled_m = true;
+    // Was enabled...
+    } else
+        enabled_m = val;
+}
+
+bool PowerModuleImpl::setEnable() {
+    LOG(LM_INFO) << "PowerModuleImpl::setEnable port=" << port_m << ": ";
+    enableModule(true);
+    LOG(LM_INFO) << ((enabled_m) ? "success." : "failed.") << endl;
+    return enabled_m;
 }
         
 void PowerModuleImpl::clearEnable() {
     LOG(LM_INFO) << "PowerModuleImpl::clearEnable port=" << port_m << endl;
-    enable_m = false;
-    PowerModuleImplBase::enableModule(false);
+    enableModule(false);
 }
 
 bool PowerModuleImpl::getMonitorPowerModule(PowerModule_t &target) const {
