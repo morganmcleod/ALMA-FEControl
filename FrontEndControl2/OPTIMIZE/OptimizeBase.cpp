@@ -116,7 +116,7 @@ void *OptimizeBase::optimizeThread(OptimizeBase *owner) {
     owner -> exitAction(owner -> success());
 
     // time to stop; acknowledge with stopped_m and exit the thread:
-    LOG(LM_INFO) << "OptimizeBase(" << name << "): exiting worker thread." << endl;
+    LOG(LM_DEBUG) << "OptimizeBase(" << name << "): exiting worker thread." << endl;
     pthread_mutex_lock(&data_m.lock_m);
     data_m.stopped_m = true;
     pthread_mutex_unlock(&data_m.lock_m);

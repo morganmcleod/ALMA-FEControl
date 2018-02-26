@@ -67,7 +67,7 @@ namespace FrontEndLVWrapper {
     bool randomizeMonitors = false;
     bool logMonitors = false;
     bool logAmbErrors = true;
-	unsigned long CANChannel = 0; 
+    unsigned long CANChannel = 0;
     unsigned long nodeAddress = 0x13;
     bool startCompressorModule = false;
     static FrontEndImpl *frontEnd = NULL;
@@ -197,8 +197,8 @@ DLLEXPORT short FEControlInit() {
         LOG(LM_INFO) << "FineLOSweep ini file='" << FineLoSweepIni  << "'" << endl;
 
     } catch (...) {
-    	LOG(LM_ERROR) << "FEControlInit exception loading configuration file." << endl;
-    	FEMCEventQueue::addStatusMessage(false, "An exception occurred while loading the configuration file.");
+        LOG(LM_ERROR) << "FEControlInit exception loading configuration file." << endl;
+        FEMCEventQueue::addStatusMessage(false, "An exception occurred while loading the configuration file.");
         return -1;
     }
     
@@ -275,21 +275,22 @@ DLLEXPORT short FEControlInit() {
         }
     }
 
-    // Start the thermal logger:
-    if (ret == 0)
+    // Do final setup actions if no error so far:
+    if (ret == 0) {
+
+        // Start the thermal logger:
         frontEnd -> setThermalLogInterval(thermalLogInterval);
 
-    // Start all monitor threads:
-    if (ret == 0)
+        // Flush and log all previous FEMC module errors:
+        LOG(LM_INFO) << "Flushing FEMC Error Queue..." << endl;
+        FEMCFlushErrors();
+
+        // Start all monitor threads:
         frontEnd -> startMonitor();
 
-    if (!CAN_noTransmit) {
-        // Flush all FEMC errors:
-        if (ret == 0)
-            FEMCFlushErrors();
         // Query the state of the cartridges:
-		if (ret == 0)
-			frontEnd -> queryCartridgeState();
+        if (!CAN_noTransmit)
+            frontEnd -> queryCartridgeState();
     }
     return ret;
 }
@@ -417,11 +418,11 @@ DLLEXPORT short FEMCFlushErrors() {
     if (!FEValid)
         return -1;
     else {
-    	short moduleNum, errorNum;
-    	char description[255];
-    	while (FEMCGetNextError(&moduleNum, &errorNum, description) == 0) {
-    		0;
-    	}
+        short moduleNum, errorNum;
+        char description[255];
+        while (FEMCGetNextError(&moduleNum, &errorNum, description) == 0) {
+            0;
+        }
     }
     return 0;
 }
@@ -1779,7 +1780,7 @@ DLLEXPORT short cartGetMonitorTemp(short port, CartTempData_t *target) {
         target -> setFloat(CartTempData_t::CARTRIDGE_TEMP4, tempInfo.cartridgeTemperature4_value);
         target -> setFloat(CartTempData_t::CARTRIDGE_TEMP5, tempInfo.cartridgeTemperature5_value);
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;
@@ -1802,7 +1803,7 @@ DLLEXPORT short cartGetMonitorSIS(short port, short pol, short sb, CartSISData_t
         target -> setFloat(CartSISData_t::SIS_MAGNET_VOLTAGE, sisInfo.sisMagnetVoltage_value);    
         target -> setFloat(CartSISData_t::SIS_MAGNET_CURRENT, sisInfo.sisMagnetCurrent_value);    
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;
@@ -1830,7 +1831,7 @@ DLLEXPORT short cartGetMonitorLNA(short port, short pol, short sb, CartLNAData_t
         target -> setFloat(CartLNAData_t::LNA3_DRAIN_CURRENT, lnaInfo.lnaSt3DrainCurrent_value);    
         target -> setFloat(CartLNAData_t::LNA3_GATE_VOLTAGE, lnaInfo.lnaSt3GateVoltage_value);    
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;
@@ -1850,7 +1851,7 @@ DLLEXPORT short cartGetMonitorAux(short port, short pol, CartAuxData_t *target) 
         target -> setHeaterCurrent(auxInfo.sisHeaterCurrent_value);
         target -> setLEDEnable(auxInfo.lnaLedEnable_value);
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;
@@ -1881,7 +1882,7 @@ DLLEXPORT short powerGetMonitorModule(short port, PowerModuleData_t *target) {
         target -> setFloat(PowerModuleData_t::CURRENT_P8V, modInfo.currentP8V_value);    
         target -> setEnable(modInfo.enableModule_value);
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;
@@ -1910,7 +1911,7 @@ DLLEXPORT short ifSwitchGetMonitor(IFSwitchData_t *target) {
         target -> setByte(IFSwitchData_t::TEMPSERVO_POL1SB2, modInfo.pol1Sb2TempServoEnable_value);
         target -> setByte(IFSwitchData_t::OBSERVING_BAND, modInfo.switchCartridge_value);
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;
@@ -1950,7 +1951,7 @@ DLLEXPORT short cryostatGetMonitor(CryostatData_t *target) {
         target -> setBool(CryostatData_t::VACUUM_GAUGE_STATE, modInfo.vacuumGaugeErrorState_value);
         target -> setFloat(CryostatData_t::SUPPLY_CURRENT_230V, modInfo.supplyCurrent230V_value);
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;
@@ -1978,7 +1979,7 @@ DLLEXPORT short lprGetMonitor(LPRData_t *target) {
         target -> setFloat(LPRData_t::EDFA_PHOTODETECT_POWER, modInfo.EDFAPhotoDetectPower_value);
         target -> setFloat(LPRData_t::EDFA_MODULATION_INPUT, modInfo.EDFAModulationInput_value);
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;
