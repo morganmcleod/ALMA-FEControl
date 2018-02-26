@@ -50,7 +50,7 @@ public:
     // initializing communications between the AMBSI1 and the FEMC module.
 
     virtual unsigned char numEnabledModules();
-    virtual bool powerEnableModule(int port);
+    virtual unsigned char powerEnableModule(int port);
 
     virtual unsigned short getNumErrors();
     virtual unsigned short getNextError();
@@ -58,8 +58,7 @@ public:
     virtual unsigned char getFEMode();
 
 // control points:
-    virtual void powerEnableModule(int port, bool val);
-    virtual void powerStandby2Module(int port, bool val);
+    virtual void powerEnableModule(int port, unsigned char val);
     virtual void specialExitProgram(bool val);
     virtual void specialReadESNs(bool val);
     virtual void setFEMode(unsigned char val);

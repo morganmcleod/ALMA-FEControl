@@ -43,6 +43,8 @@ PowerModuleImpl::PowerModuleImpl(unsigned long channel,
 
 void PowerModuleImpl::enableModule(bool val) {
     PowerModuleImplBase::enableModule(val);
+    LOG(LM_INFO) << "PowerModuleImpl::enableModule(" << val << ") for port=" << port_m << " returned status " << PowerModuleImplBase::enableModule_status << endl;
+
     // Was not enabled...
     if (!enabled_m) {
         // Going to enabled:
@@ -55,6 +57,8 @@ void PowerModuleImpl::enableModule(bool val) {
 
 void PowerModuleImpl::standby2Module(bool val) {
     PowerModuleImplBase::standby2Module(val);
+    LOG(LM_INFO) << "PowerModuleImpl::standby2Module(" << val << ") for port=" << port_m << " returned status " << PowerModuleImplBase::enableModule_status << endl;
+
     // Was not enabled...
     if (!enabled_m) {
         // Going to enabled:
@@ -66,9 +70,8 @@ void PowerModuleImpl::standby2Module(bool val) {
 }
 
 bool PowerModuleImpl::setEnable() {
-    LOG(LM_INFO) << "PowerModuleImpl::setEnable port=" << port_m << ": ";
+    LOG(LM_INFO) << "PowerModuleImpl::setEnable port=" << port_m << endl;
     enableModule(true);
-    LOG(LM_INFO) << ((enabled_m) ? "success." : "failed.") << endl;
     return enabled_m;
 }
         

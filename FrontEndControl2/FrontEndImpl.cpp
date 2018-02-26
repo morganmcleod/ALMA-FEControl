@@ -830,7 +830,7 @@ bool FrontEndImpl::setCartridgeOff(int port) {
 
     // If no CPDS, send the power command anyway so that FEMC is in proper state:
     if (!cpds_m)
-        powerEnableModule(port, false);
+        powerEnableModule(port, 0);
 
     // tell CPDS to turn off the cartridge:
     else
@@ -850,7 +850,7 @@ bool FrontEndImpl::setCartridgeOn(int port) {
 
     // If no CPDS, send the power command anyway so that FEMC is in proper state:
     if (!cpds_m)
-        powerEnableModule(port, true);
+        powerEnableModule(port, 1);
 
     // tell CPDS to turn on the cartridge:
     else if (!powerMods_mp -> setEnable(port)) {
@@ -877,16 +877,31 @@ bool FrontEndImpl::setCartridgeStandby2(int port, bool enable) {
         LOG(LM_ERROR) << msg;
         return false;
 
-    } else {
-        LOG(LM_INFO) << "FrontEndImpl::setCartridgeStandby2 port=" << port << endl;
-        powerStandby2Module(port, enable);
-        string msg("Cartridge band ");
-        msg += to_string(port);
-        msg += (enable ? " entered" : " exited");
-        msg += " STANDBY2 mode.";
-        FEMCEventQueue::addStatusMessage(true, msg);
-        return true;
     }
+    LOG(LM_INFO) << "FrontEndImpl::setCartridgeStandby2(" << enable << ") for port=" << port << endl;
+    string msg("Cartridge band ");
+    msg += to_string(port);
+
+    // If no CPDS, send the power command anyway so that FEMC is in proper state:
+    unsigned char cmd(carts_mp -> getEnable(port) ? 1 : 0);
+    if (enable)
+        cmd = 2;
+    if (!cpds_m)
+        powerEnableModule(port, cmd);
+
+    // tell CPDS to turn on the cartridge:
+    else if (!powerMods_mp -> setStandby2(port, enable)) {
+        msg += " STANDBY2 command failed!";
+        FEMCEventQueue::addStatusMessage(false, msg);
+        return false;
+    }
+
+    // set the CartAssembly to powered on state:
+    carts_mp -> setEnable(port);
+    msg += (enable ? " entered" : " exited");
+    msg += " STANDBY2 mode.";
+    FEMCEventQueue::addStatusMessage(true, msg);
+    return true;
 }
 
 bool FrontEndImpl::setCartridgeObserving(int port) {

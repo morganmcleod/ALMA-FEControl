@@ -116,20 +116,18 @@ unsigned char FrontEndImplBase::numEnabledModules() {
     SYNCMON_LOG_BYTE(numEnabledModules, "POWER_NUM_ENABLED_MODULES")
 }
 
-bool FrontEndImplBase::powerEnableModule(int port) {
+unsigned char FrontEndImplBase::powerEnableModule(int port) {
+    unsigned char val(0);
     if (port >= 1 && port <= 10) {
         AmbRelativeAddr RCA(powerEnableModule_RCA);
         RCA |= ((port - 1) << 4);
-        unsigned char val(0);
         sem_t synchLock;
         sem_init(&synchLock, 0, 0);
         FEMC_ERROR status = syncMonitor(RCA, val, synchLock);
         sem_destroy(&synchLock);
         getLogger().log(FEMC_LOG_MONITOR, "POWER_ENABLE_MODULE", RCA, (signed char) status, val, 0.0);
-        if (status == FEMC_NO_ERROR && val != 0)
-            return true;
     }
-    return false;
+    return val;
 }
 
 unsigned short FrontEndImplBase::getNumErrors() {
@@ -143,24 +141,13 @@ unsigned char FrontEndImplBase::getFEMode() {
     SYNCMON_LOG_INT(FEMode, unsigned char, "FE_MODE")
 }
 
-void FrontEndImplBase::powerEnableModule(int port, bool val) {
+void FrontEndImplBase::powerEnableModule(int port, unsigned char val) {
     if (port >= 1 && port <= 10) {    
         AmbRelativeAddr RCA(powerEnableModule_RCA);
         RCA |= ((port - 1) << 4);
         syncCommand(RCA + 0x10000, val);
         int status(0);
         getLogger().log(FEMC_LOG_COMMAND, "POWER_ENABLE_MODULE", RCA, (signed char) status, val ? 1 : 0, 0.0);
-    }
-}
-
-void FrontEndImplBase::powerStandby2Module(int port, bool _val) {
-    if (port >= 1 && port <= 10) {
-        unsigned char val(_val ? 2 : 1);
-        AmbRelativeAddr RCA(powerEnableModule_RCA);
-        RCA |= ((port - 1) << 4);
-        syncCommand(RCA + 0x10000, val);
-        int status(0);
-        getLogger().log(FEMC_LOG_COMMAND, "POWER_ENABLE_MODULE(STANDBY2)", RCA, (signed char) status, val ? 1 : 0, 0.0);
     }
 }
 
