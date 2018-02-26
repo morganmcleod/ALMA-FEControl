@@ -139,14 +139,6 @@ DLL/libFrontEndControl.a: FrontEndControl.dll DLL/FrontEndControl.def
 tests: t_lv_static.exe t_lv_wrapper.exe t_lv_wrapper_sigSrc.exe t_SocketClient.exe \
 	t_LookupTables.exe t_semaphore_leaks.exe t_StreamLogger.exe t_FEICDataBase.exe
 
-# This test links the DLL code statically:
-t_lv_static.exe : tests/t_lv_wrapper.cpp $(DLLCPP) $(ALLOUT)
-	g++ $(CPPFLAGS) $(DEBUGFLAGS) -DSTATIC_FRONTENDCONTROL -o t_lv_static.exe \
-	tests/t_lv_wrapper.cpp $(DLLCPP) $(ALLOUT) \
-	$(PORTABLEINC) $(PROJECTINC) \
-	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIBS) $(NICANLIB) $(PORTABLELIB) \
-	-Wl,--enable-auto-import
-
 # This test uses the DLL:
 t_lv_wrapper.exe : tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a 
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_lv_wrapper.exe \
