@@ -61,14 +61,10 @@ export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) -I$(CURDIR)
 # windows libs:
 WINLIB = -lwinmm -lwsock32
 
-# lib for DrMinGW ExcHndl:
-DEBUGLIB = -L$(BUILD)/3rdparty/drmingw-0.8.2-win32/lib -lexchndl
-
 # flags for compiling C++ code:
 export CPPFLAGS = -O0 -fmessage-length=0
 #-Wall 
-export DEBUGFLAGS = -g2
-#-s  //strip symbols!
+export DEBUGFLAGS = -g2 -fno-omit-frame-pointer
 
 # list of output files in subdirectories:
 CONFIGOUT = CONFIG/CartConfig.o CONFIG/ConfigManager.o CONFIG/Configuration.o CONFIG/ConfigProviderIniFile.o CONFIG/ConfigProviderMySQL.o \
@@ -130,7 +126,7 @@ FrontEndControl.dll DLL/FrontEndControl.def: $(DLLCPP) $(ALLOUT)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -DBUILD_FRONTENDCONTROL -shared -o FrontEndControl.dll \
 	$(DLLCPP) $(ALLOUT) \
 	$(PROJECTINC) $(PORTABLEINC) $(MYSQLINC) \
-	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIB) $(NICANLIB) $(PORTABLELIB) $(DEBUGLIB) \
+	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIB) $(NICANLIB) $(PORTABLELIB) \
 	-Wl,--enable-auto-import,--output-def,DLL/FrontEndControl.def
 #	- cp FrontEndControl.dll "../../labview2013/drivers/FE Control/"
 

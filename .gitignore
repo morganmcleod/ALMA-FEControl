@@ -7,7 +7,6 @@
 *.dll
 *.def
 *.zip
-symsrv.yes
 cinifile_example
 CppUnit*
 IFSUploader

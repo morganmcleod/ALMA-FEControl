@@ -68,8 +68,6 @@ short LVWrapperInit() {
         return 0;
     }
 
-	pthread_mutex_lock(&LVWrapperLock);
-
 	char *fn=getenv("FRONTENDCONTROL.INI");
     iniFileName = (fn) ? fn : "FrontendControlDLL.ini";
     
@@ -159,8 +157,9 @@ short LVWrapperInit() {
     FEHardwareDevice::setLogger(*logger);
 
     FEMCEventQueue::createInstance();
-    LVWrapperValid = true;
 
+    pthread_mutex_lock(&LVWrapperLock);
+    LVWrapperValid = true;
     pthread_mutex_unlock(&LVWrapperLock);
 
     return 0;
@@ -185,9 +184,11 @@ short LVWrapperShutdown() {
     if (connected <= 0) {
 
     	pthread_mutex_lock(&LVWrapperLock);
-
     	LVWrapperValid = false;
-        FEHardwareDevice::clearLogger();
+    	pthread_mutex_unlock(&LVWrapperLock);
+        pthread_mutex_destroy(&LVWrapperLock);
+
+    	FEHardwareDevice::clearLogger();
         WHACK(logger);
         LOG(LM_INFO) << "LVWrapperShutdown: logger destroyed" << endl;
         FEMCEventQueue::destroyInstance();
@@ -203,9 +204,6 @@ short LVWrapperShutdown() {
             fclose(logStream);
         }
         WHACK(logStream);
-
-        pthread_mutex_unlock(&LVWrapperLock);
-        pthread_mutex_destroy(&LVWrapperLock);
     }
     return 0;
 }
@@ -230,7 +228,11 @@ DLLEXPORT short getDataPath(char *pathString) {
 }
 
 DLLEXPORT short subscribeForEvents(short doSubscribe) {
-    if (!LVWrapperValid)
+    pthread_mutex_lock(&LVWrapperLock);
+    bool valid = LVWrapperValid;
+    pthread_mutex_unlock(&LVWrapperLock);
+
+    if (!valid)
         return -1;
     FEMCEventQueue::subscribe(doSubscribe != 0);
     return 0;
@@ -245,7 +247,11 @@ DLLEXPORT short getNextEvent(unsigned long *seq,
                              short messageLen,
                              char *message)
 {                             
-    if (!LVWrapperValid || !seq || !eventCode || !band || !pol || !param || !progress || !message)
+    pthread_mutex_lock(&LVWrapperLock);
+    bool valid = LVWrapperValid;
+    pthread_mutex_unlock(&LVWrapperLock);
+
+    if (!valid || !seq || !eventCode || !band || !pol || !param || !progress || !message)
         return -1;
     FEMCEventQueue::Event ev;
     bool ret = FEMCEventQueue::getNextEvent(ev);
