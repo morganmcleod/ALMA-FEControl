@@ -32,6 +32,7 @@
 #include "LOGGER/logDir.h"
 #include "OPTIMIZE/XYPlotArray.h"
 using namespace FEConfig;
+#include <algorithm>
 #include <fstream>
 #include <iomanip>
 #include <math.h>
@@ -294,7 +295,10 @@ float ColdCartImpl::measureSISVoltageErrorImpl(int pol, int sb) {
     return VJerror;
 }
 
-bool ColdCartImpl::measureIVCurve(XYPlotArray &target, int pol, int sb, float VJlow, float VJhigh, float VJstep) {
+bool ColdCartImpl::measureIVCurve(XYPlotArray &target, int pol, int sb, float VJ1, float VJ2, float VJstep) {
+    // clear the output data array:
+    target.clear();
+
     if (!hasSIS()) {
         string msg("measureIVCurve ERROR: can't measure SIS for band ");
         msg += to_string(band_m);
@@ -312,83 +316,153 @@ bool ColdCartImpl::measureIVCurve(XYPlotArray &target, int pol, int sb, float VJ
     // clear the stop flag:
     ivCurveStop_m = false;
 
-    // clear the output data array:
-    target.clear();
-
     // store the voltage setting in effect now:
     float VJnom = getSISVoltageSetting(pol, sb);
 
-    float VJset = 0;
-    float VJ = 0;
-    float IJ = 0;
-    float span = VJhigh - VJlow;
+    // sort the VJ1, VJ2 inputs into min and max:
+    if (VJ2 < VJ1)
+        std::swap(VJ2, VJ2);
 
-    if (span <= 0) {
-        string msg("measureIVCurve ERROR: VJHigh must be greater than VJLow.");
-        FEMCEventQueue::addStatusMessage(false, msg);
-        LOG(LM_ERROR) << "ColdCartImpl::" << msg << endl;
-        return false;
-    }
+    // make VJstep positive for now:
+    VJstep = fabsf(VJstep);
 
-    if (VJstep < 0 || VJstep > span) {
-        string msg("measureIVCurve ERROR: VJ step size is out of range.");
-        FEMCEventQueue::addStatusMessage(false, msg);
-        LOG(LM_ERROR) << "ColdCartImpl::" << msg << endl;
-        return false;
-    }
-
-    int steps = (int) (span / VJstep) + 1;
-
+    // preallocate space in the output array:
+    int steps = (int) ((VJ2 - VJ1) / VJstep) + 1;
     target.reserve(2 * steps + 1);
 
-    short progress = 0;
-    short lastProgress = 0;
-    const int stepSleep = 1;  // ms
-    const int voltAveraging = 3;
-    const int currAveraging = 3;
+    // Sweep one or two ranges:
+    bool VJ1Negative(VJ1 < 0);
+    bool VJ2Positive(VJ2 > 0);
+    bool zeroCrossing(VJ1Negative && VJ2Positive);
 
-    VJset = VJlow;
-    // move slowly to the first point:
-    setSISVoltage(pol, sb, VJset, true);
-    SLEEP(10);
+    // progress bar:
+    int progress(0), progressStop(100);
 
-    for (int index = 0; index < steps && !ivCurveStop_m; ++index) {
-        VJset = VJlow + (index * VJstep);
-        // move quickly from point to point:
-        setSISVoltage(pol, sb, VJset, false);
-        SLEEP(stepSleep);
-        // read back the instantaneous voltage and current:
-        VJ = getSISVoltage(pol, sb, voltAveraging);
-        IJ = getSISCurrent(pol, sb, currAveraging) * 1000.0;  // convert mA to uA
-        target.push_back(XYPlotPoint(VJset, VJ, IJ));
-        progress = index * 5 / steps;
-        if (progress > lastProgress) {
-            lastProgress = progress;
-            FEMCEventQueue::addProgressEvent(10 * progress);
+    // Sweep first range from negative towards zero:
+    if (VJ1Negative) {
+        float endpt = (zeroCrossing) ? 0 : VJ2;
+
+        // How much progress bar for first range?
+        if (zeroCrossing)
+            progressStop = int((fabsf(VJ1) / (VJ2 - VJ1)) * 100);
+
+        if (!measureIVCurveInnerLoop(target, pol, sb, VJ1, endpt, VJstep, progress, progressStop)) {
+            string msg("measureIVCurve ERROR in sweep first range.");
+            FEMCEventQueue::addStatusMessage(false, msg);
+            LOG(LM_ERROR) << "ColdCartImpl::" << msg << endl;
+            return false;
         }
+        progress = progressStop;
     }
-    FEMCEventQueue::addProgressEvent(50);
-    lastProgress = 0;
-    for (int index = 0; index < steps && !ivCurveStop_m; ++index) {
-        VJset = VJlow + ((steps - index - 1) * VJstep);
-        // move quickly from point to point:
-        setSISVoltage(pol, sb, VJset, false);
-        SLEEP(stepSleep);
-        // read back the instantaneous voltage and current:
-        VJ = getSISVoltage(pol, sb, voltAveraging);
-        IJ = getSISCurrent(pol, sb, currAveraging) * 1000.0;  // convert mA to uA
-        target.push_back(XYPlotPoint(VJset, VJ, IJ));
-        progress = index * 5 / steps;
-        if (progress > lastProgress) {
-            lastProgress = progress;
-            FEMCEventQueue::addProgressEvent(10 * progress + 50);
+
+    // Sweep second range from positive towards zero:
+    if (VJ2Positive) {
+        float endpt = (zeroCrossing) ? 0 : VJ1;
+
+        // allocate a separate results array so we can reverse it below.
+        XYPlotArray target2;
+        int steps2 = (int) ((VJ2 - endpt) / VJstep) + 1;
+        target2.reserve(steps2);
+
+        if (!measureIVCurveInnerLoop(target2, pol, sb, VJ2, endpt, -VJstep, progress, 100)) {
+            string msg("measureIVCurve ERROR in sweep second range.");
+            FEMCEventQueue::addStatusMessage(false, msg);
+            LOG(LM_ERROR) << "ColdCartImpl::" << msg << endl;
+            return false;
         }
+        // reverse the array:
+        reverse(target2.begin(), target2.end());
+        // and append it to the results:
+        target.insert(target.end(), target2.begin(), target2.end());
     }
+
     // sweep the SIS voltage back to where it was:
     setSISVoltage(pol, sb, VJnom, true);
 
     FEMCEventQueue::addProgressEvent(100);
     return (!ivCurveStop_m);
+}
+
+bool ColdCartImpl::measureIVCurveInnerLoop(XYPlotArray &target, int pol, int sb,
+                                           float VJstart, float VJstop, float VJstep,
+                                           int progressStart, int progressEnd)
+{
+    // Inner loop measures in one direction only.
+    // NOTE: no provision to ensure exactly VJstop is measured.
+
+    // Sanity check inputs:
+    // Range is at least 1 step
+    float range = VJstop - VJstart;
+
+    if (fabsf(range) < fabsf(VJstep))
+        return false;
+
+    // Sign of range is same as step
+    bool range_neg(range < 0.0);
+    bool step_neg(VJstep < 0.0);
+
+    if (range_neg != step_neg)
+        return false;
+
+    // Progress bar variables:
+    if (progressEnd <= progressStart)
+        return false;
+
+    // Setup timing and averaging
+    const int stepSleep = 1;    // ms
+    const int step0Sleep = 10;  // ms
+    const int voltAveraging = 3;
+    const int currAveraging = 3;
+
+    // move slowly to the first point:
+    float VJset = VJstart;
+    setSISVoltage(pol, sb, VJset, true);
+    SLEEP(step0Sleep);
+    FEMCEventQueue::addProgressEvent(progressStart);
+
+    // loop vars:
+    float VJ, IJ;
+    float progress(progressStart);
+    float progressSpan(progressEnd - progressStart);
+    float progressStep((fabsf(VJstep) / fabsf(range)) * progressSpan);
+    int lastProgress(-1);
+    int thisProgress;
+    bool done = false;
+
+    while (!done) {
+        // move quickly from point to point:
+        setSISVoltage(pol, sb, VJset, false);
+        SLEEP(stepSleep);
+        // read back the instantaneous voltage and current:
+        VJ = getSISVoltage(pol, sb, voltAveraging);
+        IJ = getSISCurrent(pol, sb, currAveraging) * 1000.0;  // convert mA to uA
+        target.push_back(XYPlotPoint(VJset, VJ, IJ));
+
+        // increment and loop end condition:
+        VJset += VJstep;
+
+        // report progress:
+        progress += progressStep;
+        thisProgress = int(progress);
+        // avoid reporting any progress step more than once due to round-down:
+        if (thisProgress > lastProgress) {
+            lastProgress = thisProgress;
+            if ((thisProgress % 5) == 0)
+                FEMCEventQueue::addProgressEvent(thisProgress);
+        }
+
+        // check loop end condition:
+        if (ivCurveStop_m)
+            done = true;
+        else if (step_neg) {
+            if (VJset <= VJstop)
+                done = true;
+        } else {
+            if (VJset >= VJstop)
+                done = true;
+        }
+    }
+    return true;
 }
 
 bool ColdCartImpl::saveIVCurveData(const XYPlotArray &source, const std::string logDir, int pol, int sb) const {
