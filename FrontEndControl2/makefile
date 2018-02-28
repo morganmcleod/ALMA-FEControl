@@ -59,7 +59,10 @@ NICANLIB = $(BUILD)/3rdparty/Nican/lib/nicanmsc.lib
 export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) -I$(CURDIR)
 
 # windows libs:
-WINLIBS = -lwinmm -lwsock32
+WINLIB = -lwinmm -lwsock32
+
+# lib for DrMinGW ExcHndl:
+DEBUGLIB = -L$(BUILD)/3rdparty/drmingw-0.8.2-win32/lib -lexchndl
 
 # flags for compiling C++ code:
 export CPPFLAGS = -O0 -fmessage-length=0
@@ -127,7 +130,7 @@ FrontEndControl.dll DLL/FrontEndControl.def: $(DLLCPP) $(ALLOUT)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -DBUILD_FRONTENDCONTROL -shared -o FrontEndControl.dll \
 	$(DLLCPP) $(ALLOUT) \
 	$(PROJECTINC) $(PORTABLEINC) $(MYSQLINC) \
-	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIBS) $(NICANLIB) $(PORTABLELIB) \
+	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIB) $(NICANLIB) $(PORTABLELIB) $(DEBUGLIB) \
 	-Wl,--enable-auto-import,--output-def,DLL/FrontEndControl.def
 #	- cp FrontEndControl.dll "../../labview2013/drivers/FE Control/"
 
