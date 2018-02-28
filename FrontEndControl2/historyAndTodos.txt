@@ -47,7 +47,9 @@ beta3:
   delete CorrectSISOnMainThread option. Constant defaults false in OPTIMIZE/MeasureSISVoltageError.cpp
   delete deprecated exports FEGetNextSerialNum() cartGetLOPADrainVoltageSetting() setCorrectSISOnMainThread()
   delete junk TODOs.
-  Made correctSISVoltageError private to FrontEndImpl.  Called in SetCartridgeOn() 
+  Made correctSISVoltageError private to FrontEndImpl.  Called in SetCartridgeOn()
+beta4:
+  modified I-V curve algorithm to always sweep towards VJ=0
   
 2.8.6 2018-02-01
 Added I-V-Power curves to Optimize > Measure IF Power vs VD
