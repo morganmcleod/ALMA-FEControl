@@ -111,6 +111,13 @@ public:
     ///< Reports progress messages via FEMCEventQueue.
     ///< Returns VJ to whatever it was set to prior to the measurement.
 
+private:
+    bool measureIVCurveInnerLoop(XYPlotArray &target, int pol, int sb,
+                                 float VJstart, float VJstop, float VJstep,
+                                 int progressStart, int progressEnd);
+    ///< Private helper to measure one sub-range of the I-V curve.
+
+public:
     bool saveIVCurveData(const XYPlotArray &source, const std::string logDir, int pol, int sb) const;
     ///< Write out the contents of the source array as a text data file in the given logDir.
 
