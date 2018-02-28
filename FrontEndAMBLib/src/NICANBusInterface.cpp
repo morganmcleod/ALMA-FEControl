@@ -135,7 +135,11 @@ void NICANBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &msg)
     bool timeout = false;
     while (!success && !timeout) {
         // Wait for data ready to read:
-        status = ncWaitForState(handle, NC_ST_READ_AVAIL, monitorTimeout_m, &currentState);
+        try {
+            status = ncWaitForState(handle, NC_ST_READ_AVAIL, monitorTimeout_m, &currentState);
+        } catch (...) {
+            status = -1;
+        }
         if (status >= 0) {
             status = ncRead(handle,  sizeof(NCTYPE_CAN_STRUCT), &response);
         
@@ -195,10 +199,12 @@ void NICANBusInterface::commandImpl(unsigned long _handle, AmbMessage_t &msg)
         printf("]\n");
     }
 
-    status = ncWrite(handle, sizeof(NCTYPE_CAN_FRAME), &command);
-    
-    status = ncWaitForState(handle, NC_ST_WRITE_SUCCESS, monitorTimeout_m, &currentState);
-    
+    try {
+        status = ncWrite(handle, sizeof(NCTYPE_CAN_FRAME), &command);
+        status = ncWaitForState(handle, NC_ST_WRITE_SUCCESS, monitorTimeout_m, &currentState);
+    } catch (...) {
+        status = -1;
+    }
     if (msg.completion_p -> status_p) {
         if (status >= 0)
             *(msg.completion_p -> status_p) = AMBERR_NOERR;
@@ -234,7 +240,11 @@ void NICANBusInterface::findChannelNodes(AmbChannel channel) {
         // Gather info on all nodes which reply:
         bool done = false;
         while (!done) {
-            status = ncWaitForState(handle, NC_ST_READ_AVAIL, monitorTimeout_m, &currentState);
+            try {
+                status = ncWaitForState(handle, NC_ST_READ_AVAIL, monitorTimeout_m, &currentState);
+            } catch (...) {
+                status = -1;
+            }
             if (status < 0)
                 done = true;
             else {

@@ -35,7 +35,7 @@ bool CANBusInterface::enableDebugLifecycle_m = false;
 bool CANBusInterface::noTransmit_m = false;
 // If true, all messages are timed out immediately rather than sent.
     
-int CANBusInterface::monitorTimeout_m = 1500;
+int CANBusInterface::monitorTimeout_m = 2;
 // Timeout in ms while waiting for CAN responses.
 // TODO: This should be controlled by whether we are working with debug firmware or not.
 
