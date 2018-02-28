@@ -64,7 +64,7 @@ FrontEndImpl::FrontEndImpl(unsigned long channel,
     thermaLogInterval_m(30),
     hcStarted_m(false),
     hcReceiverIsCold_m(false),
-    hcFacility_m(0),
+    hcFacility_m(40),
     hcDataStatus_m(0)
 { 
     setESN(ESN);
@@ -191,9 +191,6 @@ bool FrontEndImpl::startHealthCheck(short _dataStatus) {
     hcDataStatus_m = static_cast<int>(dataStatus);
 
     LOG(LM_INFO) << context << ": dataStatus=" << dataStatus << endl;
-
-    // get the facility code to use with the database:
-    hcFacility_m = dbObject_mp -> getDefaultFacility();
 
     // look up the front end ID and ESN for this front end:
     string ESN;
