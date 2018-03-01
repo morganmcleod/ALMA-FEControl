@@ -1817,7 +1817,7 @@ bool CartAssembly::adjustLOPASinglePol(int pol, float &VD, float targetIJ1, bool
     return foundMin;   
 }
 
-bool CartAssembly::optimizeIFPower(bool doPol0, bool doPol1) {
+bool CartAssembly::optimizeIFPower(bool doPol0, bool doPol1, float VDstart0, float VDstart1) {
     if (!checkWCA("CartAssembly::optimizeIFPower"))
         return false;
     if (!checkColdCart("CartAssembly::optimizeIFPower"))
@@ -1865,7 +1865,12 @@ bool CartAssembly::optimizeIFPower(bool doPol0, bool doPol1) {
     // get the starting SIS voltages from the configuration database:
     float startVJ1 = coldCart_mp -> getSISVoltageSetting(0, 1);
     float startVJ2 = coldCart_mp -> getSISVoltageSetting(0, 2);
-    float startVD = 0.8;
+    float startVD0 = 0.8;
+    float startVD1 = 0.8;
+    if (VDstart0 > 0.0 && VDstart0 <= 2.5)
+        startVD0 = VDstart0;
+    if (VDstart1 > 0.0 && VDstart1 <= 2.5)
+        startVD1 = VDstart1;
 
     // but use fixed values for bands 3 and 4:
     if (band_m == 3)
@@ -1873,7 +1878,7 @@ bool CartAssembly::optimizeIFPower(bool doPol0, bool doPol1) {
     else if (band_m == 4)
         startVJ1 = startVJ2 = 5.0;
 
-    bool ret = optimizerIFPower_mp -> start(freqLO_m, doPol0, doPol1, startVJ1, startVJ2, startVD);
+    bool ret = optimizerIFPower_mp -> start(freqLO_m, doPol0, doPol1, startVJ1, startVJ2, startVD0, startVD1);
     if (!ret) {
         string msg("optimizeIFPower ERROR: optimize failed.");
         FEMCEventQueue::addStatusMessage(false, msg);

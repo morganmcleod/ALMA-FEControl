@@ -274,11 +274,13 @@ DLLEXPORT short cartSetEnableLO(short port, short enable);
 DLLEXPORT short cartSetLOPower(short port, short pol, float percent);
 ///< set the LO output power level as a percentage (0.0 - 100.0) of maximum
 
-DLLEXPORT short cartOptimizeIFPower(short port, short pol);
+DLLEXPORT short cartOptimizeIFPower(short port, short pol, float VDstart0, float VDstart1);
 ///< Perform optimization of IF power vs. LO drive and junction voltage.
 ///< works in conjunction with setIFPower() which injects ongoing power readings.
 ///< Optimization happens on a worker thread.
 ///< if pol is -1, both polarizations are optimized in turn.
+///< VDstart0 and VDstart1 give the starting value for LO PA VD search for pol0 and po1, respectively.
+///< If either are out of range, 0.8 V is used as the start value.
 ///< Sends the event EVENT_REQUEST_IFPOWER via the client app event queue when power readings are required.
 ///< Sends the event EVENT_PA_ADJUST_DONE  when finished.                        
 

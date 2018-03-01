@@ -1210,7 +1210,7 @@ DLLEXPORT short cartSetLOPower(short port, short pol, float percent) {
     }
 }
 
-DLLEXPORT short cartOptimizeIFPower(short port, short pol) {
+DLLEXPORT short cartOptimizeIFPower(short port, short pol, float VDstart0, float VDstart1) {
     if (!validatePortNumber(port))
         return -1;
     if (!FEValid)
@@ -1219,7 +1219,7 @@ DLLEXPORT short cartOptimizeIFPower(short port, short pol) {
     bool doPol1 = (pol == 1 || pol == -1);
     if (!(doPol0 || doPol1))
         return -1;
-    if (!frontEnd -> cartOptimizeIFPower(port, doPol0, doPol1))
+    if (!frontEnd -> cartOptimizeIFPower(port, doPol0, doPol1, VDstart0, VDstart1))
         return -1;
     return 0;                                           
 }   

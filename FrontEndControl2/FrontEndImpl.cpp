@@ -1303,11 +1303,12 @@ bool FrontEndImpl::cartSetLOPower(int port, int pol, float percent) {
     return false;
 }
 
-bool FrontEndImpl::cartOptimizeIFPower(int port, bool doPol0, bool doPol1) {
+bool FrontEndImpl::cartOptimizeIFPower(int port, bool doPol0, bool doPol1, float VDstart0, float VDstart1) {
     CartAssembly *ca = carts_mp -> getCartAssembly(port);
     if (ca && ca -> getEnable() && ca -> existsWCA() && ca -> existsColdCart()) {
-        LOG(LM_INFO) << "FrontEndImpl::cartOptimizeIFPower port=" << port << " doPol0=" << doPol0 << " doPol1=" << doPol1 << endl;
-        return ca -> optimizeIFPower(doPol0, doPol1);
+        LOG(LM_INFO) << "FrontEndImpl::cartOptimizeIFPower port=" << port << " doPol0=" << doPol0 << " doPol1=" << doPol1
+                     << " VDstart0=" << VDstart0 << " VDstart1=" << VDstart1 << endl;
+        return ca -> optimizeIFPower(doPol0, doPol1, VDstart0, VDstart1);
     }
     reportBadCartridge(port, "FrontEndImpl::cartOptimizeIFPower", "IF power optimization failed");
     return false;

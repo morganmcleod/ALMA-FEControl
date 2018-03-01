@@ -202,7 +202,7 @@ public:
     
     bool cartSetLOPower(int port, int pol, float percent);
     
-    bool cartOptimizeIFPower(int port, bool doPol0, bool doPol1);
+    bool cartOptimizeIFPower(int port, bool doPol0, bool doPol1, float VDstart0, float VDstart1);
 
     bool cartClearOptimizedResult(short port);
 

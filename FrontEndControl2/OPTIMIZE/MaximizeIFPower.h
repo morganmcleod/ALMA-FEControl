@@ -53,7 +53,8 @@ public:
                bool doPol1,          ///< true means optimize pol1
                float startVJ1,       ///< initial setting for SIS1 junction voltage
                float startVJ2,       ///< initial setting for SIS2 junction voltage
-               float startVD);       ///< initial setting for PA drain voltage.
+               float startVD0,       ///< initial setting for Pol0 PA drain voltage.
+               float startVD1);      ///< initial setting for Pol1 PA drain voltage.
     ///< start the optimization procedure.
 
     virtual void requestStop()
@@ -102,7 +103,8 @@ private:
     int currentPol_m;           ///< polarization currently being optimized.
     float startVJ1_m;           ///< starting value for SIS1 junction voltage
     float startVJ2_m;           ///< starting value for SIS2 junction voltage
-    float startVD_m;            ///< starting value for PA drain voltage
+    float startVD0_m;           ///< starting value for Pol0 PA drain voltage
+    float startVD1_m;           ///< starting value for Pol1 PA drain voltage
     float VJ1_m;                ///< the current setting for SIS1 junction voltage
     float VJ2_m;                ///< the current setting for SIS2 junction voltage
     float VD_m;                 ///< the current setting for PA drain voltage

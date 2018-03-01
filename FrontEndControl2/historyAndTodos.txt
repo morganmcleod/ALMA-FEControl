@@ -50,6 +50,8 @@ beta3:
   Made correctSISVoltageError private to FrontEndImpl.  Called in SetCartridgeOn()
 beta4:
   modified I-V curve algorithm to always sweep towards VJ=0
+beta5:
+  added VJstart0 and VJstart1 options for Optimize IF Power
   
 2.8.6 2018-02-01
 Added I-V-Power curves to Optimize > Measure IF Power vs VD
