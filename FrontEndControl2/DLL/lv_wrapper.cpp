@@ -198,11 +198,11 @@ short LVWrapperShutdown() {
         LOG(LM_INFO) << "LVWrapperShutdown: AmbInterface destroyed" << endl;
         WHACK(canBus);
         LOG(LM_INFO) << "LVWrapperShutdown: CANBusInterface destroyed" << endl;
-        StreamOutput::setStream(NULL);
         if (logStream) {
             fflush(logStream);
             fclose(logStream);
         }
+        StreamOutput::setStream(NULL);
         WHACK(logStream);
     }
     return 0;
