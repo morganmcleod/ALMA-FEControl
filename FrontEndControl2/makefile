@@ -184,7 +184,7 @@ t_FEICDataBase.exe : tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp
 all: allout dll tests
 
 current:
-	$(MAKE) -C OPTIMIZE
+	$(MAKE) -C FEBASE
 
 oneFile:
 	$(MAKE) FEMCEventQueue.o
