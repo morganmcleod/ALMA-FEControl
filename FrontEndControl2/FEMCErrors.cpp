@@ -411,22 +411,22 @@ bool FEMCGetErrorDescription(unsigned short module, unsigned short errNo, std::s
             switch(errNo){
                 case 0x01: // YTO coarse tune out of range
                     sprintf(buf,
-                            "%s%u%s",
+                            "%s",
                             "WCA.YTO: Error: The commanded YTO coarse tune set point is out of the allowed range");
                     break;
                 case 0x02: // Monitored YTO coarse tune in error range
                     sprintf(buf,
-                            "%s%u%s",
+                            "%s",
                             "WCA.YTO: Error: The monitored YTO coarse tune is in the error range");
                     break;
                 case 0x03: // Monitored YTO coarse tune in warning range
                     sprintf(buf,
-                            "%s%u%s",
+                            "%s",
                             "WCA.YTO: Warning: The monitored YTO coarse tune is in the warning range");
                     break;
                 case 0x04: // LO PA drain voltages were limited before YTO tuning
                     sprintf(buf,
-                            "%s%u%s",
+                            "%s",
                             "WCA.YTO: Warning: The commanded YTO coarse tune set point required one or both LO PA drain voltages to be reduced prior to tuning");
                     break;
                 default: // Undefined error
