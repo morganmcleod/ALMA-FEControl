@@ -28,8 +28,8 @@
 BUILD = ..
 
 # includes and libs for "portable" code = POSIX threads:
-PTHREADINC = -I$(BUILD)/3rdparty/include/pthreads_win32
-PTHREADLIB = -L$(BUILD)/3rdparty/lib/pthreads_win32 -lpthreadGC2
+PTHREADINC =
+PTHREADLIB = -lpthreadGC-3.dll
 STATICGCCLIB = -static-libgcc
 
 PORTABLEINC = $(PTHREADINC)
@@ -44,12 +44,12 @@ AMBINC = -I$(BUILD)/FrontEndAmbLib/include
 AMBLIB = -L$(BUILD)/FrontEndAmbLib/Debug -lfrontEndAmb
 
 # includes and libs for CppUnit:
-CPPUNITINC = -I$(BUILD)/3rdparty/include/cppunit
-CPPUNITLIB = -L$(BUILD)/3rdparty/lib/cppunit/Debug -lCppUnit 
+CPPUNITINC = -I$(BUILD)/3rdparty/cppunit/include
+CPPUNITLIB = -L$(BUILD)/3rdparty/cppunit/lib/Debug -lCppUnit 
 
 # includes and libs for the NI CAN interface library: 
-NICANINC = -I$(BUILD)/3rdparty/include/Nican
-NICANLIB = $(BUILD)/3rdparty/lib/Nican/nicanmsc.lib
+NICANINC = -I$(BUILD)/3rdparty/Nican/include
+NICANLIB = $(BUILD)/3rdparty/Nican/lib/nicanmsc.lib
 
 # include order for test apps:
 APPINCLUDES = $(UTILINC) $(AMBINC) $(CPPUNITINC) $(PORTABLEINC)
@@ -58,7 +58,8 @@ APPINCLUDES = $(UTILINC) $(AMBINC) $(CPPUNITINC) $(PORTABLEINC)
 APPLIBS = $(UTILLIB) $(AMBLIB) $(CPPUNITLIB) $(PORTABLELIB) $(NICANLIB)  
 
 # C++ build options:
-CPPFLAGS = -O0 -g3 -Wall -fmessage-length=0
+CPPFLAGS = -O0 -fmessage-length=0 -Wall 
+DEBUGFLAGS = -g2 -fno-omit-frame-pointer
 
 # Link flags:
 LDFLAGS = -Wl,--enable-auto-import
@@ -67,14 +68,14 @@ LDFLAGS = -Wl,--enable-auto-import
 COMPRESSORSRC = AmbDeviceTestFixture.cpp CompressorTestFixture.cpp TestApp.cpp
 
 CompressorICDTest.exe : $(COMPRESSORSRC)
-	g++ $(CPPFLAGS) -o Debug/CompressorICDTest.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/CompressorICDTest.exe \
 	$(COMPRESSORSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
 # target CryostatICDTest:
 CRYOSTATSRC = AmbDeviceTestFixture.cpp CryostatTestFixture.cpp TestApp.cpp
 
 CryostatICDTest.exe : $(CRYOSTATSRC)
-	g++ $(CPPFLAGS) -o Debug/CryostatICDTest.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/CryostatICDTest.exe \
 	$(CRYOSTATSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
 # target FrontEndICDTest:
@@ -83,7 +84,7 @@ FRONTENDSRC = AllBands.cpp AmbDeviceTestFixture.cpp Band3.cpp Band6.cpp Band7.cp
 	CPDSTestFixture_deepika.cpp FEMCTestFixture.cpp IFSwitchTestFixture.cpp TestApp.cpp WCATestFixture.cpp
 
 FrontEndICDTest.exe : $(FRONTENDSRC)
-	g++ $(CPPFLAGS) -o Debug/FrontEndICDTest.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/FrontEndICDTest.exe \
 	$(FRONTENDSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
 
@@ -92,21 +93,21 @@ FrontEndICDTest.exe : $(FRONTENDSRC)
 FRONTEND2SRC = AmbDeviceTestFixture.cpp TestApp.cpp STANDBY2TestFixture.cpp
 
 FrontEnd2Test.exe : $(FRONTEND2SRC)
-	g++ $(CPPFLAGS) -o Debug/FrontEnd2Test.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/FrontEnd2Test.exe \
 	$(FRONTEND2SRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
 # target LPRICDTest:
 LPRSRC = AmbDeviceTestFixture.cpp LPRTestFixture_deepika.cpp TestApp.cpp
 
 LPRICDTest.exe : $(LPRSRC)
-	g++ $(CPPFLAGS) -o Debug/LPRICDTest.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/LPRICDTest.exe \
 	$(LPRSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
 # target PowerSupplyICDTest:
 POWERSUPPLYSRC = AmbDeviceTestFixture.cpp PowerSupplyTestFixture.cpp TestApp.cpp
 
 PowerSupplyICDTest.exe : $(POWERSUPPLYSRC)
-	g++ $(CPPFLAGS) -o Debug/PowerSupplyICDTest.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/PowerSupplyICDTest.exe \
 	$(POWERSUPPLYSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
 # target all:
