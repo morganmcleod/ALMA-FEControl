@@ -54,6 +54,8 @@ beta5:
   added VJstart0 and VJstart1 options for Optimize IF Power
 beta6:
   changed FEHardwareDevice::startMonitor() to initialize stopped=false
+beta7:
+  fixed crashing sprintf usage in FEMCErrors.cpp
   
 2.8.6 2018-02-01
 Added I-V-Power curves to Optimize > Measure IF Power vs VD

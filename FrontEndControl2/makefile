@@ -143,7 +143,7 @@ t_lv_wrapper.exe : tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_lv_wrapper.exe \
 	tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a \
 	$(PORTABLEINC) $(PROJECTINC)
-	- cp ../3rdparty/MySQL41/lib/debug/libmysql.dll .
+#	- cp ../3rdparty/MySQL41/lib/debug/libmysql.dll .
 	
 # This test uses the DLL:
 t_lv_wrapper_sigSrc.exe : tests/t_lv_wrapper_sigSrc.cpp DLL/libFrontEndControl.a 
