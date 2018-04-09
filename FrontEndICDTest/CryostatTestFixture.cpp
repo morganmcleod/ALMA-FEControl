@@ -430,7 +430,7 @@ void CryostatTestFixture::testSET_CRYOSTAT_GATE_SOLENOID_VALVES() {
     if (!upToSpeed) {
         // failed to come up to speed.  Abort:
         implSetSolenoidValve(false, "Aborting: Close solenoid valve", false);
-        implSetTurboPump(false, "Aborting: Turbo pump OFF", false);
+        implSetTurboPump(false, "Aborting: Turbo pump OFF", NULL, false);
         implSetBackingPump(false, "Aborting: Backing pump OFF", false);
         string msg("testSET_CRYOSTAT_GATE_SOLENOID_VALVES: turbo pump failed to come up to speed.");
         LOG(LM_INFO) << msg;
@@ -469,7 +469,7 @@ void CryostatTestFixture::testSET_CRYOSTAT_GATE_SOLENOID_VALVES() {
         // failed to open.  Abort:
         implSetGateValve(false, "Aborting: Close gate valve", false);
         implSetSolenoidValve(false, "Aborting: Close solenoid valve", false);
-        implSetTurboPump(false, "Aborting: Turbo pump OFF", false);
+        implSetTurboPump(false, "Aborting: Turbo pump OFF", NULL, false);
         SLEEP(20000);
         implSetBackingPump(false, "Aborting: Backing pump OFF", false);
         string msg("testSET_CRYOSTAT_GATE_SOLENOID_VALVES: gate valve failed to open.");
@@ -482,7 +482,7 @@ void CryostatTestFixture::testSET_CRYOSTAT_GATE_SOLENOID_VALVES() {
 
     // Shutdown and exit:
     implSetSolenoidValve(false, "8. Close solenoid valve", false);
-    implSetTurboPump(false, "9. Turbo pump OFF", false);
+    implSetTurboPump(false, "9. Turbo pump OFF", NULL, false);
     SLEEP(20000);
     implSetBackingPump(false, "10. Backing pump OFF", false);
     LOG(LM_INFO) << "testSET_CRYOSTAT_GATE_SOLENOID_VALVES: test complete." << endl;

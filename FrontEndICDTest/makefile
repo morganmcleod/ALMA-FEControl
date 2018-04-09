@@ -36,12 +36,12 @@ PORTABLEINC = $(PTHREADINC)
 PORTABLELIB = $(PTHREADLIB) $(STATICGCCLIB)
 
 # includes and libs for the CppUtilityLib library:
-export UTILINC = -I$(BUILD)/CppUtilityLib/include
+UTILINC = -I$(BUILD)/CppUtilityLib/include
 UTILLIB = -L$(BUILD)/CppUtilityLib/Debug -lCppUtilityLib
 
 # includes and libs for the FrontEndAMB library:
 AMBINC = -I$(BUILD)/FrontEndAmbLib/include
-AMBLIB = -L$(BUILD)/FrontEndAmbLib/Debug -lfrontEndAmb
+AMBLIB = -L$(BUILD)/FrontEndAmbLib/Debug -lFrontEndAmbLib
 
 # includes and libs for CppUnit:
 CPPUNITINC = -I$(BUILD)/3rdparty/cppunit/include
