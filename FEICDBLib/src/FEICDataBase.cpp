@@ -764,7 +764,7 @@ bool FEICDataBase::getEnvFETMSDescription(std::string &description) {
         CIniFile configINI(path);
         if (configINI.ReadFile()) {
             desc = configINI.GetValue("FETMS", "Description");
-            LOG(LM_INFO) << context << ": Description=" << description << endl;
+            LOG(LM_INFO) << context << ": Description=" << desc << endl;
             ret = true;
         }
     } catch (...) {
