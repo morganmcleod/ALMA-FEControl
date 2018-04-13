@@ -29,7 +29,7 @@ export BUILD = L:/ALMA-FEControl
 
 # includes and libs for "portable" code = POSIX threads.  2.6.0: Using pthreds from MinGW 0.6 now.
 PTHREADINC =
-PTHREADLIB = -lpthreadGC-3.dll
+PTHREADLIB = -Wl,-Bstatic -lpthread
 STATICGCCLIB =
 
 export PORTABLEINC = $(PTHREADINC)
@@ -49,7 +49,7 @@ AMBLIB = -L$(BUILD)/FrontEndAmbLib/Debug -lFrontEndAmbLib
 
 # includes and libs for MySQL library:
 export MYSQLINC = -I$(BUILD)/3rdparty/MySQL41/include
-MYSQLLIB = -L$(BUILD)/3rdparty/MySQL41/lib/debug -llibmysql
+MYSQLLIB = -L$(BUILD)/3rdparty/MySQL41/lib/debug -Wl,-Bdynamic -llibmysql
 
 # includes and libs for the NI CAN interface library: 
 export NICANINC = -I$(BUILD)/3rdparty/Nican/include
