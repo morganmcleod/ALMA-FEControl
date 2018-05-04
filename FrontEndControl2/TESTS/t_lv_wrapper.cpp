@@ -62,11 +62,11 @@ int main(int, char*[]) {
             for (int band = 1; band <= 10; ++band) {
             	FESetCartridgeOff(band);
             }
-            FESetCartridgeOn(3);
+            FESetCartridgeOn(5);
             FESetCartridgeOn(7);
             FESetCartridgeOn(8);
         	SLEEP(50000);
-            FESetCartridgeOff(3);
+            FESetCartridgeOff(5);
             FESetCartridgeOff(7);
             FESetCartridgeOff(8);
         	SLEEP(10000);
