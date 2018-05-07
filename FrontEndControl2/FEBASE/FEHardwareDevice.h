@@ -217,7 +217,7 @@ protected:
         else {
             ret = FEMC_AMB_ERROR;
             if (logAmbErrors_m) {
-                LOG(LM_ERROR) << "FEHardwareDevice: AMB error=" << status << " RCA=" << " 0x" << std::uppercase << std::hex << std::setw(6) << std::setfill('0') << RCA << std::endl;
+                LOG(LM_ERROR) << "FEHardwareDevice(0x" << std::uppercase << std::hex << m_nodeAddress << "): AMB error=" << status << " RCA=" << " 0x" << std::uppercase << std::hex << std::setw(6) << std::setfill('0') << RCA << std::endl;
             }
         }
         if (!monitorIgnorableError(ret))

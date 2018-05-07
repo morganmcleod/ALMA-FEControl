@@ -136,25 +136,6 @@ bool FEICDataBase::isConnected() const {
     return conn_mp -> isConnected();
 }
 
-unsigned FEICDataBase::getDefaultFacility() const {
-    static const string context("FEICDataBase::getDefaultFacility");
-
-    if (!isConnected())
-        return 0;
-
-    string query = "SELECT DefaultFacility FROM DatabaseDefaults;";
-
-    MySQLConnection::Result res;
-    int numRows = conn_mp -> executeQuery(query, &res);
-
-    if (checkQueryResult(context, numRows, 1)) {
-        MYSQL_ROW row = res.fetch_row();
-        if (row != NULL && row[0] != NULL)
-            return from_string<unsigned>(row[0]);
-    }
-    return 0;
-}
-
 //-----------------------------------------------------------------------------
 
 string FEICDataBase::getDataTypeDescription(int testDataType) const {
@@ -608,8 +589,10 @@ FEICDataBase::ID_T FEICDataBase::createTestDataHeader(const ID_T &configId, cons
         return badResult;
     }
 
-    string tmp, tmp2;
-    string query = "INSERT INTO TestData_header (keyFacility, fkTestData_Type, fkFE_Config, fkFE_Components, fkDataStatus, Band, Notes, Meas_SWVer) VALUES ("
+    string tmp, tmp2, tmp3, description;
+    getEnvFETMSDescription(description);
+
+    string query = "INSERT INTO TestData_header (keyFacility, fkTestData_Type, fkFE_Config, fkFE_Components, fkDataStatus, Band, Notes, Meas_SWVer, FETMS_Description) VALUES ("
                  + configId.facilityString() + ", "
                  + to_string(testDataType) + ", "
                  + to_string(configId.keyIdString()) + ", "
@@ -617,7 +600,9 @@ FEICDataBase::ID_T FEICDataBase::createTestDataHeader(const ID_T &configId, cons
                  + to_string(dataStatus) + ", "
                  + to_string(band) + ", "
                  + "\"" + conn_mp -> escapeString(notes, tmp) + "\", "
-                 + "\"" + conn_mp -> escapeString(measSWVer, tmp2) + "\");";
+                 + "\"" + conn_mp -> escapeString(measSWVer, tmp2) + "\", "
+                 + "\"" + conn_mp -> escapeString(description, tmp3) + "\""
+                 + ");";
 
     LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
@@ -748,6 +733,47 @@ bool FEICDataBase::getEnvConnectionInfo(std::string &host, std::string &user, st
     if (!ret) {
         LOG(LM_ERROR) << context << ": ERROR loading configuration file." << endl;
     }
+    return ret;
+}
+
+bool FEICDataBase::getEnvFETMSDescription(std::string &description) {
+    static const string context("FEICDataBase::getEnvFETMSDescription");
+    string path("L:\\data");
+    string computerName;
+    string desc;
+
+    char *val = getenv("TS_CONFIG");
+    if (val) {
+        path = val;
+    } else {
+        LOG(LM_INFO) << context << ": Environment variable TS_CONFIG not found.  Assuming" << escape_string(path) << endl;
+    }
+
+    computerName = string(getenv("COMPUTERNAME"));
+
+    if (!path.empty()) {
+        if (path[path.length() - 1] != '\\')
+            path += "\\";
+    }
+    path += "FETMS_DESCRIPTION.ini";
+    LOG(LM_INFO) << context << ": path=" << escape_string(path) << endl;
+
+
+    bool ret = false;
+    try {
+        CIniFile configINI(path);
+        if (configINI.ReadFile()) {
+            desc = configINI.GetValue("FETMS", "Description");
+            LOG(LM_INFO) << context << ": Description=" << desc << endl;
+            ret = true;
+        }
+    } catch (...) {
+        ret = false;
+    }
+    if (!ret) {
+        LOG(LM_ERROR) << context << ": ERROR loading configuration file." << endl;
+    }
+    description = string("'") + desc + string("' on host: '") + computerName + "'";
     return ret;
 }
 

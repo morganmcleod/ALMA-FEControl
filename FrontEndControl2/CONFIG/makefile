@@ -31,7 +31,7 @@ CONFIGCPP = CartConfig.cpp ConfigManager.cpp Configuration.cpp ConfigProviderIni
 
 .PHONY: config
 config: $(CONFIGCPP)
-	g++ -g $(CPPFLAGS) \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) \
 	$(DBINC) $(PORTABLEINC) $(PROJECTINC) $(MYSQLINC) \
 	-c $(CONFIGCPP)
 

@@ -78,7 +78,7 @@ public:
     void queryCartridgeState();
     ///< Uses monitor requests to synchronize state variables to the FE hardware state.
 
-    void measureSISVoltageError(bool measureOnMainThread);
+    void measureSISVoltageError();
     ///< find and store the offset between the set and readback SIS voltage.
     
 // State control:
@@ -251,7 +251,7 @@ public:
     ///< Starting value is given and final value is returned in VD.
     ///< Adjustment happens on the calling thread.
     
-    bool optimizeIFPower(bool doPol0, bool doPol1);
+    bool optimizeIFPower(bool doPol0, bool doPol1, float VDstart0, float VDstart1);
     ///< Perform optmization of IF power vs. LO drive and junction voltage.
     ///< works in conjunction with setIFPower() which injects ongoing power readings.
     ///< Optimization happens on a worker thread.

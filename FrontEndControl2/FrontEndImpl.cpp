@@ -41,6 +41,8 @@
 using namespace FEConfig;
 using namespace std;
 
+bool FrontEndImpl::correctSISVoltageError_m(true);
+
 //---------------------------------------------------------------------------
 // private constructor and destructor definitions:
 
@@ -62,7 +64,7 @@ FrontEndImpl::FrontEndImpl(unsigned long channel,
     thermaLogInterval_m(30),
     hcStarted_m(false),
     hcReceiverIsCold_m(false),
-    hcFacility_m(0),
+    hcFacility_m(40),
     hcDataStatus_m(0)
 { 
     setESN(ESN);
@@ -189,9 +191,6 @@ bool FrontEndImpl::startHealthCheck(short _dataStatus) {
     hcDataStatus_m = static_cast<int>(dataStatus);
 
     LOG(LM_INFO) << context << ": dataStatus=" << dataStatus << endl;
-
-    // get the facility code to use with the database:
-    hcFacility_m = dbObject_mp -> getDefaultFacility();
 
     // look up the front end ID and ESN for this front end:
     string ESN;
@@ -556,17 +555,10 @@ void FrontEndImpl::queryCartridgeState() {
     FEMCEventQueue::addEvent(FEMCEventQueue::Event(FEMCEventQueue::EVENT_INITIALIZE));
 }
 
-void FrontEndImpl::measureSISVoltageError(int port, bool measureOnMainThread) {
-    if (port < 0 || port > 10)
+void FrontEndImpl::measureSISVoltageError(int port) {
+    if (port < 1 || port > 10)
         return;
-    
-    if (port != 0)
-        carts_mp -> measureSISVoltageError(port, measureOnMainThread);
-        
-    else {
-        for (port = 1; port <= 10; ++port)
-            carts_mp -> measureSISVoltageError(port, measureOnMainThread);
-    }
+    carts_mp -> measureSISVoltageError(port);
 }
 
 void FrontEndImpl::setFrontEndSN(const std::string &SN) {
@@ -829,11 +821,18 @@ bool FrontEndImpl::setYIGLimits(int port, double FLOYIG, double FHIYIG) {
 
 bool FrontEndImpl::setCartridgeOff(int port) {
     LOG(LM_INFO) << "FrontEndImpl::setCartridgeOff port=" << port << endl;
+
+    // set the CartAssembly to powered off state:
     carts_mp -> clearEnable(port);
-    if (cpds_m)
-        powerMods_mp -> clearEnable(port);  // tell CPDS to turn off the cartridge
+
+    // If no CPDS, send the power command anyway so that FEMC is in proper state:
+    if (!cpds_m)
+        powerEnableModule(port, 0);
+
+    // tell CPDS to turn off the cartridge:
     else
-        powerEnableModule(port, false);     // send the command anyway so that FEMC is in proper state.
+        powerMods_mp -> clearEnable(port);
+
     string msg("Cartridge band ");
     msg += to_string(port);
     msg += " is now powered OFF.";
@@ -843,15 +842,27 @@ bool FrontEndImpl::setCartridgeOff(int port) {
 
 bool FrontEndImpl::setCartridgeOn(int port) {
     LOG(LM_INFO) << "FrontEndImpl::setCartridgeOn port=" << port << endl;
-    if (cpds_m)
-        powerMods_mp -> setEnable(port);    // tell CPDS to turn on the cartridge
-    else
-        powerEnableModule(port, true);      // send the command anyway so that FEMC is in proper state.
-    carts_mp -> setEnable(port);
     string msg("Cartridge band ");
     msg += to_string(port);
+
+    // If no CPDS, send the power command anyway so that FEMC is in proper state:
+    if (!cpds_m)
+        powerEnableModule(port, 1);
+
+    // tell CPDS to turn on the cartridge:
+    else if (!powerMods_mp -> setEnable(port)) {
+        msg += " NOT POWERED ON!";
+        FEMCEventQueue::addStatusMessage(false, msg);
+        return false;
+    }
+
+    // set the CartAssembly to powered on state:
+    carts_mp -> setEnable(port);
     msg += " is now powered ON.";
     FEMCEventQueue::addStatusMessage(true, msg);
+    // Measure the SIS voltage setting error if configured to do so:
+    if (correctSISVoltageError_m)
+        measureSISVoltageError(port);
     return true;
 }
     
@@ -863,16 +874,31 @@ bool FrontEndImpl::setCartridgeStandby2(int port, bool enable) {
         LOG(LM_ERROR) << msg;
         return false;
 
-    } else {
-        LOG(LM_INFO) << "FrontEndImpl::setCartridgeStandby2 port=" << port << endl;
-        powerStandby2Module(port, enable);
-        string msg("Cartridge band ");
-        msg += to_string(port);
-        msg += (enable ? " entered" : " exited");
-        msg += " STANDBY2 mode.";
-        FEMCEventQueue::addStatusMessage(true, msg);
-        return true;
     }
+    LOG(LM_INFO) << "FrontEndImpl::setCartridgeStandby2(" << enable << ") for port=" << port << endl;
+    string msg("Cartridge band ");
+    msg += to_string(port);
+
+    // If no CPDS, send the power command anyway so that FEMC is in proper state:
+    unsigned char cmd(carts_mp -> getEnable(port) ? 1 : 0);
+    if (enable)
+        cmd = 2;
+    if (!cpds_m)
+        powerEnableModule(port, cmd);
+
+    // tell CPDS to turn on the cartridge:
+    else if (!powerMods_mp -> setStandby2(port, enable)) {
+        msg += " STANDBY2 command failed!";
+        FEMCEventQueue::addStatusMessage(false, msg);
+        return false;
+    }
+
+    // set the CartAssembly to powered on state:
+    carts_mp -> setEnable(port);
+    msg += (enable ? " entered" : " exited");
+    msg += " STANDBY2 mode.";
+    FEMCEventQueue::addStatusMessage(true, msg);
+    return true;
 }
 
 bool FrontEndImpl::setCartridgeObserving(int port) {
@@ -1277,11 +1303,12 @@ bool FrontEndImpl::cartSetLOPower(int port, int pol, float percent) {
     return false;
 }
 
-bool FrontEndImpl::cartOptimizeIFPower(int port, bool doPol0, bool doPol1) {
+bool FrontEndImpl::cartOptimizeIFPower(int port, bool doPol0, bool doPol1, float VDstart0, float VDstart1) {
     CartAssembly *ca = carts_mp -> getCartAssembly(port);
     if (ca && ca -> getEnable() && ca -> existsWCA() && ca -> existsColdCart()) {
-        LOG(LM_INFO) << "FrontEndImpl::cartOptimizeIFPower port=" << port << " doPol0=" << doPol0 << " doPol1=" << doPol1 << endl;
-        return ca -> optimizeIFPower(doPol0, doPol1);
+        LOG(LM_INFO) << "FrontEndImpl::cartOptimizeIFPower port=" << port << " doPol0=" << doPol0 << " doPol1=" << doPol1
+                     << " VDstart0=" << VDstart0 << " VDstart1=" << VDstart1 << endl;
+        return ca -> optimizeIFPower(doPol0, doPol1, VDstart0, VDstart1);
     }
     reportBadCartridge(port, "FrontEndImpl::cartOptimizeIFPower", "IF power optimization failed");
     return false;

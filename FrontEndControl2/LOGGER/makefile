@@ -32,7 +32,7 @@ LOGGERCPP = ambTransactionLogger.cpp feAddressMeta.cpp logDir.cpp
 
 # Build the MySQL-dependent files:
 logger: $(LOGGERCPP)
-	g++ -g $(CPPFLAGS) \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) \
 	$(PORTABLEINC) $(PROJECTINC) $(DBINC) \
 	-c $(LOGGERCPP)
 

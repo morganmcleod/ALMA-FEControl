@@ -36,7 +36,7 @@ void MaximizeIFPower::reset() {
     doPol0_m = doPol1_m = false; 
     currentPol_m = -1;
     progress_m = 0;
-    startVJ1_m = startVJ2_m = startVD_m = VJ1_m = VJ2_m = VD_m = powerSb1_m = powerSb2_m = 0.0;
+    startVJ1_m = startVJ2_m = startVD0_m = startVD1_m = VJ1_m = VJ2_m = VD_m = powerSb1_m = powerSb2_m = 0.0;
     VJ01opt_m = VJ02opt_m = VJ11opt_m = VJ12opt_m = VD0opt_m = VD1opt_m = 0.0;
     opPhase_m = failPhase_m = OP_PHASE_NONE;
     if (dataFile_mp) {
@@ -45,17 +45,18 @@ void MaximizeIFPower::reset() {
     }
 }
 
-bool MaximizeIFPower::start(double freqLO, 
-                            bool doPol0, bool doPol1, 
+bool MaximizeIFPower::start(double freqLO, bool doPol0, bool doPol1,
                             float startVJ1, float startVJ2, 
-                            float startVD) {
+                            float startVD0, float startVD1)
+{
     reset();
     freqLO_m = freqLO;
     doPol0_m = doPol0;
     doPol1_m = doPol1;
     startVJ1_m = startVJ1;
     startVJ2_m = startVJ2;
-    startVD_m = startVD;
+    startVD0_m = startVD0;
+    startVD1_m = startVD1;
     if (!logDir_m.empty()) {
         string fileName, bandTxt;
         Time ts;
@@ -283,7 +284,7 @@ bool MaximizeIFPower::optimizeSinglePol(int pol) {
     // Set the initial SIS junction voltages and PA drain voltage:
     VJ1_m = startVJ1_m; 
     VJ2_m = startVJ2_m; 
-    VD_m = startVD_m;
+    VD_m = (currentPol_m) ? startVD1_m : startVD0_m;
     coldCart_m.setSISVoltage(currentPol_m, 1, VJ1_m);
     coldCart_m.setSISVoltage(currentPol_m, 2, VJ2_m);
     WCA_m.setPADrainVoltage(currentPol_m, VD_m);
@@ -424,7 +425,7 @@ void MaximizeIFPower::logOutput(bool printHeader) {
                 (*dataFile_mp) << "Optimizing Pol1?\t" << doPol1_m << endl;
                 (*dataFile_mp) << fixed << setprecision(2) <<  "Starting SIS VJ1\t" << startVJ1_m << endl;
                 (*dataFile_mp) << "Starting SIS VJ2\t" << startVJ2_m << endl;
-                (*dataFile_mp) << "Starting PA VD\t" << startVD_m << endl;
+                (*dataFile_mp) << "Starting PA VD\t" << ((currentPol_m) ? startVD1_m : startVD0_m) << endl;
                 (*dataFile_mp) << endl;
                 break;
 

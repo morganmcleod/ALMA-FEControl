@@ -120,9 +120,11 @@ bool PowerModulesContainer::setEnable(int port) {
     PowerModuleImpl *mod = modules_m -> use(port);
     if (mod && mod -> getEnable())
         return true;
-    mod -> setEnable();
-    ++numEnabled_m;
-    return true;    
+    if (mod -> setEnable()) {
+        ++numEnabled_m;
+        return true;
+    }
+    return false;
 }
 
 bool PowerModulesContainer::clearEnable(int port) {
@@ -147,7 +149,15 @@ bool PowerModulesContainer::queryEnable(int port) {
     if (!limitsCheck(port))
         return false;
     PowerModuleImpl *mod = modules_m -> use(port);
-    return (mod && mod -> PowerModuleImpl::enableModule());
+    return (mod && mod -> enableModule());
+}
+
+bool PowerModulesContainer::setStandby2(int port, bool val) {
+    if (!limitsCheck(port))
+        return false;
+    PowerModuleImpl *mod = modules_m -> use(port);
+    mod -> standby2Module(val);
+    return true;
 }
 
 bool PowerModulesContainer::limitsCheck(int port) const {

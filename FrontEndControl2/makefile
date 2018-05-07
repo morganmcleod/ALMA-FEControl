@@ -30,10 +30,14 @@ export BUILD = L:/ALMA-FEControl
 # includes and libs for "portable" code = POSIX threads.  2.6.0: Using pthreds from MinGW 0.6 now.
 PTHREADINC =
 PTHREADLIB = -lpthreadGC-3.dll
+#PTHREADLIB = -Wl,-Bstatic -lpthread  # for static linking pthreads
 STATICGCCLIB =
 
 export PORTABLEINC = $(PTHREADINC)
 PORTABLELIB = $(PTHREADLIB) $(STATICGCCLIB)
+
+export EXCHNDLINC = -I$(BUILD)/3rdparty/drmingw/include
+EXCHNDLIB = -L$(BUILD)/3rdparty/drmingw/lib -lexchndl
 
 # includes and libs for the CppUtilityLib library:
 export UTILINC = -I$(BUILD)/CppUtilityLib/include
@@ -49,21 +53,22 @@ AMBLIB = -L$(BUILD)/FrontEndAmbLib/Debug -lFrontEndAmbLib
 
 # includes and libs for MySQL library:
 export MYSQLINC = -I$(BUILD)/3rdparty/MySQL41/include
-MYSQLLIB = -L$(BUILD)/3rdparty/MySQL41/lib/debug -llibmysql
+MYSQLLIB = -L$(BUILD)/3rdparty/MySQL41/lib/debug -Wl,-Bdynamic -llibmysql
 
 # includes and libs for the NI CAN interface library: 
 export NICANINC = -I$(BUILD)/3rdparty/Nican/include
 NICANLIB = $(BUILD)/3rdparty/Nican/lib/nicanmsc.lib
 
 # project includes are CppUtilityLib, FEICDBLib, FrontEndAMBLib, and this directory:
-export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) -I$(CURDIR)
+export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) $(EXCHNDLINC) -I$(CURDIR)
 
 # windows libs:
-WINLIBS = -lwinmm -lwsock32
+WINLIB = -lwinmm -lwsock32
 
 # flags for compiling C++ code:
-export CPPFLAGS = -O0 -g3 -fmessage-length=0
+export CPPFLAGS = -O0 -fmessage-length=0
 #-Wall 
+export DEBUGFLAGS = -g2 -fno-omit-frame-pointer
 
 # list of output files in subdirectories:
 CONFIGOUT = CONFIG/CartConfig.o CONFIG/ConfigManager.o CONFIG/Configuration.o CONFIG/ConfigProviderIniFile.o CONFIG/ConfigProviderMySQL.o \
@@ -101,7 +106,7 @@ FRONTENDOUT = CartAssembly.o CartridgesContainer.o ColdCartImpl.o CompressorImpl
 .PHONY: frontend
 frontend: $(FRONTENDOUT)
 $(FRONTENDOUT): $(FRONTENDCPP)
-	g++ $(CPPFLAGS) \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) \
 	 $(PROJECTINC) $(PORTABLEINC) $(MYSQLINC) \
 	-c $(FRONTENDCPP)
 
@@ -122,67 +127,58 @@ dll: FrontEndControl.dll DLL/libFrontEndControl.a DLL/FrontEndControl.def
 DLLCPP = DLL/DllMain.c DLL/lv_structs.cpp DLL/lv_wrapper.cpp DLL/lv_wrapper_Compressor.cpp DLL/lv_wrapper_FE.cpp DLL/lv_wrapper_LORTM.cpp DLL/lv_wrapper_sigSrc.cpp
 
 FrontEndControl.dll DLL/FrontEndControl.def: $(DLLCPP) $(ALLOUT)
-	g++ $(CPPFLAGS) -DBUILD_FRONTENDCONTROL -s -shared -o FrontEndControl.dll \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -DBUILD_FRONTENDCONTROL -shared -o FrontEndControl.dll \
 	$(DLLCPP) $(ALLOUT) \
 	$(PROJECTINC) $(PORTABLEINC) $(MYSQLINC) \
-	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIBS) $(NICANLIB) $(PORTABLELIB) \
+	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIB) $(NICANLIB) $(PORTABLELIB) $(EXCHNDLIB) \
 	-Wl,--enable-auto-import,--output-def,DLL/FrontEndControl.def
-	- cp FrontEndControl.dll "../../labview2013/drivers/FE Control/"
+#	- cp FrontEndControl.dll "../../labview2013/drivers/FE Control/"
 
 # Build the import library for linking to the DLL:
 DLL/libFrontEndControl.a: FrontEndControl.dll DLL/FrontEndControl.def
 	dlltool --dllname FrontEndControl.dll --def DLL/FrontEndControl.def --output-lib DLL/libFrontEndControl.a -k
 
 .PHONY: tests
-tests: t_lv_static.exe t_lv_wrapper.exe t_lv_wrapper_sigSrc.exe t_SocketClient.exe \
+tests: t_lv_wrapper.exe t_lv_wrapper_sigSrc.exe t_SocketClient.exe \
 	t_LookupTables.exe t_semaphore_leaks.exe t_StreamLogger.exe t_FEICDataBase.exe
-
-# This test links the DLL code statically:
-t_lv_static.exe : tests/t_lv_wrapper.cpp $(DLLCPP) $(ALLOUT)
-	g++ $(CPPFLAGS) -DSTATIC_FRONTENDCONTROL -o t_lv_static.exe \
-	tests/t_lv_wrapper.cpp $(DLLCPP) $(ALLOUT) \
-	$(PORTABLEINC) $(PROJECTINC) \
-	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIBS) $(NICANLIB) $(PORTABLELIB) \
-	-Wl,--enable-auto-import
 
 # This test uses the DLL:
 t_lv_wrapper.exe : tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a 
-	g++ $(CPPFLAGS) -o t_lv_wrapper.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_lv_wrapper.exe \
 	tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a \
-	$(PORTABLEINC) $(PROJECTINC)
-	- cp ../3rdparty/MySQL41/lib/debug/libmysql.dll .
+	$(PORTABLEINC) $(PROJECTINC) $(EXCHNDLIB)
 	
 # This test uses the DLL:
 t_lv_wrapper_sigSrc.exe : tests/t_lv_wrapper_sigSrc.cpp DLL/libFrontEndControl.a 
-	g++ $(CPPFLAGS) -o t_lv_wrapper_sigSrc.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_lv_wrapper_sigSrc.exe \
 	tests/t_lv_wrapper_sigSrc.cpp DLL/libFrontEndControl.a \
 	$(PORTABLEINC) $(PROJECTINC)
 
 t_SocketClient.exe : tests/t_SocketClient.cpp
-	g++ $(CPPFLAGS) -o t_SocketClient.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_SocketClient.exe \
 	tests/t_SocketClient.cpp DLL/libFrontEndControl.a \
 	$(PORTABLEINC) $(PROJECTINC)
 	
 t_LookupTables.exe : tests/t_LookupTables.cpp
-	g++ $(CPPFLAGS) -o t_LookupTables.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_LookupTables.exe \
 	tests/t_LookupTables.cpp CONFIG/LookupTables.o \
 	$(PORTABLEINC) \
 	$(PORTABLELIB)
 
 t_semaphore_leaks.exe : tests/t_semaphore_leaks.cpp
-	g++ $(CPPFLAGS) -o t_semaphore_leaks.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_semaphore_leaks.exe \
 	tests/t_semaphore_leaks.cpp \
 	$(PORTABLEINC) \
 	$(PORTABLELIB)
 
 t_StreamLogger.exe : tests/t_StreamLogger.cpp
-	g++ $(CPPFLAGS) -o t_StreamLogger.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_StreamLogger.exe \
 	tests/t_StreamLogger.cpp $(AMBOUT) $(BASICOUT) \
 	$(UTILINC) $(PORTABLEINC) $(PROJECTINC) \
 	$(UTILLIB) $(PORTABLELIB) $(AMBLIB)
 
 t_FEICDataBase.exe : tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp
-	g++ $(CPPFLAGS) -o t_FEICDataBase.exe \
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_FEICDataBase.exe \
 	tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp CONFIG/LookupTables.cpp DLL/SWVersion.cpp \
 	$(DBINC) $(UTILINC) $(MYSQLINC) $(PORTABLEINC) $(PROJECTINC) \
 	$(DBLIB) $(UTILLIB) $(MYSQLLIB) $(PORTABLELIB)
@@ -191,13 +187,10 @@ t_FEICDataBase.exe : tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp
 all: allout dll tests
 
 current:
-	$(MAKE) -C OPTIMIZE
+	$(MAKE) -C FEBASE
 
 oneFile:
 	$(MAKE) FEMCEventQueue.o
-	
-copyDLL:
-	cp FrontEndControl.dll "../../labview2013/drivers/FE Control/"
 	
 clean:
 	@for dir in CONFIG FEBASE LOGGER OPTIMIZE; do \
@@ -206,7 +199,7 @@ clean:
 	rm -rf *.a
 	rm -rf *.o
 	rm -rf *.exe
-	rm -rf *.dll
+	rm -rf FrontEndControl.dll
 	rm -rf DLL/*.a
 	rm -rf DLL/FrontEndControl.def
 

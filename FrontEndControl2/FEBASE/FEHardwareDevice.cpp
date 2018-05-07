@@ -31,6 +31,7 @@ FEHardwareDevice::~FEHardwareDevice() {
 void FEHardwareDevice::startMonitor() {
     if (running)
         return;
+    stopped = false;
     LOG(LM_INFO) << "FEHardwareDevice(" << name_m << "): starting monitor thread..." << endl;
     pthread_create(&thread_m, NULL, reinterpret_cast<void*(*)(void*)>(monitorThread), this); 
     pthread_detach(thread_m);

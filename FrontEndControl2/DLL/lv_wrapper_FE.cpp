@@ -64,11 +64,10 @@ namespace FrontEndLVWrapper {
     extern bool tryAlternateLockMethod;
     extern bool defeatNormalLockDetect;
     bool correctSISVoltageError = true;
-    bool correctSISOnMainThread = false;
     bool randomizeMonitors = false;
     bool logMonitors = false;
     bool logAmbErrors = true;
-	unsigned long CANChannel = 0; 
+    unsigned long CANChannel = 0;
     unsigned long nodeAddress = 0x13;
     bool startCompressorModule = false;
     static FrontEndImpl *frontEnd = NULL;
@@ -136,11 +135,7 @@ DLLEXPORT short FEControlInit() {
         if (!tmp.empty())
             correctSISVoltageError = from_string<unsigned long>(tmp);
         LOG(LM_INFO) << "correctSISVoltageError=" << correctSISVoltageError << endl;
-
-        tmp = configINI.GetValue("debug", "correctSISOnMainThread");
-        if (!tmp.empty())
-            correctSISOnMainThread = from_string<unsigned long>(tmp);
-        LOG(LM_INFO) << "correctSISOnMainThread=" << correctSISOnMainThread << endl;
+        FrontEndImpl::correctSISVoltageError(correctSISVoltageError);
 
         tmp = configINI.GetValue("debug", "SISOpenLoop");
         if (!tmp.empty())
@@ -196,14 +191,14 @@ DLLEXPORT short FEControlInit() {
             // not found.
             FineLoSweepIni = "";
         else
-           // Found: use the current ini files path plus the specified name:
+            // Found: use the current ini files path plus the specified name:
             FineLoSweepIni = iniPath + "/" + tmp;
 
         LOG(LM_INFO) << "FineLOSweep ini file='" << FineLoSweepIni  << "'" << endl;
 
     } catch (...) {
-    	LOG(LM_ERROR) << "FEControlInit exception loading configuration file." << endl;
-    	FEMCEventQueue::addStatusMessage(false, "An exception occurred while loading the configuration file.");
+        LOG(LM_ERROR) << "FEControlInit exception loading configuration file." << endl;
+        FEMCEventQueue::addStatusMessage(false, "An exception occurred while loading the configuration file.");
         return -1;
     }
     
@@ -280,22 +275,23 @@ DLLEXPORT short FEControlInit() {
         }
     }
 
-    // Start the thermal logger:
-    if (ret == 0)
+    // Do final setup actions if no error so far:
+    if (ret == 0) {
+
+        // Start the thermal logger:
         frontEnd -> setThermalLogInterval(thermalLogInterval);
 
-    // Start all monitor threads:
-    if (ret == 0)
+        // Flush and log all previous FEMC module errors:
+        LOG(LM_INFO) << "Flushing FEMC Error Queue..." << endl;
+        FEMCFlushErrors();
+
+        // Start all monitor threads:
         frontEnd -> startMonitor();
 
-    // If possible, query the state of the cartridges:
-    if (ret == 0 && !CAN_noTransmit)
-        frontEnd -> queryCartridgeState();
-
-    // If specified and possible, measure the SIS voltage setting error for all carts which are already powered on:
-    if (ret == 0 && correctSISVoltageError && !CAN_noTransmit)
-        frontEnd -> measureSISVoltageError(0, correctSISOnMainThread);
-
+        // Query the state of the cartridges:
+        if (!CAN_noTransmit)
+            frontEnd -> queryCartridgeState();
+    }
     return ret;
 }
 
@@ -409,7 +405,6 @@ DLLEXPORT short FEMCRescanESNs() {
 
     frontEnd -> specialReadESNs(true);
     return 0;
-    // TODO: delay or loop here to make sure they finished reading?
 }
 
 DLLEXPORT short FEMCGetNumErrors() {
@@ -417,6 +412,19 @@ DLLEXPORT short FEMCGetNumErrors() {
         return -1;
     else
         return static_cast<short>(frontEnd -> getNumErrors());
+}
+
+DLLEXPORT short FEMCFlushErrors() {
+    if (!FEValid)
+        return -1;
+    else {
+        short moduleNum, errorNum;
+        char description[255];
+        while (FEMCGetNextError(&moduleNum, &errorNum, description) == 0) {
+            0;
+        }
+    }
+    return 0;
 }
 
 DLLEXPORT short FEMCGetNextError(short *moduleNum, short *errorNum, char *description) {
@@ -557,11 +565,6 @@ DLLEXPORT short FELoadConfiguration(short configId_in) {
 
 //----------------------------------------------------------------------------
 
-DLLEXPORT short FEGetNextSerialNum(short reset, char *serialNum, unsigned long *frontEndId) {
-    return -1;
-// TODO: this function not used in client code.  Not creating dbObject in wrapper.  If needed, move into a helper class.
-}
-
 DLLEXPORT short FEGetConfiguredBands(short *size, short *bands) {
     if (!FEValid)
         return -1;
@@ -675,8 +678,6 @@ DLLEXPORT short FESetCartridgeOn(short port) {
         if (!frontEnd -> getCartridgeOn(port)) {
             if (!frontEnd -> setCartridgeOn(port))
                 return -1;
-            if (correctSISVoltageError)
-                frontEnd -> measureSISVoltageError(port, correctSISOnMainThread);
         }
         return 0;
     }
@@ -809,12 +810,6 @@ DLLEXPORT short cartPauseMonitor(short port, short pauseWCA, short pauseCC) {
 
 DLLEXPORT short randomizeAnalogMonitors(short enable) {
     FEHardwareDevice::randomizeAnalogMonitors(enable != 0);
-    return 0;
-}
-
-DLLEXPORT short setCorrectSISOnMainThread(short enable) {
-    correctSISOnMainThread = (enable != 0);
-    LOG(LM_INFO) << "setCorrectSISOnMainThread=" << correctSISOnMainThread << endl;
     return 0;
 }
 
@@ -1161,18 +1156,6 @@ DLLEXPORT short cartGetLOPowerAmpsSetting(short port, short *isEnabled,
     }
 }
 
-DLLEXPORT short cartGetLOPADrainVoltageSetting(short port, float *VDP0, float *VDP1) {
-// TODO: DEPRECATED
-    if (!VDP0 || !VDP1)
-        return -1;
-
-    short enable;
-    float VGP0, VGP1;
-
-    return cartGetLOPowerAmpsSetting(port, &enable, VDP0, &VGP0, VDP1, &VGP1);
-}
-
-
 DLLEXPORT short cartAdjustLOPowerAmps(short port, short repeatCount) {
     if (!validatePortNumber(port))
         return -1;
@@ -1227,7 +1210,7 @@ DLLEXPORT short cartSetLOPower(short port, short pol, float percent) {
     }
 }
 
-DLLEXPORT short cartOptimizeIFPower(short port, short pol) {
+DLLEXPORT short cartOptimizeIFPower(short port, short pol, float VDstart0, float VDstart1) {
     if (!validatePortNumber(port))
         return -1;
     if (!FEValid)
@@ -1236,7 +1219,7 @@ DLLEXPORT short cartOptimizeIFPower(short port, short pol) {
     bool doPol1 = (pol == 1 || pol == -1);
     if (!(doPol0 || doPol1))
         return -1;
-    if (!frontEnd -> cartOptimizeIFPower(port, doPol0, doPol1))
+    if (!frontEnd -> cartOptimizeIFPower(port, doPol0, doPol1, VDstart0, VDstart1))
         return -1;
     return 0;                                           
 }   
@@ -1797,7 +1780,7 @@ DLLEXPORT short cartGetMonitorTemp(short port, CartTempData_t *target) {
         target -> setFloat(CartTempData_t::CARTRIDGE_TEMP4, tempInfo.cartridgeTemperature4_value);
         target -> setFloat(CartTempData_t::CARTRIDGE_TEMP5, tempInfo.cartridgeTemperature5_value);
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;
@@ -1820,7 +1803,7 @@ DLLEXPORT short cartGetMonitorSIS(short port, short pol, short sb, CartSISData_t
         target -> setFloat(CartSISData_t::SIS_MAGNET_VOLTAGE, sisInfo.sisMagnetVoltage_value);    
         target -> setFloat(CartSISData_t::SIS_MAGNET_CURRENT, sisInfo.sisMagnetCurrent_value);    
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;
@@ -1848,7 +1831,7 @@ DLLEXPORT short cartGetMonitorLNA(short port, short pol, short sb, CartLNAData_t
         target -> setFloat(CartLNAData_t::LNA3_DRAIN_CURRENT, lnaInfo.lnaSt3DrainCurrent_value);    
         target -> setFloat(CartLNAData_t::LNA3_GATE_VOLTAGE, lnaInfo.lnaSt3GateVoltage_value);    
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;
@@ -1868,7 +1851,7 @@ DLLEXPORT short cartGetMonitorAux(short port, short pol, CartAuxData_t *target) 
         target -> setHeaterCurrent(auxInfo.sisHeaterCurrent_value);
         target -> setLEDEnable(auxInfo.lnaLedEnable_value);
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;
@@ -1899,7 +1882,7 @@ DLLEXPORT short powerGetMonitorModule(short port, PowerModuleData_t *target) {
         target -> setFloat(PowerModuleData_t::CURRENT_P8V, modInfo.currentP8V_value);    
         target -> setEnable(modInfo.enableModule_value);
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;
@@ -1928,7 +1911,7 @@ DLLEXPORT short ifSwitchGetMonitor(IFSwitchData_t *target) {
         target -> setByte(IFSwitchData_t::TEMPSERVO_POL1SB2, modInfo.pol1Sb2TempServoEnable_value);
         target -> setByte(IFSwitchData_t::OBSERVING_BAND, modInfo.switchCartridge_value);
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;
@@ -1968,7 +1951,7 @@ DLLEXPORT short cryostatGetMonitor(CryostatData_t *target) {
         target -> setBool(CryostatData_t::VACUUM_GAUGE_STATE, modInfo.vacuumGaugeErrorState_value);
         target -> setFloat(CryostatData_t::SUPPLY_CURRENT_230V, modInfo.supplyCurrent230V_value);
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;
@@ -1996,7 +1979,7 @@ DLLEXPORT short lprGetMonitor(LPRData_t *target) {
         target -> setFloat(LPRData_t::EDFA_PHOTODETECT_POWER, modInfo.EDFAPhotoDetectPower_value);
         target -> setFloat(LPRData_t::EDFA_MODULATION_INPUT, modInfo.EDFAModulationInput_value);
         if (debugLVStructures)
-        	LOG(LM_DEBUG) << *target;
+            LOG(LM_DEBUG) << *target;
         return 0;       
     }
     return -1;

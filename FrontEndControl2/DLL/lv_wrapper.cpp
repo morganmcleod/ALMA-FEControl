@@ -20,6 +20,7 @@
 
 #include "lv_wrapper.h"
 #include "lv_structs.h"
+#include "exchndl.h"
 #include "iniFile.h"
 #include "logger.h"
 #include "setTimeStamp.h"
@@ -36,7 +37,8 @@
 using namespace std;
 
 namespace FrontEndLVWrapper {
-	FILE *logStream = NULL;
+    pthread_mutex_t LVWrapperLock;
+    FILE *logStream = NULL;
     bool logTransactions = false;
     bool debugLVStructures = false;
     bool CAN_noTransmit = false;
@@ -51,18 +53,36 @@ namespace FrontEndLVWrapper {
 using namespace FrontEndLVWrapper;
 
 short LVWrapperInit() {
-    ++connectedModules;
-    if (LVWrapperValid) {
-        LOG(LM_INFO) << "LVWrapperInit: connectedModules=" << connectedModules << endl;
+    if (!connectedModules)
+        pthread_mutex_init(&LVWrapperLock, NULL);
+
+	bool valid;
+	int connected;
+	pthread_mutex_lock(&LVWrapperLock);
+	++connectedModules;
+	connected = connectedModules;
+	valid = LVWrapperValid;
+	pthread_mutex_unlock(&LVWrapperLock);
+
+	if (valid) {
+        LOG(LM_INFO) << "LVWrapperInit: connectedModules=" << connected << endl;
         return 0;
     }
-    char *fn=getenv("FRONTENDCONTROL.INI");
+
+	// initialize exception handling library:
+	ExcHndlInit();
+
+	char *fn=getenv("FRONTENDCONTROL.INI");
     iniFileName = (fn) ? fn : "FrontendControlDLL.ini";
     
     try {
         CIniFile configINI(iniFileName);
         configINI.ReadFile();
+
         string tmp;
+        Time ts;
+        setTimeStamp(&ts);
+        timestampToText(&ts, tmp, true);
 
         string logFile = configINI.GetValue("logger", "logFile");
         string logDir = configINI.GetValue("logger", "logDir");
@@ -70,13 +90,13 @@ short LVWrapperInit() {
             if (logDir[logDir.length() - 1] != '\\')
                 logDir += "\\";
             FEConfig::setLogDir(logDir);
-            Time ts;
-            setTimeStamp(&ts);
-            timestampToText(&ts, tmp, true);
+
             logFile = logDir + "FELOG-" + tmp + ".txt";
             logStream = fopen(logFile.c_str(), "w");
             StreamOutput::setStream(logStream);
         }
+        string excHndlFile = logDir + "ExcHndl-" + tmp  + ".txt";
+        ExcHndlSetLogFileNameA(excHndlFile.c_str());
 
         LOG(LM_INFO) << "LVWrapperInit: connectedModules=" << connectedModules << endl;
         
@@ -87,6 +107,8 @@ short LVWrapperInit() {
             LOG(LM_INFO) << "Using log directory '" << logDir << "'" << endl;
         if (!logFile.empty())
             LOG(LM_INFO) << "Using log file '" << logFile << "'" << endl;
+        if (!excHndlFile.empty())
+            LOG(LM_INFO) << "Using ExcHndl file '" << excHndlFile << "'" << endl;
 
         tmp = configINI.GetValue("logger", "logTransactions");
         if (!tmp.empty())
@@ -129,6 +151,7 @@ short LVWrapperInit() {
 
     } catch (...) {
     	LOG(LM_ERROR) << "LVWrapperInit exception loading configuration file." << endl;
+    	pthread_mutex_unlock(&LVWrapperLock);
         return -1;
     }
     
@@ -144,18 +167,38 @@ short LVWrapperInit() {
     FEHardwareDevice::setLogger(*logger);
 
     FEMCEventQueue::createInstance();
+
+    pthread_mutex_lock(&LVWrapperLock);
     LVWrapperValid = true;
+    pthread_mutex_unlock(&LVWrapperLock);
+
     return 0;
 }
 
 short LVWrapperShutdown() {
-    if (!LVWrapperValid)
+	bool valid = false;
+	pthread_mutex_lock(&LVWrapperLock);
+	valid = LVWrapperValid;
+	pthread_mutex_unlock(&LVWrapperLock);
+
+	if (!valid)
         return -1;
+
+	int connected;
+	pthread_mutex_lock(&LVWrapperLock);
     --connectedModules;
-    LOG(LM_INFO) << "LVWrapperShutdown: connectedModules=" << connectedModules << endl;
-    if (connectedModules <= 0) {   
-        LVWrapperValid = false;
-        FEHardwareDevice::clearLogger();
+    connected = connectedModules;
+    pthread_mutex_unlock(&LVWrapperLock);
+
+    LOG(LM_INFO) << "LVWrapperShutdown: connectedModules=" << connected << endl;
+    if (connected <= 0) {
+
+    	pthread_mutex_lock(&LVWrapperLock);
+    	LVWrapperValid = false;
+    	pthread_mutex_unlock(&LVWrapperLock);
+        pthread_mutex_destroy(&LVWrapperLock);
+
+    	FEHardwareDevice::clearLogger();
         WHACK(logger);
         LOG(LM_INFO) << "LVWrapperShutdown: logger destroyed" << endl;
         FEMCEventQueue::destroyInstance();
@@ -165,11 +208,11 @@ short LVWrapperShutdown() {
         LOG(LM_INFO) << "LVWrapperShutdown: AmbInterface destroyed" << endl;
         WHACK(canBus);
         LOG(LM_INFO) << "LVWrapperShutdown: CANBusInterface destroyed" << endl;
-        StreamOutput::setStream(NULL);
         if (logStream) {
             fflush(logStream);
             fclose(logStream);
         }
+        StreamOutput::setStream(NULL);
         WHACK(logStream);
     }
     return 0;
@@ -195,7 +238,11 @@ DLLEXPORT short getDataPath(char *pathString) {
 }
 
 DLLEXPORT short subscribeForEvents(short doSubscribe) {
-    if (!LVWrapperValid)
+    pthread_mutex_lock(&LVWrapperLock);
+    bool valid = LVWrapperValid;
+    pthread_mutex_unlock(&LVWrapperLock);
+
+    if (!valid)
         return -1;
     FEMCEventQueue::subscribe(doSubscribe != 0);
     return 0;
@@ -210,7 +257,11 @@ DLLEXPORT short getNextEvent(unsigned long *seq,
                              short messageLen,
                              char *message)
 {                             
-    if (!LVWrapperValid || !seq || !eventCode || !band || !pol || !param || !progress || !message)
+    pthread_mutex_lock(&LVWrapperLock);
+    bool valid = LVWrapperValid;
+    pthread_mutex_unlock(&LVWrapperLock);
+
+    if (!valid || !seq || !eventCode || !band || !pol || !param || !progress || !message)
         return -1;
     FEMCEventQueue::Event ev;
     bool ret = FEMCEventQueue::getNextEvent(ev);

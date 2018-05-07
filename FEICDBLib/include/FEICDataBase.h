@@ -40,9 +40,6 @@ public:
     bool isConnected() const;
     ///< check whether successfully/still connected to the database server.
 
-    unsigned getDefaultFacility() const;
-    ///< get the default facility code setting from the database.
-
     /// structure for returning record IDs which are compound keys.
     struct ID_T {
         unsigned keyFacility;
@@ -234,6 +231,9 @@ private:
 
     static bool getEnvConnectionInfo(std::string &host, std::string &user, std::string &password, std::string &dbName);
     ///< helper to get the database connection info from the mysql.ini file at the path specified by environment varible TS_CONFIG
+
+    static bool getEnvFETMSDescription(std::string &description);
+    ///< helper to get the FETMS description and computer name
 };
 
 inline std::ostream &operator << (std::ostream& out, FEICDataBase::ID_T &id)

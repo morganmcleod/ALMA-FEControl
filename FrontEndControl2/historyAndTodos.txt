@@ -38,6 +38,24 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.8.8 2018-05-07
+  Fix crash shortly after band startup.  (FETMS-201)
+  Crash was caused by uninitialized floats in ColdCartImplBase.
+  Added ExcHndl.DLL linkage so that all crashes will be logged to the logDir. 
+
+2.8.7 2018-04-13
+  Setup to load the DLL into  LabVIEW from the build directory.
+  Mutex in lv_wrapper protects client count, valid, and other shared data.
+  delete CorrectSISOnMainThread option. Constant defaults false in OPTIMIZE/MeasureSISVoltageError.cpp
+  delete deprecated exports FEGetNextSerialNum() cartGetLOPADrainVoltageSetting() setCorrectSISOnMainThread()
+  delete junk TODOs.
+  Made correctSISVoltageError private to FrontEndImpl.  Called in SetCartridgeOn()
+  modified I-V curve algorithm to always sweep towards VJ=0
+  added VJstart0 and VJstart1 options for Optimize IF Power
+  changed FEHardwareDevice::startMonitor() to initialize stopped=false
+  fixed crashing sprintf usage in FEMCErrors.cpp
+  fix ColdCartImplBase member vars initialization
+
 2.8.6 2018-02-01
 Added I-V-Power curves to Optimize > Measure IF Power vs VD
 

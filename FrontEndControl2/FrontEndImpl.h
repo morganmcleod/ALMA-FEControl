@@ -52,6 +52,11 @@ public:
     bool connected() const
       { return connected_m; }
 
+// Debugging options:
+    static void correctSISVoltageError(bool doCorrect)
+      { correctSISVoltageError_m = doCorrect; }
+    ///< enable/disable correcting SIS bias setting error at cartridge power-up.
+
 // FEMC error reporting:
     bool getNextError(unsigned char &moduleNum, unsigned char &errorNum, std::string &description);
     ///< fetch the next error from the FEMC error queue.
@@ -73,8 +78,6 @@ public:
 
 // query enabled/observing status of powermodules and cartridges:
     void queryCartridgeState();
-    void measureSISVoltageError(int port = 0,                       // 0 signifies measure all ports which are on.
-                                bool measureOnMainThread = false);  // false = measure on worker thread.
 
 // Configuration functions:
     void setFrontEndSN(const std::string &SN);
@@ -199,7 +202,7 @@ public:
     
     bool cartSetLOPower(int port, int pol, float percent);
     
-    bool cartOptimizeIFPower(int port, bool doPol0, bool doPol1);
+    bool cartOptimizeIFPower(int port, bool doPol0, bool doPol1, float VDstart0, float VDstart1);
 
     bool cartClearOptimizedResult(short port);
 
@@ -332,6 +335,10 @@ private:
 
     // private helper for logging and error reporting:
     void reportBadCartridge(int port, std::string where, std::string msg = std::string());
+
+    // private helper for measuring SIS voltage setting offset:
+    static bool correctSISVoltageError_m;
+    void measureSISVoltageError(int port);
 
     // configuration data for the front end:
     unsigned SN_m;      ///< this front end's serial number, numeric portion only.

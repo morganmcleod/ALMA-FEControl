@@ -93,6 +93,10 @@ DLLEXPORT short FEMCGetNumErrors();
 ///< How many unread errors are waiting in the error queue?
 ///< Returns >= 0 if there are unread errors;   -1 if not connected to the FE.
 
+DLLEXPORT short FEMCFlushErrors();
+///< Flush the FEMC module error queue.
+///< Returns 0 normally;   -1 if not connected to the FE.
+
 DLLEXPORT short FEMCGetNextError(short *moduleNum, short *errorNum, char *description);
 ///< Read the next unread error from the error queue.
 ///< Returns {-1, -1, ""} if the queue is empty or an error occurs.
@@ -113,9 +117,6 @@ DLLEXPORT short FELoadConfiguration(short configId);
 
 //----------------------------------------------------------------------------
 // Front end and cartridge health check operations.
-
-DLLEXPORT short FEGetNextSerialNum(short reset, char *serialNum, unsigned long *frontEndId);
-///< Iterate through the list of available front end serial numbers and their associated keys.
 
 DLLEXPORT short FEGetConfiguredBands(short *size, short *bands);
 ///< Retrieve an array of configured band numbers.
@@ -159,9 +160,6 @@ DLLEXPORT short cartPauseMonitor(short port, short pauseWCA, short pauseCC);
 
 DLLEXPORT short randomizeAnalogMonitors(short enable);
 ///< enable/disble random ordering on analog monitor points.
-
-DLLEXPORT short setCorrectSISOnMainThread(short enable);
-///< enable/disable debug setting 'correctSISOnMainThread'
 
 //----------------------------------------------------------------------------
 // Cartridge control operations.
@@ -261,10 +259,6 @@ DLLEXPORT short cartGetLOPowerAmpsSetting(short port, short *isEnabled,
                                    float *VDP1, float *VGP1);
 ///< Get the last set state of the LO power amps.  Software readback only.
 
-DLLEXPORT short cartGetLOPADrainVoltageSetting(short port, float *VDP0, float *VDP1);
-///< Retrieve the drain voltage settings for the specified port.
-///< TODO: DEPRECATED in favor of cartGetLOPowerAmpsSetting()
-
 DLLEXPORT short cartAdjustLOPowerAmps(short port, short repeatCount);
 ///< Adjust the LO PA drain voltages until the junction currents are as close as possible to 
 ///<  the the target values given in the configuration database.
@@ -280,11 +274,13 @@ DLLEXPORT short cartSetEnableLO(short port, short enable);
 DLLEXPORT short cartSetLOPower(short port, short pol, float percent);
 ///< set the LO output power level as a percentage (0.0 - 100.0) of maximum
 
-DLLEXPORT short cartOptimizeIFPower(short port, short pol);
+DLLEXPORT short cartOptimizeIFPower(short port, short pol, float VDstart0, float VDstart1);
 ///< Perform optimization of IF power vs. LO drive and junction voltage.
 ///< works in conjunction with setIFPower() which injects ongoing power readings.
 ///< Optimization happens on a worker thread.
 ///< if pol is -1, both polarizations are optimized in turn.
+///< VDstart0 and VDstart1 give the starting value for LO PA VD search for pol0 and po1, respectively.
+///< If either are out of range, 0.8 V is used as the start value.
 ///< Sends the event EVENT_REQUEST_IFPOWER via the client app event queue when power readings are required.
 ///< Sends the event EVENT_PA_ADJUST_DONE  when finished.                        
 

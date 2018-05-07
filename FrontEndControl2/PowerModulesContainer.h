@@ -44,6 +44,8 @@ public:
     bool queryEnable(int port);
     ///< force a query of the enabled state of the underlying hardware.
 
+    bool setStandby2(int port, bool val);
+
 // Get monitor data:
     bool getMonitorPowerModule(int port, PowerModuleImpl::PowerModule_t &target) const;
     
