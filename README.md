@@ -2,17 +2,46 @@
 C++ software for monitor and control of the ALMA Front End and related hardware
 
 Uses 3rd party libraries not included in this repository:<br>
-Pthreads-win32: https://www.sourceware.org/pthreads-win32/<br>
+Pthreads-win32: https://www.sourceware.org/pthreads-win32/ supplied by MinGW as of 2.8.x <br>
 MySQL Connector/C: https://dev.mysql.com/downloads/connector/c/<br>
 NI-CAN driver: http://sine.ni.com/nips/cds/view/p/lang/en/nid/206955<br>
-CPPUnit: https://sourceforge.net/projects/cppunit/
-
+CPPUnit: https://sourceforge.net/projects/cppunit/<br>
+ExcHndl: https://github.com/jrfonseca/drmingw<br>
 
 $ ls -R 3rdparty/
 
-3rdparty/:
+3rdparty:
+cppunit/
+drmingw/
 MySQL41/
 Nican/
+
+3rdparty/cppunit:
+include/
+lib/
+
+3rdparty/cppunit/include:
+cppunit/
+
+3rdparty/cppunit/include/cppunit:
+(contents omitted)
+
+3rdparty/cppunit/lib:
+Debug/
+
+3rdparty/cppunit/lib/Debug:
+(contents omitted)
+
+3rdparty/drmingw:
+include/
+lib/
+
+3rdparty/drmingw/include:
+exchndl.h
+
+3rdparty/drmingw/lib:
+libexchndl.a
+libmgwhelp.a
 
 3rdparty/MySQL41:
 include/
