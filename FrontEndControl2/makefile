@@ -36,6 +36,9 @@ STATICGCCLIB =
 export PORTABLEINC = $(PTHREADINC)
 PORTABLELIB = $(PTHREADLIB) $(STATICGCCLIB)
 
+export EXCHNDLINC = -I$(BUILD)/3rdparty/drmingw/include
+EXCHNDLIB = -L$(BUILD)/3rdparty/drmingw/lib -lexchndl
+
 # includes and libs for the CppUtilityLib library:
 export UTILINC = -I$(BUILD)/CppUtilityLib/include
 UTILLIB = -L$(BUILD)/CppUtilityLib/Debug -lCppUtilityLib
@@ -57,7 +60,7 @@ export NICANINC = -I$(BUILD)/3rdparty/Nican/include
 NICANLIB = $(BUILD)/3rdparty/Nican/lib/nicanmsc.lib
 
 # project includes are CppUtilityLib, FEICDBLib, FrontEndAMBLib, and this directory:
-export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) -I$(CURDIR)
+export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) $(EXCHNDLINC) -I$(CURDIR)
 
 # windows libs:
 WINLIB = -lwinmm -lwsock32
@@ -127,7 +130,7 @@ FrontEndControl.dll DLL/FrontEndControl.def: $(DLLCPP) $(ALLOUT)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -DBUILD_FRONTENDCONTROL -shared -o FrontEndControl.dll \
 	$(DLLCPP) $(ALLOUT) \
 	$(PROJECTINC) $(PORTABLEINC) $(MYSQLINC) \
-	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIB) $(NICANLIB) $(PORTABLELIB) \
+	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIB) $(NICANLIB) $(PORTABLELIB) $(EXCHNDLIB) \
 	-Wl,--enable-auto-import,--output-def,DLL/FrontEndControl.def
 #	- cp FrontEndControl.dll "../../labview2013/drivers/FE Control/"
 
@@ -143,8 +146,7 @@ tests: t_lv_wrapper.exe t_lv_wrapper_sigSrc.exe t_SocketClient.exe \
 t_lv_wrapper.exe : tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a 
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_lv_wrapper.exe \
 	tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a \
-	$(PORTABLEINC) $(PROJECTINC)
-#	- cp ../3rdparty/MySQL41/lib/debug/libmysql.dll .
+	$(PORTABLEINC) $(PROJECTINC) $(EXCHNDLIB)
 	
 # This test uses the DLL:
 t_lv_wrapper_sigSrc.exe : tests/t_lv_wrapper_sigSrc.cpp DLL/libFrontEndControl.a 

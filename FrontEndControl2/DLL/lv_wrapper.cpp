@@ -20,6 +20,7 @@
 
 #include "lv_wrapper.h"
 #include "lv_structs.h"
+#include "exchndl.h"
 #include "iniFile.h"
 #include "logger.h"
 #include "setTimeStamp.h"
@@ -68,13 +69,20 @@ short LVWrapperInit() {
         return 0;
     }
 
+	// initialize exception handling library:
+	ExcHndlInit();
+
 	char *fn=getenv("FRONTENDCONTROL.INI");
     iniFileName = (fn) ? fn : "FrontendControlDLL.ini";
     
     try {
         CIniFile configINI(iniFileName);
         configINI.ReadFile();
+
         string tmp;
+        Time ts;
+        setTimeStamp(&ts);
+        timestampToText(&ts, tmp, true);
 
         string logFile = configINI.GetValue("logger", "logFile");
         string logDir = configINI.GetValue("logger", "logDir");
@@ -82,13 +90,13 @@ short LVWrapperInit() {
             if (logDir[logDir.length() - 1] != '\\')
                 logDir += "\\";
             FEConfig::setLogDir(logDir);
-            Time ts;
-            setTimeStamp(&ts);
-            timestampToText(&ts, tmp, true);
+
             logFile = logDir + "FELOG-" + tmp + ".txt";
             logStream = fopen(logFile.c_str(), "w");
             StreamOutput::setStream(logStream);
         }
+        string excHndlFile = logDir + "ExcHndl-" + tmp  + ".txt";
+        ExcHndlSetLogFileNameA(excHndlFile.c_str());
 
         LOG(LM_INFO) << "LVWrapperInit: connectedModules=" << connectedModules << endl;
         
@@ -99,6 +107,8 @@ short LVWrapperInit() {
             LOG(LM_INFO) << "Using log directory '" << logDir << "'" << endl;
         if (!logFile.empty())
             LOG(LM_INFO) << "Using log file '" << logFile << "'" << endl;
+        if (!excHndlFile.empty())
+            LOG(LM_INFO) << "Using ExcHndl file '" << excHndlFile << "'" << endl;
 
         tmp = configINI.GetValue("logger", "logTransactions");
         if (!tmp.empty())
