@@ -29,8 +29,9 @@ BUILD = ..
 
 # includes and libs for "portable" code = POSIX threads:
 PTHREADINC =
-PTHREADLIB = -Wl,-Bstatic -lpthread
-#STATICGCCLIB = -static-libgcc
+PTHREADLIB = -lpthreadGC-3.dll
+#PTHREADLIB = -Wl,-Bstatic -lpthread  # for static linking pthreads
+STATICGCCLIB =
 
 PORTABLEINC = $(PTHREADINC)
 PORTABLELIB = $(PTHREADLIB) $(STATICGCCLIB)

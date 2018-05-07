@@ -29,7 +29,8 @@ export BUILD = L:/ALMA-FEControl
 
 # includes and libs for "portable" code = POSIX threads.  2.6.0: Using pthreds from MinGW 0.6 now.
 PTHREADINC =
-PTHREADLIB = -Wl,-Bstatic -lpthread
+PTHREADLIB = -lpthreadGC-3.dll
+#PTHREADLIB = -Wl,-Bstatic -lpthread  # for static linking pthreads
 STATICGCCLIB =
 
 export PORTABLEINC = $(PTHREADINC)
