@@ -201,19 +201,23 @@ short LVWrapperShutdown() {
     	FEHardwareDevice::clearLogger();
         WHACK(logger);
         LOG(LM_INFO) << "LVWrapperShutdown: logger destroyed" << endl;
+
         FEMCEventQueue::destroyInstance();
         LOG(LM_INFO) << "LVWrapperShutdown: eventQueue destroyed" << endl;
+
         AmbInterface::deleteInstance();
         ambItf = NULL;
         LOG(LM_INFO) << "LVWrapperShutdown: AmbInterface destroyed" << endl;
+
         WHACK(canBus);
         LOG(LM_INFO) << "LVWrapperShutdown: CANBusInterface destroyed" << endl;
+
         if (logStream) {
             fflush(logStream);
             fclose(logStream);
         }
         StreamOutput::setStream(NULL);
-        WHACK(logStream);
+        logStream = NULL;
     }
     return 0;
 }

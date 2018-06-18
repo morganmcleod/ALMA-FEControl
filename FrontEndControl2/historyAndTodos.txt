@@ -38,6 +38,9 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.8.9 2018-06-18
+  Fix crash on shutdown: was deleting a FILE* returned by fopen().
+
 2.8.8 2018-05-07
   Fix crash shortly after band startup.  (FETMS-201)
   Crash was caused by uninitialized floats in ColdCartImplBase.

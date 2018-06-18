@@ -62,17 +62,17 @@ int main(int, char*[]) {
             for (int band = 1; band <= 10; ++band) {
             	FESetCartridgeOff(band);
             }
-            FESetCartridgeOn(5);
-            FESetCartridgeOn(7);
-            FESetCartridgeOn(8);
-        	SLEEP(50000);
-            FESetCartridgeOff(5);
-            FESetCartridgeOff(7);
-            FESetCartridgeOff(8);
+//            FESetCartridgeOn(5);
+//            FESetCartridgeOn(7);
+//            FESetCartridgeOn(8);
+//        	SLEEP(50000);
+//            FESetCartridgeOff(5);
+//            FESetCartridgeOff(7);
+//            FESetCartridgeOff(8);
         	SLEEP(10000);
         }
-//        if (MessageBox(NULL, "OK to proceed with test.  Cancel to exit", "t_lv_wrapper", MB_OKCANCEL) != IDOK)
-//            done = true;
+        if (MessageBox(NULL, "OK to proceed with test.  Cancel to exit", "t_lv_wrapper", MB_OKCANCEL) != IDOK)
+            done = true;
 
     }
     FEControlShutdown();
