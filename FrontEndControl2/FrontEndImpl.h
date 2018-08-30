@@ -149,6 +149,7 @@ public:
 
 // Control commands for cartridges:
     bool cartSetLOFrequency(int port, double freqLO, double freqFLOOG, int sbLock);
+    bool cartSetCenterLOFrequency(int port, double freqFLOOG, int sbLock);
     bool cartGetLOFrequency(int port, double &freqLO, double &freqREF) const;
     bool cartLockPLL(int port);
     bool cartGetLocked(int port);

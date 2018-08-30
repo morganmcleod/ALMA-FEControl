@@ -172,6 +172,9 @@ DLLEXPORT short cartSetLOFrequency(short port, double freqLO, double freqFLOOG, 
 ///< sbLock = 0 means lock below the reference:  freqREF = freqLO + freqFLOOG;
 ///< sbLock = 1 means lock above the reference:  freqREF = freqLO - freqFLOOG.
 
+DLLEXPORT short cartSetCenterLOFrequency(short port, double freqFLOOG, short sbLock);
+///< Set the YTO tuning to the center of the LO band.
+
 DLLEXPORT short cartGetLOFrequency(short port, double *freqLO, double *freqREF);
 ///< Get the current freqLO and freqREF settings.  Software readback only.
 

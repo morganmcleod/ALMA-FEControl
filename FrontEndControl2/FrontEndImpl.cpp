@@ -1009,6 +1009,15 @@ bool FrontEndImpl::cartSetLOFrequency(int port, double freqLO, double freqFLOOG,
     return false;
 }
 
+bool FrontEndImpl::cartSetCenterLOFrequency(int port, double freqFLOOG, int sbLock) {
+    CartAssembly *ca = carts_mp -> getCartAssembly(port);
+    if (ca && ca -> getEnable() && ca -> existsWCA()) {
+        double freqLO = CartAssembly::getCenterLOFrequency(ca -> getBand());
+        return cartSetLOFrequency(port, freqLO, freqFLOOG, sbLock);
+    }
+    return false;
+}
+
 bool FrontEndImpl::cartGetLOFrequency(int port, double &freqLO, double &freqREF) const {    
     CartAssembly *ca = carts_mp -> getCartAssembly(port);
     if (ca && ca -> getEnable() && ca -> existsWCA())

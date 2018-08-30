@@ -156,43 +156,12 @@ bool CartHealthCheck::prepare(const FEICDataBase::ID_T &feConfig, FEICDataBase::
                                   << pRow[PowerAmpParams::VG1] << endl;
         }
     }
-
     // Get the center LO frequency for the band:
-    switch (band) {
-        case 1:
-            freqLO_m = 35.0;
-            break;
-        case 2:
-            freqLO_m = 72.0;
-            break;
-        case 3:
-            freqLO_m = 100.0;
-            break;
-        case 4:
-            freqLO_m = 145.0;
-            break;
-        case 5:
-            freqLO_m = 181.0;
-            break;
-        case 6:
-            freqLO_m = 241.0;
-            break;
-        case 7:
-            freqLO_m = 323.0;
-            break;
-        case 8:
-            freqLO_m = 440.0;
-            break;
-        case 9:
-            freqLO_m = 662.0;
-            break;
-        case 10:
-            freqLO_m = 874.0;
-            break;
-        default:
-            freqLO_m = 0.0;
-            LOG(LM_ERROR) << context << ": no LO frequency defined for band=" << band << endl;
-            break;
+    if (band >= 1 && band <= 10)
+        freqLO_m = CartAssembly::getCenterLOFrequency(band);
+    else {
+        freqLO_m = 0.0;
+        LOG(LM_ERROR) << context << ": no LO frequency defined for band=" << band << endl;
     }
     // Set to the center LO frequency:
     if (!ca_m.setLOFrequency(freqLO_m, 0.0, 0))

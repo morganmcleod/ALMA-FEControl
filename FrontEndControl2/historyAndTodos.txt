@@ -38,6 +38,9 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.9.0 2018-08-29
+  Add cartSetCenterLOFrequency(); refactor OPTIMIZE/CartHealthCheck.
+
 2.8.9 2018-06-18
   Fix crash on shutdown: was deleting a FILE* returned by fopen().
 

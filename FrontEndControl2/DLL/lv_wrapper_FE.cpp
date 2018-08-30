@@ -837,6 +837,21 @@ DLLEXPORT short cartSetLOFrequency(short port, double freqLO, double freqFLOOG, 
     }
 }
 
+DLLEXPORT short cartSetCenterLOFrequency(short port, double freqFLOOG, short sbLock) {
+    bool isSignalSource(false);
+    if (!validatePortNumber(port, &isSignalSource))
+        return -1;
+
+    if (!isSignalSource) {
+        if (!FEValid)
+            return -1;
+        if (!frontEnd -> cartSetCenterLOFrequency(port, freqFLOOG, sbLock))
+            return -1;
+        return 0;
+    }
+    return -1;
+}
+
 DLLEXPORT short cartGetLOFrequency(short port, double *freqLO, double *freqREF) {
     if (!freqLO || !freqREF)
         return -1;

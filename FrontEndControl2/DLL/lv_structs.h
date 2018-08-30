@@ -527,9 +527,9 @@ inline std::ostream &operator << (std::ostream& out, const CartLNAData_t &data)
 struct CartAuxData_t {
     enum Field {
         SIS_HEATER_CURRENT, // 4 byte float
-        LNA_LED_ENABLE      // 4 byte float
+        LNA_LED_ENABLE      // 1 byte unsigned char
     };
-    unsigned char data[8];
+    unsigned char data[5];
     static const int offsets[];
 
     CartAuxData_t()

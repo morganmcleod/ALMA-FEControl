@@ -155,6 +155,22 @@ public:
         return true; }
     ///< Get the last set FLOOG frequency and sbLock settting.
     
+    static double getCenterLOFrequency(int band)
+      { static double freqs[11] = {
+            0.0,  // band 0: undefined
+            35.0,
+            72.0,
+            100.0,
+            145.0,
+            181.0,
+            241.0,
+            323.0,
+            440.0,
+            662.0,
+            874.0
+        }; return freqs[band]; }
+    ///< get the center LO frequency for the specified band.  Used for warm-up and health check.
+
     bool getMonitorYTO(WCAImpl::YTO_t &target) const;
     ///< Get the monitor data for the YTO:  coarse tuning and equivalent frequency in GHz.
 
