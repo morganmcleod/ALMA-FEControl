@@ -57,6 +57,18 @@ public:
 
     virtual unsigned char getFEMode();
 
+    virtual void getMonitorTimers(unsigned short &monTimer1,
+                                  unsigned short &monTimer2,
+                                  unsigned short &monTimer3,
+                                  unsigned short &monTimer4,
+                                  unsigned short &monTimer5,
+                                  unsigned short &monTimer6,
+                                  unsigned short &monTimer7,
+                                  unsigned short &maxTimerValue);
+    //< Get the AMBSI1 monitor timers for the seven phases of the last monitor transaction.
+    //< maxTimerValue gives the timer starting value, each timer counts down from that value.
+    //< If a timer is zero it means a timeout occurred during the last transaction
+
 // control points:
     virtual void powerEnableModule(int port, unsigned char val);
     virtual void specialExitProgram(bool val);
@@ -84,6 +96,10 @@ protected:
         GET_ERRORS_NUMBER       = 0x000C,   // Get the number of errors in the error queue
         GET_NEXT_ERROR          = 0x000D,   // Get the next error from the error queue
         GET_FE_MODE             = 0x000E,   // Get the FE operating mode (operational, troubleshooting, maintenance)
+
+        GET_MON_TIMERS1         = 0x0020,   // Get AMBSI1 monitor timers for phases 1 through 4 of the last monitor transaction.
+        GET_MON_TIMERS2         = 0x0021,   // Get AMBSI1 monitor timers for phases 5 through 7 and the MAX_TIMER value
+
         // SPECIAL control points:      
         SET_EXIT_PROGRAM        = 0x0000,   // For debugging.
         SET_REBOOT              = 0x0001,   // For debugging.

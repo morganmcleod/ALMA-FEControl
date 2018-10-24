@@ -192,6 +192,52 @@ void FrontEndImplBase::setFEMode(unsigned char val) {
     sem_destroy(&synchLock);
 }
 
+void FrontEndImplBase::getMonitorTimers(unsigned short &monTimer1,
+                                        unsigned short &monTimer2,
+                                        unsigned short &monTimer3,
+                                        unsigned short &monTimer4,
+                                        unsigned short &monTimer5,
+                                        unsigned short &monTimer6,
+                                        unsigned short &monTimer7,
+                                        unsigned short &maxTimerValue)
+{
+    // initialize all results to 0:
+    monTimer1 = monTimer2 = monTimer3 = monTimer4 = monTimer5 = monTimer6 = monTimer7 = maxTimerValue = 0;
+
+    // these monitor points were added in version 1.1.0:
+    if (AMBSIFirmwareRev_value == "1.0.0" || AMBSIFirmwareRev_value == "1.0.1")
+        return;
+
+    AmbDataLength_t dataLength;
+    AmbDataMem_t data[8];
+    sem_t synchLock;
+    Time timestamp;
+    AmbErrorCode_t status = AMBERR_NOERR;
+    sem_init(&synchLock, 0, 0);
+
+    // Get the first set of timers:
+    monitor(SPECIAL_MONITOR + GET_MON_TIMERS1, dataLength, data, &synchLock, &timestamp, &status);
+    sem_wait(&synchLock);
+    if (status == AMBERR_NOERR) {
+        monTimer1 = ((data[0] & 0xff) << 8) + data[1];
+        monTimer2 = ((data[2] & 0xff) << 8) + data[3];
+        monTimer3 = ((data[4] & 0xff) << 8) + data[5];
+        monTimer4 = ((data[6] & 0xff) << 8) + data[7];
+    }
+
+    // Get the second set of timers and the timer start value:
+    monitor(SPECIAL_MONITOR + GET_MON_TIMERS2, dataLength, data, &synchLock, &timestamp, &status);
+    sem_wait(&synchLock);
+    if (status == AMBERR_NOERR) {
+       monTimer5 = ((data[0] & 0xff) << 8) + data[1];
+       monTimer6 = ((data[2] & 0xff) << 8) + data[3];
+       monTimer7 = ((data[4] & 0xff) << 8) + data[5];
+       maxTimerValue = ((data[6] & 0xff) << 8) + data[7];
+    }
+
+    sem_destroy(&synchLock);
+}
+
 void FrontEndImplBase::monitorAction(Time *timestamp_p) {
     
     if (!timestamp_p)

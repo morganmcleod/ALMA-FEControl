@@ -31,6 +31,8 @@
 #include "LPRImpl.h"
 #include "PowerModuleImpl.h"
 #include "WCAImpl.h"
+#include <stdint.h>
+#include <vector>
 
 class CartridgesContainer;  
 class IFPowerDataSet;
@@ -328,6 +330,14 @@ public:
 
     void appendThermalLogHeader(std::string &target) const;
     ///< append thermal header information to a logging string
+
+public:
+    virtual void setLogMonTimers(bool val)
+      { logMonTimers_m = val; }
+
+protected:
+    virtual void postMonitorHook(const AmbRelativeAddr &RCA);
+    ///< called by base class after each monitor operation
     
 private:
     // disallow copy and assignment:
@@ -361,7 +371,7 @@ private:
     LPRImpl *lpr_mp;
     bool cpds_m;        ///< true if the CPDS is present.
     bool connected_m;   ///< true if successfully connected to the FE.
-    
+
     // thermal logger object:
     ThermalLogger *thermalLogger_mp;
     unsigned int thermaLogInterval_m;
@@ -371,6 +381,14 @@ private:
     bool hcReceiverIsCold_m;
     int hcFacility_m;
     int hcDataStatus_m;
+
+    // monitor timing statistics:
+    bool logMonTimers_m;
+    std::vector<unsigned short> monTimers_m;
+    std::vector<unsigned> monTimersMin_m;
+    std::vector<unsigned> monTimersMax_m;
+    unsigned monTimersCount_m;
+    unsigned short maxTimerValue_m;
 };
 
 #endif /*FRONTEND_H_*/

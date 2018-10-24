@@ -38,6 +38,7 @@ using namespace std;
 
 namespace FrontEndLVWrapper {
     pthread_mutex_t LVWrapperLock;
+    std::string logDir("");
     FILE *logStream = NULL;
     bool logTransactions = false;
     bool debugLVStructures = false;
@@ -84,8 +85,9 @@ short LVWrapperInit() {
         setTimeStamp(&ts);
         timestampToText(&ts, tmp, true);
 
+        logDir = configINI.GetValue("logger", "logDir");
         string logFile = configINI.GetValue("logger", "logFile");
-        string logDir = configINI.GetValue("logger", "logDir");
+        string excHndlFile("");
         if (!logDir.empty()) {
             if (logDir[logDir.length() - 1] != '\\')
                 logDir += "\\";
@@ -94,10 +96,10 @@ short LVWrapperInit() {
             logFile = logDir + "FELOG-" + tmp + ".txt";
             logStream = fopen(logFile.c_str(), "w");
             StreamOutput::setStream(logStream);
-        }
-        string excHndlFile = logDir + "ExcHndl-" + tmp  + ".txt";
-        ExcHndlSetLogFileNameA(excHndlFile.c_str());
 
+            excHndlFile = logDir + "ExcHndl-" + tmp  + ".txt";
+            ExcHndlSetLogFileNameA(excHndlFile.c_str());
+        }
         LOG(LM_INFO) << "LVWrapperInit: connectedModules=" << connectedModules << endl;
         
         LOG(LM_INFO) << "FrontEndControl library version " << FECONTROL_SW_VERSION_STRING << endl;

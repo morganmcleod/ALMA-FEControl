@@ -38,6 +38,8 @@
 #include "CONFIG/IFPowerDataSet.h"
 #include "OPTIMIZE/XYPlotArray.h"
 #include <stdio.h>
+#include <limits>
+#include <cmath>
 using namespace FEConfig;
 using namespace std;
 
@@ -65,7 +67,13 @@ FrontEndImpl::FrontEndImpl(unsigned long channel,
     hcStarted_m(false),
     hcReceiverIsCold_m(false),
     hcFacility_m(40),
-    hcDataStatus_m(0)
+    hcDataStatus_m(0),
+    logMonTimers_m(false),
+    monTimers_m(7, std::numeric_limits<unsigned short int>::min()),
+    monTimersMin_m(7, std::numeric_limits<unsigned int>::max()),
+    monTimersMax_m(7, unsigned(0)),
+    monTimersCount_m(0),
+    maxTimerValue_m(0)
 { 
     setESN(ESN);
     initialize(channel, nodeAddress);
@@ -84,15 +92,24 @@ FrontEndImpl::~FrontEndImpl() {
 
 void FrontEndImpl::initialize(unsigned long channel, unsigned long nodeAddress) {
     FrontEndImplBase::initialize(channel, nodeAddress);
-    unsigned char stat = specialGetSetupInfo();
-    if (stat == 0 || stat == 5) {
-        connected_m = true;
-        LOG(LM_INFO) << "Connected to front end on CAN" << channel
-                     << " at nodeAddress=0x" << uppercase << hex << setw(2) << setfill('0') << nodeAddress << dec << setw(0)
-                     << " AMBSI serialNum=" << AMBSISerialNum() << endl;
-    } else {
-        LOG(LM_ERROR) << "Not connected to front end." << endl;
+    int retries = 20;
+    while (retries && !connected_m) {
+        unsigned char stat = specialGetSetupInfo();
+        if (stat == 0 || stat == 5) {
+            connected_m = true;
+            LOG(LM_INFO) << "Connected to front end on CAN" << channel
+                         << " at nodeAddress=0x" << uppercase << hex << setw(2) << setfill('0') << nodeAddress << dec << setw(0)
+                         << " AMBSI serialNum=" << AMBSISerialNum() << endl;
+        } else {
+            retries--;
+            string msg("Waiting to connect to front end. Retries=");
+            msg += to_string(retries);
+            FEMCEventQueue::addStatusMessage(false, msg);
+            SLEEP(1000);
+        }
     }
+    if (!connected_m)
+        LOG(LM_ERROR) << "Not connected to front end." << endl;
 }
 
 void FrontEndImpl::shutdown() {
@@ -1783,6 +1800,32 @@ void FrontEndImpl::appendThermalLog(std::string &target) const {
         lpr_mp -> appendThermalLog(target);
     if (carts_mp)
         carts_mp -> appendThermalLog(target);
+}
+
+void FrontEndImpl::postMonitorHook(const AmbRelativeAddr &RCA) {
+    if (!logMonTimers_m)
+        return;
+
+    if (AMBSIFirmwareRev_value == "1.0.0" || AMBSIFirmwareRev_value == "1.0.1")
+        return;
+
+    getMonitorTimers(monTimers_m[0], monTimers_m[1], monTimers_m[2], monTimers_m[3],
+                     monTimers_m[4], monTimers_m[5], monTimers_m[6], maxTimerValue_m);
+
+    monTimersCount_m++;
+
+    for (int i = 0; i < 7; i++) {
+        unsigned counts = maxTimerValue_m - monTimers_m[i];
+        if (counts < monTimersMin_m[i])
+            monTimersMin_m[i] = counts;
+        if (counts < maxTimerValue_m && counts > monTimersMax_m[i])
+            monTimersMax_m[i] = counts;
+    }
+
+    if (monTimersCount_m % 10000 == 0) {
+        for (int i = 0; i < 7; i++)
+            LOG(LM_INFO) << "MonTimers[" << i << "] min=" << monTimersMin_m[i] << " max=" << monTimersMax_m[i] << endl;
+    }
 }
 
 void FrontEndImpl::reportBadCartridge(int port, std::string where, std::string msg) {

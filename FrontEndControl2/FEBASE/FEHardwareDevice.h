@@ -192,6 +192,10 @@ protected:
 
 // Monitor and control operations:
     
+    /// This hook is called immediately after each completed monitor transaction:
+    virtual void postMonitorHook(const AmbRelativeAddr &RCA)
+      {}
+
     /// Monitor a three-byte software version number and return a string.
     FEMC_ERROR syncMonitorThreeByteRevLevel(AmbRelativeAddr RCA, std::string &target);
 
@@ -212,9 +216,10 @@ protected:
         // wait on the semaphore:
         sem_wait(&synchLock);
         // check for errors and return result:
-        if (status == AMBERR_NOERR)
+        if (status == AMBERR_NOERR) {
+            postMonitorHook(RCA);
             ret = unpack(target, dataLength, data);
-        else {
+        } else {
             ret = FEMC_AMB_ERROR;
             if (logAmbErrors_m) {
                 LOG(LM_ERROR) << "FEHardwareDevice(0x" << std::uppercase << std::hex << m_nodeAddress << "): AMB error=" << status << " RCA=" << " 0x" << std::uppercase << std::hex << std::setw(6) << std::setfill('0') << RCA << std::endl;

@@ -57,6 +57,7 @@ using namespace std;
 namespace FrontEndLVWrapper {
     unsigned long facilityId = 40;
     unsigned long configId = 1;
+    bool logMonTimers = false;
     bool configFromDatabase = false;
     bool allowSISHeaters = false;
     bool SISOpenLoop = false;
@@ -180,6 +181,11 @@ DLLEXPORT short FEControlInit() {
         }
         FEHardwareDevice::logAmbErrors(logAmbErrors);
 
+        tmp = configINI.GetValue("debug", "logMonTimers");
+        if (!tmp.empty())
+            logMonTimers = (from_string<unsigned int>(tmp) != 0);
+        LOG(LM_INFO) << "logMonTimers=" << logMonTimers << endl;
+
         tmp = configINI.GetValue("configuration", "configFromDatabase");
         if (!tmp.empty())
             configFromDatabase = from_string<unsigned long>(tmp);
@@ -206,8 +212,8 @@ DLLEXPORT short FEControlInit() {
     if (nodeAddress) {
         frontEnd = new FrontEndImpl(CANChannel, nodeAddress, "ESN-FE");
         if (frontEnd -> connected()) {
+            frontEnd -> setLogMonTimers(logMonTimers);
             ret = 0;
-            
         } else {
             LOG(LM_ERROR) << "FEControlInit failed to connect to front end." << endl;
             FEMCEventQueue::addStatusMessage(false, "Failed to connect to front end.");
@@ -304,6 +310,7 @@ DLLEXPORT short FEControlShutdown() {
         if (frontEnd) {
             frontEnd -> stopMonitor();
             frontEnd -> shutdown();
+
             WHACK(frontEnd);
             LOG(LM_INFO) << "FEControlShutdown: frontEnd destroyed." << endl;
         }
@@ -386,15 +393,17 @@ DLLEXPORT short FEMCGetESNText(char *target) {
     sprintf(buf, "ESNs: %d", numESNs);
     text += buf;
     
+    LOG(LM_INFO) << text << endl;
+
     int count = numESNs + 1;
     while (count-- > 0) {
         ESN = frontEnd -> FEMCGetNextESN(false); // do not reverse ESN byte order.
         if (ESN != ESN0) {
             text += "\n";
             text += ESN;
+            LOG(LM_INFO) << ESN << endl;
         }
     }
-    LOG(LM_INFO) << "Found " << text << endl;
     strcpy(target, text.c_str());
     return 0;
 }

@@ -281,6 +281,7 @@ FEHardwareDevice::FEMC_ERROR FEHardwareDevice::syncMonitorThreeByteRevLevel(AmbR
     sem_wait(&synchLock);
     sem_destroy(&synchLock);
     if (status == AMBERR_NOERR) {
+        postMonitorHook(RCA);
         char buf[20];
         sprintf(buf, "%d.%d.%d", (int) data[0], (int) data[1], (int) data[2]);
         target = buf;
@@ -301,6 +302,7 @@ FEHardwareDevice::FEMC_ERROR FEHardwareDevice::syncMonitorEightByteESN(AmbRelati
     sem_wait(&synchLock);
     sem_destroy(&synchLock);
     if (status == AMBERR_NOERR) {
+        postMonitorHook(RCA);
         char buf[20];
         if (reverseBytes) {
             sprintf(buf, "%02X%02X%02X%02X%02X%02X%02X%02X", data[7], data[6], data[5], data[4],

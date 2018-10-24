@@ -33,6 +33,7 @@
 #include <string>
 
 namespace FrontEndLVWrapper {
+    extern std::string logDir;
     extern bool debugLVStructures;
     extern bool CAN_noTransmit;
     extern std::string iniFileName;
