@@ -157,16 +157,16 @@ public:
     
     static double getCenterLOFrequency(int band)
       { static double freqs[11] = {
-            0.0,  // band 0: undefined
-            35.0,
+            0.0,    // band 0: undefined
+            35.0,	// band 1
             72.0,
-            100.0,
+            100.0,  // band 3
             145.0,
-            181.0,
+            187.0,  // band 5
             241.0,
-            323.0,
+            323.0,  // band 7
             440.0,
-            662.0,
+            662.0,  // band 9
             874.0
         }; return freqs[band]; }
     ///< get the center LO frequency for the specified band.  Used for warm-up and health check.
