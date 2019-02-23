@@ -41,6 +41,7 @@ void MeasureFineLOSweep::reset() {
     progress_m = progressIncrement_m = 0;
     sisCurrents_m.clear();
     loPaVoltages_m.clear();
+    testDataHeaderId_m.reset();
 }
 
 bool MeasureFineLOSweep::start(const FEICDataBase::ID_T &feConfig, FEICDataBase::DATASTATUS_TYPES dataStatus,
@@ -140,6 +141,8 @@ bool MeasureFineLOSweep::start(const FEICDataBase::ID_T &feConfig, FEICDataBase:
 }
     
 void MeasureFineLOSweep::optimizeAction() {
+    string context("MeasureFineLOSweep::optimizeAction");
+
     // Pause monitoring during the measurement:
     cartAssembly_m.pauseMonitor(true, true, "Measure fine LO sweep");
     
@@ -158,6 +161,9 @@ void MeasureFineLOSweep::optimizeAction() {
     double trash;
     cartAssembly_m.getLOFrequency(freqLONom_m, trash);
     cartAssembly_m.getLOLockSettings(freqFLOOG_m, sbLock_m);
+
+    if (!dbObject_m.createFineLOSweepDataHeader(testDataHeaderId_m, feConfig_m, dataStatus_m, cartAssembly_m.getBand(), string()))
+        LOG(LM_ERROR) << context << ": createFineLOSweepDataHeader failed." << endl;
 
     // outer loop on repeatCount:
     bool error = false;
@@ -246,13 +252,11 @@ void MeasureFineLOSweep::saveData(int pol) {
     // find or create the test data header for this data:
     string legend = "pol " + to_string(pol) + " tiltAngle=" + to_string(tiltAngle_m, std::fixed, 2);
 
-    FrontEndDatabase::ID_T headerId, subHeaderId;
+    FrontEndDatabase::ID_T subHeaderId;
     int band = cartAssembly_m.getBand();
-    if (!dbObject_m.findOrCreateFineLOSSweepDataHeader(headerId, feConfig_m, dataStatus_m, band, string()))
-        LOG(LM_ERROR) << context << ": findOrCreateFineLOSSweepDataHeader failed." << endl;
 
     // create a sub-header record:
-    else if (!dbObject_m.insertFineLOSweepSubHeader(subHeaderId, headerId, band, pol, tiltAngle_m, LOStart_m, LOStop_m, LOStep_m, VJ_m, IJ_m, legend))
+    if (!dbObject_m.insertFineLOSweepSubHeader(subHeaderId, testDataHeaderId_m, band, pol, tiltAngle_m, LOStart_m, LOStop_m, LOStep_m, VJ_m, IJ_m, legend))
         LOG(LM_ERROR) << context << ": insertFineLOSweepSubHeader failed." << endl;
 
     // and insert the raw data:

@@ -1061,8 +1061,8 @@ bool FrontEndDatabase::insertYFactorData(const ID_T &configId, DATASTATUS_TYPES 
 }
 
 
-bool FrontEndDatabase::findOrCreateFineLOSSweepDataHeader(ID_T &headerId, const ID_T &configId, DATASTATUS_TYPES dataStatus, unsigned band, const std::string &legend) const {
-    static const string context("FrontEndDatabase::findOrCreateFineLOSSweepDataHeader");
+bool FrontEndDatabase::createFineLOSweepDataHeader(ID_T &headerId, const ID_T &configId, DATASTATUS_TYPES dataStatus, unsigned band, const std::string &legend) const {
+    static const string context("FrontEndDatabase::createFineLOSweepDataHeader");
 
     if (!isConnected())
         return false;
@@ -1071,18 +1071,9 @@ bool FrontEndDatabase::findOrCreateFineLOSSweepDataHeader(ID_T &headerId, const 
         LOG(LM_ERROR) << context << ": given configId is not valid." << endl;
         return false;
     }
-
-    // find an existing test data header for this data type and status:
     TESTDATA_TYPES testDataType(TD_FINE_LO_SWEEP);
-    headerId = findTestDataHeader(configId, FEICDataBase::null, testDataType, dataStatus, band);
-
-    if (headerId.valid()) {
-        LOG(LM_INFO) << context << ": attaching to existing testDataHeader " << headerId << endl;
-    } else {
-        // if not found, create one:
-        string notes = makeTestDataNotes(configId, testDataType, dataStatus, legend);
-        headerId = createTestDataHeader(configId, FEICDataBase::null, testDataType, dataStatus, band, notes, measSWVer_m);
-    }
+    string notes = makeTestDataNotes(configId, testDataType, dataStatus, legend);
+    headerId = createTestDataHeader(configId, FEICDataBase::null, testDataType, dataStatus, band, notes, measSWVer_m);
     return headerId.valid();
 }
 

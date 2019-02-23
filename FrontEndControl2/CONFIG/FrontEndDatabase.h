@@ -198,8 +198,8 @@ public:
                            double FreqLO, const std::string &legend, const IFPowerDataSet &data) const;
     ///< insert Y-factor data into the database.
 
-    bool findOrCreateFineLOSSweepDataHeader(ID_T &headerId, const ID_T &configId, DATASTATUS_TYPES dataStatus, unsigned band, const std::string &legend) const;
-    ///< create or find the latest test data header for saving multiple traces of Fine LO Sweep data.
+    bool createFineLOSweepDataHeader(ID_T &headerId, const ID_T &configId, DATASTATUS_TYPES dataStatus, unsigned band, const std::string &legend) const;
+    ///< create a new TDH for saving multiple traces of Fine LO Sweep data.
 
     bool insertFineLOSweepSubHeader(ID_T &subHeaderId, const ID_T &headerId, unsigned band, unsigned pol,
                                     float tiltAngle, double startLOFreq, double stopLOFreq, double stepLOFreq,
