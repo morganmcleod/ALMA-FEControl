@@ -69,6 +69,9 @@ DLLEXPORT short sigSrcLoadConfiguration(short configId);
 DLLEXPORT short sigSrcGetBand(short *band_p);
 ///< Get the cartridge band associated with the loaded configuration.
 
+DLLEXPORT short sigSrcIsErrorStop();
+///< Has the signal source stopped because of monitoring errors?
+
 DLLEXPORT short sigSrcGetAMBSIInfo(char *serialNum,
                                    char *firmwareRev,
                                    unsigned long *numErrors,

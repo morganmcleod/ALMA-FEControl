@@ -90,7 +90,16 @@ public:
     static void logAmbErrors(bool doLog)
       { logAmbErrors_m = doLog; }
     ///< enable/disable logging of CAN bus error messages.
-    
+    bool isErrorStop() const
+      { return exceededErrorCount_m; }
+    ///< return whether paused, either by user or measurement process or too many errors.
+    void setMaxErrorCount(unsigned maxErrorCount)
+      { maxErrorCount_m = maxErrorCount; }
+    ///< set the max communication errors which can happen before monitoring will automatically pause.
+    void resetErrorCount()
+      { errorCount_m = 0; exceededErrorCount_m = false; }
+    ///< reset the error counter
+
 // logging helpers and operations:
 
     /// types of device transactions which may be logged.
@@ -286,13 +295,7 @@ protected:
 
     virtual void monitorAction(Time *timestamp_p) = 0;
     ///< derived classes must declare a monitorAction method for the monitor thread to call.
-
-    inline bool exceededErrorCount() const
-      { return (maxErrorCount_m > 0) && (errorCount_m >= maxErrorCount_m); }
     
-    unsigned errorCount_m;      ///< count of errors seen by the monitor thread since started/unpaused.
-    unsigned maxErrorCount_m;   ///< maximum error count before the thread is paused.
-
 protected:
     bool minimalMonitoring_m;   ///< true if only the bare minimum monitoring should be performed.
     static bool randomizeAnalogMonitors_m;  ///< true if the analog monitoring should be done in randomized order. 
@@ -300,9 +303,16 @@ protected:
     static bool logAmbErrors_m; ///< true if AMB errors should be logged.
     
 private:
-    bool running;           ///< true if the monitor thread should continue to run.
-    bool paused;            ///< true if the monitor thread is paused.
+    bool running_m;             ///< true if the monitor thread should continue to run.
+    bool paused_m;              ///< true if the monitor thread is paused.
+    bool exceededErrorCount_m;  ///< true if the monitor thread stopped because of too many errors.
     
+    unsigned errorCount_m;      ///< count of errors seen by the monitor thread since started/unpaused.
+    unsigned maxErrorCount_m;   ///< maximum error count before the thread is stopped.
+
+    void checkExceededErrorCount();
+    //< private helper to check whether maxErrorCount_m is newly exceeded.
+
     FEHardwareDevice(const FEHardwareDevice &other);
     ///< forbid copy construct.
 
@@ -316,7 +326,7 @@ private:
     ///< the interface to use for all transaction logging.
     
     pthread_t thread_m; ///< the monitor thread handle.
-    bool stopped;       ///< true when the monitor thread has stopped and may be destroyed.
+    bool stopped_m;       ///< true when the monitor thread has stopped and may be destroyed.
 
     static void *monitorThread(FEHardwareDevice *dev);
     ///< the monitor thread runner function.  Calls derived class' monitorAction().

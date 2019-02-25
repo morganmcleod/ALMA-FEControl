@@ -218,7 +218,7 @@ DLLEXPORT short sigSrcGetNextConfiguration(short reset, short *configId, char *d
         } else {
             *configId = (*nextConfig).configId_m;
             strcpy(description, (*nextConfig).description_m.c_str());
-            LOG(LM_INFO) << "sigSrcGetNextConfiguration: " << description << endl;
+            LOG(LM_INFO) << "RF Src: " << description << endl;
             ret = true;
         }
     }
@@ -270,6 +270,7 @@ DLLEXPORT short sigSrcLoadConfiguration(short configId) {
     configMgr.configure(config, *sigSrc);
     sigSrcValid = true;
     LOG(LM_INFO) << "sigSrcLoadConfiguration successful" << endl;
+    sigSrc -> queryCartridgeState();
     return 0;
 }
 
@@ -287,6 +288,13 @@ DLLEXPORT short sigSrcGetBand(short *band_p) {
     (*band_p) = (short) sigSrcWCA_p -> getBand();
     LOG(LM_INFO) << "sigSrcGetBand: returning band " << (*band_p) << "." << endl;
     return 0;
+}
+
+DLLEXPORT short sigSrcIsErrorStop() {
+    if (!sigSrcValid)
+        return 1;
+    else
+        (sigSrc -> isErrorStop()) ? 1 : 0;
 }
 
 DLLEXPORT short sigSrcGetAMBSIInfo(char *_serialNum,

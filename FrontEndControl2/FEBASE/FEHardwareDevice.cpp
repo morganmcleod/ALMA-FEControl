@@ -14,10 +14,11 @@ FEHardwareDevice::LogInterface *FEHardwareDevice::logger_mp(NULL);
 FEHardwareDevice::FEHardwareDevice(const std::string &name)
   : AmbDeviceImpl(name),
     ESN_m(),
-    running(false),
+    running_m(false),
     minimalMonitoring_m(false),
-    stopped(true),
-    paused(false),
+    stopped_m(true),
+    paused_m(false),
+    exceededErrorCount_m(false),
     errorCount_m(0),
     maxErrorCount_m(0)
     {} 
@@ -29,36 +30,36 @@ FEHardwareDevice::~FEHardwareDevice() {
 // monitor thread operations:    
 
 void FEHardwareDevice::startMonitor() {
-    if (running)
+    if (running_m)
         return;
-    stopped = false;
+    stopped_m = false;
     LOG(LM_INFO) << "FEHardwareDevice(" << name_m << "): starting monitor thread..." << endl;
     pthread_create(&thread_m, NULL, reinterpret_cast<void*(*)(void*)>(monitorThread), this); 
     pthread_detach(thread_m);
-    running = true;
-    errorCount_m = 0;
+    running_m = true;
+    resetErrorCount();
 }
 
 void FEHardwareDevice::stopMonitor() {
-    if (!running)
+    if (!running_m)
         return;
     LOG(LM_INFO) << "FEHardwareDevice(" << name_m << "): stopping monitor thread..." << endl;
-    running = false;
+    running_m = false;
     int retry = 250;
-    while (!stopped && retry--)
+    while (!stopped_m && retry--)
         SLEEP(100);
     int elapsed = (250 - retry) / 10;
-    if (!stopped)
+    if (!stopped_m)
         LOG(LM_INFO) << "FEHardwareDevice(" << name_m << "): NOT stopped after " << elapsed << " seconds." << endl;
 }
 
 void FEHardwareDevice::pauseMonitor(bool pause, const char *reason) {
-    if (paused != pause) {
-        paused = pause;
-        LOG(LM_INFO) << "FEHardwareDevice(" << name_m << "): " << ((paused) ? "paused monitoring. " : "resumed monitoring. ")
+    if (paused_m != pause) {
+        paused_m = pause;
+        LOG(LM_INFO) << "FEHardwareDevice(" << name_m << "): " << ((paused_m) ? "paused monitoring. " : "resumed monitoring. ")
                      << (reason ? reason : "") << endl; 
-        if (!paused)
-            errorCount_m = 0;
+        if (!paused_m)
+            resetErrorCount();
     }
 }
 
@@ -346,6 +347,13 @@ FEHardwareDevice::FEMC_ERROR FEHardwareDevice::syncMonitorAverage(AmbRelativeAdd
     return ret;
 }
 
+void FEHardwareDevice::checkExceededErrorCount() {
+    if (!exceededErrorCount_m && maxErrorCount_m > 0 && errorCount_m > maxErrorCount_m) {
+        exceededErrorCount_m = true;
+        pauseMonitor(true, "Too many AMB/FEMC errors.");
+    }
+}
+
 // implement the monitor thread:
 void *FEHardwareDevice::monitorThread(FEHardwareDevice *dev) {
     // refuse to run if not passed an owner pointer:
@@ -356,26 +364,28 @@ void *FEHardwareDevice::monitorThread(FEHardwareDevice *dev) {
     
 	while (true) {
         // signal back to the owner whether running or stopped:
-        dev -> stopped = (!dev -> running);
+        dev -> stopped_m = (!dev -> running_m);
 
-        if (dev -> stopped) {
+        if (dev -> stopped_m) {
             // If stopped, worker thread dies:
             LOG(LM_TRACE) << "FEHardwareDevice(" << dev -> name_m << "): exiting monitor thread." << endl;
             pthread_exit(NULL);
         
-        } else if (!dev -> paused) {
-            // If not stopped, call the derived class' monitorAction:
+        } else if (!dev -> paused_m) {
+            // If not paused, call the derived class' monitorAction:
     		Time timestamp;
     		setTimeStamp(&timestamp);
             dev -> monitorAction(&timestamp);
         }
-        // check for too many errors meaning monitoring should be paused:
-        if (dev -> exceededErrorCount())
-            dev -> pauseMonitor(true, "Too many AMB/FEMC errors.");
-        
+        // check if we should stop because of too many errors:
+        dev -> checkExceededErrorCount();
+
         // pause between calls to monitorAction:
         SLEEP(5);
     }
 	return NULL;
 }
+
+
+
 

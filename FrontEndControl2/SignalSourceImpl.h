@@ -72,6 +72,7 @@ public:
     float getAMBSITemperature() const;
 
 // Subsystem monitor points handled by FEMC module:
+    virtual unsigned char numEnabledModules();
     unsigned short powerGetMonitorNumEnabled();
 
 // Cartridge monitor points:

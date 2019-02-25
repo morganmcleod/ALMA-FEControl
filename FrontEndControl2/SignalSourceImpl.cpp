@@ -47,6 +47,7 @@ SignalSourceImpl::SignalSourceImpl(unsigned long channel,
 { 
     setESN(ESN);
     initialize(channel, nodeAddress);
+    FEHardwareDevice::setMaxErrorCount(5);
 }
 
 SignalSourceImpl::~SignalSourceImpl() {
@@ -55,15 +56,29 @@ SignalSourceImpl::~SignalSourceImpl() {
 
 void SignalSourceImpl::initialize(unsigned long channel, unsigned long nodeAddress) {
     FrontEndImplBase::initialize(channel, nodeAddress);
-    unsigned char stat = specialGetSetupInfo();
-    if (stat == 0 || stat == 5) {
-        connected_m = true;
-        AMBSIFirmwareRev();
-        AMBSILibraryVersion();
-        FEMCFirmwareVersion();
-        FEMCFPGAVersion();
-        AMBSISerialNum();
+    int retries = 20;
+    while (retries && !connected_m) {
+        unsigned char stat = specialGetSetupInfo();
+        if (stat == 0 || stat == 5) {
+            connected_m = true;
+            FEHardwareDevice::resetErrorCount();
+            LOG(LM_INFO) << "Connected to RF signal source on CAN" << channel
+                         << " at nodeAddress=0x" << uppercase << hex << setw(2) << setfill('0') << nodeAddress << dec << setw(0)
+                         << " AMBSI serialNum=" << AMBSISerialNum() << endl;
+            AMBSIFirmwareRev();
+            AMBSILibraryVersion();
+            FEMCFirmwareVersion();
+            FEMCFPGAVersion();
+        } else {
+            retries--;
+            string msg("Waiting to connect to RF signal source. Retries=");
+            msg += to_string(retries);
+            LOG(LM_INFO) << msg << endl;
+            SLEEP(1000);
+        }
     }
+    if (!connected_m)
+        LOG(LM_ERROR) << "Not connected to RF signal source." << endl;
 }
 
 void SignalSourceImpl::shutdown() {
@@ -86,7 +101,7 @@ void SignalSourceImpl::stopMonitor() {
 }
 
 void SignalSourceImpl::queryCartridgeState() {
-    if (cart_mp) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp) {
         if (FrontEndImplBase::powerEnableModule(port_m)) {
             LOG(LM_INFO) << "SignalSourceImpl::queryCartridgeState is enabled at port=" << port_m << endl;
             cart_mp -> setEnable();
@@ -118,19 +133,26 @@ float SignalSourceImpl::getAMBSITemperature() const {
     return AMBSITemperature_value;
 }
 
+unsigned char SignalSourceImpl::numEnabledModules() {
+    if (!FEHardwareDevice::isErrorStop())
+        return FrontEndImplBase::numEnabledModules();
+    else
+        return 0;
+}
+
 unsigned short SignalSourceImpl::powerGetMonitorNumEnabled() {
     return numEnabledModules();
 }
 
 bool SignalSourceImpl::cartGetMonitorYTO(WCAImpl::YTO_t &target) const {
-    if (cart_mp)
+    if (!FEHardwareDevice::isErrorStop() && cart_mp)
         return cart_mp -> getMonitorYTO(target);
     target.reset();
     return false;
 }
 
 bool SignalSourceImpl::cartGetMonitorPhotomixer(WCAImpl::Photomixer_t &target) const {
-    if (cart_mp) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp) {
         const WCAImpl *wca = cart_mp -> getWCA();
         if (wca)
             return wca -> getMonitorPhotomixer(target);
@@ -139,7 +161,7 @@ bool SignalSourceImpl::cartGetMonitorPhotomixer(WCAImpl::Photomixer_t &target) c
 }
 
 bool SignalSourceImpl::cartGetMonitorPLL(WCAImpl::PLL_t &target) const {
-    if (cart_mp) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp) {
         const WCAImpl *wca = cart_mp -> getWCA();
         if (wca)
             return wca -> getMonitorPLL(target);
@@ -148,7 +170,7 @@ bool SignalSourceImpl::cartGetMonitorPLL(WCAImpl::PLL_t &target) const {
 }
 
 bool SignalSourceImpl::cartGetMonitorAMC(WCAImpl::AMC_t &target) const {
-    if (cart_mp) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp) {
         const WCAImpl *wca = cart_mp -> getWCA();
         if (wca)
             return wca -> getMonitorAMC(target);
@@ -157,7 +179,7 @@ bool SignalSourceImpl::cartGetMonitorAMC(WCAImpl::AMC_t &target) const {
 }
 
 bool SignalSourceImpl::cartGetMonitorPA(WCAImpl::PA_t &target) const {
-    if (cart_mp) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp) {
         const WCAImpl *wca = cart_mp -> getWCA();
         if (wca)
             return wca -> getMonitorPA(target);
@@ -169,6 +191,7 @@ bool SignalSourceImpl::cartGetMonitorPA(WCAImpl::PA_t &target) const {
 // Functions to add and remove sub-assemblies:
 bool SignalSourceImpl::addCartridge(int port, WCAImpl &WCA) {
     deleteCartridge();
+    WCA.FEHardwareDevice::setMaxErrorCount(5);
     cart_mp = new CartAssembly("SignalSource", &WCA, NULL);
     port_m = port;
     return true;
@@ -204,7 +227,7 @@ bool SignalSourceImpl::setYIGLimits(double FLOYIG, double FHIYIG) {
 // Functions to manage the power and enabled/standby/observing status of the cartridges:    
 
 bool SignalSourceImpl::setCartridgeOff() {
-    if (cart_mp) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp) {
         LOG(LM_INFO) << "SignalSourceImpl::setCartridgeOff" << endl;
         cart_mp -> clearEnable();
         powerEnableModule(port_m, false);
@@ -218,7 +241,7 @@ bool SignalSourceImpl::setCartridgeOff() {
 }
 
 bool SignalSourceImpl::setCartridgeOn() {
-    if (cart_mp) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp) {
         LOG(LM_INFO) << "SignalSourceImpl::setCartridgeOn" << endl;
         cart_mp -> setEnable();
         powerEnableModule(port_m, true);
@@ -250,7 +273,7 @@ bool SignalSourceImpl::cartPauseMonitor(bool pause) {
 // Control commands for CartAssemblies:
 
 bool SignalSourceImpl::cartSetLOFrequency(double freqLO, double freqFLOOG, int sbLock) {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         LOG(LM_INFO) << "SignalSourceImpl::cartSetLOFrequency port=" << port_m << " freqLO= " << freqLO
             << " freqFLOOG=" << freqFLOOG << " sbLock=" << sbLock << endl;
 
@@ -271,7 +294,7 @@ bool SignalSourceImpl::cartSetLOFrequency(double freqLO, double freqFLOOG, int s
 }
 
 bool SignalSourceImpl::cartGetLOFrequency(double &freqLO, double &freqREF) const {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         bool ret = cart_mp -> getLOFrequency(freqLO, freqREF);
 
         // the band 1 signal source has a x2 multiplier that the LO doesn't have:
@@ -286,7 +309,7 @@ bool SignalSourceImpl::cartGetLOFrequency(double &freqLO, double &freqREF) const
 }
 
 bool SignalSourceImpl::cartLockPLL() {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         LOG(LM_INFO) << "SignalSourceImpl::cartLockPLL port=" << port_m << endl;
         bool ret = cart_mp -> lockPLL();
         if (!ret) {
@@ -314,7 +337,7 @@ bool SignalSourceImpl::cartLockPLL() {
 }
 
 bool SignalSourceImpl::cartGetLocked() {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         WCAImpl *wca = cart_mp -> useWCA();
         return wca -> interrogateLock();
     }
@@ -322,7 +345,7 @@ bool SignalSourceImpl::cartGetLocked() {
 }
 
 bool SignalSourceImpl::cartAdjustPLL(float targetCorrVoltage) {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         LOG(LM_INFO) << "SignalSourceImpl::cartAdjustPLL port=" << port_m << " targetCV=" << targetCorrVoltage << endl;
         bool ret = cart_mp -> adjustPLL(targetCorrVoltage);
         if (ret) {
@@ -346,7 +369,7 @@ bool SignalSourceImpl::cartAdjustPLL(float targetCorrVoltage) {
 }
 
 bool SignalSourceImpl::cartAdjustYTO(int steps) {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         LOG(LM_INFO) << "SignalSourceImpl::cartAdjustYTO port=" << port_m << " steps=" << steps << endl;
         return cart_mp -> adjustYTO(steps);
     } else {
@@ -360,7 +383,7 @@ bool SignalSourceImpl::cartAdjustYTO(int steps) {
 }
 
 bool SignalSourceImpl::cartNullPLLIntegrator(bool enable) {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         LOG(LM_INFO) << "SignalSourceImpl::cartNullPLLIntegrator port=" << port_m << " enable=" << enable << endl;
         return cart_mp -> nullPLLIntegrator(enable);
     } else {
@@ -374,7 +397,7 @@ bool SignalSourceImpl::cartNullPLLIntegrator(bool enable) {
 }
 
 bool SignalSourceImpl::cartGetNullPLLIntegrator() const {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         return cart_mp -> getNullPLLIntegrator();
     } else
         return false;
@@ -386,7 +409,7 @@ bool SignalSourceImpl::cartSetLOPowerAmps(bool enable,
                                       const float *VDP1, 
                                       const float *VGP1)
 {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         LOG(LM_INFO) << "SignalSourceImpl::cartSetLOPowerAmps port=" << port_m << " enable=" << enable
             << " VDP0=" << (VDP0 ? *VDP0 : 0) << " VGP0=" << (VGP0 ? *VGP0 : 0)
             << " VDP1=" << (VDP1 ? *VDP1 : 0) << " VGP1=" << (VGP1 ? *VGP1 : 0) << endl;
@@ -407,7 +430,7 @@ bool SignalSourceImpl::cartGetLOPowerAmpsSetting(bool &enable,
                                                  float *VDP1,
                                                  float *VGP1)
 {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         const WCAImpl *wca = cart_mp -> getWCA();
         if (wca) {
             enable = wca -> getPAEnableSetting();
@@ -427,14 +450,14 @@ bool SignalSourceImpl::cartGetLOPowerAmpsSetting(bool &enable,
 }
 
 bool SignalSourceImpl::cartGetEnableLOPowerAmps() const {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA())
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA())
         return cart_mp -> getLOPowerAmpsEnable();
     else
         return false;
 }
 
 bool SignalSourceImpl::cartSetEnableLO(bool enable) {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         WCAImpl *wca = cart_mp -> useWCA();
         if (wca) {
             LOG(LM_INFO) << "SignalSourceImpl::cartSetEnableLO port=" << port_m << " enable=" << enable << endl;
@@ -448,7 +471,7 @@ bool SignalSourceImpl::cartSetEnableLO(bool enable) {
 }
 
 bool SignalSourceImpl::cartSetLOPower(int pol, float percent) {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         WCAImpl *wca = cart_mp -> useWCA();
         if (wca) {
             LOG(LM_INFO) << "SignalSourceImpl::cartSetLOPower port=" << port_m << " pol=" << pol << " percent=" << percent << endl;
@@ -461,7 +484,7 @@ bool SignalSourceImpl::cartSetLOPower(int pol, float percent) {
 }
 
 bool SignalSourceImpl::cartSetAMC(const float *VDE, const float *VGE) {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         LOG(LM_INFO) << "SignalSourceImpl::cartSetAMC port=" << port_m << " VDE=" << (VDE ? *VDE : 0) << " VGE=" << (VGE ? *VGE : 0) << endl;
         return cart_mp -> setAMC(VDE, VGE);
     } else {
@@ -475,7 +498,7 @@ bool SignalSourceImpl::cartSetAMC(const float *VDE, const float *VGE) {
 }
 
 bool SignalSourceImpl::cartSetEnablePhotomixer(bool enable) {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         LOG(LM_INFO) << "SignalSourceImpl::cartSetEnablePhotomixer port=" << port_m << " enable=" << enable << endl;
         return cart_mp -> setEnablePhotomixer(enable);
     } else {
@@ -489,7 +512,7 @@ bool SignalSourceImpl::cartSetEnablePhotomixer(bool enable) {
 }
 
 bool SignalSourceImpl::cartGetEnablePhotomixer() const {
-    if (cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA())
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA())
         return cart_mp -> getEnablePhotomixer();
     else
         return false;
