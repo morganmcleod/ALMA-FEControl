@@ -69,6 +69,10 @@ DLLEXPORT short FEControlShutdown();
 DLLEXPORT short FEMCExit();
 ///< Shutdown the firmware on the FE M&C module.
 
+DLLEXPORT short FEGetConfigSN(long *configId, char *serialNum);
+///< Return the currently configured FE serial number
+///<  and the latest configuration ID for this FE.
+
 DLLEXPORT short FEMCGetAMBSIInfo(char *serialNum,
                                  char *firmwareRev, 
                                  unsigned long *numErrors, 

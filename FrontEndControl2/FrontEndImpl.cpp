@@ -582,6 +582,12 @@ void FrontEndImpl::setFrontEndSN(const std::string &SN) {
     SN_m = numericPortion<unsigned>(SN);
 }
 
+const std::string &FrontEndImpl::getFrontEndSN() const {
+    static string SN;
+    SN = to_string(SN_m);
+    return SN;
+}
+
 unsigned char FrontEndImpl::specialGetSetupInfo() {
     unsigned char ret = FrontEndImplBase::specialGetSetupInfo();
     AMBSIFirmwareRev();

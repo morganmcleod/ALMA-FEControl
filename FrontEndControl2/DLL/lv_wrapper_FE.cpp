@@ -337,6 +337,18 @@ DLLEXPORT short FEMCExit() {
     return 0;
 }
 
+DLLEXPORT short FEGetConfigSN(long *_configId, char *_serialNum) {
+    if (!FEValid || !_configId || !_serialNum)
+        return -1;
+
+    FEICDataBase::ID_T configId;
+    frontEnd -> getDbConfigId(configId);
+    *_configId = configId.keyId;
+
+    std::string serialNum = frontEnd -> getFrontEndSN();
+    strcpy(_serialNum, serialNum.c_str());
+    return 0;
+}
 
 DLLEXPORT short FEMCGetAMBSIInfo(char *_serialNum,
                                  char *_firmwareRev, 

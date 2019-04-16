@@ -71,7 +71,7 @@ public:
     virtual void stopMonitor();
 
 // Health check:
-    bool getDbConfigId(FEICDataBase::ID_T &onfigId) const;
+    bool getDbConfigId(FEICDataBase::ID_T &configId) const;
     bool startHealthCheck(short dataStatus);
     bool cartHealthCheck(int port, int warmUpTimeSeconds, bool includeIFPower);
     bool cartHealthCheckSaveIFPowerData(int port, const IFPowerDataSet &source);
@@ -83,6 +83,7 @@ public:
 
 // Configuration functions:
     void setFrontEndSN(const std::string &SN);
+    const std::string &getFrontEndSN() const;
 
 // Functions to add and remove sub-assemblies:
     bool addCartridge(int port, WCAImpl &WCA, ColdCartImpl &coldCart);
