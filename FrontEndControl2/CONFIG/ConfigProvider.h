@@ -28,13 +28,19 @@
 #include <vector>
 
 namespace FEConfig {
-
+    // Forward-declare classes passed by-reference to this interface:
     class FrontEndConfig;
     class CryostatConfig;
     class CartAssemblyConfig;
     class ColdCartConfig;
     class LPRConfig;
     class WCAConfig;
+
+    // Forward declare classes passed by-reference to descendant interfaces:
+    class MixerParams;
+    class MagnetParams;
+    class PreampParams;
+    class PowerAmpParams;
 
     /// A ConfigProver loads FE configuration data from a database.
     /// The abstract base class declares the interface that a real provider must implement.

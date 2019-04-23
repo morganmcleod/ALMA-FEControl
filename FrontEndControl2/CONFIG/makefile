@@ -26,13 +26,14 @@
 # MySQL C API version 4.1 or later from http://www.mysql.com/
 #
 
-CONFIGCPP = CartConfig.cpp ConfigManager.cpp Configuration.cpp ConfigProviderIniFile.cpp \
-    ConfigProviderMySQL.cpp FrontEndConfig.cpp FrontEndDatabase.cpp LookupTables.cpp SubsysConfig.cpp
+CONFIGCPP = CartConfig.cpp ConfigManager.cpp Configuration.cpp \
+	ConfigProviderIniFile.cpp ConfigProviderMySQL.cpp \
+	FrontEndConfig.cpp FrontEndDatabase.cpp LookupTables.cpp SubsysConfig.cpp XMLParser.cpp
 
 .PHONY: config
 config: $(CONFIGCPP)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) \
-	$(DBINC) $(PORTABLEINC) $(PROJECTINC) $(MYSQLINC) \
+	$(DBINC) $(PORTABLEINC) $(PROJECTINC) $(MYSQLINC) $(EXPATMMINC) \
 	-c $(CONFIGCPP)
 
 clean:

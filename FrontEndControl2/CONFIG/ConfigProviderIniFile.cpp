@@ -23,9 +23,11 @@
 
 #include "ConfigProviderIniFile.h"
 #include "FrontEndConfig.h"
+#include "XMLParser.h"
 #include "iniFile.h"
 #include "setTimeStamp.h"
 #include "stringConvert.h"
+#include "splitPath.h"
 #include <stdlib.h>         // for atof()
 #include <stdio.h>          // for sprintf()
 using namespace std;
@@ -33,8 +35,8 @@ using namespace std;
 namespace FEConfig {
 
 ConfigProviderIniFile::ConfigProviderIniFile(const std::string& filename)
+  : iniFile_mp(new CIniFile(filename))
 {
-    iniFile_mp = new CIniFile(filename);
     iniFile_mp -> ReadFile();
 }
 
@@ -288,6 +290,24 @@ bool ConfigProviderIniFile::getColdCartConfig(unsigned keyFacility, unsigned key
     target.ESN_m = iniFile_mp -> GetValue(sectionName, "ESN");
     target.description_m = iniFile_mp -> GetValue(sectionName, "Description");
     
+    // If the XML key is defined, load the configuration from the XML file instead:
+    tmp = iniFile_mp -> GetValue(sectionName, "XML");
+    if (!tmp.empty()) {
+        string xmlFile(tmp);
+        string iniFile(iniFile_mp -> Path());
+        string iniPath;
+
+        // get the path where the FrontendControlDLL.ini file is located:
+        splitPath(iniFile, iniPath, tmp);
+        if (iniPath.empty())
+            iniPath = ".";
+
+        xmlFile = iniPath + "/" + xmlFile;
+
+        XMLParser xmlParser(xmlFile);
+        return xmlParser.getColdCartConfig(target);
+    }
+
     tmp = iniFile_mp -> GetValue(sectionName, "MixerParams");
     if (!tmp.empty())
         numParams = from_string<unsigned>(tmp);
@@ -385,6 +405,24 @@ bool ConfigProviderIniFile::getWCAConfig(unsigned keyFacility, unsigned keyWCA, 
     target.ESN_m = iniFile_mp -> GetValue(sectionName, "ESN");
     target.description_m = iniFile_mp -> GetValue(sectionName, "Description");
     
+    // If the XML key is defined, load the configuration from the XML file instead:
+    tmp = iniFile_mp -> GetValue(sectionName, "XML");
+    if (!tmp.empty()) {
+        string xmlFile(tmp);
+        string iniFile(iniFile_mp -> Path());
+        string iniPath;
+
+        // get the path where the FrontendControlDLL.ini file is located:
+        splitPath(iniFile, iniPath, tmp);
+        if (iniPath.empty())
+            iniPath = ".";
+
+        xmlFile = iniPath + "/" + xmlFile;
+
+        XMLParser xmlParser(xmlFile);
+        return xmlParser.getWCAConfig(target);
+    }
+
     tmp = iniFile_mp -> GetValue(sectionName, "FLOYIG");
     if (!tmp.empty())
         target.FLOYIG_m = (float) atof(tmp.c_str());

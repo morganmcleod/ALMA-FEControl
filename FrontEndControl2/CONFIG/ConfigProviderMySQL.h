@@ -28,11 +28,6 @@
 class FrontEndDatabase;
 
 namespace FEConfig {
-    class MixerParams;
-    class MagnetParams;
-    class PreampParams;
-    class PowerAmpParams;
-
     /// Loads FE configuration data from a MySQL database connection.
     class ConfigProviderMySQL : public ConfigProvider {
     public:

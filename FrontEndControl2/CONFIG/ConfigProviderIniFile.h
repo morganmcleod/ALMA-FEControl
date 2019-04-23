@@ -25,13 +25,11 @@
 
 #include "ConfigProvider.h"
 #include <string>
+
+// Forward-declare implementation class for INI file parser:
 class CIniFile;
 
 namespace FEConfig {
-    class MixerParams;
-    class MagnetParams;
-    class PreampParams;
-    class PowerAmpParams;
 
     /// Loads FE configuration data from a MySQL database connection.
     class ConfigProviderIniFile : public ConfigProvider {
@@ -135,7 +133,7 @@ namespace FEConfig {
         ///< private helper to extract a double from the given string formatted as one of the above.
         ///< extraction starts at nextPos.  Also nextPos returns the position of the next item in the string.
         
-        CIniFile *iniFile_mp; ///< ini file to use
+        CIniFile *iniFile_mp;       ///< ini file to use
     };
 
 }; // namespace FEConfig

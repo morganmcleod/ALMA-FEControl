@@ -31,6 +31,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FrontEndAMBLib/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FrontEndAMBLib/include/FrontEndAMB}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;L:\ALMA-FEControl\3rdparty\drmingw\include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\MinGW\msys\1.0\local\include\expatmm-1.0&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.959356085" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>

@@ -39,6 +39,9 @@ PORTABLELIB = $(PTHREADLIB) $(STATICGCCLIB)
 export EXCHNDLINC = -I$(BUILD)/3rdparty/drmingw/include
 EXCHNDLIB = -L$(BUILD)/3rdparty/drmingw/lib -lexchndl
 
+export EXPATMMINC = -IC:\MinGW\msys\1.0\local\include\expatmm-1.0
+EXPATMMLIB = -LC:\MinGW\msys\1.0\local\lib -lexpatmm
+
 # includes and libs for the CppUtilityLib library:
 export UTILINC = -I$(BUILD)/CppUtilityLib/include
 UTILLIB = -L$(BUILD)/CppUtilityLib/Debug -lCppUtilityLib
@@ -72,7 +75,7 @@ export DEBUGFLAGS = -g2 -fno-omit-frame-pointer
 
 # list of output files in subdirectories:
 CONFIGOUT = CONFIG/CartConfig.o CONFIG/ConfigManager.o CONFIG/Configuration.o CONFIG/ConfigProviderIniFile.o CONFIG/ConfigProviderMySQL.o \
-	CONFIG/FrontEndConfig.o CONFIG/FrontEndDatabase.o CONFIG/LookupTables.o CONFIG/SubsysConfig.o
+	CONFIG/FrontEndConfig.o CONFIG/FrontEndDatabase.o CONFIG/LookupTables.o CONFIG/SubsysConfig.o CONFIG/XMLParser.o
 FEBASEOUT = FEBASE/AMBSIHardwareDevice.o \
 	FEBASE/ColdCartImplBase.o FEBASE/CompressorImplBase.o FEBASE/CryostatImplBase.o \
 	FEBASE/FETIMImplBase.o FEBASE/FEHardwareDevice.o FEBASE/FrontEndImplBase.o \
@@ -130,7 +133,7 @@ FrontEndControl.dll DLL/FrontEndControl.def: $(DLLCPP) $(ALLOUT)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -DBUILD_FRONTENDCONTROL -shared -o FrontEndControl.dll \
 	$(DLLCPP) $(ALLOUT) \
 	$(PROJECTINC) $(PORTABLEINC) $(MYSQLINC) \
-	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIB) $(NICANLIB) $(PORTABLELIB) $(EXCHNDLIB) \
+	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIB) $(NICANLIB) $(PORTABLELIB) $(EXCHNDLIB) $(EXPATMMLIB) \
 	-Wl,--enable-auto-import,--output-def,DLL/FrontEndControl.def
 #	- cp FrontEndControl.dll "../../labview2013/drivers/FE Control/"
 
@@ -187,7 +190,7 @@ t_FEICDataBase.exe : tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp
 all: allout dll tests
 
 current:
-	$(MAKE) -C FEBASE
+	$(MAKE) -C CONFIG
 
 oneFile:
 	$(MAKE) FEMCEventQueue.o
