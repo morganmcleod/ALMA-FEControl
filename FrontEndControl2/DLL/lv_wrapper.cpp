@@ -53,7 +53,7 @@ namespace FrontEndLVWrapper {
 };
 using namespace FrontEndLVWrapper;
 
-short LVWrapperInit() {
+short LVWrapperInit(std::string _logDir) {
     if (!connectedModules)
         pthread_mutex_init(&LVWrapperLock, NULL);
 
@@ -73,8 +73,10 @@ short LVWrapperInit() {
 	// initialize exception handling library:
 	ExcHndlInit();
 
-	char *fn=getenv("FRONTENDCONTROL.INI");
-    iniFileName = (fn) ? fn : "FrontendControlDLL.ini";
+	if (LVWrapperFindIniFile() != 0) {
+        LOG(LM_ERROR) << "LVWrapperInit: Failed to find FrontEndControlDLL.ini" << endl;
+        return -1;
+	}
     
     try {
         CIniFile configINI(iniFileName);
@@ -85,7 +87,7 @@ short LVWrapperInit() {
         setTimeStamp(&ts);
         timestampToText(&ts, tmp, true);
 
-        logDir = configINI.GetValue("logger", "logDir");
+        logDir = (_logDir.empty()) ? configINI.GetValue("logger", "logDir") : _logDir;
         string logFile = configINI.GetValue("logger", "logFile");
         string excHndlFile("");
         if (!logDir.empty()) {
@@ -223,6 +225,14 @@ short LVWrapperShutdown() {
     }
     return 0;
 }
+
+
+short LVWrapperFindIniFile() {
+    char *fn=getenv("FRONTENDCONTROL.INI");
+    iniFileName = (fn) ? fn : "FrontendControlDLL.ini";
+    return 0;
+}
+
 
 DLLEXPORT short getSoftwareVersion(char *versionString) {
     if (!versionString)

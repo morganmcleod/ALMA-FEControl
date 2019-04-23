@@ -58,7 +58,6 @@ namespace FrontEndLVWrapper {
     unsigned long facilityId = 40;
     unsigned long configId = 1;
     bool logMonTimers = false;
-    bool configFromDatabase = false;
     bool allowSISHeaters = false;
     bool SISOpenLoop = false;
     short FEMode = 0;
@@ -78,6 +77,7 @@ namespace FrontEndLVWrapper {
     static bool FEValid = false;
     static int connectedFEClients = 0;
     std::string FineLoSweepIni("");
+    std::string FrontEndIni("");
 };
 using namespace FrontEndLVWrapper;
 
@@ -95,7 +95,49 @@ DLLEXPORT short FEControlInit() {
         LOG(LM_INFO) << "FEControlInit: connectedFEClients=" << connectedFEClients << endl;
         return 0;
     }
-    if (LVWrapperInit() < 0) {
+
+    if (LVWrapperFindIniFile() != 0) {
+        LOG(LM_ERROR) << "FEControlInit: Failed to find FrontEndControlDLL.ini" << endl;
+        return -1;
+    }
+
+    std::string iniPath, tmp, logDir;
+
+    try {
+        CIniFile configINI(iniFileName);
+        configINI.ReadFile();
+
+        // get the path where the FrontendControlDLL.ini file is located:
+        splitPath(iniFileName, iniPath, tmp);
+        if (iniPath.empty())
+            iniPath = ".";
+
+        // look for the item specifying a separate file for Front End configuration:
+        tmp = configINI.GetValue("configFiles", "FrontEnd");
+        if (tmp.empty()) {
+            // not found.  Continue using this file:
+            FrontEndIni = iniFileName;
+            // And don't override logDir:
+            logDir = "";
+        } else {
+            // Found: use the current ini files path plus the specified name:
+            FrontEndIni = iniPath + "/" + tmp;
+            // Override logDir with the same directory:
+            splitPath(FrontEndIni, logDir, tmp);
+        }
+
+        LOG(LM_INFO) << "Using FrontEnd configuration file '" << FrontEndIni << "'" << endl;
+        if (!logDir.empty())
+            LOG(LM_INFO) << "Overriding log directory '" << logDir << "'" << endl;
+
+    } catch (...) {
+        LOG(LM_ERROR) << "FEControlInit exception loading configuration file." << endl;
+        FEMCEventQueue::addStatusMessage(false, "An exception occurred while loading the configuration file.");
+        return -1;
+    }
+
+    // Initialize the DLL wrapper using our (possibly) overridden logDir:
+    if (LVWrapperInit(logDir) < 0) {
         LOG(LM_ERROR) << "FEControlInit: LVWrapperInit failed." << endl;
         return -1;
     }
@@ -103,12 +145,6 @@ DLLEXPORT short FEControlInit() {
     try {
         CIniFile configINI(iniFileName);
         configINI.ReadFile();
-        std::string iniPath, tmp;
-
-        // get the path where the FrontendControlDLL.ini file is located:
-        splitPath(iniFileName, iniPath, tmp);
-        if (iniPath.empty())
-            iniPath = ".";
 
         tmp = configINI.GetValue("connection", "channel");
         if (!tmp.empty())
@@ -186,11 +222,6 @@ DLLEXPORT short FEControlInit() {
             logMonTimers = (from_string<unsigned int>(tmp) != 0);
         LOG(LM_INFO) << "logMonTimers=" << logMonTimers << endl;
 
-        tmp = configINI.GetValue("configuration", "configFromDatabase");
-        if (!tmp.empty())
-            configFromDatabase = from_string<unsigned long>(tmp);
-        LOG(LM_INFO) << "configFromDatabase=" << configFromDatabase << endl;
-
         // look for the item specifying a separate file for FineLOSweep
         tmp = configINI.GetValue("configFiles", "FineLOSweep");
         if (tmp.empty())
@@ -199,7 +230,6 @@ DLLEXPORT short FEControlInit() {
         else
             // Found: use the current ini files path plus the specified name:
             FineLoSweepIni = iniPath + "/" + tmp;
-
         LOG(LM_INFO) << "FineLOSweep ini file='" << FineLoSweepIni  << "'" << endl;
 
     } catch (...) {
@@ -240,10 +270,7 @@ DLLEXPORT short FEControlInit() {
     // Load the default front end configuration:
     loadConfigIds();
     ConfigProvider *provider(NULL);
-    if (!configFromDatabase)
-        provider = new ConfigProviderIniFile(iniFileName);
-    else
-        provider = new ConfigProviderMySQL();
+    provider = new ConfigProviderIniFile(FrontEndIni);
 
     ConfigManager configMgr(*provider);
     Configuration config(facilityId, configId);
@@ -536,7 +563,7 @@ void createCartridge(int port, const FrontEndConfig &feConfig,
 
 void loadConfigIds() {
     // get the facility code from the new key facilityId:
-    CIniFile configINI(iniFileName);
+    CIniFile configINI(FrontEndIni);
     configINI.ReadFile();
     std::string tmp = configINI.GetValue("configuration", "facilityId");
     if (!tmp.empty())
@@ -563,10 +590,7 @@ DLLEXPORT short FELoadConfiguration(short configId_in) {
 
     // Load the default front end configuration:
     ConfigProvider *provider(NULL);
-    if (!configFromDatabase)
-        provider = new ConfigProviderIniFile(iniFileName);
-    else
-        provider = new ConfigProviderMySQL();
+    provider = new ConfigProviderIniFile(FrontEndIni);
 
     ConfigManager configMgr(*provider);
     Configuration config(facilityId, configId);

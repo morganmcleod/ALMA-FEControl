@@ -42,11 +42,17 @@ namespace FrontEndLVWrapper {
 
 // All functions return 0 for success or -1 for failure unless otherwise specified.
 
-short LVWrapperInit();
+short LVWrapperInit(std::string logDir = "");
 ///< Initialize the shared data.
+///< If logDir is not empty, use that directory for all logs and data.
+///< If empty or invalid, read the logDir entry from the [debug] section.
 
 short LVWrapperShutdown();
 ///< Disconnect from the shared data.
+
+short LVWrapperFindIniFile();
+///< Helper to load the FrontEndControlDLL.ini file
+
 
 extern "C" {
 
