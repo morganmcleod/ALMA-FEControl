@@ -286,7 +286,7 @@ bool CartAssembly::setLOFrequency(double freqLO, double freqFLOOG, int sbLock) {
         default:
             break;
     }
-    LOG(LM_INFO) << "CartAssembly: Setting loop BW = " << (altLoopBW ? "ALTERNATE" : "NORMAL") << endl;
+    LOG(LM_DEBUG) << "CartAssembly: Setting loop BW = " << (altLoopBW ? "ALTERNATE" : "NORMAL") << endl;
     WCA_mp -> pllLoopBandwidthSelect(altLoopBW);
     
     double bandFreqMin = config_m.WCA_m.FLOYIG_m * multAMC_m * multCold_m;
@@ -313,7 +313,7 @@ bool CartAssembly::setLOFrequency(double freqLO, double freqFLOOG, int sbLock) {
     freqFLOOG_m = freqFLOOG;
     freqREF_m = freqREF; 
    
-    LOG(LM_INFO) << "CartAssembly: Setting PLL_LOCK_POL = " << ((sbLock == 1) ? "1 Above Ref." : "0 Below Ref.") << endl;
+    LOG(LM_DEBUG) << "CartAssembly: Setting PLL_LOCK_POL = " << ((sbLock == 1) ? "1 Above Ref." : "0 Below Ref.") << endl;
     WCA_mp -> pllSidebandLockSelect(sbLock);
 
     bool lastNull = WCA_mp -> pllNullLoopIntegrator(); 
@@ -419,7 +419,7 @@ int CartAssembly::getCoarseYIG(double &freqYIG, double &freqREF,
 
     int coarseYIG = YIGFreqToCoarse(freqYIG);
 
-    LOG(LM_INFO) << "getCoarseYIG: band=" << band_m << fixed << setprecision(6)
+    LOG(LM_DEBUG) << "getCoarseYIG: band=" << band_m << fixed << setprecision(6)
         << " freqLO=" << freqLO << " freqFLOOG=" << freqFLOOG << " freqREF=" << freqREF << " freqYIG=" << freqYIG
         << " coarseYIG=" << coarseYIG << " lock=" << ((sbLock == 1) ? "above ref" : "below ref") << endl;
     return coarseYIG;
@@ -443,7 +443,7 @@ double CartAssembly::YIGCourseToFreq(int coarseYIG) const {
 bool CartAssembly::nullPLLIntegrator(bool enable) {
     if (!checkWCA("CartAssembly::nullPLLIntegrator"))
         return false;
-    LOG(LM_INFO) << "Setting PLL_NULL_INTEGRATOR=" <<  (enable ? "1" : "0") << endl;
+    LOG(LM_DEBUG) << "Setting PLL_NULL_INTEGRATOR=" <<  (enable ? "1" : "0") << endl;
     WCA_mp -> pllNullLoopIntegrator(enable);
     return true;    
 }

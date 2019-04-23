@@ -31,11 +31,11 @@ FETIMImpl::FETIMImpl(unsigned long channel,
 {
     setESN(ESN);
     FETIMImplBase::initialize(channel, nodeAddress);
-    FEHardwareDevice::maxErrorCount_m = 1;
+    FEHardwareDevice::setMaxErrorCount(1);
 }
 
 bool FETIMImpl::getMonitorFETIM(FETIM_t &target) {
-    if (FEHardwareDevice::exceededErrorCount())
+    if (FEHardwareDevice::isErrorStop())
         return false;
 
     memset(&target, 0, sizeof(target));

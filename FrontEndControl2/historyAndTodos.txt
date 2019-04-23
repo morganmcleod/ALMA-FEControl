@@ -38,8 +38,13 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
-2.9.3 2019-04-11
-  Added DLLEXPORT short FEGetConfigSN(long *configId, char *serialNum);
+2.10.0 2019-02-25
+  Added export sigSrcIsErrorStop() to check whether signal source has stopped because of CAN errors.
+  Improve FEHardwareDevice error stop semantics.
+
+2.9.3-beta1
+  Always create a new TDH when measuring Fine LO Sweep
+  Set repetitive Fine LO Sweep log messages to LM_DEBUG in CartAssembly
 
 2.9.2 2018-10-17
   Changed logging of found ESNs

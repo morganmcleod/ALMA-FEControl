@@ -70,6 +70,7 @@ private:
 
     FEICDataBase::ID_T feConfig_m;  ///< configuration ID for the front end
     FEICDataBase::DATASTATUS_TYPES dataStatus_m;    ///< data status for saving results
+    FrontEndDatabase::ID_T testDataHeaderId_m;      ///< TestDataHeader key for saving results
 
     int pol_m;                  ///< Polarization to measure
     float tiltAngle_m;          ///< Tilt elevation of this measurement
