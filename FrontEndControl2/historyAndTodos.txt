@@ -38,6 +38,14 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.10.1 2019-04-23
+  Added DLLEXPORT short FEGetConfigSN(long *configId, char *serialNum);
+  When loading CCA and WCA config, if XML key is present load config from the specified XML file.
+  Added option to load the FrontEnd configuration from a separate ini file, specified in [configFiles] FrontEnd=???
+  If found, overrides logDir to use the same directory.
+  Removed ConfigFromDatabase option.
+  Now requires libexpatmm-0.dll
+
 2.10.0 2019-02-25
   Added export sigSrcIsErrorStop() to check whether signal source has stopped because of CAN errors.
   Improve FEHardwareDevice error stop semantics.
