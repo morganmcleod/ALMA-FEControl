@@ -38,6 +38,10 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.10.2 2019-04-24
+  Moved FrontEndIni loading and logDir override into lv_wrapper.cpp so that it works consistently 
+  when SignalSource.vi or LORTM.vi is executed first.
+
 2.10.1 2019-04-23
   Added DLLEXPORT short FEGetConfigSN(long *configId, char *serialNum);
   When loading CCA and WCA config, if XML key is present load config from the specified XML file.

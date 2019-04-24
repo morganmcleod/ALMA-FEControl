@@ -40,7 +40,6 @@
 #include "CONFIG/IFPowerDataSet.h"
 #include "iniFile.h"
 #include "stringConvert.h"
-#include "splitPath.h"
 #include "FEBASE/FEHardwareDevice.h"
 #include "OPTIMIZE/XYPlotArray.h"
 #include "ColdCartImpl.h"
@@ -77,7 +76,6 @@ namespace FrontEndLVWrapper {
     static bool FEValid = false;
     static int connectedFEClients = 0;
     std::string FineLoSweepIni("");
-    std::string FrontEndIni("");
 };
 using namespace FrontEndLVWrapper;
 
@@ -96,51 +94,17 @@ DLLEXPORT short FEControlInit() {
         return 0;
     }
 
-    if (LVWrapperFindIniFile() != 0) {
-        LOG(LM_ERROR) << "FEControlInit: Failed to find FrontEndControlDLL.ini" << endl;
-        return -1;
-    }
+    std::string iniPath, tmp;
 
-    std::string iniPath, tmp, logDir;
-
-    try {
-        CIniFile configINI(iniFileName);
-        configINI.ReadFile();
-
-        // get the path where the FrontendControlDLL.ini file is located:
-        splitPath(iniFileName, iniPath, tmp);
-        if (iniPath.empty())
-            iniPath = ".";
-
-        // look for the item specifying a separate file for Front End configuration:
-        tmp = configINI.GetValue("configFiles", "FrontEnd");
-        if (tmp.empty()) {
-            // not found.  Continue using this file:
-            FrontEndIni = iniFileName;
-            // And don't override logDir:
-            logDir = "";
-        } else {
-            // Found: use the current ini files path plus the specified name:
-            FrontEndIni = iniPath + "/" + tmp;
-            // Override logDir with the same directory:
-            splitPath(FrontEndIni, logDir, tmp);
-        }
-
-        LOG(LM_INFO) << "Using FrontEnd configuration file '" << FrontEndIni << "'" << endl;
-        if (!logDir.empty())
-            LOG(LM_INFO) << "Overriding log directory '" << logDir << "'" << endl;
-
-    } catch (...) {
-        LOG(LM_ERROR) << "FEControlInit exception loading configuration file." << endl;
-        FEMCEventQueue::addStatusMessage(false, "An exception occurred while loading the configuration file.");
-        return -1;
-    }
-
-    // Initialize the DLL wrapper using our (possibly) overridden logDir:
-    if (LVWrapperInit(logDir) < 0) {
+    // Initialize the DLL wrapper:
+    if (LVWrapperInit() < 0) {
         LOG(LM_ERROR) << "FEControlInit: LVWrapperInit failed." << endl;
         return -1;
     }
+
+    // Log the FrontEndIni file we are using:
+    LOG(LM_INFO) << "Using FrontEnd configuration file '" << FrontEndIni << "'" << endl;
+
     LOG(LM_INFO) << "FEControlInit: connectedFEClients=" << connectedFEClients << endl;
     try {
         CIniFile configINI(iniFileName);

@@ -25,6 +25,7 @@
 #include "logger.h"
 #include "setTimeStamp.h"
 #include "stringConvert.h"
+#include "splitPath.h"
 #include "FrontEndAMB/NICANBusInterface.h"
 #include "FrontEndAMB/SocketClientBusInterface.h"
 
@@ -39,6 +40,7 @@ using namespace std;
 namespace FrontEndLVWrapper {
     pthread_mutex_t LVWrapperLock;
     std::string logDir("");
+    std::string FrontEndIni("");
     FILE *logStream = NULL;
     bool logTransactions = false;
     bool debugLVStructures = false;
@@ -53,18 +55,23 @@ namespace FrontEndLVWrapper {
 };
 using namespace FrontEndLVWrapper;
 
-short LVWrapperInit(std::string _logDir) {
+short LVWrapperInit() {
+    // If first client, initialize the shared data mutex:
     if (!connectedModules)
         pthread_mutex_init(&LVWrapperLock, NULL);
 
 	bool valid;
 	int connected;
+
+	// Increment the number of DLL clients:
 	pthread_mutex_lock(&LVWrapperLock);
 	++connectedModules;
+	// Copy the mutex protected vars:
 	connected = connectedModules;
 	valid = LVWrapperValid;
 	pthread_mutex_unlock(&LVWrapperLock);
 
+	// If the DLL is already initialized, return success:
 	if (valid) {
         LOG(LM_INFO) << "LVWrapperInit: connectedModules=" << connected << endl;
         return 0;
@@ -73,27 +80,51 @@ short LVWrapperInit(std::string _logDir) {
 	// initialize exception handling library:
 	ExcHndlInit();
 
-	if (LVWrapperFindIniFile() != 0) {
-        LOG(LM_ERROR) << "LVWrapperInit: Failed to find FrontEndControlDLL.ini" << endl;
-        return -1;
-	}
+    // Get the path to FrontEndControlDLL.ini from the environment or assume it in the working directory:
+    char *fn=getenv("FRONTENDCONTROL.INI");
+    iniFileName = (fn) ? fn : "FrontendControlDLL.ini";
     
     try {
+        // Open and read the FrontEndControlDLL.ini file:
         CIniFile configINI(iniFileName);
         configINI.ReadFile();
 
-        string tmp;
-        Time ts;
-        setTimeStamp(&ts);
-        timestampToText(&ts, tmp, true);
+        std::string iniPath, logDir, tmp;
 
-        logDir = (_logDir.empty()) ? configINI.GetValue("logger", "logDir") : _logDir;
-        string logFile = configINI.GetValue("logger", "logFile");
+        // get the path where the FrontendControlDLL.ini file is located:
+        splitPath(iniFileName, iniPath, tmp);
+        if (iniPath.empty())
+            iniPath = ".";
+
+        // look for the item specifying a separate file for Front End configuration:
+        tmp = configINI.GetValue("configFiles", "FrontEnd");
+        if (tmp.empty()) {
+            // not found.  Continue using this file:
+            FrontEndIni = iniFileName;
+            // And don't override logDir:
+            logDir = "";
+        } else {
+            // Found: use the current ini file path plus the specified name:
+            FrontEndIni = iniPath + "/" + tmp;
+            // Override logDir with the same directory:
+            splitPath(FrontEndIni, logDir, tmp);
+        }
+
+        // If logDir not overridden above, load it from the setting in FrontEndControlDLL.ini:
+        if (logDir.empty())
+            logDir = configINI.GetValue("logger", "logDir");
+
+        // Compose the log file and excHndl file names:
+        string logFile("");
         string excHndlFile("");
         if (!logDir.empty()) {
-            if (logDir[logDir.length() - 1] != '\\')
-                logDir += "\\";
+            if (logDir[logDir.length() - 1] != '\\' && logDir[logDir.length() - 1] != '/')
+                logDir += "/";
             FEConfig::setLogDir(logDir);
+
+            Time ts;
+            setTimeStamp(&ts);
+            timestampToText(&ts, tmp, true);
 
             logFile = logDir + "FELOG-" + tmp + ".txt";
             logStream = fopen(logFile.c_str(), "w");
@@ -102,6 +133,8 @@ short LVWrapperInit(std::string _logDir) {
             excHndlFile = logDir + "ExcHndl-" + tmp  + ".txt";
             ExcHndlSetLogFileNameA(excHndlFile.c_str());
         }
+
+        // Report configuration so far:
         LOG(LM_INFO) << "LVWrapperInit: connectedModules=" << connectedModules << endl;
         
         LOG(LM_INFO) << "FrontEndControl library version " << FECONTROL_SW_VERSION_STRING << endl;
@@ -114,16 +147,19 @@ short LVWrapperInit(std::string _logDir) {
         if (!excHndlFile.empty())
             LOG(LM_INFO) << "Using ExcHndl file '" << excHndlFile << "'" << endl;
 
+        // logTransactions = if true, every CAN message will be logged.  HUGE log file!
         tmp = configINI.GetValue("logger", "logTransactions");
         if (!tmp.empty())
             logTransactions = from_string<unsigned long>(tmp);
         LOG(LM_INFO) << "Logging FE transactions=" << logTransactions << endl;
 
+        // CAN_debugStdout = if true, every low-level CAN frame will be logged to stdout:
         tmp = configINI.GetValue("debug", "CAN_debugStdout");
         if (!tmp.empty())
             CANBusInterface::enableDebug_m = from_string<unsigned long>(tmp);
         LOG(LM_INFO) << "CAN debug to stdout=" << CANBusInterface::enableDebug_m << endl;
 
+        // CAN_noTransmit = if true, don't actually send CAN messages.  Useful for testing when no FE available:
         tmp = configINI.GetValue("debug", "CAN_noTransmit");
         if (!tmp.empty()) {
             CAN_noTransmit = from_string<unsigned long>(tmp);
@@ -131,21 +167,26 @@ short LVWrapperInit(std::string _logDir) {
         }
         LOG(LM_INFO) << "CAN debug no transmit=" << CANBusInterface::noTransmit_m << endl;
 
+        // CAN_maxChannels = how many CAN queues to allocate:
         tmp = configINI.GetValue("debug", "CAN_maxChannels");
         if (!tmp.empty())
             CANBusInterface::maxChannels_m = from_string<unsigned long>(tmp);
         LOG(LM_INFO) << "CAN max channels=" << CANBusInterface::maxChannels_m << endl;
 
+        // CAN_monitorTimeout = milliseconds timeout for monitor messages:
+        //  2ms typical;  Increase when debugging FE firmware.
         tmp = configINI.GetValue("debug", "CAN_monitorTimeout");
         if (!tmp.empty())
             CANBusInterface::monitorTimeout_m = from_string<unsigned long>(tmp);
         LOG(LM_INFO) << "CAN monitor timeout=" << CANBusInterface::monitorTimeout_m << endl;
         
+        // debugLVStructures = if true, dump all monitor data results to the log:
         tmp = configINI.GetValue("debug", "debugLVStructures");
         if (!tmp.empty())
             debugLVStructures = from_string<unsigned long>(tmp);
         LOG(LM_INFO) << "Debug LV Structures=" << debugLVStructures << endl;
         
+        // thermalLogInterval = seconds; how often to update the thermalLog:
         tmp = configINI.GetValue("logger", "thermalLogInterval");
         if (!tmp.empty())
             thermalLogInterval = from_string<unsigned int>(tmp);
@@ -159,6 +200,7 @@ short LVWrapperInit(std::string _logDir) {
         return -1;
     }
     
+    // Create the CAN interface:
     WHACK(canBus);
     ambItf = AmbInterface::getInstance();
     canBus = new NICANBusInterface(); 
@@ -166,12 +208,15 @@ short LVWrapperInit(std::string _logDir) {
     if (ambItf)
         ambItf -> setBus(canBus);
 
+    // Create the CAN transaction logging queue:
     WHACK(logger);
     logger = new AmbTransactionLogger(logTransactions);
     FEHardwareDevice::setLogger(*logger);
 
+    // Create the FEMC event queue:
     FEMCEventQueue::createInstance();
 
+    // Now the DLL is properly initialized:
     pthread_mutex_lock(&LVWrapperLock);
     LVWrapperValid = true;
     pthread_mutex_unlock(&LVWrapperLock);
@@ -225,14 +270,6 @@ short LVWrapperShutdown() {
     }
     return 0;
 }
-
-
-short LVWrapperFindIniFile() {
-    char *fn=getenv("FRONTENDCONTROL.INI");
-    iniFileName = (fn) ? fn : "FrontendControlDLL.ini";
-    return 0;
-}
-
 
 DLLEXPORT short getSoftwareVersion(char *versionString) {
     if (!versionString)

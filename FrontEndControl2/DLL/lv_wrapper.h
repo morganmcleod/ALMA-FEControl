@@ -37,15 +37,14 @@ namespace FrontEndLVWrapper {
     extern bool debugLVStructures;
     extern bool CAN_noTransmit;
     extern std::string iniFileName;
+    extern std::string FrontEndIni;
     extern unsigned int thermalLogInterval;
 };
 
 // All functions return 0 for success or -1 for failure unless otherwise specified.
 
-short LVWrapperInit(std::string logDir = "");
+short LVWrapperInit();
 ///< Initialize the shared data.
-///< If logDir is not empty, use that directory for all logs and data.
-///< If empty or invalid, read the logDir entry from the [debug] section.
 
 short LVWrapperShutdown();
 ///< Disconnect from the shared data.
