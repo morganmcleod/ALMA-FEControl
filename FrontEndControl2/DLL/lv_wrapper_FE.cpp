@@ -40,6 +40,7 @@
 #include "CONFIG/IFPowerDataSet.h"
 #include "iniFile.h"
 #include "stringConvert.h"
+#include "splitPath.h"
 #include "FEBASE/FEHardwareDevice.h"
 #include "OPTIMIZE/XYPlotArray.h"
 #include "ColdCartImpl.h"
@@ -94,13 +95,18 @@ DLLEXPORT short FEControlInit() {
         return 0;
     }
 
-    std::string iniPath, tmp;
-
     // Initialize the DLL wrapper:
     if (LVWrapperInit() < 0) {
         LOG(LM_ERROR) << "FEControlInit: LVWrapperInit failed." << endl;
         return -1;
     }
+
+    std::string iniPath, tmp;
+
+    // get the path where the FrontendControlDLL.ini file is located:
+    splitPath(iniFileName, iniPath, tmp);
+    if (iniPath.empty())
+        iniPath = ".";
 
     // Log the FrontEndIni file we are using:
     LOG(LM_INFO) << "Using FrontEnd configuration file '" << FrontEndIni << "'" << endl;
