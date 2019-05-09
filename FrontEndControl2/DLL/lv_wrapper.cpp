@@ -35,6 +35,8 @@
 #include "OPTIMIZE/OptimizeBase.h"
 #include "FEMCEventQueue.h"
 #include "DLL/SWVersion.h"
+
+#include <algorithm>
 using namespace std;
 
 namespace FrontEndLVWrapper {
@@ -281,11 +283,13 @@ DLLEXPORT short getSoftwareVersion(char *versionString) {
 DLLEXPORT short getDataPath(char *pathString) {
     if (!pathString)
         return -1;
-    const string &logDir = FEConfig::getLogDir();
+    string logDir(FEConfig::getLogDir());
     if (logDir.empty()) {
         pathString[0] = '\0';
         return -1;
     }
+    // replace all forward slashes with backslashes:
+    replace(logDir.begin(), logDir.end(), '/','\\');
     strcpy(pathString, logDir.c_str());
     return 0;
 }

@@ -80,7 +80,7 @@ DLLEXPORT short sigSrcControlInit() {
         configINI.ReadFile();
 
         // look for the item specifying a separate file for signal source config:
-        tmp = configINI.GetValue("configFiles", "signalSource");
+        tmp = configINI.GetValue("configFiles", "SignalSource");
         if (tmp.empty())
             // not found.  use the FrontendControlDLL.ini file to load signal source config:
             sigSrcIniFilename = iniFileName;

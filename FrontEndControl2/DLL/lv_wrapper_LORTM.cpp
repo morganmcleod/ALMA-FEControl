@@ -73,8 +73,8 @@ DLLEXPORT short LORTMControlInit() {
         CIniFile configINI(iniFileName);
         configINI.ReadFile();
 
-        // look for the item specifying a separate file for signal source config:
-        tmp = configINI.GetValue("configFiles", "TeraxionLORTM");
+        // look for the item specifying a separate file for LORTM config:
+        tmp = configINI.GetValue("configFiles", "LORTM");
         if (tmp.empty())
             // not found.  use the FrontendControlDLL.ini file to load signal source config:
             LORTMIniFilename = iniFileName;

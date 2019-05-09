@@ -38,6 +38,10 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.10.3 2019-05-09
+  getDataPath() ensures path has backslashes not forward slashes.
+  Changed INI file name key "TeraxionLORTM" -> "LORTM"
+
 2.10.2 2019-04-25
   Moved FrontEndIni loading and logDir override into lv_wrapper.cpp so that it works consistently 
   when SignalSource.vi or LORTM.vi is executed first.
