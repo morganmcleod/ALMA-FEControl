@@ -1748,7 +1748,7 @@ DLLEXPORT short cartGetMonitorAMC(short port, CartAMCData_t *target) {
     target -> setFloat(CartAMCData_t::AMC_DRAIN_E_VOLTAGE, amcInfo.amcDrainEVoltage_value);
     target -> setFloat(CartAMCData_t::AMC_DRAIN_E_CURRENT, amcInfo.amcDrainECurrent_value);
     target -> setFloat(CartAMCData_t::AMC_GATE_E_VOLTAGE, amcInfo.amcGateEVoltage_value);
-    target -> setByte(CartAMCData_t::AMC_MULTIPLIER_D_VOLTAGE, amcInfo.amcMultiplierDVoltage_value);
+    target -> setByte(CartAMCData_t::AMC_MULTIPLIER_D_COUNTS, amcInfo.amcMultiplierDCounts_value);
     target -> setFloat(CartAMCData_t::AMC_MULTIPLIER_D_CURRENT, amcInfo.amcMultiplierDCurrent_value);
     target -> setFloat(CartAMCData_t::AMC_SUPPLY_VOLTAGE_5V, amcInfo.amcSupplyVoltage5V_value);
     if (debugLVStructures)

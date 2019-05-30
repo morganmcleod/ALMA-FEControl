@@ -290,7 +290,7 @@ void CartHealthCheck::optimizeAction() {
                      << amcData.amcGateAVoltage_value << ","
                      << amcData.amcGateBVoltage_value << ","
                      << amcData.amcGateEVoltage_value << ","
-                     << (int) amcData.amcMultiplierDVoltage_value << ","
+                     << (int) amcData.amcMultiplierDCounts_value << ","
                      << amcData.amcMultiplierDCurrent_value << ","
                      << amcData.amcSupplyVoltage5V_value << endl;
 

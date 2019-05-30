@@ -635,7 +635,7 @@ bool WCAImpl::getMonitorAMC(AMC_t &target) const {
     target.amcGateEVoltage_value = amcGateEVoltage_value;
     target.amcDrainEVoltage_value = amcDrainEVoltage_value;
     target.amcDrainECurrent_value = amcDrainECurrent_value;
-    target.amcMultiplierDVoltage_value = amcMultiplierDVoltage_value;
+    target.amcMultiplierDCounts_value = amcMultiplierDCounts_value;
     target.amcMultiplierDCurrent_value = amcMultiplierDCurrent_value;
     target.amcSupplyVoltage5V_value = amcSupplyVoltage5V_value;
     return true;

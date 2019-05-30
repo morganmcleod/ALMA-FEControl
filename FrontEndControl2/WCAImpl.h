@@ -315,7 +315,7 @@ public:
         float amcGateEVoltage_value;
         float amcDrainEVoltage_value;
         float amcDrainECurrent_value;
-        unsigned char amcMultiplierDVoltage_value;
+        unsigned char amcMultiplierDCounts_value;
         float amcMultiplierDCurrent_value;
         float amcSupplyVoltage5V_value;
     };

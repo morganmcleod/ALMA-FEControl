@@ -63,7 +63,7 @@ public:
     virtual float amcGateBVoltage();
     virtual float amcDrainBVoltage();
     virtual float amcDrainBCurrent();
-    virtual unsigned char amcMultiplierDVoltage();
+    virtual unsigned char amcMultiplierDCounts();
     virtual float amcGateEVoltage();
     virtual float amcDrainEVoltage();
     virtual float amcDrainECurrent();
@@ -86,7 +86,7 @@ public:
     virtual void pllSidebandLockSelect(bool val);
     virtual void pllNullLoopIntegrator(bool val);
     virtual void amcDrainBVoltage(float val);
-    virtual void amcMultiplierDVoltage(unsigned char val);
+    virtual void amcMultiplierDCounts(unsigned char val);
     virtual void amcGateEVoltage(float val);
     virtual void amcDrainEVoltage(float val);
     virtual void paPol0GateVoltage(float val);
@@ -122,7 +122,7 @@ protected:
         AMC_GATE_B_VOLTAGE              = 0x0833,
         AMC_DRAIN_B_VOLTAGE             = 0x0834,
         AMC_DRAIN_B_CURRENT             = 0x0835,
-        AMC_MULTIPLIER_D_VOLTAGE        = 0x0836,
+        AMC_MULTIPLIER_D_COUNTS         = 0x0836,
         AMC_GATE_E_VOLTAGE              = 0x0837,
         AMC_DRAIN_E_VOLTAGE             = 0x0838,
         AMC_DRAIN_E_CURRENT             = 0x0839,
@@ -156,7 +156,7 @@ protected:
     float amcGateBVoltage_value;
     float amcDrainBVoltage_value;
     float amcDrainBCurrent_value;
-    unsigned char amcMultiplierDVoltage_value;
+    unsigned char amcMultiplierDCounts_value;
     float amcGateEVoltage_value;
     float amcDrainEVoltage_value;
     float amcDrainECurrent_value;
@@ -192,7 +192,7 @@ protected:
     int amcGateBVoltage_status;
     int amcDrainBVoltage_status;
     int amcDrainBCurrent_status;
-    int amcMultiplierDVoltage_status;
+    int amcMultiplierDCounts_status;
     int amcGateEVoltage_status;
     int amcDrainEVoltage_status;
     int amcDrainECurrent_status;
@@ -229,7 +229,7 @@ protected:
     AmbRelativeAddr amcGateBVoltage_RCA;
     AmbRelativeAddr amcDrainBVoltage_RCA;
     AmbRelativeAddr amcDrainBCurrent_RCA;
-    AmbRelativeAddr amcMultiplierDVoltage_RCA;
+    AmbRelativeAddr amcMultiplierDCounts_RCA;
     AmbRelativeAddr amcGateEVoltage_RCA;
     AmbRelativeAddr amcDrainEVoltage_RCA;
     AmbRelativeAddr amcDrainECurrent_RCA;

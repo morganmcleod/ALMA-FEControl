@@ -38,6 +38,9 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.10.4.0
+  AMC_MULTIPLIER_D_VOLTAGE -> AMC_MULTIPLIER_D_COUNTS, same for all var names
+
 2.10.3 2019-05-09
   getDataPath() ensures path has backslashes not forward slashes.
   Changed INI file name key "TeraxionLORTM" -> "LORTM"

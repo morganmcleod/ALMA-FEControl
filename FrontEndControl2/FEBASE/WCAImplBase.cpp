@@ -53,7 +53,7 @@ WCAImplBase::WCAImplBase(const std::string &name, int port)
     amcGateBVoltage_value(0),
     amcDrainBVoltage_value(0),
     amcDrainBCurrent_value(0),
-    amcMultiplierDVoltage_value(0),
+    amcMultiplierDCounts_value(0),
     amcGateEVoltage_value(0),
     amcDrainEVoltage_value(0),
     amcDrainECurrent_value(0),
@@ -88,7 +88,7 @@ WCAImplBase::WCAImplBase(const std::string &name, int port)
     amcGateBVoltage_status(FEMC_NOT_CONNECTED),
     amcDrainBVoltage_status(FEMC_NOT_CONNECTED),
     amcDrainBCurrent_status(FEMC_NOT_CONNECTED),
-    amcMultiplierDVoltage_status(FEMC_NOT_CONNECTED),
+    amcMultiplierDCounts_status(FEMC_NOT_CONNECTED),
     amcGateEVoltage_status(FEMC_NOT_CONNECTED),
     amcDrainEVoltage_status(FEMC_NOT_CONNECTED),
     amcDrainECurrent_status(FEMC_NOT_CONNECTED),
@@ -133,7 +133,7 @@ WCAImplBase::WCAImplBase(const std::string &name, int port)
     amcGateBVoltage_RCA                 = baseRCA + AMC_GATE_B_VOLTAGE;
     amcDrainBVoltage_RCA                = baseRCA + AMC_DRAIN_B_VOLTAGE;
     amcDrainBCurrent_RCA                = baseRCA + AMC_DRAIN_B_CURRENT;
-    amcMultiplierDVoltage_RCA           = baseRCA + AMC_MULTIPLIER_D_VOLTAGE;
+    amcMultiplierDCounts_RCA            = baseRCA + AMC_MULTIPLIER_D_COUNTS;
     amcGateEVoltage_RCA                 = baseRCA + AMC_GATE_E_VOLTAGE;
     amcDrainEVoltage_RCA                = baseRCA + AMC_DRAIN_E_VOLTAGE;
     amcDrainECurrent_RCA                = baseRCA + AMC_DRAIN_E_CURRENT;
@@ -270,8 +270,8 @@ float WCAImplBase::amcDrainBCurrent() {
     SYNCMON_LOG_FLOAT(amcDrainBCurrent, "LO_AMC_DRAIN_B_CURRENT")
 }
 
-unsigned char WCAImplBase::amcMultiplierDVoltage() {
-    SYNCMON_LOG_BYTE(amcMultiplierDVoltage, "LO_AMC_MULTIPLIER_D_VOLTAGE")
+unsigned char WCAImplBase::amcMultiplierDCounts() {
+    SYNCMON_LOG_BYTE(amcMultiplierDCounts, "LO_AMC_MULTIPLIER_D_COUNTS")
 }
 
 float WCAImplBase::amcGateEVoltage() {
@@ -355,8 +355,8 @@ void WCAImplBase::amcDrainBVoltage(float val) {
     SYNCCMD_LOG_FLOAT(amcDrainBVoltage, val, "LO_AMC_DRAIN_B_VOLTAGE");
 }
 
-void WCAImplBase::amcMultiplierDVoltage(unsigned char val) {
-    SYNCCMD_LOG_BYTE(amcMultiplierDVoltage, val, "LO_AMC_MULTIPLIER_D_VOLTAGE");
+void WCAImplBase::amcMultiplierDCounts(unsigned char val) {
+    SYNCCMD_LOG_BYTE(amcMultiplierDCounts, val, "LO_AMC_MULTIPLIER_D_COUNTS");
 }
 
 void WCAImplBase::amcGateEVoltage(float val) {
@@ -428,7 +428,7 @@ void WCAImplBase::monitorAction(Time *timestamp_p) {
                     ++monitorPhase;
                     break;
                 case 3:
-                    amcMultiplierDVoltage_value = amcMultiplierDVoltage();
+                    amcMultiplierDCounts_value = amcMultiplierDCounts();
                     ++monitorPhase;
                     break;
                 case 4:
@@ -463,7 +463,7 @@ void WCAImplBase::logMon(bool printHeader) const {
     if (printHeader) {
         LOG(LM_INFO)  << "AllMonitors:WCA(" << port_m << "): randomized,"
                          "ytoCoarseTune,photomixerEnable,pllLoopBandwidthSelect,pllSidebandLockSelect,"
-                         "amcMultiplierDVoltage,pllNullLoopIntegrator,pllUnlockDetectLatch,"
+                         "amcMultiplierDCounts,pllNullLoopIntegrator,pllUnlockDetectLatch,"
                          "Vphotomixer,Iphotomixer,VpllLockDetect,VpllCorrection,"
                          "pllRefTotalPower,pllIfTotalPower,VamcGateA,VamcDrainA,"
                          "IamcDrainA,VamcGateB,VamcDrainB,IamcDrainB,"
@@ -474,7 +474,7 @@ void WCAImplBase::logMon(bool printHeader) const {
     } else {
         LOG(LM_INFO)  << "AllMonitors:WCA(" << port_m << "): " << randomizeAnalogMonitors_m << ","
                       << ytoCoarseTune_value << "," << (photomixerEnable_value ? 1 : 0) << "," << (pllLoopBandwidthSelect_value ? 1 : 0) << "," << (pllSidebandLockSelect_value ? 1 : 0) << ","
-                      << (int) amcMultiplierDVoltage_value << "," << (pllNullLoopIntegrator_value ? 1 : 0) << "," << (pllUnlockDetectLatch_value ? 1 : 0) << ","
+                      << (int) amcMultiplierDCounts_value << "," << (pllNullLoopIntegrator_value ? 1 : 0) << "," << (pllUnlockDetectLatch_value ? 1 : 0) << ","
                       << photomixerVoltage_value << "," << photomixerCurrent_value << "," << pllLockDetectVoltage_value << "," << pllCorrectionVoltage_value << ","
                       << pllRefTotalPower_value << "," << pllIfTotalPower_value << "," << amcGateAVoltage_value << "," << amcDrainAVoltage_value << ","
                       << amcDrainACurrent_value << "," << amcGateBVoltage_value << "," << amcDrainBVoltage_value << "," << amcDrainBCurrent_value << ","

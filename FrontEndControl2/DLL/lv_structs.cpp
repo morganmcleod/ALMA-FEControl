@@ -157,7 +157,7 @@ void CartAMCData_t::streamOut(std::ostream& out) const {
 		<< " Id=" << getFloat(AMC_DRAIN_E_CURRENT) 
 		<< " Vg=" << getFloat(AMC_GATE_E_VOLTAGE) << endl;
 	
-	ost << "               multD voltage=" << getByte(AMC_MULTIPLIER_D_VOLTAGE) 
+	ost << "               multD counts=" << getByte(AMC_MULTIPLIER_D_COUNTS)
 		<< " current=" << getFloat(AMC_MULTIPLIER_D_CURRENT) << endl;
 	
 	ost << "               5VSupply=" << getFloat(AMC_SUPPLY_VOLTAGE_5V) << endl;

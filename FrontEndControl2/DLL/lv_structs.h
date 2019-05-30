@@ -331,7 +331,7 @@ struct CartAMCData_t {
         AMC_GATE_E_VOLTAGE,
         AMC_MULTIPLIER_D_CURRENT,
         AMC_SUPPLY_VOLTAGE_5V,
-        AMC_MULTIPLIER_D_VOLTAGE
+        AMC_MULTIPLIER_D_COUNTS
     };
     unsigned char data[45];
     static const int offsets[];

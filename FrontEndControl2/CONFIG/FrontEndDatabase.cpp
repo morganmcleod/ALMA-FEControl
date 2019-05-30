@@ -678,7 +678,7 @@ bool FrontEndDatabase::insertAMCMonitorData(const ID_T &configId, DATASTATUS_TYP
                      + to_string(source.amcGateAVoltage_value, std::fixed, 2) + ", "
                      + to_string(source.amcGateBVoltage_value, std::fixed, 2) + ", "
                      + to_string(source.amcGateEVoltage_value, std::fixed, 2) + ", "
-                     + to_string((int) source.amcMultiplierDVoltage_value) + ", "
+                     + to_string((int) source.amcMultiplierDCounts_value) + ", "
                      + to_string(source.amcMultiplierDCurrent_value, std::fixed, 2) + ", "
                      + to_string(source.amcSupplyVoltage5V_value, std::fixed, 2) + ")";
 
