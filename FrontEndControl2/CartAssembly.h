@@ -159,7 +159,7 @@ public:
       { static double freqs[11] = {
             0.0,    // band 0: undefined
             35.0,	// band 1
-            72.0,
+            80.0,
             100.0,  // band 3
             145.0,
             187.0,  // band 5

@@ -131,6 +131,7 @@ short LVWrapperInit() {
             logFile = logDir + "FELOG-" + tmp + ".txt";
             logStream = fopen(logFile.c_str(), "w");
             StreamOutput::setStream(logStream);
+            StreamLogger::setReportingLevel(LM_INFO);
 
             excHndlFile = logDir + "ExcHndl-" + tmp  + ".txt";
             ExcHndlSetLogFileNameA(excHndlFile.c_str());
