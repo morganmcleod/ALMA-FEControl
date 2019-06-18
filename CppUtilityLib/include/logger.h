@@ -66,6 +66,10 @@ public:
       { return reportingLevel_m; }
     ///< Access an object giving the maximum loging level to print.  This object can be modified at runtime.
 
+    inline static void setReportingLevel(logLevel reportingLevel)
+      { reportingLevel_m = reportingLevel; }
+    ///< Access an object giving the maximum loging level to print.  This object can be modified at runtime.
+
 protected:
     std::ostringstream os;
     ///< internal string buffer for the line.
