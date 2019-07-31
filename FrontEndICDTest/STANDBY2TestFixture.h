@@ -125,6 +125,7 @@ private:
         MON_ENABLE_BAND8    = 0xA07C,
         MON_ENABLE_BAND9    = 0xA08C,
         MON_ENABLE_BAND10   = 0xA09C,
+        MON_GET_SETUP_INFO  = 0x20001,
 
         CTRL_ENABLE_BAND1   = 0x1A00C,
         CTRL_ENABLE_BAND2   = 0x1A01C,
@@ -136,6 +137,7 @@ private:
         CTRL_ENABLE_BAND8   = 0x1A07C,
         CTRL_ENABLE_BAND9   = 0x1A08C,
         CTRL_ENABLE_BAND10  = 0x1A09C,
+        CTRL_FE_MODE        = 0x2100E,
 
         CONTROL_RCA             = 0x10000,  ///< add this to the monitor RCA to get the corresponding command RCA
         POL1                    = 0x0400,   ///< add this to the pol0 RCA to get the corresponding pol1 RCA

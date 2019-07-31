@@ -150,18 +150,15 @@ protected:
 
     enum FEMC_ERROR {
         FEMC_NO_ERROR           = 0,    //!< No error during the monitor operation.
-        FEMC_GENERIC_ERROR      = -1, //!< Error during the monitor operation.  FEMC failed to communicate with hardware.
-        FEMC_HARDW_RANGE_ERR    = -2, //!< The addressed hardware is not installed.
-        FEMC_HARDW_BLOCKED_ERR  = -3, //!< The hardware cannot be accessed because of operational state.
-        FEMC_HARDW_UPDATE_WARN  = -4, //!< Properties of the addressed hardware need to be updated in firmware.  Result may be suspect.
-        FEMC_HARDW_CONVERT_ERR  = -5, //!< Monitor data is out of range for conversion to proper units.
-        FEMC_HARDW_RETRY_WARN   = -6, //!< The monitor point takes time to stabilize.  Retry the request immediately.
-        FEMC_MON_ERROR_RANGE    = -10,  //!< The monitor value is in the error range, according to the configuration database.
-        FEMC_MON_WARN_RANGE     = -11,  //!< The monitor value is in the warning range, according to the configuration database.
+        FEMC_GENERIC_ERROR      = -1,   //!< Error during the monitor operation.  FEMC failed to communicate with hardware.
+        FEMC_HARDW_RANGE_ERR    = -2,   //!< The addressed hardware is not installed.
+        FEMC_HARDW_BLOCKED_ERR  = -3,   //!< The hardware cannot be accessed because of operational state.
+        FEMC_HARDW_UPDATE_WARN  = -4,   //!< Properties of the addressed hardware need to be updated in firmware.  Result may be suspect.
+        FEMC_HARDW_CONVERT_ERR  = -5,   //!< Monitor data is out of range for conversion to proper units.
+        FEMC_HARDW_ERROR        = -7,   //!< The selected hardware is in error state. Follow ICD instruction to proceed.
+        FEMC_CON_ERROR_RNG      = -10,  //!< Value of last control message received is outside the allowed range
         FEMC_UNDEFINED_RCA      = -12,  //!< The monitor request is to an undefined RCA.
         FEMC_MON_ERROR_ACTION   = -13,  //!< FEMC took action because the monitor value is in the error range.
-        FEMC_MON_WARN_ACTION    = -14,  //!< FEMC took action because the monitor value is in the warning range.
-        FEMC_MON_NOTIMPL        = -15,  //!< The monitor request is not yet implemented in hardware.  Result may be suspect.
         FEMC_AMB_ERROR          = -44,  //!< The AMB subsystem reported an error.
         FEMC_UNPACK_ERROR       = -45,  //!< Unpacking monitor data failed
         FEMC_NOT_CONNECTED      = -46   //!< Cannot monitor because not connected to FE.
