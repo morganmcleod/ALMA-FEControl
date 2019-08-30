@@ -31,6 +31,8 @@ ColdCartridgeTestFixture::ColdCartridgeTestFixture(int band,
                                                    bool expectStatusByte)
   : CartridgeTestFixture(band, name, channel, nodeAddress, expectStatusByte)
 {
+    sisSenseResistor_RCA            = cartBaseRCA_m + SIS_SENSE_RESISTOR;
+    sisSenseResistor2_RCA           = cartBaseRCA_m + SIS_SENSE_RESISTOR + sb2;
     sisPol0Sb1Voltage_RCA           = cartBaseRCA_m + SIS_VOLTAGE;
     sisPol0Sb1Current_RCA           = cartBaseRCA_m + SIS_CURRENT;
     sisPol0Sb1OpenLoop_RCA          = cartBaseRCA_m + SIS_OPEN_LOOP;
@@ -111,6 +113,8 @@ ColdCartridgeTestFixture::ColdCartridgeTestFixture(int band,
     cartridgeTemperature5_RCA       = cartBaseRCA_m + CARTRIDGE_TEMP + 0x50;
 
     //Control RCAs
+    ctrlsisSenseResistor_RCA            = controlRCA + ctrlsisSenseResistor_RCA;
+    ctrlsisSenseResistor2_RCA           = controlRCA + ctrlsisSenseResistor2_RCA;
     ctrlsisPol0Sb1Voltage_RCA           = controlRCA + sisPol0Sb1Voltage_RCA;
     ctrlsisPol0Sb1OpenLoop_RCA          = controlRCA + sisPol0Sb1OpenLoop_RCA;
     ctrlsisPol0Sb2Voltage_RCA           = controlRCA + sisPol0Sb2Voltage_RCA;
@@ -164,7 +168,7 @@ ColdCartridgeTestFixture::ColdCartridgeTestFixture(int band,
 }
 
 void ColdCartridgeTestFixture::setUp() {
-	CartridgeTestFixture::setUp();
+    CartridgeTestFixture::setUp();
 }
 
 void ColdCartridgeTestFixture::tearDown() {
@@ -199,72 +203,72 @@ void ColdCartridgeTestFixture::tearDown() {
 }
 
 void ColdCartridgeTestFixture::ENABLE_LNA_POL0_SB1(){
-	//Turn on LNA
-	LOG(LM_INFO) << "ColdCartridgeTestFixture::ENABLE_LNA_POL0_SB1()" << endl;
-	data_m[0] = 1;
-	dataLength_m = 1;
-	commandImpl(ctrllnaPol0Sb1Enable_RCA, "ENABLE_LNA_POL0_SB1", NULL);
-	SLEEP(200);
+    //Turn on LNA
+    LOG(LM_INFO) << "ColdCartridgeTestFixture::ENABLE_LNA_POL0_SB1()" << endl;
+    data_m[0] = 1;
+    dataLength_m = 1;
+    commandImpl(ctrllnaPol0Sb1Enable_RCA, "ENABLE_LNA_POL0_SB1", NULL);
+    SLEEP(200);
 }
 void ColdCartridgeTestFixture::DISABLE_LNA_POL0_SB1(){
-	//Turn off LNA
-	LOG(LM_INFO) << "ColdCartridgeTestFixture::DISABLE_LNA_POL0_SB1()" << endl;
-	data_m[0] = 0;
-	dataLength_m = 1;
-	commandImpl(ctrllnaPol0Sb1Enable_RCA, "DISABLE_LNA_POL0_SB1", NULL);
+    //Turn off LNA
+    LOG(LM_INFO) << "ColdCartridgeTestFixture::DISABLE_LNA_POL0_SB1()" << endl;
+    data_m[0] = 0;
+    dataLength_m = 1;
+    commandImpl(ctrllnaPol0Sb1Enable_RCA, "DISABLE_LNA_POL0_SB1", NULL);
 }
 void ColdCartridgeTestFixture::ENABLE_LNA_POL0_SB2(){
     if (band_m == 9)
         return; // not checking SB2 for band 9
     //Turn on LNA
-	LOG(LM_INFO) << "ColdCartridgeTestFixture::ENABLE_LNA_POL0_SB2()" << endl;
-	data_m[0] = 1;
-	dataLength_m = 1;
-	commandImpl(ctrllnaPol0Sb2Enable_RCA, "ENABLE_LNA_POL0_SB2", NULL);
-	SLEEP(200);
+    LOG(LM_INFO) << "ColdCartridgeTestFixture::ENABLE_LNA_POL0_SB2()" << endl;
+    data_m[0] = 1;
+    dataLength_m = 1;
+    commandImpl(ctrllnaPol0Sb2Enable_RCA, "ENABLE_LNA_POL0_SB2", NULL);
+    SLEEP(200);
 }
 void ColdCartridgeTestFixture::DISABLE_LNA_POL0_SB2(){
     if (band_m == 9)
         return; // not checking SB2 for band 9
-	//Turn off LNA
-	LOG(LM_INFO) << "ColdCartridgeTestFixture::DISABLE_LNA_POL0_SB2()" << endl;
-	data_m[0] = 0;
-	dataLength_m = 1;
-	commandImpl(ctrllnaPol0Sb2Enable_RCA, "DISABLE_LNA_POL0_SB2", NULL);
+    //Turn off LNA
+    LOG(LM_INFO) << "ColdCartridgeTestFixture::DISABLE_LNA_POL0_SB2()" << endl;
+    data_m[0] = 0;
+    dataLength_m = 1;
+    commandImpl(ctrllnaPol0Sb2Enable_RCA, "DISABLE_LNA_POL0_SB2", NULL);
 }
 void ColdCartridgeTestFixture::ENABLE_LNA_POL1_SB1(){
-	//Turn on LNA
-	LOG(LM_INFO) << "ColdCartridgeTestFixture::ENABLE_LNA_POL1_SB1()" << endl;
-	data_m[0] = 1;
-	dataLength_m = 1;
-	commandImpl(ctrllnaPol1Sb1Enable_RCA, "ENABLE_LNA_POL1_SB1", NULL);
-	SLEEP(200);
+    //Turn on LNA
+    LOG(LM_INFO) << "ColdCartridgeTestFixture::ENABLE_LNA_POL1_SB1()" << endl;
+    data_m[0] = 1;
+    dataLength_m = 1;
+    commandImpl(ctrllnaPol1Sb1Enable_RCA, "ENABLE_LNA_POL1_SB1", NULL);
+    SLEEP(200);
 }
 void ColdCartridgeTestFixture::DISABLE_LNA_POL1_SB1(){
-	//Turn off LNA
-	LOG(LM_INFO) << "ColdCartridgeTestFixture::DISABLE_LNA_POL1_SB1()" << endl;
-	data_m[0] = 0;
-	dataLength_m = 1;
-	commandImpl(ctrllnaPol1Sb1Enable_RCA, "DISABLE_LNA_POL1_SB1", NULL);
+    //Turn off LNA
+    LOG(LM_INFO) << "ColdCartridgeTestFixture::DISABLE_LNA_POL1_SB1()" << endl;
+    data_m[0] = 0;
+    dataLength_m = 1;
+    commandImpl(ctrllnaPol1Sb1Enable_RCA, "DISABLE_LNA_POL1_SB1", NULL);
 }
 void ColdCartridgeTestFixture::ENABLE_LNA_POL1_SB2(){
     if (band_m == 9)
         return; // not checking SB2 for band 9
-	//Turn on LNA
-	LOG(LM_INFO) << "ColdCartridgeTestFixture::ENABLE_LNA_POL1_SB2()" << endl;
-	data_m[0] = 1;
-	dataLength_m = 1;
-	commandImpl(ctrllnaPol1Sb2Enable_RCA, "ENABLE_LNA_POL1_SB2", NULL);
-	SLEEP(200);
+    //Turn on LNA
+    LOG(LM_INFO) << "ColdCartridgeTestFixture::ENABLE_LNA_POL1_SB2()" << endl;
+    data_m[0] = 1;
+    dataLength_m = 1;
+    commandImpl(ctrllnaPol1Sb2Enable_RCA, "ENABLE_LNA_POL1_SB2", NULL);
+    SLEEP(200);
 }
 void ColdCartridgeTestFixture::DISABLE_LNA_POL1_SB2(){
     if (band_m == 9)
         return; // not checking SB2 for band 9
-	//Turn off LNA
-	LOG(LM_INFO) << "ColdCartridgeTestFixture::DISABLE_LNA_POL1_SB2()" << endl;
-	data_m[0] = 0;
-	dataLength_m = 1;
-	commandImpl(ctrllnaPol1Sb2Enable_RCA, "DISABLE_LNA_POL1_SB2", NULL);
+    //Turn off LNA
+    LOG(LM_INFO) << "ColdCartridgeTestFixture::DISABLE_LNA_POL1_SB2()" << endl;
+    data_m[0] = 0;
+    dataLength_m = 1;
+    commandImpl(ctrllnaPol1Sb2Enable_RCA, "DISABLE_LNA_POL1_SB2", NULL);
 }
 
 //////////////////////////////////////
@@ -273,23 +277,23 @@ void ColdCartridgeTestFixture::DISABLE_LNA_POL1_SB2(){
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB1_LNA_ST1_DRAIN_VOLTAGE() {
     float min, max, tolerance;
     getLimitsLNAVd(min, max, tolerance);
-	SET_LNA_SIS_VALUE(lnaPol0Sb1St1DrainVoltage_RCA,ctrllnaPol0Sb1St1DrainVoltage_RCA,
-	        getTestValuesLNAVd(), min, max, tolerance,
-			"SET_CARTRIDGE_POL0_SB1_LNA_ST1_DRAIN_VOLTAGE");
+    SET_LNA_SIS_VALUE(lnaPol0Sb1St1DrainVoltage_RCA,ctrllnaPol0Sb1St1DrainVoltage_RCA,
+            getTestValuesLNAVd(), min, max, tolerance,
+            "SET_CARTRIDGE_POL0_SB1_LNA_ST1_DRAIN_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB1_LNA_ST2_DRAIN_VOLTAGE() {
     float min, max, tolerance;
     getLimitsLNAVd(min, max, tolerance);
-	SET_LNA_SIS_VALUE(lnaPol0Sb1St2DrainVoltage_RCA,ctrllnaPol0Sb1St2DrainVoltage_RCA,
+    SET_LNA_SIS_VALUE(lnaPol0Sb1St2DrainVoltage_RCA,ctrllnaPol0Sb1St2DrainVoltage_RCA,
             getTestValuesLNAVd(), min, max, tolerance,
-			"SET_CARTRIDGE_POL0_SB1_LNA_ST2_DRAIN_VOLTAGE");
+            "SET_CARTRIDGE_POL0_SB1_LNA_ST2_DRAIN_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB1_LNA_ST3_DRAIN_VOLTAGE() {
     float min, max, tolerance;
     getLimitsLNAVd(min, max, tolerance);
-	SET_LNA_SIS_VALUE(lnaPol0Sb1St3DrainVoltage_RCA,ctrllnaPol0Sb1St3DrainVoltage_RCA,
+    SET_LNA_SIS_VALUE(lnaPol0Sb1St3DrainVoltage_RCA,ctrllnaPol0Sb1St3DrainVoltage_RCA,
             getTestValuesLNAVd(), min, max, tolerance,
-			"SET_CARTRIDGE_POL0_SB1_LNA_ST3_DRAIN_VOLTAGE");
+            "SET_CARTRIDGE_POL0_SB1_LNA_ST3_DRAIN_VOLTAGE");
 }
 
 
@@ -301,27 +305,27 @@ void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB2_LNA_ST1_DRAIN_VOLTAGE(
         return; // not checking SB2 for band 9
     float min, max, tolerance;
     getLimitsLNAVd(min, max, tolerance);
-	SET_LNA_SIS_VALUE(lnaPol0Sb2St1DrainVoltage_RCA,ctrllnaPol0Sb2St1DrainVoltage_RCA,
+    SET_LNA_SIS_VALUE(lnaPol0Sb2St1DrainVoltage_RCA,ctrllnaPol0Sb2St1DrainVoltage_RCA,
             getTestValuesLNAVd(), min, max, tolerance,
-			"SET_CARTRIDGE_POL0_SB2_LNA_ST1_DRAIN_VOLTAGE");
+            "SET_CARTRIDGE_POL0_SB2_LNA_ST1_DRAIN_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB2_LNA_ST2_DRAIN_VOLTAGE() {
     if (band_m == 9)
         return; // not checking SB2 for band 9
     float min, max, tolerance;
     getLimitsLNAVd(min, max, tolerance);
-	SET_LNA_SIS_VALUE(lnaPol0Sb2St2DrainVoltage_RCA,ctrllnaPol0Sb2St2DrainVoltage_RCA,
+    SET_LNA_SIS_VALUE(lnaPol0Sb2St2DrainVoltage_RCA,ctrllnaPol0Sb2St2DrainVoltage_RCA,
             getTestValuesLNAVd(), min, max, tolerance,
-			"SET_CARTRIDGE_POL0_SB2_LNA_ST2_DRAIN_VOLTAGE");
+            "SET_CARTRIDGE_POL0_SB2_LNA_ST2_DRAIN_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB2_LNA_ST3_DRAIN_VOLTAGE() {
     if (band_m == 9)
         return; // not checking SB2 for band 9
     float min, max, tolerance;
     getLimitsLNAVd(min, max, tolerance);
-	SET_LNA_SIS_VALUE(lnaPol0Sb2St2DrainVoltage_RCA,ctrllnaPol0Sb2St2DrainVoltage_RCA,
+    SET_LNA_SIS_VALUE(lnaPol0Sb2St2DrainVoltage_RCA,ctrllnaPol0Sb2St2DrainVoltage_RCA,
             getTestValuesLNAVd(), min, max, tolerance,
-			"SET_CARTRIDGE_POL0_SB2_LNA_ST2_DRAIN_VOLTAGE");
+            "SET_CARTRIDGE_POL0_SB2_LNA_ST2_DRAIN_VOLTAGE");
 }
 
 //////////////////////////////////////
@@ -330,23 +334,23 @@ void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB2_LNA_ST3_DRAIN_VOLTAGE(
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB1_LNA_ST1_DRAIN_VOLTAGE() {
     float min, max, tolerance;
     getLimitsLNAVd(min, max, tolerance);
-	SET_LNA_SIS_VALUE(lnaPol1Sb1St1DrainVoltage_RCA,ctrllnaPol1Sb1St1DrainVoltage_RCA,
+    SET_LNA_SIS_VALUE(lnaPol1Sb1St1DrainVoltage_RCA,ctrllnaPol1Sb1St1DrainVoltage_RCA,
             getTestValuesLNAVd(), min, max, tolerance,
-			"SET_CARTRIDGE_POL1_SB1_LNA_ST1_DRAIN_VOLTAGE");
+            "SET_CARTRIDGE_POL1_SB1_LNA_ST1_DRAIN_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB1_LNA_ST2_DRAIN_VOLTAGE() {
     float min, max, tolerance;
     getLimitsLNAVd(min, max, tolerance);
-	SET_LNA_SIS_VALUE(lnaPol1Sb1St2DrainVoltage_RCA,ctrllnaPol1Sb1St2DrainVoltage_RCA,
+    SET_LNA_SIS_VALUE(lnaPol1Sb1St2DrainVoltage_RCA,ctrllnaPol1Sb1St2DrainVoltage_RCA,
             getTestValuesLNAVd(), min, max, tolerance,
-			"SET_CARTRIDGE_POL1_SB1_LNA_ST2_DRAIN_VOLTAGE");
+            "SET_CARTRIDGE_POL1_SB1_LNA_ST2_DRAIN_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB1_LNA_ST3_DRAIN_VOLTAGE() {
     float min, max, tolerance;
     getLimitsLNAVd(min, max, tolerance);
-	SET_LNA_SIS_VALUE(lnaPol1Sb1St3DrainVoltage_RCA,ctrllnaPol1Sb1St3DrainVoltage_RCA,
+    SET_LNA_SIS_VALUE(lnaPol1Sb1St3DrainVoltage_RCA,ctrllnaPol1Sb1St3DrainVoltage_RCA,
             getTestValuesLNAVd(), min, max, tolerance,
-			"SET_CARTRIDGE_POL1_SB1_LNA_ST3_DRAIN_VOLTAGE");
+            "SET_CARTRIDGE_POL1_SB1_LNA_ST3_DRAIN_VOLTAGE");
 }
 //////////////////////////////////////
 // LNA Drain Voltage Pol 1 SB 2
@@ -356,27 +360,27 @@ void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB2_LNA_ST1_DRAIN_VOLTAGE(
         return; // not checking SB2 for band 9
     float min, max, tolerance;
     getLimitsLNAVd(min, max, tolerance);
-	SET_LNA_SIS_VALUE(lnaPol1Sb2St1DrainVoltage_RCA,ctrllnaPol1Sb2St1DrainVoltage_RCA,
+    SET_LNA_SIS_VALUE(lnaPol1Sb2St1DrainVoltage_RCA,ctrllnaPol1Sb2St1DrainVoltage_RCA,
             getTestValuesLNAVd(), min, max, tolerance,
-			"SET_CARTRIDGE_POL1_SB2_LNA_ST1_DRAIN_VOLTAGE");
+            "SET_CARTRIDGE_POL1_SB2_LNA_ST1_DRAIN_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB2_LNA_ST2_DRAIN_VOLTAGE() {
     if (band_m == 9)
         return; // not checking SB2 for band 9
     float min, max, tolerance;
     getLimitsLNAVd(min, max, tolerance);
-	SET_LNA_SIS_VALUE(lnaPol1Sb2St2DrainVoltage_RCA,ctrllnaPol1Sb2St2DrainVoltage_RCA,
+    SET_LNA_SIS_VALUE(lnaPol1Sb2St2DrainVoltage_RCA,ctrllnaPol1Sb2St2DrainVoltage_RCA,
             getTestValuesLNAVd(), min, max, tolerance,
-			"SET_CARTRIDGE_POL1_SB2_LNA_ST2_DRAIN_VOLTAGE");
+            "SET_CARTRIDGE_POL1_SB2_LNA_ST2_DRAIN_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB2_LNA_ST3_DRAIN_VOLTAGE() {
     if (band_m == 9)
         return; // not checking SB2 for band 9
     float min, max, tolerance;
     getLimitsLNAVd(min, max, tolerance);
-	SET_LNA_SIS_VALUE(lnaPol1Sb2St3DrainVoltage_RCA,ctrllnaPol1Sb2St3DrainVoltage_RCA,
+    SET_LNA_SIS_VALUE(lnaPol1Sb2St3DrainVoltage_RCA,ctrllnaPol1Sb2St3DrainVoltage_RCA,
             getTestValuesLNAVd(), min, max, tolerance,
-			"SET_CARTRIDGE_POL1_SB2_LNA_ST3_DRAIN_VOLTAGE");
+            "SET_CARTRIDGE_POL1_SB2_LNA_ST3_DRAIN_VOLTAGE");
 }
 
 //////////////////////////////////////
@@ -387,19 +391,19 @@ void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB1_LNA_ST1_GATE_VOLTAGE()
     float min, max;
     getLimitsLNAVg(min, max);
     implGetFloat(lnaPol0Sb1St1GateVoltage_RCA, min, max,
-				"GET_CARTRIDGE_POL0_SB1_LNA_ST1_GATE_VOLTAGE");
+                "GET_CARTRIDGE_POL0_SB1_LNA_ST1_GATE_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB1_LNA_ST2_GATE_VOLTAGE(){
     float min, max;
     getLimitsLNAVg(min, max);
-	implGetFloat(lnaPol0Sb1St2GateVoltage_RCA, min, max,
-				"GET_CARTRIDGE_POL0_SB1_LNA_ST2_GATE_VOLTAGE");
+    implGetFloat(lnaPol0Sb1St2GateVoltage_RCA, min, max,
+                "GET_CARTRIDGE_POL0_SB1_LNA_ST2_GATE_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB1_LNA_ST3_GATE_VOLTAGE(){
     float min, max;
     getLimitsLNAVg(min, max);
-	implGetFloat(lnaPol0Sb1St3GateVoltage_RCA, min, max,
-				"GET_CARTRIDGE_POL0_SB1_LNA_ST3_GATE_VOLTAGE");
+    implGetFloat(lnaPol0Sb1St3GateVoltage_RCA, min, max,
+                "GET_CARTRIDGE_POL0_SB1_LNA_ST3_GATE_VOLTAGE");
 }
 
 
@@ -410,20 +414,20 @@ void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB1_LNA_ST3_GATE_VOLTAGE()
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB2_LNA_ST1_GATE_VOLTAGE(){
     float min, max;
     getLimitsLNAVg(min, max);
-	implGetFloat(lnaPol0Sb2St1GateVoltage_RCA, min, max,
-				"GET_CARTRIDGE_POL0_SB2_LNA_ST1_GATE_VOLTAGE");
+    implGetFloat(lnaPol0Sb2St1GateVoltage_RCA, min, max,
+                "GET_CARTRIDGE_POL0_SB2_LNA_ST1_GATE_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB2_LNA_ST2_GATE_VOLTAGE(){
     float min, max;
     getLimitsLNAVg(min, max);
-	implGetFloat(lnaPol0Sb2St2GateVoltage_RCA, min, max,
-				"GET_CARTRIDGE_POL0_SB2_LNA_ST2_GATE_VOLTAGE");
+    implGetFloat(lnaPol0Sb2St2GateVoltage_RCA, min, max,
+                "GET_CARTRIDGE_POL0_SB2_LNA_ST2_GATE_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB2_LNA_ST3_GATE_VOLTAGE(){
     float min, max;
     getLimitsLNAVg(min, max);
-	implGetFloat(lnaPol0Sb2St3GateVoltage_RCA, min, max,
-				"GET_CARTRIDGE_POL0_SB2_LNA_ST3_GATE_VOLTAGE");
+    implGetFloat(lnaPol0Sb2St3GateVoltage_RCA, min, max,
+                "GET_CARTRIDGE_POL0_SB2_LNA_ST3_GATE_VOLTAGE");
 }
 
 //////////////////////////////////////
@@ -432,20 +436,20 @@ void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB2_LNA_ST3_GATE_VOLTAGE()
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB1_LNA_ST1_GATE_VOLTAGE(){
     float min, max;
     getLimitsLNAVg(min, max);
-	implGetFloat(lnaPol1Sb1St1GateVoltage_RCA, min, max,
-				"GET_CARTRIDGE_POL1_SB1_LNA_ST1_GATE_VOLTAGE");
+    implGetFloat(lnaPol1Sb1St1GateVoltage_RCA, min, max,
+                "GET_CARTRIDGE_POL1_SB1_LNA_ST1_GATE_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB1_LNA_ST2_GATE_VOLTAGE(){
     float min, max;
     getLimitsLNAVg(min, max);
-	implGetFloat(lnaPol1Sb1St2GateVoltage_RCA, min, max,
-				"GET_CARTRIDGE_POL1_SB1_LNA_ST2_GATE_VOLTAGE");
+    implGetFloat(lnaPol1Sb1St2GateVoltage_RCA, min, max,
+                "GET_CARTRIDGE_POL1_SB1_LNA_ST2_GATE_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB1_LNA_ST3_GATE_VOLTAGE(){
     float min, max;
     getLimitsLNAVg(min, max);
-	implGetFloat(lnaPol1Sb1St3GateVoltage_RCA, min, max,
-				"GET_CARTRIDGE_POL1_SB1_LNA_ST3_GATE_VOLTAGE");
+    implGetFloat(lnaPol1Sb1St3GateVoltage_RCA, min, max,
+                "GET_CARTRIDGE_POL1_SB1_LNA_ST3_GATE_VOLTAGE");
 }
 //////////////////////////////////////
 // LNA Gate Voltage Pol 1 SB 2
@@ -454,20 +458,20 @@ void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB1_LNA_ST3_GATE_VOLTAGE()
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB2_LNA_ST1_GATE_VOLTAGE(){
     float min, max;
     getLimitsLNAVg(min, max);
-	implGetFloat(lnaPol1Sb2St1GateVoltage_RCA, min, max,
-				"GET_CARTRIDGE_POL1_SB2_LNA_ST1_GATE_VOLTAGE");
+    implGetFloat(lnaPol1Sb2St1GateVoltage_RCA, min, max,
+                "GET_CARTRIDGE_POL1_SB2_LNA_ST1_GATE_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB2_LNA_ST2_GATE_VOLTAGE(){
     float min, max;
     getLimitsLNAVg(min, max);
-	implGetFloat(lnaPol1Sb2St2GateVoltage_RCA, min, max,
-				"GET_CARTRIDGE_POL1_SB2_LNA_ST2_GATE_VOLTAGE");
+    implGetFloat(lnaPol1Sb2St2GateVoltage_RCA, min, max,
+                "GET_CARTRIDGE_POL1_SB2_LNA_ST2_GATE_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB2_LNA_ST3_GATE_VOLTAGE(){
     float min, max;
     getLimitsLNAVg(min, max);
-	implGetFloat(lnaPol1Sb2St3GateVoltage_RCA, min, max,
-				"GET_CARTRIDGE_POL1_SB2_LNA_ST3_GATE_VOLTAGE");
+    implGetFloat(lnaPol1Sb2St3GateVoltage_RCA, min, max,
+                "GET_CARTRIDGE_POL1_SB2_LNA_ST3_GATE_VOLTAGE");
 }
 
 
@@ -475,40 +479,40 @@ void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB2_LNA_ST3_GATE_VOLTAGE()
 // LNA Enable
 //////////////////////////////////////
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB1_LNA_ENABLE(){
-	implToggleEnable(lnaPol0Sb1Enable_RCA ,ctrllnaPol0Sb1Enable_RCA,0,
-			         "SET_CARTRIDGE_POL0_SB1_LNA_ENABLE_OFF");
-	implToggleEnable(lnaPol0Sb1Enable_RCA ,ctrllnaPol0Sb1Enable_RCA,1,
-				     "SET_CARTRIDGE_POL0_SB1_LNA_ENABLE_ON");
-	implToggleEnable(lnaPol0Sb1Enable_RCA ,ctrllnaPol0Sb1Enable_RCA,2,
-				     "SET_CARTRIDGE_POL0_SB1_LNA_ENABLE_ILLEGALVALUE");
+    implToggleEnable(lnaPol0Sb1Enable_RCA ,ctrllnaPol0Sb1Enable_RCA,0,
+                     "SET_CARTRIDGE_POL0_SB1_LNA_ENABLE_OFF");
+    implToggleEnable(lnaPol0Sb1Enable_RCA ,ctrllnaPol0Sb1Enable_RCA,1,
+                     "SET_CARTRIDGE_POL0_SB1_LNA_ENABLE_ON");
+    implToggleEnable(lnaPol0Sb1Enable_RCA ,ctrllnaPol0Sb1Enable_RCA,2,
+                     "SET_CARTRIDGE_POL0_SB1_LNA_ENABLE_ILLEGALVALUE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB2_LNA_ENABLE(){
     if (band_m == 9)
         return; // not checking SB2 for band 9
-	implToggleEnable(lnaPol0Sb2Enable_RCA ,ctrllnaPol0Sb2Enable_RCA,0,
-					 "SET_CARTRIDGE_POL0_SB2_LNA_ENABLE_OFF");
-	implToggleEnable(lnaPol0Sb2Enable_RCA ,ctrllnaPol0Sb2Enable_RCA,1,
-				     "SET_CARTRIDGE_POL0_SB2_LNA_ENABLE_ON");
-	implToggleEnable(lnaPol0Sb2Enable_RCA ,ctrllnaPol0Sb2Enable_RCA,2,
-				     "SET_CARTRIDGE_POL0_SB2_LNA_ENABLE_ILLEGALVALUE");
+    implToggleEnable(lnaPol0Sb2Enable_RCA ,ctrllnaPol0Sb2Enable_RCA,0,
+                     "SET_CARTRIDGE_POL0_SB2_LNA_ENABLE_OFF");
+    implToggleEnable(lnaPol0Sb2Enable_RCA ,ctrllnaPol0Sb2Enable_RCA,1,
+                     "SET_CARTRIDGE_POL0_SB2_LNA_ENABLE_ON");
+    implToggleEnable(lnaPol0Sb2Enable_RCA ,ctrllnaPol0Sb2Enable_RCA,2,
+                     "SET_CARTRIDGE_POL0_SB2_LNA_ENABLE_ILLEGALVALUE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB1_LNA_ENABLE(){
-	implToggleEnable(lnaPol1Sb1Enable_RCA ,ctrllnaPol1Sb1Enable_RCA,0,
-			         "SET_CARTRIDGE_POL1_SB1_LNA_ENABLE_OFF");
-	implToggleEnable(lnaPol1Sb1Enable_RCA ,ctrllnaPol1Sb1Enable_RCA,1,
-				     "SET_CARTRIDGE_POL1_SB1_LNA_ENABLE_ON");
-	implToggleEnable(lnaPol1Sb1Enable_RCA ,ctrllnaPol1Sb1Enable_RCA,2,
-				     "SET_CARTRIDGE_POL1_SB1_LNA_ENABLE_ILLEGALVALUE");
+    implToggleEnable(lnaPol1Sb1Enable_RCA ,ctrllnaPol1Sb1Enable_RCA,0,
+                     "SET_CARTRIDGE_POL1_SB1_LNA_ENABLE_OFF");
+    implToggleEnable(lnaPol1Sb1Enable_RCA ,ctrllnaPol1Sb1Enable_RCA,1,
+                     "SET_CARTRIDGE_POL1_SB1_LNA_ENABLE_ON");
+    implToggleEnable(lnaPol1Sb1Enable_RCA ,ctrllnaPol1Sb1Enable_RCA,2,
+                     "SET_CARTRIDGE_POL1_SB1_LNA_ENABLE_ILLEGALVALUE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB2_LNA_ENABLE(){
     if (band_m == 9)
         return; // not checking SB2 for band 9
-	implToggleEnable(lnaPol1Sb2Enable_RCA ,ctrllnaPol1Sb2Enable_RCA,0,
-			         "SET_CARTRIDGE_POL1_SB2_LNA_ENABLE_OFF");
-	implToggleEnable(lnaPol1Sb2Enable_RCA ,ctrllnaPol1Sb2Enable_RCA,1,
-				     "SET_CARTRIDGE_POL1_SB2_LNA_ENABLE_ON");
-	implToggleEnable(lnaPol1Sb2Enable_RCA ,ctrllnaPol1Sb2Enable_RCA,2,
-				     "SET_CARTRIDGE_POL1_SB2_LNA_ENABLE_ILLEGALVALUE");
+    implToggleEnable(lnaPol1Sb2Enable_RCA ,ctrllnaPol1Sb2Enable_RCA,0,
+                     "SET_CARTRIDGE_POL1_SB2_LNA_ENABLE_OFF");
+    implToggleEnable(lnaPol1Sb2Enable_RCA ,ctrllnaPol1Sb2Enable_RCA,1,
+                     "SET_CARTRIDGE_POL1_SB2_LNA_ENABLE_ON");
+    implToggleEnable(lnaPol1Sb2Enable_RCA ,ctrllnaPol1Sb2Enable_RCA,2,
+                     "SET_CARTRIDGE_POL1_SB2_LNA_ENABLE_ILLEGALVALUE");
 }
 
 //////////////////////////////////////
@@ -516,20 +520,20 @@ void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB2_LNA_ENABLE(){
 //////////////////////////////////////
 
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_LNA_LED_ENABLE(){
-	implToggleEnable(lnaLedPol0Enable_RCA ,ctrllnaLedPol0Enable_RCA,0,
-			         "SET_CARTRIDGE_POL0_LNA_LED_ENABLE_OFF");
-	implToggleEnable(lnaLedPol0Enable_RCA ,ctrllnaLedPol0Enable_RCA,1,
-				     "SET_CARTRIDGE_POL0_LNA_LED_ENABLE_ON");
-	implToggleEnable(lnaLedPol0Enable_RCA ,ctrllnaLedPol0Enable_RCA,2,
-				     "SET_CARTRIDGE_POL0_LNA_LED_ENABLE_ILLEGALVALUE");
+    implToggleEnable(lnaLedPol0Enable_RCA ,ctrllnaLedPol0Enable_RCA,0,
+                     "SET_CARTRIDGE_POL0_LNA_LED_ENABLE_OFF");
+    implToggleEnable(lnaLedPol0Enable_RCA ,ctrllnaLedPol0Enable_RCA,1,
+                     "SET_CARTRIDGE_POL0_LNA_LED_ENABLE_ON");
+    implToggleEnable(lnaLedPol0Enable_RCA ,ctrllnaLedPol0Enable_RCA,2,
+                     "SET_CARTRIDGE_POL0_LNA_LED_ENABLE_ILLEGALVALUE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_LNA_LED_ENABLE(){
-	implToggleEnable(lnaLedPol1Enable_RCA ,ctrllnaLedPol1Enable_RCA,0,
-			         "SET_CARTRIDGE_POL1_LNA_LED_ENABLE_OFF");
-	implToggleEnable(lnaLedPol1Enable_RCA ,ctrllnaLedPol1Enable_RCA,1,
-				     "SET_CARTRIDGE_POL1_LNA_LED_ENABLE_ON");
-	implToggleEnable(lnaLedPol1Enable_RCA ,ctrllnaLedPol1Enable_RCA,2,
-				     "SET_CARTRIDGE_POL1_LNA_LED_ENABLE_ILLEGALVALUE");
+    implToggleEnable(lnaLedPol1Enable_RCA ,ctrllnaLedPol1Enable_RCA,0,
+                     "SET_CARTRIDGE_POL1_LNA_LED_ENABLE_OFF");
+    implToggleEnable(lnaLedPol1Enable_RCA ,ctrllnaLedPol1Enable_RCA,1,
+                     "SET_CARTRIDGE_POL1_LNA_LED_ENABLE_ON");
+    implToggleEnable(lnaLedPol1Enable_RCA ,ctrllnaLedPol1Enable_RCA,2,
+                     "SET_CARTRIDGE_POL1_LNA_LED_ENABLE_ILLEGALVALUE");
 }
 
 /**********************************
@@ -539,29 +543,29 @@ void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB1_SIS_CURRENT() {
     float min, max;
     getLimitsSISCurrent(min, max);
     implGetFloat(sisPol0Sb1Current_RCA, min, max,
-					"GET_CARTRIDGE_POL0_SB1_SIS_CURRENT");
+                    "GET_CARTRIDGE_POL0_SB1_SIS_CURRENT");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB2_SIS_CURRENT(){
     if (band_m == 9)
         return; // not checking SB2 for band 9
     float min, max;
     getLimitsSISCurrent(min, max);
-	implGetFloat(sisPol0Sb2Current_RCA, min, max,
-					"GET_CARTRIDGE_POL0_SB2_SIS_CURRENT");
+    implGetFloat(sisPol0Sb2Current_RCA, min, max,
+                    "GET_CARTRIDGE_POL0_SB2_SIS_CURRENT");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB1_SIS_CURRENT(){
     float min, max;
     getLimitsSISCurrent(min, max);
-	implGetFloat(sisPol1Sb1Current_RCA, min, max,
-					"GET_CARTRIDGE_POL1_SB1_SIS_CURRENT");
+    implGetFloat(sisPol1Sb1Current_RCA, min, max,
+                    "GET_CARTRIDGE_POL1_SB1_SIS_CURRENT");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB2_SIS_CURRENT(){
     if (band_m == 9)
         return; // not checking SB2 for band 9
     float min, max;
     getLimitsSISCurrent(min, max);
-	implGetFloat(sisPol1Sb2Current_RCA, min, max,
-					"GET_CARTRIDGE_POL1_SB2_SIS_CURRENT");
+    implGetFloat(sisPol1Sb2Current_RCA, min, max,
+                    "GET_CARTRIDGE_POL1_SB2_SIS_CURRENT");
 }
 
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB1_SIS_MAGNET_VOLTAGE(){
@@ -569,8 +573,8 @@ void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB1_SIS_MAGNET_VOLTAGE(){
         return; // not checking magnets on bands 3 & 4
     float min, max;
     getLimitsMagnetVoltage(min, max);
-	implGetFloat(sisMagnetPol0Sb1Voltage_RCA, min, max,
-					"GET_CARTRIDGE_POL0_SB1_SIS_MAGNET_VOLTAGE");
+    implGetFloat(sisMagnetPol0Sb1Voltage_RCA, min, max,
+                    "GET_CARTRIDGE_POL0_SB1_SIS_MAGNET_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB2_SIS_MAGNET_VOLTAGE(){
     if (band_m == 3 || band_m == 4)
@@ -579,16 +583,16 @@ void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB2_SIS_MAGNET_VOLTAGE(){
         return; // not checking SB2 for bands 6 & 9
     float min, max;
     getLimitsMagnetVoltage(min, max);
-	implGetFloat(sisMagnetPol0Sb2Voltage_RCA, min, max,
-					"GET_CARTRIDGE_POL0_SB2_SIS_MAGNET_VOLTAGE");
+    implGetFloat(sisMagnetPol0Sb2Voltage_RCA, min, max,
+                    "GET_CARTRIDGE_POL0_SB2_SIS_MAGNET_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB1_SIS_MAGNET_VOLTAGE(){
     if (band_m == 3 || band_m == 4)
         return; // not checking magnets on bands 3 & 4
     float min, max;
     getLimitsMagnetVoltage(min, max);
-	implGetFloat(sisMagnetPol1Sb1Voltage_RCA, min, max,
-					"GET_CARTRIDGE_POL1_SB1_SIS_MAGNET_VOLTAGE");
+    implGetFloat(sisMagnetPol1Sb1Voltage_RCA, min, max,
+                    "GET_CARTRIDGE_POL1_SB1_SIS_MAGNET_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB2_SIS_MAGNET_VOLTAGE(){
     if (band_m == 3 || band_m == 4)
@@ -597,8 +601,8 @@ void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB2_SIS_MAGNET_VOLTAGE(){
         return; // not checking SB2 for bands 6 & 9
     float min, max;
     getLimitsMagnetVoltage(min, max);
-	implGetFloat(sisMagnetPol1Sb2Voltage_RCA, min, max,
-					"GET_CARTRIDGE_POL1_SB2_SIS_MAGNET_VOLTAGE");
+    implGetFloat(sisMagnetPol1Sb2Voltage_RCA, min, max,
+                    "GET_CARTRIDGE_POL1_SB2_SIS_MAGNET_VOLTAGE");
 }
 
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SIS_HEATER_CURRENT(){
@@ -606,8 +610,8 @@ void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SIS_HEATER_CURRENT(){
         return; // not checking heaters on bands 3 & 4
     float min, max;
     getLimitsHeaterCurrent(min, max);
-	implGetFloat(sisHeaterPol0Current_RCA, min, max,
-					"GET_CARTRIDGE_POL0_SIS_HEATER_CURRENT");
+    implGetFloat(sisHeaterPol0Current_RCA, min, max,
+                    "GET_CARTRIDGE_POL0_SIS_HEATER_CURRENT");
 }
 
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SIS_HEATER_CURRENT(){
@@ -615,18 +619,30 @@ void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SIS_HEATER_CURRENT(){
         return; // not checking heaters on bands 3 & 4
     float min, max;
     getLimitsHeaterCurrent(min, max);
-	implGetFloat(sisHeaterPol1Current_RCA, min, max,
-					"GET_CARTRIDGE_POL1_SIS_HEATER_CURRENT");
+    implGetFloat(sisHeaterPol1Current_RCA, min, max,
+                    "GET_CARTRIDGE_POL1_SIS_HEATER_CURRENT");
 }
 /**********************************
  * SIS Control Functions
  **********************************/
+void ColdCartridgeTestFixture::testSET_CARTRIDGE_SIS_CURRENT_SENSE_RESISTOR() {
+    if (band_m < 3)
+        return; // not checking current sense resistor on bands 1 & 2
+    float min(0.000001), max(99999.9), tolerance(0.0);
+    SET_LNA_SIS_VALUE(sisSenseResistor_RCA, ctrlsisSenseResistor_RCA,
+                    getTestValuesSISSenseResistor(), min, max, tolerance,
+                    "SET_CARTRIDGE_SIS_CURRENT_SENSE_RESISTOR");
+    SET_LNA_SIS_VALUE(sisSenseResistor2_RCA, ctrlsisSenseResistor2_RCA,
+                    getTestValuesSISSenseResistor(), min, max, tolerance,
+                    "SET_CARTRIDGE_SIS_CURRENT_SENSE_RESISTOR");
+}
+
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB1_SIS_VOLTAGE(){
     float min, max, tolerance;
     getLimitsSisVoltage(min, max, tolerance);
-	SET_LNA_SIS_VALUE(sisPol0Sb1Voltage_RCA, ctrlsisPol0Sb1Voltage_RCA,
-	                getTestValuesSISVoltage(), min, max, tolerance,
-					"SET_CARTRIDGE_POL0_SB1_SIS_VOLTAGE");
+    SET_LNA_SIS_VALUE(sisPol0Sb1Voltage_RCA, ctrlsisPol0Sb1Voltage_RCA,
+                    getTestValuesSISVoltage(), min, max, tolerance,
+                    "SET_CARTRIDGE_POL0_SB1_SIS_VOLTAGE");
 }
 
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB2_SIS_VOLTAGE(){
@@ -634,25 +650,25 @@ void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB2_SIS_VOLTAGE(){
         return; // not checking SB2 for band 9
     float min, max, tolerance;
     getLimitsSisVoltage(min, max, tolerance);
-	SET_LNA_SIS_VALUE(sisPol0Sb2Voltage_RCA, ctrlsisPol0Sb2Voltage_RCA,
+    SET_LNA_SIS_VALUE(sisPol0Sb2Voltage_RCA, ctrlsisPol0Sb2Voltage_RCA,
                     getTestValuesSISVoltage(), min, max, tolerance,
-					"SET_CARTRIDGE_POL0_SB2_SIS_VOLTAGE");
+                    "SET_CARTRIDGE_POL0_SB2_SIS_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB1_SIS_VOLTAGE(){
     float min, max, tolerance;
     getLimitsSisVoltage(min, max, tolerance);
-	SET_LNA_SIS_VALUE(sisPol1Sb1Voltage_RCA, ctrlsisPol1Sb1Voltage_RCA,
+    SET_LNA_SIS_VALUE(sisPol1Sb1Voltage_RCA, ctrlsisPol1Sb1Voltage_RCA,
                     getTestValuesSISVoltage(), min, max, tolerance,
-					"SET_CARTRIDGE_POL1_SB1_SIS_VOLTAGE");
+                    "SET_CARTRIDGE_POL1_SB1_SIS_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB2_SIS_VOLTAGE(){
     if (band_m == 9)
         return; // not checking SB2 for band 9
     float min, max, tolerance;
     getLimitsSisVoltage(min, max, tolerance);
-	SET_LNA_SIS_VALUE(sisPol1Sb2Voltage_RCA, ctrlsisPol1Sb2Voltage_RCA,
-	                getTestValuesSISVoltage(), min, max, tolerance,
-					"SET_CARTRIDGE_POL1_SB2_SIS_VOLTAGE");
+    SET_LNA_SIS_VALUE(sisPol1Sb2Voltage_RCA, ctrlsisPol1Sb2Voltage_RCA,
+                    getTestValuesSISVoltage(), min, max, tolerance,
+                    "SET_CARTRIDGE_POL1_SB2_SIS_VOLTAGE");
 }
 
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB1_SIS_MAGNET_CURRENT(){
@@ -660,9 +676,9 @@ void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB1_SIS_MAGNET_CURRENT(){
         return; // not checking magnets on bands 3 & 4
     float min, max, tolerance;
     getLimitsMagnetCurrent(min, max, tolerance);
-	SET_LNA_SIS_VALUE(sisMagnetPol0Sb1Current_RCA, ctrlsisMagnetPol0Sb1Current_RCA,
-	                getTestValuesMagnetCurrent(), min, max, tolerance,
-					"SET_CARTRIDGE_POL0_SB1_SIS_MAGNET_CURRENT");
+    SET_LNA_SIS_VALUE(sisMagnetPol0Sb1Current_RCA, ctrlsisMagnetPol0Sb1Current_RCA,
+                    getTestValuesMagnetCurrent(), min, max, tolerance,
+                    "SET_CARTRIDGE_POL0_SB1_SIS_MAGNET_CURRENT");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB2_SIS_MAGNET_CURRENT(){
     if (band_m == 3 || band_m == 4)
@@ -671,18 +687,18 @@ void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB2_SIS_MAGNET_CURRENT(){
         return; // not checking SB2 for bands 6 & 9
     float min, max, tolerance;
     getLimitsMagnetCurrent(min, max, tolerance);
-	SET_LNA_SIS_VALUE(sisMagnetPol0Sb2Current_RCA, ctrlsisMagnetPol0Sb2Current_RCA,
-	                getTestValuesMagnetCurrent(), min, max, tolerance,
-					"SET_CARTRIDGE_POL0_SB2_SIS_MAGNET_CURRENT");
+    SET_LNA_SIS_VALUE(sisMagnetPol0Sb2Current_RCA, ctrlsisMagnetPol0Sb2Current_RCA,
+                    getTestValuesMagnetCurrent(), min, max, tolerance,
+                    "SET_CARTRIDGE_POL0_SB2_SIS_MAGNET_CURRENT");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB1_SIS_MAGNET_CURRENT(){
     if (band_m == 3 || band_m == 4)
         return; // not checking magnets on bands 3 & 4
     float min, max, tolerance;
     getLimitsMagnetCurrent(min, max, tolerance);
-	SET_LNA_SIS_VALUE(sisMagnetPol1Sb1Current_RCA, ctrlsisMagnetPol1Sb1Current_RCA,
-	                getTestValuesMagnetCurrent(), min, max, tolerance,
-					"SET_CARTRIDGE_POL1_SB1_SIS_MAGNET_CURRENT");
+    SET_LNA_SIS_VALUE(sisMagnetPol1Sb1Current_RCA, ctrlsisMagnetPol1Sb1Current_RCA,
+                    getTestValuesMagnetCurrent(), min, max, tolerance,
+                    "SET_CARTRIDGE_POL1_SB1_SIS_MAGNET_CURRENT");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB2_SIS_MAGNET_CURRENT(){
     if (band_m == 3 || band_m == 4)
@@ -691,59 +707,59 @@ void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB2_SIS_MAGNET_CURRENT(){
         return; // not checking SB2 for bands 6 & 9
     float min, max, tolerance;
     getLimitsMagnetCurrent(min, max, tolerance);
-	SET_LNA_SIS_VALUE(sisMagnetPol1Sb2Current_RCA, ctrlsisMagnetPol1Sb2Current_RCA,
-	                getTestValuesMagnetCurrent(), min, max, tolerance,
-					"SET_CARTRIDGE_POL1_SB2_SIS_MAGNET_CURRENT");
+    SET_LNA_SIS_VALUE(sisMagnetPol1Sb2Current_RCA, ctrlsisMagnetPol1Sb2Current_RCA,
+                    getTestValuesMagnetCurrent(), min, max, tolerance,
+                    "SET_CARTRIDGE_POL1_SB2_SIS_MAGNET_CURRENT");
 }
 
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB1_SIS_OPEN_LOOP(){
-	implToggleEnable(sisPol0Sb1OpenLoop_RCA ,ctrlsisPol0Sb1OpenLoop_RCA,0,
-			         "SET_CARTRIDGE_POL0_SB1_SIS_CLOSE_LOOP");
-	implToggleEnable(sisPol0Sb1OpenLoop_RCA ,ctrlsisPol0Sb1OpenLoop_RCA,1,
-				     "SET_CARTRIDGE_POL0_SB1_SIS_OPEN_LOOP");
-	implToggleEnable(sisPol0Sb1OpenLoop_RCA ,ctrlsisPol0Sb1OpenLoop_RCA,2,
-				     "SET_CARTRIDGE_POL0_SB1_SIS_OPEN_LOOP_ILLEGALVALUE");
+    implToggleEnable(sisPol0Sb1OpenLoop_RCA ,ctrlsisPol0Sb1OpenLoop_RCA,0,
+                     "SET_CARTRIDGE_POL0_SB1_SIS_CLOSE_LOOP");
+    implToggleEnable(sisPol0Sb1OpenLoop_RCA ,ctrlsisPol0Sb1OpenLoop_RCA,1,
+                     "SET_CARTRIDGE_POL0_SB1_SIS_OPEN_LOOP");
+    implToggleEnable(sisPol0Sb1OpenLoop_RCA ,ctrlsisPol0Sb1OpenLoop_RCA,2,
+                     "SET_CARTRIDGE_POL0_SB1_SIS_OPEN_LOOP_ILLEGALVALUE");
 }
 
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB2_SIS_OPEN_LOOP(){
     if (band_m == 9)
         return; // not checking SB2 for band 9
-	implToggleEnable(sisPol0Sb2OpenLoop_RCA ,ctrlsisPol0Sb2OpenLoop_RCA,0,
-			         "SET_CARTRIDGE_POL0_SB2_SIS_CLOSE_LOOP");
-	implToggleEnable(sisPol0Sb2OpenLoop_RCA ,ctrlsisPol0Sb2OpenLoop_RCA,1,
-				     "SET_CARTRIDGE_POL0_SB2_SIS_OPEN_LOOP");
-	implToggleEnable(sisPol0Sb2OpenLoop_RCA ,ctrlsisPol0Sb2OpenLoop_RCA,2,
-				     "SET_CARTRIDGE_POL0_SB2_SIS_OPEN_LOOP_ILLEGALVALUE");
+    implToggleEnable(sisPol0Sb2OpenLoop_RCA ,ctrlsisPol0Sb2OpenLoop_RCA,0,
+                     "SET_CARTRIDGE_POL0_SB2_SIS_CLOSE_LOOP");
+    implToggleEnable(sisPol0Sb2OpenLoop_RCA ,ctrlsisPol0Sb2OpenLoop_RCA,1,
+                     "SET_CARTRIDGE_POL0_SB2_SIS_OPEN_LOOP");
+    implToggleEnable(sisPol0Sb2OpenLoop_RCA ,ctrlsisPol0Sb2OpenLoop_RCA,2,
+                     "SET_CARTRIDGE_POL0_SB2_SIS_OPEN_LOOP_ILLEGALVALUE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB1_SIS_OPEN_LOOP(){
-	implToggleEnable(sisPol1Sb1OpenLoop_RCA ,ctrlsisPol1Sb1OpenLoop_RCA,0,
-			         "SET_CARTRIDGE_POL1_SB1_SIS_CLOSE_LOOP");
-	implToggleEnable(sisPol1Sb1OpenLoop_RCA ,ctrlsisPol1Sb1OpenLoop_RCA,1,
-				     "SET_CARTRIDGE_POL1_SB1_SIS_OPEN_LOOP");
-	implToggleEnable(sisPol1Sb1OpenLoop_RCA ,ctrlsisPol1Sb1OpenLoop_RCA,2,
-				     "SET_CARTRIDGE_POL1_SB1_SIS_OPEN_LOOP_ILLEGALVALUE");
+    implToggleEnable(sisPol1Sb1OpenLoop_RCA ,ctrlsisPol1Sb1OpenLoop_RCA,0,
+                     "SET_CARTRIDGE_POL1_SB1_SIS_CLOSE_LOOP");
+    implToggleEnable(sisPol1Sb1OpenLoop_RCA ,ctrlsisPol1Sb1OpenLoop_RCA,1,
+                     "SET_CARTRIDGE_POL1_SB1_SIS_OPEN_LOOP");
+    implToggleEnable(sisPol1Sb1OpenLoop_RCA ,ctrlsisPol1Sb1OpenLoop_RCA,2,
+                     "SET_CARTRIDGE_POL1_SB1_SIS_OPEN_LOOP_ILLEGALVALUE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB2_SIS_OPEN_LOOP(){
     if (band_m == 9)
         return; // not checking SB2 for band 9
-	implToggleEnable(sisPol1Sb2OpenLoop_RCA ,ctrlsisPol1Sb2OpenLoop_RCA,0,
-			         "SET_CARTRIDGE_POL1_SB2_SIS_CLOSE_LOOP");
-	implToggleEnable(sisPol1Sb2OpenLoop_RCA ,ctrlsisPol1Sb2OpenLoop_RCA,1,
-				     "SET_CARTRIDGE_POL1_SB2_SIS_OPEN_LOOP");
-	implToggleEnable(sisPol1Sb2OpenLoop_RCA ,ctrlsisPol1Sb2OpenLoop_RCA,2,
-				     "SET_CARTRIDGE_POL1_SB2_SIS_OPEN_LOOP_ILLEGALVALUE");
+    implToggleEnable(sisPol1Sb2OpenLoop_RCA ,ctrlsisPol1Sb2OpenLoop_RCA,0,
+                     "SET_CARTRIDGE_POL1_SB2_SIS_CLOSE_LOOP");
+    implToggleEnable(sisPol1Sb2OpenLoop_RCA ,ctrlsisPol1Sb2OpenLoop_RCA,1,
+                     "SET_CARTRIDGE_POL1_SB2_SIS_OPEN_LOOP");
+    implToggleEnable(sisPol1Sb2OpenLoop_RCA ,ctrlsisPol1Sb2OpenLoop_RCA,2,
+                     "SET_CARTRIDGE_POL1_SB2_SIS_OPEN_LOOP_ILLEGALVALUE");
 }
 
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SIS_HEATER_ENABLE(){
     if (band_m == 3 || band_m == 4)
         return; // not checking heaters on bands 3 & 4
-	implTestHeaters(ctrlsisHeaterPol0Enable_RCA, sisHeaterPol0Enable_RCA, sisHeaterPol0Current_RCA, "SET_CARTRIDGE_POL0_SIS_HEATER_ENABLE");
+    implTestHeaters(ctrlsisHeaterPol0Enable_RCA, sisHeaterPol0Enable_RCA, sisHeaterPol0Current_RCA, "SET_CARTRIDGE_POL0_SIS_HEATER_ENABLE");
 }
 
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SIS_HEATER_ENABLE(){
     if (band_m == 3 || band_m == 4)
         return; // not checking heaters on bands 3 & 4
-	implTestHeaters(ctrlsisHeaterPol1Enable_RCA, sisHeaterPol1Enable_RCA, sisHeaterPol1Current_RCA, "SET_CARTRIDGE_POL1_SIS_HEATER_ENABLE");
+    implTestHeaters(ctrlsisHeaterPol1Enable_RCA, sisHeaterPol1Enable_RCA, sisHeaterPol1Current_RCA, "SET_CARTRIDGE_POL1_SIS_HEATER_ENABLE");
 }
 
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_TEMP0_TEMP(){
@@ -790,17 +806,19 @@ void ColdCartridgeTestFixture::SET_LNA_SIS_VALUE(AmbRelativeAddr monitor_RCA,Amb
 
     //LOG(LM_INFO) << "Number of elements in array=" << test_values.size() << endl;
 
-
     //Loop over test_values array
-    //for (i=0;i<(sizeof(test_values) / sizeof (test_values[0]));i++){
     for (i=0;i< test_values.size();i++){
         InValidRange = (test_values[i] >= validmin) && (test_values[i] <= validmax);
         resetAmbVars();
+
         //LOG(LM_INFO) << "test_values[i]=" << test_values[i] << endl;
 
-        //Set 0 initially
-        packSGL(0);
-        commandImpl(control_RCA, "initially setting to zero.\n", &info);
+        //Set 0 or min initially:
+        if (validmin <= 0.0)
+            packSGL(0);
+        else
+            packSGL(validmin);
+        commandImpl(control_RCA, "initially setting to zero/validmin.\n", &info);
         SLEEP(100);
         monitor(monitor_RCA, strSet, &info);
         OriginalMonitorValue = unpackSGL();
@@ -810,8 +828,7 @@ void ColdCartridgeTestFixture::SET_LNA_SIS_VALUE(AmbRelativeAddr monitor_RCA,Amb
         bufReturn.str("");
 
         //Append set value to the message
-        bufSet <<  "\n" << msg << ", SetValue=" << test_values[i] <<
-                ",Range=[" << validmin << "," << validmax << "].";
+        bufSet <<  "\n" << msg << ", SetValue=" << test_values[i] << ",Range=[" << validmin << "," << validmax << "].";
         strSet = bufSet.str();
 
         //set control value
@@ -933,6 +950,21 @@ void ColdCartridgeTestFixture::implTestHeaters(
     dataLength_m = 1;
     data_m[0] = 0;
     command(controlSisHeaterEnable_RCA, callerDescription + " - disable heater.", &strReturn);
+}
+
+const std::vector<float> &ColdCartridgeTestFixture::getTestValuesSISSenseResistor() const {
+    static bool firstTime(true);
+    static std::vector<float> values;
+    if (firstTime) {
+        firstTime = false;
+        values.reserve(4);
+        values.resize(0);
+        values.push_back(6.0);     // In-range value
+        values.push_back(17.0);    // in-range value
+        values.push_back(-51.0);   // negative value not allowed
+        values.push_back(0.0);     // zero not allowed
+    }
+    return values;
 }
 
 const std::vector<float> &ColdCartridgeTestFixture::getTestValuesLNAVd() const {

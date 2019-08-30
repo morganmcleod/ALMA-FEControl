@@ -59,7 +59,7 @@ APPINCLUDES = $(UTILINC) $(AMBINC) $(CPPUNITINC) $(PORTABLEINC)
 APPLIBS = $(UTILLIB) $(AMBLIB) $(CPPUNITLIB) $(PORTABLELIB) $(NICANLIB)  
 
 # C++ build options:
-CPPFLAGS = -O0 -fmessage-length=0 -Wall 
+CPPFLAGS = -O0 -fmessage-length=0 -Wall -Wno-deprecated-declarations
 DEBUGFLAGS = -g2 -fno-omit-frame-pointer
 
 # Link flags:
