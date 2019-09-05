@@ -99,6 +99,7 @@
     CPPUNIT_TEST(testGET_CARTRIDGE_TEMP3_TEMP); \
     CPPUNIT_TEST(testGET_CARTRIDGE_TEMP4_TEMP); \
     CPPUNIT_TEST(testGET_CARTRIDGE_TEMP5_TEMP); \
+    CPPUNIT_TEST(testSET_CARTRIDGE_TEMP_OFFSET); \
     CPPUNIT_TEST(DISABLE_CARTRIDGE); \
     CPPUNIT_TEST_SUITE_END();
 
@@ -196,6 +197,8 @@ public:
     void testGET_CARTRIDGE_TEMP3_TEMP();
     void testGET_CARTRIDGE_TEMP4_TEMP();
     void testGET_CARTRIDGE_TEMP5_TEMP();
+
+    void testSET_CARTRIDGE_TEMP_OFFSET();
 
 protected:
     void SET_LNA_SIS_VALUE(AmbRelativeAddr monitor_RCA,AmbRelativeAddr control_RCA,
@@ -304,7 +307,7 @@ private:
         LNA_LED_ENABLE          = 0x0100,
         SIS_HEATER_ENABLE       = 0x0180,
         SIS_HEATER_CURRENT      = 0x01C0,
-        CARTRIDGE_TEMP          = 0x0880
+        CARTRIDGE_TEMP          = 0x0880,
     };
 
     AmbRelativeAddr sisSenseResistor_RCA;

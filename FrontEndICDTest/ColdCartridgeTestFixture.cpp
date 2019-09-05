@@ -781,6 +781,49 @@ void ColdCartridgeTestFixture::testGET_CARTRIDGE_TEMP5_TEMP(){
     implGetFloat(cartridgeTemperature5_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP5_TEMP");
 }
 
+void ColdCartridgeTestFixture::testSET_CARTRIDGE_TEMP_OFFSET() {
+    unsigned char statusByte;
+    string info;
+
+    // Loop through all cartridge temp sensors:
+    for (AmbRelativeAddr sensorMon = cartridgeTemperature0_RCA; sensorMon <= cartridgeTemperature5_RCA; sensorMon += 0x10) {
+        // We can read the current offset at this RCA:
+        AmbRelativeAddr offsetMon = sensorMon + 0x08;
+        // And this is the offset control RCA:
+        AmbRelativeAddr offsetCtrl = offsetMon + controlRCA;
+
+        // Read and back up the current offset:
+        monitor(offsetMon, "SET_CARTRIDGE_TEMP_OFFSET", &info);
+        // check datalength
+        CPPUNIT_ASSERT_MESSAGE(info, dataLength_m == 5);
+        float offsetBak(unpackSGL(&statusByte));
+
+        // Set the offset to zero:
+        packSGL(0);
+        commandImpl(offsetCtrl, "initially setting offset to zero.\n", &info);
+
+        // Read the temperature sensor:
+        monitor(sensorMon, "SET_CARTRIDGE_TEMP_OFFSET", &info);
+        float sensor(unpackSGL(&statusByte));
+
+        // Set the offset to +1
+        packSGL(1);
+        commandImpl(offsetCtrl, "Setting offset to 1.\n", &info);
+
+        // Read the temperature sensor:
+        monitor(sensorMon, "SET_CARTRIDGE_TEMP_OFFSET", &info);
+        float sensor1(unpackSGL(&statusByte));
+
+        // Check that difference is about 1:
+        bool inRange = ((sensor1 - sensor) >= 0.95) && ((sensor1 - sensor) <= 1.05);
+        CPPUNIT_ASSERT_MESSAGE("Offset temperature out of range.", inRange);
+
+        // Set the offset back to the original value:
+        packSGL(offsetBak);
+        commandImpl(offsetCtrl, "Restoring original offset.\n", &info);
+    }
+}
+
 void ColdCartridgeTestFixture::SET_LNA_VALUE_Id(AmbRelativeAddr controlVd_RCA,
             AmbRelativeAddr monitor_RCA,AmbRelativeAddr control_RCA,
             const std::vector<float> &test_values, const float validmin, const float validmax,
