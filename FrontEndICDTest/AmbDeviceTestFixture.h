@@ -59,17 +59,20 @@ protected:
     ///< Unpack the contents of data_m into a 4-byte floating point.
     ///< Also return the FE status byte if a pointer is provided.
     
-    void packU16(unsigned short value);
+    void packU16(unsigned short value, bool append = false);
     ///< Pack the given unsigned integer into data_m
-    ///< Also sets dataLength_m = 2
+    ///< If 'append' place it starting at dataLength_m and add 2 to dataLength_m
+    ///< Else set dataLength_m = 2
 
-    void packU32(unsigned long value);
+    void packU32(unsigned long value, bool append = false);
     ///< Pack the given unsigned integer into data_m
-    ///< Also sets dataLength_m = 4
+    ///< If 'append' place it starting at dataLength_m and add 4 to dataLength_m
+    ///< Else set dataLength_m = 4
 
-    void packSGL(float value);
+    void packSGL(float value, bool append = false);
     ///< Pack the given floating point value into data_m
-    ///< Also sets dataLength_m = 4
+    ///< If 'append' place it starting at dataLength_m and add 4 to dataLength_m
+    ///< Else set dataLength_m = 4
 
     void resetAmbVars();
     ///< Zero out all member variables.
