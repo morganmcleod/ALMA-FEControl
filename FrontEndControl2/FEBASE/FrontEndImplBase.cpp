@@ -40,6 +40,8 @@ FrontEndImplBase::FrontEndImplBase(const std::string &name)
     numErrors_status(FEMC_NOT_CONNECTED),
     nextError_value(0),
     nextError_status(FEMC_NOT_CONNECTED),
+    FEMode_value(0),
+    FEMode_status(FEMC_NOT_CONNECTED),
     numEnabledModules_RCA(POWER_NUM_MODULES_ENABLED),
     powerEnableModule_RCA(POWER_ENABLE_MODULE),
     numErrors_RCA(SPECIAL_MONITOR + GET_ERRORS_NUMBER),

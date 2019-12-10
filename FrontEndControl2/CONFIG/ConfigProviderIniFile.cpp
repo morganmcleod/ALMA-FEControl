@@ -25,9 +25,11 @@
 #include "FrontEndConfig.h"
 #include "XMLParser.h"
 #include "iniFile.h"
+#include "listDir.h"
 #include "setTimeStamp.h"
 #include "stringConvert.h"
 #include "splitPath.h"
+#include "logger.h"
 #include <stdlib.h>         // for atof()
 #include <stdio.h>          // for sprintf()
 using namespace std;
@@ -35,7 +37,8 @@ using namespace std;
 namespace FEConfig {
 
 ConfigProviderIniFile::ConfigProviderIniFile(const std::string& filename)
-  : iniFile_mp(new CIniFile(filename))
+  : iniFile_mp(new CIniFile(filename)),
+    xmlFiles_m()
 {
     iniFile_mp -> ReadFile();
 }
@@ -50,6 +53,23 @@ bool ConfigProviderIniFile::exists(unsigned keyFacility, unsigned configId) cons
     
     Configuration::Record rec;
     return getConfiguration(keyFacility, configId, rec);
+}
+
+void ConfigProviderIniFile::setESNList(const StringSet &toCopy) {
+    ConfigProvider::setESNList(toCopy);
+
+    string iniFile(iniFile_mp -> Path());
+    string iniPath, tmp;
+
+    // get the path where the FrontendControlDLL.ini file is located:
+    splitPath(iniFile, iniPath, tmp);
+    if (iniPath.empty())
+        iniPath = ".";
+
+    list_dir(iniPath, ".xml", xmlFiles_m);
+
+    for (StringSet::const_iterator it = xmlFiles_m.begin(); it != xmlFiles_m.end(); ++it)
+       LOG(LM_INFO) << *it << endl;
 }
 
 bool ConfigProviderIniFile::getConfiguration(unsigned keyFacility, unsigned configId, Configuration::Record &target) const {

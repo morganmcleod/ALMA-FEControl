@@ -31,7 +31,7 @@ class CIniFile;
 
 namespace FEConfig {
 
-    /// Loads FE configuration data from a MySQL database connection.
+    /// Loads FE configuration data from an ini file.   Also loads some content from XML files in TMCDB format.
     class ConfigProviderIniFile : public ConfigProvider {
     public:
         ConfigProviderIniFile(const std::string& filename);
@@ -41,7 +41,10 @@ namespace FEConfig {
     
         virtual bool exists(unsigned keyFacility, unsigned configId) const;
         ///< return true if the config specified by (keyFacility, configId) exists in the database, false otherwise.
-    
+
+        virtual void setESNList(const StringSet &toCopy);
+        ///< Set the list of ESNs for which to search for configuration
+
         virtual bool getConfiguration(unsigned keyFacility, unsigned configId,
                                       Configuration::Record &target) const;
         ///< get the top-level configuration record specified by (keyFacility, configId).
@@ -134,6 +137,7 @@ namespace FEConfig {
         ///< extraction starts at nextPos.  Also nextPos returns the position of the next item in the string.
         
         CIniFile *iniFile_mp;       ///< ini file to use
+        StringSet xmlFiles_m;       ///< XML files found in the INI file directory
     };
 
 }; // namespace FEConfig

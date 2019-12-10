@@ -25,6 +25,7 @@
 
 #include <FrontEndAMB/ambDefs.h>
 #include "Configuration.h"
+#include "StringSet.h"
 #include <vector>
 
 namespace FEConfig {
@@ -47,13 +48,18 @@ namespace FEConfig {
     class ConfigProvider {
     public:
         ConfigProvider()
-          {}
+          : ESNList_m()
+            {}
         virtual ~ConfigProvider()
           {}
     
         virtual bool exists(unsigned keyFacility, unsigned configId) const = 0;
         ///< return true if the configuration specified by (keyFacility, configId) exists in the database, false otherwise.
     
+        virtual void setESNList(const StringSet &toCopy)
+        ///< Set the list of ESNs for which to search for configuration
+          { ESNList_m = toCopy; }
+
         virtual bool getConfiguration(unsigned keyFacility, unsigned configId,
                                       Configuration::Record &target) const = 0;
         ///< get the top-level configuration record specified by (keyFacility, configId).
@@ -90,12 +96,16 @@ namespace FEConfig {
         ///< get the WCAConfig portion of the specified config for the specified band.
         ///< returns false if that portion is not available or on error.
 
+    protected:
+        StringSet ESNList_m;
+        ///< List of ESNs to search for configuration
 
     private:
         ConfigProvider(const ConfigProvider &other);
         ///< copy construct is private and forbidden.
         ConfigProvider &operator =(const ConfigProvider &other);
         ///< assignment is private and forbidden.
+
     };
 
 }; // namespace FEConfig

@@ -38,8 +38,10 @@
 #include "CONFIG/ConfigProviderIniFile.h"
 #include "CONFIG/ConfigManager.h"
 #include "CONFIG/IFPowerDataSet.h"
+#include "StringSet.h"
 #include "iniFile.h"
 #include "stringConvert.h"
+#include "StringSet.h"
 #include "splitPath.h"
 #include "FEBASE/FEHardwareDevice.h"
 #include "OPTIMIZE/XYPlotArray.h"
@@ -71,6 +73,8 @@ namespace FrontEndLVWrapper {
     unsigned long nodeAddress = 0x13;
     bool startCompressorModule = false;
     static FrontEndImpl *frontEnd = NULL;
+    static StringSet ESNList;
+    bool useESNList = true;
     static WCAImpl *WCAs[10] = {0,0,0,0,0,0,0,0,0,0};
     static ColdCartImpl *coldCarts[10] = {0,0,0,0,0,0,0,0,0,0};
     static PowerModuleImpl *powerMods[10] = {0,0,0,0,0,0,0,0,0,0};
@@ -82,6 +86,7 @@ using namespace FrontEndLVWrapper;
 
 // forward declare some helpers defined below:
 void loadConfigIds();
+static short FEMCReadESNs();
 void createCartridge(int port, const FrontEndConfig &feConfig,
                      WCAImpl **WCA,
                      ColdCartImpl **coldCart,
@@ -164,6 +169,11 @@ DLLEXPORT short FEControlInit() {
             FEMode = from_string<short>(tmp);
         LOG(LM_INFO) << "debug:FEMode=" << FEMode << endl;
 
+        tmp = configINI.GetValue("debug", "useESNList");
+        if (!tmp.empty())
+            useESNList = from_string<short>(tmp);
+        LOG(LM_INFO) << "debug:useESNList=" << useESNList << endl;
+
         tmp = configINI.GetValue("logger", "randomizeAnalogMonitors");
         if (!tmp.empty())
             randomizeMonitors = from_string<unsigned long>(tmp);
@@ -241,6 +251,11 @@ DLLEXPORT short FEControlInit() {
     loadConfigIds();
     ConfigProvider *provider(NULL);
     provider = new ConfigProviderIniFile(FrontEndIni);
+
+    if (useESNList) {
+        FEMCReadESNs();
+        provider -> setESNList(ESNList);
+    }
 
     ConfigManager configMgr(*provider);
     Configuration config(facilityId, configId);
@@ -386,32 +401,53 @@ DLLEXPORT short FEMCGetFirmwareInfo(char *_AMBSILibraryVersion,
     return 0;
 }
 
+static short FEMCReadESNs() {
+    if (!FEValid)
+        return -1;
+
+    // clear the static list of ESNs:
+    ESNList.clear();
+
+    std::string ESN, ESN0("0000000000000000");
+
+    // read the number of expected ESNs:
+    int numESNs = frontEnd -> FEMCGetESNsFound();
+    if (numESNs <= 0)
+        return 0;
+
+    // loop to read the ESNs:
+    int count = numESNs + 1;
+    while (count-- > 0) {
+        ESN = frontEnd -> FEMCGetNextESN(false); // do not reverse ESN byte order.
+        if (ESN != ESN0)
+            ESNList.insert(ESN);
+    }
+    return 0;
+}
+
 DLLEXPORT short FEMCGetESNText(char *target) {
     if (!FEValid || !target)
         return -1;
 
-    std::string ESN, text, ESN0("0000000000000000");
+    if (ESNList.empty())
+        if (FEMCReadESNs() != 0)
+            return -1;
 
-    int numESNs = frontEnd -> FEMCGetESNsFound();
-    if (numESNs <= 0) {
+    if (ESNList.empty()) {
         strcpy(target, "no ESNs found");
         return 0;
     }
 
     char buf[20];
-    sprintf(buf, "ESNs: %d", numESNs);
-    text += buf;
+    sprintf(buf, "ESNs: %d", ESNList.size());
     
+    std::string text(buf);
     LOG(LM_INFO) << text << endl;
 
-    int count = numESNs + 1;
-    while (count-- > 0) {
-        ESN = frontEnd -> FEMCGetNextESN(false); // do not reverse ESN byte order.
-        if (ESN != ESN0) {
-            text += "\n";
-            text += ESN;
-            LOG(LM_INFO) << ESN << endl;
-        }
+    for (StringSet::const_iterator it = ESNList.begin(); it != ESNList.end(); ++it) {
+        text += "\n";
+        text += *it;
+        LOG(LM_INFO) << *it << endl;
     }
     strcpy(target, text.c_str());
     return 0;
@@ -420,6 +456,9 @@ DLLEXPORT short FEMCGetESNText(char *target) {
 DLLEXPORT short FEMCRescanESNs() {
     if (!FEValid)
         return -1;
+
+    // clear the static list of ESNs:
+    ESNList.clear();
 
     frontEnd -> specialReadESNs(true);
     return 0;
