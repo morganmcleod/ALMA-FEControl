@@ -74,7 +74,7 @@ namespace FrontEndLVWrapper {
     bool startCompressorModule = false;
     static FrontEndImpl *frontEnd = NULL;
     static StringSet ESNList;
-    bool useESNList = true;
+    bool useESNList = false;
     static WCAImpl *WCAs[10] = {0,0,0,0,0,0,0,0,0,0};
     static ColdCartImpl *coldCarts[10] = {0,0,0,0,0,0,0,0,0,0};
     static PowerModuleImpl *powerMods[10] = {0,0,0,0,0,0,0,0,0,0};
