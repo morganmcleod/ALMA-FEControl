@@ -38,6 +38,11 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.10.5-beta1
+  Added to CppUtilityLIb: listDir, stringSet
+  Added read XML files from INI file directory to ConfigProviderIniFile = not tested yet
+  Added read ESNs at startup and push into ConfigProviderIniFile = not tested yet
+
 2.10.4 2019-06-18
   AMC_MULTIPLIER_D_VOLTAGE -> AMC_MULTIPLIER_D_COUNTS, same for all var names
   getCenterLOFrequency() defaults to 80 GHz for band 2
