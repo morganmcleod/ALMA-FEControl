@@ -43,8 +43,8 @@ namespace FEConfig {
         ///< Apply the given Configuration to the target FrontEndImpl object.
         ///< returns true if no error.
           
-        bool configure(unsigned keyFacility, unsigned configId, FrontEndImpl &target) const;
-        ///< load the config identified by (keyFacility, configId) into the target FrontEndImpl object.
+        bool configure(unsigned configId, FrontEndImpl &target) const;
+        ///< load the config identified by configId into the target FrontEndImpl object.
         ///< returns true if the specified configuration was found and loaded.
         ///< False on otherwise or on error.
         
@@ -52,8 +52,8 @@ namespace FEConfig {
         ///< Apply the given Configuration to the target SignalSourceImpl object.
         ///< returns true if no error.
 
-        bool configure(unsigned keyFacility, unsigned configId, SignalSourceImpl &target) const;
-        ///< load the config identified by (keyFacility, configId) into the target SignalSourceImpl object.
+        bool configure(unsigned configId, SignalSourceImpl &target) const;
+        ///< load the config identified by configId into the target SignalSourceImpl object.
         ///< returns true if the specified configuration was found and loaded.
         ///< False on otherwise or on error.
 
@@ -70,9 +70,9 @@ namespace FEConfig {
         bool configureCartAssembly(const CartAssemblyConfig &cartAssy, FrontEndImpl &target) const;
         bool configureCartAssembly(const CartAssemblyConfig &cartAssy, SignalSourceImpl &target) const;
         ///< helpers to apply a CartAssemblyConfig to the target.
-        bool configureColdCart(unsigned keyFacility, const ColdCartConfig &coldCart, FrontEndImpl &target) const;
+        bool configureColdCart(unsigned port, const ColdCartConfig &coldCart, FrontEndImpl &target) const;
         ///< helper to apply a ColdCartConfig to the target.
-        bool configureWCA(unsigned keyFacility, const WCAConfig &WCA, FrontEndImpl &target) const;
+        bool configureWCA(unsigned port, const WCAConfig &WCA, FrontEndImpl &target) const;
         bool configureWCA(unsigned port, const WCAConfig &wcaConfig, SignalSourceImpl &target) const;
         ///< helpers to apply a WCAConfig to the target.
     

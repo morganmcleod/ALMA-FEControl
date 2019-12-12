@@ -32,24 +32,22 @@ namespace FEConfig {
     /// holds the configuration for a cold cartridge
     class ColdCartConfig {
     public:
-        ColdCartConfig(unsigned keyFacility = 0, unsigned keyColdCart = 0)
-          : keyFacility_m(keyFacility),
-            keyColdCart_m(keyColdCart),
+        ColdCartConfig(unsigned keyColdCart = 0)
+          : keyColdCart_m(keyColdCart),
             band_m(0)
             {}
-        ///< construct with the primary key values keyFacility and keyColdCart
+        ///< construct with the primary keyColdCart
         ~ColdCartConfig()
           {}
     
-        void reset(unsigned keyFacility = 0, unsigned keyColdCart = 0);
-        ///< reset all data to defaults, optionally assigning new values to the keys.
+        void reset(unsigned band = 0, unsigned keyColdCart = 0);
+        ///< reset all data to defaults, optionally assigning new key values
         
         void streamOut(std::ostream& out) const;
         ///< stream output for debugging 
     
     public:
-        unsigned keyFacility_m;     ///< the provider portion of the primary key.
-        unsigned keyColdCart_m;     ///< along with provider, uniquely identifies a record in ColdCarts table.
+        unsigned keyColdCart_m;     ///< uniquely identifies a record in ColdCarts table.
         unsigned band_m;            ///< the cartridge band.
         std::string SN_m;           ///< the assigned serial number for the cartridge.
         std::string ESN_m;          ///< the electronic serial number for the cartridge.
@@ -57,11 +55,12 @@ namespace FEConfig {
         MagnetParams magnetParams_m;///< contains the SIS magnet values which vary with LO frequency.
         std::string description_m;  ///< description of the coldCart
 
-        /// enforce order for accessing preampParams_m
+        /// non-const access to preampParams
         PreampParams &usePreampParams(unsigned pol, unsigned sb)
           { MixerParams::normalizePolSb(pol, sb);
             return preampParams_m[pol * 2 + (sb - 1)]; }
 
+        /// const access to preampParams
         const PreampParams &getPreampParams(unsigned pol, unsigned sb) const
           { return const_cast<ColdCartConfig*>(this) -> usePreampParams(pol, sb); }
             
@@ -78,20 +77,19 @@ namespace FEConfig {
     /// Holds the configuration for a warm cartridge assembly and the associated first LO.
     class WCAConfig {
     public:
-        WCAConfig(unsigned keyFacility = 0, unsigned keyWCA = 0)
-          : keyFacility_m(keyFacility),
-            keyWCA_m(keyWCA),
+        WCAConfig(unsigned keyWCA = 0)
+          : keyWCA_m(keyWCA),
             band_m(0),
             FLOYIG_m(0.0),
             FHIYIG_m(0.0),
             loopBW_m(LOOPBW_DEFAULT)
             {}
-        ///< construct with the primary key values keyFacility and keyWCA
+        ///< construct with the primary keyWCA
         ~WCAConfig()
           {}
     
-        void reset(unsigned keyFacility = 0, unsigned keyWCA = 0);
-        ///< reset all data to defaults, optionally assigning new values to the keys.
+        void reset(unsigned band = 0, unsigned keyWCA = 0);
+        ///< reset all data to defaults, optionally assigning new key values
     
         void streamOut(std::ostream& out) const;
         ///< stream output for debugging 
@@ -103,7 +101,6 @@ namespace FEConfig {
             LOOPBW_ALT      = 1     ///< override to use the "alternate" loop BW: 15MHz/V (Band 3,5,6,7,10)
         };
 
-        unsigned keyFacility_m;     ///< the provider portion of the primary key.
         unsigned keyWCA_m;          ///< along with provider, uniquely identifies a record in ColdCarts table.
         unsigned band_m;            ///< the cartridge band.
         std::string SN_m;           ///< the assigned serial number for the WCA.
@@ -121,38 +118,39 @@ namespace FEConfig {
 
 //----------------------------------------------------------------------------
 
+    /// Holds the keys of a CCA and a WCA paired as a CartAssembly
     class CartAssemblyID {
     public:
         unsigned port_m;            ///< what port the cartridge is connected to.  Usually same as band_m.
         unsigned band_m;            ///< the cartridge band.
-        unsigned WCAFacility_m;     ///< the provider portion of the primary key.
-        unsigned WCAId_m;           ///< along with provider, uniquely identifies a record in WCAs table.
-        unsigned CCAFacility_m;     ///< the provider portion of the primary key.
-        unsigned CCAId_m;           ///< along with provider, uniquely identifies a record in ColdCarts table.
+        unsigned WCABand_m;         ///< the WCA band which usually is the same as the cartridge band.
+        unsigned WCAId_m;           ///< uniquely identifies a record in WCAs table.
+        unsigned CCABand_m;         ///< the CCA band which usually is the same as the cartridge band.
+        unsigned CCAId_m;           ///< uniquely identifies a record in ColdCarts table.
 
         CartAssemblyID(unsigned port = 0,
                        unsigned band = 0,
-                       unsigned WCAFacility = 0,
+                       unsigned WCABand = 0,
                        unsigned WCAId = 0,
-                       unsigned CCAFacility = 0,
+                       unsigned CCABand = 0,
                        unsigned CCAId = 0)
           : port_m(port),
             band_m(band),
-            WCAFacility_m(WCAFacility),
+            WCABand_m(WCABand),
             WCAId_m(WCAId),
-            CCAFacility_m(CCAFacility),
+            CCABand_m(CCABand),
             CCAId_m(CCAId)
             {}
 
         void reset()
-          { port_m = band_m = WCAFacility_m = WCAId_m = CCAFacility_m = CCAId_m = 0; }
+          { port_m = band_m = WCABand_m = WCAId_m = CCABand_m = CCAId_m = 0; }
         ///< reset all data to defaults.
 
         bool WCAValid() const
-          { return WCAFacility_m && WCAId_m; }
+          { return WCABand_m && WCAId_m; }
 
         bool CCAValid() const
-          { return CCAFacility_m && CCAId_m; }
+          { return CCABand_m && CCAId_m; }
 
         bool isValid() const
           { return port_m && band_m && (WCAValid() || CCAValid()); }
@@ -163,12 +161,12 @@ namespace FEConfig {
     inline std::ostream &operator << (std::ostream& out, const CartAssemblyID &id)
       { id.streamOut(out); return out; }
 
-    /// holds the configuration for a ColdCart together with a WCA.
+    /// holds the configuration for a CartAssembly
     class CartAssemblyConfig {
     public:
         CartAssemblyConfig()
           {}
-        ///< construct with the primary key values keyFacility and keyCartAssembly
+        ///< constructor
         ~CartAssemblyConfig()
           {}
     

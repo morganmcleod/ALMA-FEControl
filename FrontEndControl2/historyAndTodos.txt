@@ -39,10 +39,13 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 Revision history:
 
 2.10.5-beta1
-  Added to CppUtilityLIb: listDir, stringSet
+  Added to CppUtilityLib: listDir, stringSet, trimStr
   Added read XML files from INI file directory to ConfigProviderIniFile = not tested yet
   Added read ESNs at startup and push into ConfigProviderIniFile = not tested yet
-
+  Removed all uses of keyFacility from CONFIG and the lv_wrappers.   
+    keyFacility has never been implemented correctly in the database.
+  Added ConfigProviderXML skeleton.
+  
 2.10.4 2019-06-18
   AMC_MULTIPLIER_D_VOLTAGE -> AMC_MULTIPLIER_D_COUNTS, same for all var names
   getCenterLOFrequency() defaults to 80 GHz for band 2
@@ -688,11 +691,3 @@ Made configuration from INI file the default, rather than config from database.
 Initial release to the EU-FEIC and EA-FEIC.
 
 prior to 2.1.0: Internal release to NA-FEIC only.
- 
-
--------------------------------------------------------------------------------
-TODOs (maybe):
-Bug: if (Band A == BandB) then EVENT_OPTIMIZE_FINISHED doesn't work.  Chart doesn't update.
-Bug: exception on cartridge optimize with defaults=0 - check all optimization ops.
-Bug: noise temperature measurement procedure must turn on the photomixer.
-

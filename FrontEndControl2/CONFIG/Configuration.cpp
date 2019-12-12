@@ -29,16 +29,13 @@ using namespace std;
 
 namespace FEConfig {
 
-Configuration::Configuration(unsigned keyFacility, unsigned configId)
-  : keyFacility_m(keyFacility),
-    configId_m(configId),
+Configuration::Configuration(unsigned configId)
+  : configId_m(configId),
     FE_mp(NULL),
     cartAssy_mp(NULL)
     {}
 
-void Configuration::reset(unsigned keyFacility, unsigned configId) {
-    if (keyFacility > 0)
-        keyFacility_m = keyFacility;
+void Configuration::reset(unsigned configId) {
     if (configId > 0)
         configId_m = configId;  
     config_m.reset();
@@ -51,26 +48,26 @@ void Configuration::reset(unsigned keyFacility, unsigned configId) {
 bool Configuration::load(const ConfigProvider &source) {
     reset();
 
-    if (!keyFacility_m || !configId_m) {
-    	LOG(LM_INFO) << "Configuration::load(" <<  keyFacility_m << "," << configId_m << ") not a valid configId." << endl;
+    if (!configId_m) {
+    	LOG(LM_INFO) << "Configuration::load(" <<  configId_m << ") not a valid configId." << endl;
         return false;
     }
     
-    if (!source.exists(keyFacility_m, configId_m)) {
-    	LOG(LM_INFO) << "Configuration::load(" <<  keyFacility_m << "," << configId_m << ") does not exist." << endl;
+    if (!source.exists(configId_m)) {
+    	LOG(LM_INFO) << "Configuration::load(" <<  configId_m << ") does not exist." << endl;
         return false;
     }
     
-    if (!source.getConfiguration(keyFacility_m, configId_m, config_m)) {
-    	LOG(LM_INFO) << "Configuration::load(" <<  keyFacility_m << "," << configId_m << ") FAILED." << endl;
+    if (!source.getConfiguration(configId_m, config_m)) {
+    	LOG(LM_INFO) << "Configuration::load(" <<  configId_m << ") FAILED." << endl;
         reset();
         return false;
     }
 
-    LOG(LM_INFO) << "Configuration::load(" <<  keyFacility_m << "," << configId_m << ") '" << config_m.description_m << "'" << endl;
+    LOG(LM_INFO) << "Configuration::load(" <<  configId_m << ") '" << config_m.description_m << "'" << endl;
 
     FE_mp = new FrontEndConfig;
-    if (!source.getFrontEndConfig(keyFacility_m, config_m.keyFrontEnd_m, *FE_mp)) {
+    if (!source.getFrontEndConfig(config_m.keyFrontEnd_m, *FE_mp)) {
         delete FE_mp;
         FE_mp = NULL;    
     } else {
@@ -90,21 +87,6 @@ bool Configuration::load(const ConfigProvider &source) {
         LOG(LM_INFO) << "\tConfiguration is empty." << endl;
     }
     return true;
-}    
-
-bool Configuration::save(ConfigProvider &target) {
-    if (!keyFacility_m || !configId_m) {
-        LOG(LM_INFO) << "Configuration::save(" <<  keyFacility_m << "," << configId_m << ") not a valid configId." << endl;
-        return false;
-    }
-    if (!target.saveConfiguration(*this)) {
-        LOG(LM_INFO) << "Configuration::save(" <<  keyFacility_m << "," << configId_m << ") FAILED." << endl;
-        return false;
-    }
-    
-    LOG(LM_INFO) << "Configuration::save(" <<  keyFacility_m << "," << configId_m << ") saving '" << config_m.description_m << "'." << endl;
-    return true;
 }
-
 
 }; // namespace FEConfig

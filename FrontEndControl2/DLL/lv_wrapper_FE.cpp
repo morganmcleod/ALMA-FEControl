@@ -57,7 +57,6 @@ using namespace FEConfig;
 using namespace std;
 
 namespace FrontEndLVWrapper {
-    unsigned long facilityId = 40;
     unsigned long configId = 1;
     bool logMonTimers = false;
     bool allowSISHeaters = false;
@@ -258,7 +257,7 @@ DLLEXPORT short FEControlInit() {
     }
 
     ConfigManager configMgr(*provider);
-    Configuration config(facilityId, configId);
+    Configuration config(configId);
     if (!config.load(*provider))
         ret = -1;
     WHACK(provider);
@@ -574,20 +573,10 @@ void loadConfigIds() {
     // get the facility code from the new key facilityId:
     CIniFile configINI(FrontEndIni);
     configINI.ReadFile();
-    std::string tmp = configINI.GetValue("configuration", "facilityId");
-    if (!tmp.empty())
-        facilityId = from_string<unsigned long>(tmp);
-    else {
-        // but fall back on the old name if that doesn't work:
-        tmp = configINI.GetValue("configuration", "providerCode");
-        if (!tmp.empty())
-            facilityId = from_string<unsigned long>(tmp);
-    }
-
-    tmp = configINI.GetValue("configuration", "configId");
+    std::string tmp = configINI.GetValue("configuration", "configId");
     if (!tmp.empty())
         configId = from_string<unsigned long>(tmp);
-    LOG(LM_INFO) << "Using configuration facilityId=" << facilityId << " configId=" << configId << endl;
+    LOG(LM_INFO) << "Using configuration configId=" << configId << endl;
 }
 
 DLLEXPORT short FELoadConfiguration(short configId_in) {
@@ -602,7 +591,7 @@ DLLEXPORT short FELoadConfiguration(short configId_in) {
     provider = new ConfigProviderIniFile(FrontEndIni);
 
     ConfigManager configMgr(*provider);
-    Configuration config(facilityId, configId);
+    Configuration config(configId);
     if (!config.load(*provider))
         ret = -1;
     WHACK(provider);

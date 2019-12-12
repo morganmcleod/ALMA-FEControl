@@ -75,7 +75,7 @@ export DEBUGFLAGS = -g2 -fno-omit-frame-pointer
 
 # list of output files in subdirectories:
 CONFIGOUT = CONFIG/CartConfig.o CONFIG/ConfigManager.o CONFIG/Configuration.o CONFIG/ConfigProviderIniFile.o CONFIG/ConfigProviderMySQL.o \
-	CONFIG/FrontEndConfig.o CONFIG/FrontEndDatabase.o CONFIG/LookupTables.o CONFIG/SubsysConfig.o CONFIG/XMLParser.o
+	CONFIG/ConfigProviderXml.o CONFIG/FrontEndConfig.o CONFIG/FrontEndDatabase.o CONFIG/LookupTables.o CONFIG/SubsysConfig.o CONFIG/XMLParser.o
 FEBASEOUT = FEBASE/AMBSIHardwareDevice.o \
 	FEBASE/ColdCartImplBase.o FEBASE/CompressorImplBase.o FEBASE/CryostatImplBase.o \
 	FEBASE/FETIMImplBase.o FEBASE/FEHardwareDevice.o FEBASE/FrontEndImplBase.o \
@@ -149,18 +149,19 @@ tests: t_lv_wrapper.exe t_lv_wrapper_sigSrc.exe t_SocketClient.exe \
 t_lv_wrapper.exe : tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a 
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_lv_wrapper.exe \
 	tests/t_lv_wrapper.cpp DLL/libFrontEndControl.a \
-	$(PORTABLEINC) $(PROJECTINC) $(EXCHNDLIB)
+	$(PROJECTINC) \
+	$(EXCHNDLIB)
 	
 # This test uses the DLL:
 t_lv_wrapper_sigSrc.exe : tests/t_lv_wrapper_sigSrc.cpp DLL/libFrontEndControl.a 
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_lv_wrapper_sigSrc.exe \
 	tests/t_lv_wrapper_sigSrc.cpp DLL/libFrontEndControl.a \
-	$(PORTABLEINC) $(PROJECTINC)
+	$(PROJECTINC)
 
 t_SocketClient.exe : tests/t_SocketClient.cpp
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_SocketClient.exe \
 	tests/t_SocketClient.cpp DLL/libFrontEndControl.a \
-	$(PORTABLEINC) $(PROJECTINC)
+	$(PROJECTINC)
 	
 t_LookupTables.exe : tests/t_LookupTables.cpp
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_LookupTables.exe \
@@ -177,13 +178,13 @@ t_semaphore_leaks.exe : tests/t_semaphore_leaks.cpp
 t_StreamLogger.exe : tests/t_StreamLogger.cpp
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_StreamLogger.exe \
 	tests/t_StreamLogger.cpp $(AMBOUT) $(BASICOUT) \
-	$(UTILINC) $(PORTABLEINC) $(PROJECTINC) \
+	$(PROJECTINC) \
 	$(UTILLIB) $(PORTABLELIB) $(AMBLIB)
 
 t_FEICDataBase.exe : tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_FEICDataBase.exe \
 	tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp CONFIG/LookupTables.cpp DLL/SWVersion.cpp \
-	$(DBINC) $(UTILINC) $(MYSQLINC) $(PORTABLEINC) $(PROJECTINC) \
+	$(PROJECTINC) $(MYSQLINC) \
 	$(DBLIB) $(UTILLIB) $(MYSQLLIB) $(PORTABLELIB)
 
 .PHONY: all

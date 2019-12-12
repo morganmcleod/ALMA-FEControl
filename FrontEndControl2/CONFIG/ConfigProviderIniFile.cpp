@@ -29,6 +29,7 @@
 #include "setTimeStamp.h"
 #include "stringConvert.h"
 #include "splitPath.h"
+#include "trimStr.h"
 #include "logger.h"
 #include <stdlib.h>         // for atof()
 #include <stdio.h>          // for sprintf()
@@ -47,12 +48,12 @@ ConfigProviderIniFile::~ConfigProviderIniFile() {
     delete iniFile_mp;
 }
 
-bool ConfigProviderIniFile::exists(unsigned keyFacility, unsigned configId) const {
-    if (!keyFacility || !configId)
+bool ConfigProviderIniFile::exists(unsigned configId) const {
+    if (!configId)
         return false;
     
     Configuration::Record rec;
-    return getConfiguration(keyFacility, configId, rec);
+    return getConfiguration(configId, rec);
 }
 
 void ConfigProviderIniFile::setESNList(const StringSet &toCopy) {
@@ -72,22 +73,23 @@ void ConfigProviderIniFile::setESNList(const StringSet &toCopy) {
        LOG(LM_INFO) << *it << endl;
 }
 
-bool ConfigProviderIniFile::getConfiguration(unsigned keyFacility, unsigned configId, Configuration::Record &target) const {
-    target.reset(keyFacility, configId);
+bool ConfigProviderIniFile::getConfiguration(unsigned configId, Configuration::Record &target) const {
+    target.reset(configId);
     
-    if (!keyFacility || !configId)
+    if (!configId)
         return false;
 
     char sectionName[30];
-    sprintf(sectionName, "~Configuration%u-%u", keyFacility, configId);
+    sprintf(sectionName, "~Configuration40-%u", configId);
 
     target.description_m = iniFile_mp -> GetValue(sectionName, "Description");
 
     int endPos(0);
     string tmp;
+    unsigned tmpU;
     tmp = iniFile_mp -> GetValue(sectionName, "FrontEnd");
     if (!tmp.empty()) {
-        parseUnsigned(tmp, target.keyFacility_m, endPos);
+        parseUnsigned(tmp, tmpU, endPos); // parse the vestigial facility code
         parseUnsigned(tmp, target.keyFrontEnd_m, endPos);
     }
     tmp = iniFile_mp -> GetValue(sectionName, "CartAssembly");
@@ -97,14 +99,11 @@ bool ConfigProviderIniFile::getConfiguration(unsigned keyFacility, unsigned conf
     return target.isValid();
 }
 
-bool ConfigProviderIniFile::getAllConfigurations(unsigned keyFacility, std::vector<Configuration::Record> &target) const {
+bool ConfigProviderIniFile::getAllConfigurations(std::vector<Configuration::Record> &target) const {
     target.clear();
 
-    if (!keyFacility)
-        return false;
-
     char toFind[30];
-    sprintf(toFind, "~Configuration%u", keyFacility);
+    sprintf(toFind, "~Configuration");
 
     string sectionName, description;
     unsigned numSections = iniFile_mp -> NumKeys();
@@ -117,60 +116,23 @@ bool ConfigProviderIniFile::getAllConfigurations(unsigned keyFacility, std::vect
             int dashPos = sectionName.find("-", 0);
             configId = from_string<unsigned>(sectionName.substr(dashPos + 1));
             rec.reset();
-            getConfiguration(keyFacility, configId, rec);
+            getConfiguration(configId, rec);
             target.push_back(rec);
         }
     }
     return !target.empty();
 }
 
-bool ConfigProviderIniFile::saveConfiguration(const Configuration &source) {
-    unsigned keyFacility, configId;
-    source.getConfigID(keyFacility, configId);
+bool ConfigProviderIniFile::getFrontEndConfig(unsigned keyFrontEnd, FrontEndConfig &target) const {
+    target.reset(keyFrontEnd);
     
-    if (!keyFacility || !configId)
-        return false;
-    
-    char sectionName[30];
-    char item[100];
-    sprintf(sectionName, "~Configuration%u-%u", keyFacility, configId);
-    
-    iniFile_mp -> SetValue(sectionName, "Description", source.getDescription());
-
-    Time timestamp;
-    string tsText;
-    setTimeStamp(&timestamp);
-    timestampToText(&timestamp, tsText); 
-    iniFile_mp -> SetValue(sectionName, "TS", tsText);
-    
-    const FrontEndConfig *FE = source.getFrontEndConfig();
-    if (FE) {
-        sprintf(item, "%u,%u", FE -> keyFacility_m, FE -> keyFrontEnd_m);
-        iniFile_mp -> SetValue(sectionName, "FrontEnd", item);
-        saveFrontEndConfig(*FE);
-    }
-    /*
-     * TODO: fix saving CartAssemblyConfig
-    const CartAssemblyConfig *CA = source.getCartAssemblyConfig();
-    if (CA) {
-        sprintf(item, "%u,%u", CA -> keyFacility_m, CA -> keyCartAssembly_m);
-        iniFile_mp -> SetValue(sectionName, "CartAssembly", item);
-        saveCartAssemblyConfig(*CA);
-    }
-    */
-    return true;   
-}
-
-bool ConfigProviderIniFile::getFrontEndConfig(unsigned keyFacility, unsigned keyFrontEnd, FrontEndConfig &target) const {
-    target.reset(keyFacility, keyFrontEnd);
-    
-    if (!keyFacility || !keyFrontEnd)
+    if (!keyFrontEnd)
         return false;
     
     string tmp;
     char sectionName[30];
     char itemName[30];
-    sprintf(sectionName, "~FrontEnd%u-%u", keyFacility, keyFrontEnd);
+    sprintf(sectionName, "~FrontEnd40-%u", keyFrontEnd);
     
     unsigned fkCryostat(0), fkLPR(0), numCarts(0);
 
@@ -183,7 +145,7 @@ bool ConfigProviderIniFile::getFrontEndConfig(unsigned keyFacility, unsigned key
 
     if (fkCryostat) {
         CryostatConfig cryoConfig;
-        if (getCryostatConfig(keyFacility, fkCryostat, cryoConfig))
+        if (getCryostatConfig(fkCryostat, cryoConfig))
             target.setCryostatConfig(cryoConfig);
     }
         
@@ -204,7 +166,7 @@ bool ConfigProviderIniFile::getFrontEndConfig(unsigned keyFacility, unsigned key
 
     if (fkLPR) {
         LPRConfig lprConfig;
-        if (getLPRConfig(keyFacility, fkLPR, lprConfig))
+        if (getLPRConfig(fkLPR, lprConfig))
             target.setLPRConfig(lprConfig);
     }
         
@@ -224,12 +186,12 @@ bool ConfigProviderIniFile::getFrontEndConfig(unsigned keyFacility, unsigned key
         if (!tmp.empty()) {
             caConfig.reset();
             if (parseCartRow(tmp, caConfig.Id_m)) {
-                caConfig.coldCart_m.reset(caConfig.Id_m.CCAFacility_m, caConfig.Id_m.CCAId_m);
-                caConfig.WCA_m.reset(caConfig.Id_m.WCAFacility_m, caConfig.Id_m.WCAId_m);
+                caConfig.coldCart_m.reset(caConfig.Id_m.CCABand_m, caConfig.Id_m.CCAId_m);
+                caConfig.WCA_m.reset(caConfig.Id_m.WCABand_m, caConfig.Id_m.WCAId_m);
                 if (caConfig.Id_m.CCAValid())
-                    getColdCartConfig(caConfig.Id_m.CCAFacility_m, caConfig.Id_m.CCAId_m, caConfig.coldCart_m);
+                    getColdCartConfig(caConfig.Id_m.CCABand_m, caConfig.Id_m.CCAId_m, caConfig.coldCart_m);
                 if (caConfig.Id_m.WCAValid())
-                    getWCAConfig(caConfig.Id_m.WCAFacility_m, caConfig.Id_m.WCAId_m, caConfig.WCA_m);
+                    getWCAConfig(caConfig.Id_m.WCABand_m, caConfig.Id_m.WCAId_m, caConfig.WCA_m);
                 target.setCartridgeConfig(caConfig.Id_m.port_m, caConfig);
             }
         }
@@ -238,14 +200,14 @@ bool ConfigProviderIniFile::getFrontEndConfig(unsigned keyFacility, unsigned key
     return true;
 }
 
-bool ConfigProviderIniFile::getCryostatConfig(unsigned keyFacility, unsigned keyCryostat, CryostatConfig &target) const {
-    target.reset(keyFacility, keyCryostat);
+bool ConfigProviderIniFile::getCryostatConfig(unsigned keyCryostat, CryostatConfig &target) const {
+    target.reset(keyCryostat);
 
-    if (!keyFacility || !keyCryostat)
+    if (!keyCryostat)
         return false;
 
     char sectionName[30];
-    sprintf(sectionName, "~Cryostat%u-%u", keyFacility, keyCryostat);
+    sprintf(sectionName, "~Cryostat40-%u", keyCryostat);
     
     target.SN_m = iniFile_mp -> GetValue(sectionName, "SN");
     target.ESN_m = iniFile_mp -> GetValue(sectionName, "ESN");
@@ -253,14 +215,14 @@ bool ConfigProviderIniFile::getCryostatConfig(unsigned keyFacility, unsigned key
     return true;
 }
 
-bool ConfigProviderIniFile::getLPRConfig(unsigned keyFacility, unsigned keyLPR, LPRConfig &target) const {
-    target.reset(keyFacility, keyLPR);
+bool ConfigProviderIniFile::getLPRConfig(unsigned keyLPR, LPRConfig &target) const {
+    target.reset(keyLPR);
 
-    if (!keyFacility || !keyLPR)
+    if (!keyLPR)
         return false;
 
     char sectionName[30];
-    sprintf(sectionName, "~LPR%u-%u", keyFacility, keyLPR);
+    sprintf(sectionName, "~LPR40-%u", keyLPR);
     
     target.SN_m = iniFile_mp -> GetValue(sectionName, "SN");
     target.ESN_m = iniFile_mp -> GetValue(sectionName, "ESN");
@@ -277,21 +239,21 @@ bool ConfigProviderIniFile::getCartAssemblyConfig(CartAssemblyID CAId, CartAssem
     target.Id_m = CAId;
     
     bool found;
-    found = getColdCartConfig(CAId.CCAFacility_m, CAId.CCAId_m, target.coldCart_m);
+    found = getColdCartConfig(CAId.CCABand_m, CAId.CCAId_m, target.coldCart_m);
     if (!found)
         target.coldCart_m.reset();
 
-    found = getWCAConfig(CAId.WCAFacility_m, CAId.WCAId_m, target.WCA_m);
+    found = getWCAConfig(CAId.WCABand_m, CAId.WCAId_m, target.WCA_m);
     if (!found)
         target.WCA_m.reset();
         
     return found;
 }
 
-bool ConfigProviderIniFile::getColdCartConfig(unsigned keyFacility, unsigned keyColdCart, ColdCartConfig &target) const {
-    target.reset(keyFacility, keyColdCart);
+bool ConfigProviderIniFile::getColdCartConfig(unsigned CCABand, unsigned keyColdCart, ColdCartConfig &target) const {
+    target.reset(CCABand, keyColdCart);
     
-    if (!keyFacility || !keyColdCart)
+    if (!CCABand || !keyColdCart)
         return false;
 
     unsigned cartBand(0), numParams(0); 
@@ -299,7 +261,7 @@ bool ConfigProviderIniFile::getColdCartConfig(unsigned keyFacility, unsigned key
 
     char sectionName[30];
     char itemName[30];
-    sprintf(sectionName, "~ColdCart%u-%u", keyFacility, keyColdCart);
+    sprintf(sectionName, "~ColdCart%u-%u", CCABand, keyColdCart);
 
     tmp = iniFile_mp -> GetValue(sectionName, "Band");
     if (!tmp.empty())
@@ -403,10 +365,10 @@ bool ConfigProviderIniFile::getColdCartConfig(unsigned keyFacility, unsigned key
 }
 
 
-bool ConfigProviderIniFile::getWCAConfig(unsigned keyFacility, unsigned keyWCA, WCAConfig &target) const {
-    target.reset(keyFacility, keyWCA);
+bool ConfigProviderIniFile::getWCAConfig(unsigned WCABand, unsigned keyWCA, WCAConfig &target) const {
+    target.reset(WCABand, keyWCA);
     
-    if (!keyFacility || !keyWCA)
+    if (!WCABand || !keyWCA)
         return false;
 
     unsigned cartBand(0), numParams(0), x(0); 
@@ -414,7 +376,7 @@ bool ConfigProviderIniFile::getWCAConfig(unsigned keyFacility, unsigned keyWCA, 
 
     char sectionName[30];
     char itemName[30];
-    sprintf(sectionName, "~WCA%u-%u", keyFacility, keyWCA);
+    sprintf(sectionName, "~WCA%u-%u", WCABand, keyWCA);
     
     tmp = iniFile_mp -> GetValue(sectionName, "Band");
     if (!tmp.empty())
@@ -480,211 +442,6 @@ bool ConfigProviderIniFile::getWCAConfig(unsigned keyFacility, unsigned keyWCA, 
 //-----------------------------------------------------------------------------
 //private:
 
-bool ConfigProviderIniFile::saveFrontEndConfig(const FrontEndConfig &source) const {
-    if (!source.keyFacility_m || !source.keyFrontEnd_m)
-        return false;
-        
-    char sectionName[30];
-    char itemName[30];
-    char item[100];
-    sprintf(sectionName, "~FrontEnd%u-%u", source.keyFacility_m, source.keyFrontEnd_m);
-    
-    iniFile_mp -> SetValue(sectionName, "SN", source.SN_m);
-    iniFile_mp -> SetValue(sectionName, "ESN", source.ESN_m);
-    
-    const CryostatConfig *cryo = source.getCryostatConfig();
-    if (cryo) {
-        saveCryosatConfig(*cryo);
-        sprintf(item, "%u", cryo -> keyCryostat_m);
-    } else
-        sprintf(item, "%d", 0);
-    iniFile_mp -> SetValue(sectionName, "Cryostat", item);
-    
-    unsigned ifsw = source.getIFSwitchConfig();
-    sprintf(item, "%u", ifsw);
-    iniFile_mp -> SetValue(sectionName, "IFSwitch", item);
-    
-    const LPRConfig *lpr = source.getLPRConfig();
-    if (lpr) {
-        saveLPRConfig(*lpr);
-        sprintf(item, "%u", lpr -> keyLPR_m);
-    } else
-        sprintf(item, "%d", 0);
-    iniFile_mp -> SetValue(sectionName, "LPR", item);
-        
-    unsigned cpds = source.getPowerDistConfig();
-    sprintf(item, "%u", cpds);
-    iniFile_mp -> SetValue(sectionName, "PowerDist", item);
-    
-    int numCarts = 0;
-    for (unsigned pos = 1; pos <= 10; ++pos) {
-        const CartAssemblyConfig *CA = source.getCartridgeConfig(pos);
-        if (CA) {
-            saveCartAssemblyConfig(*CA);
-            ++numCarts;
-            sprintf(itemName, "Cart%02d", numCarts);
-            //cartPos,cartBand,ccFacility,ccId,wcaFacility,wcaId
-            sprintf(item, "%u,%u,%u,%u,%u,%u", pos, CA -> Id_m.band_m,
-                    CA -> coldCart_m.keyFacility_m, CA -> coldCart_m.keyColdCart_m,
-                    CA -> WCA_m.keyFacility_m, CA -> WCA_m.keyWCA_m);
-            iniFile_mp -> SetValue(sectionName, itemName, item);
-        }
-    }
-    sprintf(item, "%d", numCarts);
-    iniFile_mp -> SetValue(sectionName, "Carts", item);
-    return true;
-}
-
-bool ConfigProviderIniFile::saveCryosatConfig(const CryostatConfig &source) const {
-    if (!source.keyFacility_m || !source.keyCryostat_m)
-        return false;
-
-    char sectionName[30];
-    char item[100];
-    sprintf(sectionName, "~Cryostat%u-%u", source.keyFacility_m, source.keyCryostat_m);
-    
-    iniFile_mp -> SetValue(sectionName, "SN", source.SN_m);
-    iniFile_mp -> SetValue(sectionName, "ESN", source.ESN_m);
-    return true;
-}
-
-bool ConfigProviderIniFile::saveLPRConfig(const LPRConfig &source) const {
-    if (!source.keyFacility_m || !source.keyLPR_m)
-        return false;
-
-    char sectionName[30];
-    char item[100];
-    sprintf(sectionName, "~LPR%u-%u", source.keyFacility_m, source.keyLPR_m);
-    
-    iniFile_mp -> SetValue(sectionName, "SN", source.SN_m);
-    iniFile_mp -> SetValue(sectionName, "ESN", source.ESN_m);
-    return true;
-}
-
-bool ConfigProviderIniFile::saveCartAssemblyConfig(const CartAssemblyConfig &source) const {
-    if (!source.Id_m.isValid())
-        return false;
-    
-    return true;
-}
-
-bool ConfigProviderIniFile::saveColdCartConfig(const ColdCartConfig &source) const {
-    if (!source.keyFacility_m || !source.keyColdCart_m)
-        return false;
-
-    char sectionName[30];
-    char itemName[30];
-    char item[300];
-    sprintf(sectionName, "~ColdCart%u-%u", source.keyFacility_m, source.keyColdCart_m);
-    
-    sprintf(item, "%u", source.band_m);
-    iniFile_mp -> SetValue(sectionName, "Band", item);
-    
-    iniFile_mp -> SetValue(sectionName, "SN", source.SN_m);
-    iniFile_mp -> SetValue(sectionName, "ESN", source.ESN_m);
-    iniFile_mp -> SetValue(sectionName, "Description", source.description_m);
-    
-    double freqLO;
-    ParamTableRow values;
-
-    int numParams = 0;
-    for (MixerParams::const_iterator it = source.mixerParams_m.begin(); it != source.mixerParams_m.end(); ++it) {
-        if (source.mixerParams_m.get(it, freqLO, values)) {
-            ++numParams;
-            sprintf(itemName, "MixerParam%02d", numParams);                    
-            sprintf(item, "%.3lf,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f", freqLO,
-                          values[0], values[1], values[2], values[3], 
-                          values[4], values[5], values[6], values[7]);
-            iniFile_mp -> SetValue(sectionName, itemName, item);
-        }
-    }
-    sprintf(item, "%d", numParams);
-    iniFile_mp -> SetValue(sectionName, "MixerParams", item);
-
-    numParams = 0;
-    if (source.band_m > 3) {
-        for (MagnetParams::const_iterator it = source.magnetParams_m.begin(); it != source.magnetParams_m.end(); ++it) {
-            if (source.magnetParams_m.get(it, freqLO, values)) {
-                ++numParams;
-                sprintf(itemName, "MagnetParam%02d", numParams);                    
-                sprintf(item, "%.3lf,%.2f,%.2f,%.2f,%.2f", freqLO,
-                              values[0], values[1], values[2], values[3]);
-                iniFile_mp -> SetValue(sectionName, itemName, item);
-            }
-        }
-        
-    }
-    sprintf(item, "%d", numParams);
-    iniFile_mp -> SetValue(sectionName, "MagnetParams", item);
-    
-    numParams = 0;
-    for (unsigned pol = 0; pol <= 1; ++pol) {
-        for (unsigned sb = 1; sb <= 2; ++sb) {
-            const PreampParams &params = source.getPreampParams(pol, sb);
-            for (PreampParams::const_iterator it = params.begin(); it != params.end(); ++it) {
-                if (params.get(it, freqLO, values)) {
-                    ++numParams;
-                    sprintf(itemName, "PreampParam%02d", numParams);                    
-                    sprintf(item, "%.3lf,%u,%u,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f", freqLO, pol, sb,
-                                  values[0], values[1], values[2],
-                                  values[3], values[4], values[5],                    
-                                  values[6], values[7], values[8]);
-                    iniFile_mp -> SetValue(sectionName, itemName, item);
-                }
-            }
-        }
-    }
-    sprintf(item, "%d", numParams);
-    iniFile_mp -> SetValue(sectionName, "PreampParams", item);
-}
-
-bool ConfigProviderIniFile::saveWCAConfig(const WCAConfig &source) const {
-    if (!source.keyFacility_m || !source.keyWCA_m)
-        return false;
-
-    char sectionName[30];
-    char itemName[30];
-    char item[300];
-    sprintf(sectionName, "~WCA%u-%u", source.keyFacility_m, source.keyWCA_m);
-    
-    sprintf(item, "%u", source.band_m);
-    iniFile_mp -> SetValue(sectionName, "Band", item);
-    
-    iniFile_mp -> SetValue(sectionName, "SN", source.SN_m);
-    iniFile_mp -> SetValue(sectionName, "ESN", source.ESN_m);
-    iniFile_mp -> SetValue(sectionName, "Description", source.description_m);
-    
-    sprintf(item, "%.4lf", source.FLOYIG_m);
-    iniFile_mp -> SetValue(sectionName, "FLOYIG", item);
-    sprintf(item, "%.4lf", source.FHIYIG_m);
-    iniFile_mp -> SetValue(sectionName, "FHIYIG", item);
-    
-    double freqLO;
-    ParamTableRow values;
-
-    int numParams = 0;
-    for (PowerAmpParams::const_iterator it = source.PAParams_m.begin(); it != source.PAParams_m.end(); ++it) {
-        if (source.PAParams_m.get(it, freqLO, values)) {
-            ++numParams;
-            sprintf(itemName, "LOParam%02d", numParams);                    
-            sprintf(item, "%.3lf,%.2f,%.2f,%.2f,%.2f", freqLO,
-                          values[0], values[1], values[2], values[3]);
-            iniFile_mp -> SetValue(sectionName, itemName, item);
-        }
-    }
-    sprintf(item, "%d", numParams);
-    iniFile_mp -> SetValue(sectionName, "LOParams", item);
-    return true;
-}
-
-inline std::string TrimStr(const std::string& src, const std::string& c = " \t\r\n") {
-    int p2 = src.find_last_not_of(c);
-    if (p2 == std::string::npos) return std::string();
-    int p1 = src.find_first_not_of(c);
-    if (p1 == std::string::npos) p1 = 0;
-    return src.substr(p1, (p2-p1)+1);
-}
-
 bool ConfigProviderIniFile::parseCartSectionName(const string &src, unsigned &provider, unsigned &id) {
     provider = id = 0;
     int p2 = src.rfind("-");
@@ -723,11 +480,11 @@ bool ConfigProviderIniFile::parseCartRow(const std::string &src, CartAssemblyID 
         return false;
     if (!parseUnsigned(src, target.band_m, nextPos))
         return false;
-    if (!parseUnsigned(src, target.CCAFacility_m, nextPos))
+    if (!parseUnsigned(src, target.CCABand_m, nextPos))
         return false;
     if (!parseUnsigned(src, target.CCAId_m, nextPos))
         return false;
-    if (!parseUnsigned(src, target.WCAFacility_m, nextPos))
+    if (!parseUnsigned(src, target.WCABand_m, nextPos))
         return false;
     if (!parseUnsigned(src, target.WCAId_m, nextPos))
         return false;

@@ -28,6 +28,10 @@ using namespace std;
 
 namespace FEConfig {
 
+const unsigned facility_static(40);
+// This is a constant as of FEControl 2.11.0.
+// The lower database layers still expect facility as part of the key but in practice it is always '40'.
+
 ConfigProviderMySQL::ConfigProviderMySQL()
   : dbObject_mp(new FrontEndDatabase())
     {}
@@ -43,35 +47,34 @@ ConfigProviderMySQL::~ConfigProviderMySQL() {
     delete dbObject_mp;
 }
 
-bool ConfigProviderMySQL::exists(unsigned keyFacility, unsigned configId) const {
+bool ConfigProviderMySQL::exists(unsigned configId) const {
     if (!dbObject_mp -> isConnected())
         return false;
-    if (!keyFacility || !configId)
+    if (!configId)
         return false;
-    return dbObject_mp -> isValidConfigId(FEICDataBase::ID_T(keyFacility, configId));
+    return dbObject_mp -> isValidConfigId(FEICDataBase::ID_T(FEConfig::facility_static, configId));
 }
 
-bool ConfigProviderMySQL::getConfiguration(unsigned keyFacility, unsigned configId, Configuration::Record &target) const {
+bool ConfigProviderMySQL::getConfiguration(unsigned configId, Configuration::Record &target) const {
     target.reset();
     
     if (!dbObject_mp -> isConnected())
         return false;
-    if (!keyFacility || !configId)
+    if (!configId)
         return false;
-    return dbObject_mp -> getConfigurationRecord(FEICDataBase::ID_T(keyFacility, configId), target);
+    return dbObject_mp -> getConfigurationRecord(FEICDataBase::ID_T(FEConfig::facility_static, configId), target);
 }
 
-bool ConfigProviderMySQL::getFrontEndConfig(unsigned keyFacility, unsigned keyFrontEnd, FrontEndConfig &target) const {
-    target.reset(keyFacility, keyFrontEnd);
+bool ConfigProviderMySQL::getFrontEndConfig(unsigned keyFrontEnd, FrontEndConfig &target) const {
+    target.reset(keyFrontEnd);
     
     if (!dbObject_mp -> isConnected())
         return false;
-    if (!keyFacility || !keyFrontEnd)
+    if (!keyFrontEnd)
         return false;
 
-
     // lookup the SN and ESN from the Front_Ends table:
-    FEICDataBase::ID_T frontEndId(keyFacility, keyFrontEnd);
+    FEICDataBase::ID_T frontEndId(FEConfig::facility_static, keyFrontEnd);
 
     if (!dbObject_mp -> getFrontEndRecord(frontEndId, &target.SN_m, &target.ESN_m))
         return false;
@@ -85,14 +88,14 @@ bool ConfigProviderMySQL::getFrontEndConfig(unsigned keyFacility, unsigned keyFr
     if (dbObject_mp -> getConfigCryostat(configId, componentId, SN)) {
         // get the cryostat configuration:
         CryostatConfig cryoConfig;
-        if (getCryostatConfig(componentId.keyFacility, componentId.keyId, cryoConfig))
+        if (getCryostatConfig(componentId.keyId, cryoConfig))
             target.setCryostatConfig(cryoConfig);
     }
 
     if (dbObject_mp -> getConfigLPR(configId, componentId, SN)) {
         // get the LPR configuration:
         LPRConfig lprConfig;
-        if (getLPRConfig(componentId.keyFacility, componentId.keyId, lprConfig))
+        if (getLPRConfig(componentId.keyId, lprConfig))
             target.setLPRConfig(lprConfig);
     }
 
@@ -126,15 +129,15 @@ bool ConfigProviderMySQL::getFrontEndConfig(unsigned keyFacility, unsigned keyFr
         // load the CCA component for the band:
         if (dbObject_mp -> getConfigCCA(configId, band, componentId, SN)) {
             // if found, save its component ID in caConfig.Id_m:
-            caConfig.Id_m.CCAFacility_m = componentId.keyFacility;
+            caConfig.Id_m.CCABand_m = band;
             caConfig.Id_m.CCAId_m = componentId.keyId;
 
             // also save it as the ID portion of caConfig.coldCart_m:
-            caConfig.coldCart_m.reset(caConfig.Id_m.CCAFacility_m, caConfig.Id_m.CCAId_m);
+            caConfig.coldCart_m.reset(caConfig.Id_m.CCABand_m, caConfig.Id_m.CCAId_m);
 
             // if that looks valid, load the associated coldCart configuration:
             if (caConfig.Id_m.CCAValid()) {
-                if (getColdCartConfig(caConfig.Id_m.CCAFacility_m, caConfig.Id_m.CCAId_m, caConfig.coldCart_m))
+                if (getColdCartConfig(caConfig.Id_m.CCABand_m, caConfig.Id_m.CCAId_m, caConfig.coldCart_m))
                     saveConfig = true;  // record that we got at least one valid component for the band.
             }
         }
@@ -142,15 +145,15 @@ bool ConfigProviderMySQL::getFrontEndConfig(unsigned keyFacility, unsigned keyFr
         // load the WCA component for the band:
         if (dbObject_mp -> getConfigWCA(configId, band, componentId, SN)) {
             // if found, save its component ID in caConfig.Id_m:
-            caConfig.Id_m.WCAFacility_m = componentId.keyFacility;
+            caConfig.Id_m.WCABand_m = band;
             caConfig.Id_m.WCAId_m = componentId.keyId;
 
             // also save it as the ID portion of caConfig.WCA_m:
-            caConfig.WCA_m.reset(caConfig.Id_m.WCAFacility_m, caConfig.Id_m.WCAId_m);
+            caConfig.WCA_m.reset(caConfig.Id_m.WCABand_m, caConfig.Id_m.WCAId_m);
 
             if (caConfig.Id_m.WCAValid()) {
                 // if that looks valid, load the associated WCA configuration:
-                if (getWCAConfig(caConfig.Id_m.WCAFacility_m, caConfig.Id_m.WCAId_m, caConfig.WCA_m))
+                if (getWCAConfig(caConfig.Id_m.WCABand_m, caConfig.Id_m.WCAId_m, caConfig.WCA_m))
                     saveConfig = true;  // record that we got at least one valid component for the band.
             }
         }
@@ -162,16 +165,16 @@ bool ConfigProviderMySQL::getFrontEndConfig(unsigned keyFacility, unsigned keyFr
     return true;
 }
 
-bool ConfigProviderMySQL::getCryostatConfig(unsigned keyFacility, unsigned keyCryostat, CryostatConfig &target) const {
-    target.reset(keyFacility, keyCryostat);
+bool ConfigProviderMySQL::getCryostatConfig(unsigned keyCryostat, CryostatConfig &target) const {
+    target.reset(keyCryostat);
 
     if (!dbObject_mp -> isConnected())
         return false;   
-    if (!keyFacility || !keyCryostat)
+    if (!keyCryostat)
         return false;
 
     FEICDataBase::FEComponent comp;
-    if (!dbObject_mp -> getComponentRecord(FEICDataBase::ID_T(keyFacility, keyCryostat), comp))
+    if (!dbObject_mp -> getComponentRecord(FEICDataBase::ID_T(FEConfig::facility_static, keyCryostat), comp))
         return false;
 
     target.SN_m = comp.SN_m;
@@ -179,16 +182,16 @@ bool ConfigProviderMySQL::getCryostatConfig(unsigned keyFacility, unsigned keyCr
     return true;
 }
 
-bool ConfigProviderMySQL::getLPRConfig(unsigned keyFacility, unsigned keyLPR, LPRConfig &target) const {
-    target.reset(keyFacility, keyLPR);
+bool ConfigProviderMySQL::getLPRConfig(unsigned keyLPR, LPRConfig &target) const {
+    target.reset(keyLPR);
 
     if (!dbObject_mp -> isConnected())
         return false;   
-    if (!keyFacility || !keyLPR)
+    if (!keyLPR)
         return false;
 
     FEICDataBase::FEComponent comp;
-    if (!dbObject_mp -> getComponentRecord(FEICDataBase::ID_T(keyFacility, keyLPR), comp))
+    if (!dbObject_mp -> getComponentRecord(FEICDataBase::ID_T(FEConfig::facility_static, keyLPR), comp))
         return false;
 
     target.SN_m = comp.SN_m;
@@ -208,28 +211,28 @@ bool ConfigProviderMySQL::getCartAssemblyConfig(CartAssemblyID CAId, CartAssembl
     target.Id_m = CAId;
 
     bool found;
-    found = getColdCartConfig(CAId.CCAFacility_m, CAId.CCAId_m, target.coldCart_m);
+    found = getColdCartConfig(CAId.CCABand_m, CAId.CCAId_m, target.coldCart_m);
     if (!found)
         target.coldCart_m.reset();
 
-    found = getWCAConfig(CAId.WCAFacility_m, CAId.WCAId_m, target.WCA_m);
+    found = getWCAConfig(CAId.WCABand_m, CAId.WCAId_m, target.WCA_m);
     if (!found)
         target.WCA_m.reset();
 
     return found;
 }
 
-bool ConfigProviderMySQL::getColdCartConfig(unsigned keyFacility, unsigned keyColdCart, ColdCartConfig &target) const {
+bool ConfigProviderMySQL::getColdCartConfig(unsigned CCABand, unsigned keyColdCart, ColdCartConfig &target) const {
     static const string context("ConfigProviderMySQL::getColdCartConfig");
 
-    target.reset(keyFacility, keyColdCart);
+    target.reset(CCABand, keyColdCart);
     
     if (!dbObject_mp -> isConnected())
         return false;  
-    if (!keyFacility || !keyColdCart)
+    if (!CCABand || !keyColdCart)
         return false;
 
-    FEICDataBase::ID_T componentId(keyFacility, keyColdCart);
+    FEICDataBase::ID_T componentId(FEConfig::facility_static, keyColdCart);
 
     FEICDataBase::FEComponent comp;
     if (!dbObject_mp -> getComponentRecord(componentId, comp))
@@ -257,17 +260,17 @@ bool ConfigProviderMySQL::getColdCartConfig(unsigned keyFacility, unsigned keyCo
     return success;
 }
 
-bool ConfigProviderMySQL::getWCAConfig(unsigned keyFacility, unsigned keyWCA, WCAConfig &target) const {
+bool ConfigProviderMySQL::getWCAConfig(unsigned WCABand, unsigned keyWCA, WCAConfig &target) const {
     static const string context("ConfigProviderMySQL::getWCAConfig");
 
-    target.reset(keyFacility, keyWCA);
+    target.reset(WCABand, keyWCA);
     
     if (!dbObject_mp -> isConnected())
         return false;   
-    if (!keyFacility || !keyWCA)
+    if (!WCABand || !keyWCA)
         return false;
 
-    FEICDataBase::ID_T componentId(keyFacility, keyWCA);
+    FEICDataBase::ID_T componentId(FEConfig::facility_static, keyWCA);
 
     FEICDataBase::FEComponent comp;
     if (!dbObject_mp -> getComponentRecord(componentId, comp))

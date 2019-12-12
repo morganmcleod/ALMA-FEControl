@@ -64,7 +64,7 @@ bool ConfigManager::configure(const Configuration &config, FrontEndImpl &target)
             if (cartAssy)
                 configureCartAssembly(*cartAssy, target);
         }
-        LOG(LM_INFO) << "ConfigManager: Configured Front End (" << feConfig -> keyFacility_m << "," << feConfig -> keyFrontEnd_m << ")." << endl;
+        LOG(LM_INFO) << "ConfigManager: Configured Front End (" << feConfig -> keyFrontEnd_m << ")." << endl;
         return true;
     }
 
@@ -79,13 +79,13 @@ bool ConfigManager::configure(const Configuration &config, FrontEndImpl &target)
 }
     
 
-bool ConfigManager::configure(unsigned keyFacility, unsigned configId, FrontEndImpl &target) const {
+bool ConfigManager::configure(unsigned configId, FrontEndImpl &target) const {
 
-    Configuration config(keyFacility, configId);
+    Configuration config(configId);
     if (!config.load(provider_m))
         return false;
 
-    LOG(LM_INFO) << "ConfigManager: Loaded configuration (" << keyFacility << "," << configId << ") '" << config.getDescription() << "'." << endl;
+    LOG(LM_INFO) << "ConfigManager: Loaded configuration (" << configId << ") '" << config.getDescription() << "'." << endl;
     return configure(config, target);
 }
 
@@ -101,25 +101,25 @@ bool ConfigManager::configure(const Configuration &config, SignalSourceImpl &tar
     return false;
 }
 
-bool ConfigManager::configure(unsigned keyFacility, unsigned configId, SignalSourceImpl &target) const {
+bool ConfigManager::configure(unsigned configId, SignalSourceImpl &target) const {
 // TODO: refactor configurable things.  SignalSource should be similar enough to FrontEndImpl that these duplicate functions aren't needed.
-    Configuration config(keyFacility, configId);
+    Configuration config(configId);
     if (!config.load(provider_m))
         return false;
 
-    LOG(LM_INFO) << "ConfigManager: Loaded configuration (" << keyFacility << "," << configId << ") '" << config.getDescription() << "'." << endl;
+    LOG(LM_INFO) << "ConfigManager: Loaded configuration (" << configId << ") '" << config.getDescription() << "'." << endl;
     return configure(config, target);
 }    
     
 bool ConfigManager::configureCryostat(const CryostatConfig &cryo, FrontEndImpl &target) const {
     // TODO: insert cryostat config into target.
-    LOG(LM_INFO) << "ConfigManager: Configured Cryostat (" << cryo.keyFacility_m << "," << cryo.keyCryostat_m << ")." << endl;
+    LOG(LM_INFO) << "ConfigManager: Configured Cryostat (" << cryo.keyCryostat_m << ")." << endl;
     return true;
 }
 
 bool ConfigManager::configureLPR(const LPRConfig &lpr, FrontEndImpl &target) const {
     // TODO: insert LPR config into target.
-    LOG(LM_INFO) << "ConfigManager: Configured LPR (" << lpr.keyFacility_m << "," << lpr.keyLPR_m << ")." << endl;
+    LOG(LM_INFO) << "ConfigManager: Configured LPR (" << lpr.keyLPR_m << ")." << endl;
     return true;
 }
  

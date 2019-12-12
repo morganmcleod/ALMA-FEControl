@@ -53,46 +53,41 @@ namespace FEConfig {
         virtual ~ConfigProvider()
           {}
     
-        virtual bool exists(unsigned keyFacility, unsigned configId) const = 0;
-        ///< return true if the configuration specified by (keyFacility, configId) exists in the database, false otherwise.
+        virtual bool exists(unsigned configId) const = 0;
+        ///< return true if the configuration specified by configId exists in the database, false otherwise.
     
         virtual void setESNList(const StringSet &toCopy)
         ///< Set the list of ESNs for which to search for configuration
           { ESNList_m = toCopy; }
 
-        virtual bool getConfiguration(unsigned keyFacility, unsigned configId,
-                                      Configuration::Record &target) const = 0;
-        ///< get the top-level configuration record specified by (keyFacility, configId).
+        virtual bool getConfiguration(unsigned configId, Configuration::Record &target) const = 0;
+        ///< get the top-level configuration record specified by configId.
         ///< returns false if the config does not exist or on error.
 
-        virtual bool getAllConfigurations(unsigned keyFacility, std::vector<Configuration::Record> &target) const
+        virtual bool getAllConfigurations(std::vector<Configuration::Record> &target) const
           { return false; }
-        ///< get all configurations for the given provider.
-
-        virtual bool saveConfiguration(const Configuration &source)
-          { return false; }
-        ///< write out the entire configuration to the ini file.
+        ///< get all configurations known by this provider.
         
-        virtual bool getFrontEndConfig(unsigned keyFacility, unsigned keyFrontEnd, FrontEndConfig &target) const = 0;
+        virtual bool getFrontEndConfig(unsigned keyFrontEnd, FrontEndConfig &target) const = 0;
         ///< get the FrontEndConfig portion of the specified config.
         ///< returns false if that portion is not available or on error.
     
-        virtual bool getCryostatConfig(unsigned keyFacility, unsigned keyCryostat, CryostatConfig &target) const = 0;
+        virtual bool getCryostatConfig(unsigned keyCryostat, CryostatConfig &target) const = 0;
         ///< get the CryostatConfig portion of the specified config.
         ///< returns false if that portion is not available or on error.
 
-        virtual bool getLPRConfig(unsigned keyFacility, unsigned keyLPR, LPRConfig &target) const = 0;
+        virtual bool getLPRConfig(unsigned keyLPR, LPRConfig &target) const = 0;
         ///< get the LPRConfig portion of the specified config.
         ///< returns false if that portion is not available or on error.
     
         virtual bool getCartAssemblyConfig(CartAssemblyID id, CartAssemblyConfig &target) const = 0;
         ///< load the configuration for the specified CartAssembly.
     
-        virtual bool getColdCartConfig(unsigned keyFacility, unsigned keyColdCart, ColdCartConfig &target) const = 0;
+        virtual bool getColdCartConfig(unsigned CCABand, unsigned keyColdCart, ColdCartConfig &target) const = 0;
         ///< get the ColdCartConfig portion of the specified config for the specified band.
         ///< returns false if that portion is not available or on error.
     
-        virtual bool getWCAConfig(unsigned keyFacility, unsigned keyWCA, WCAConfig &target) const = 0;
+        virtual bool getWCAConfig(unsigned WCABand, unsigned keyWCA, WCAConfig &target) const = 0;
         ///< get the WCAConfig portion of the specified config for the specified band.
         ///< returns false if that portion is not available or on error.
 

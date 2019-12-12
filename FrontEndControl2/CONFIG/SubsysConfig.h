@@ -33,24 +33,22 @@ namespace FEConfig {
     /// configuration data for the cryostat.
     class CryostatConfig {
     public:
-        CryostatConfig(unsigned keyFacility = 0, unsigned keyCryostat = 0)
-          : keyFacility_m(keyFacility),
-            keyCryostat_m(keyCryostat) 
+        CryostatConfig(unsigned keyCryostat = 0)
+          : keyCryostat_m(keyCryostat)
             {}
-        ///< construct with the primary key values keyFacility and keyCryostat
+        ///< construct with the primary keyCryostat
         
         ~CryostatConfig()
           {}
     
-        void reset(unsigned keyFacility = 0, unsigned keyCryostat = 0);
-        ///< reset all data to defaults.
+        void reset(unsigned keyCryostat = 0);
+        ///< reset all data to defaults, optionally assigning a new key
 
         void streamOut(std::ostream& out) const;
         ///< stream output for debugging 
         
     public:
-        unsigned keyFacility_m;     ///< the provider portion of the primary key.
-        unsigned keyCryostat_m;     ///< along with provider, uniquely identifies a record in the Cryostats table.
+        unsigned keyCryostat_m;     ///< uniquely identifies a record in the Cryostats table.
         std::string SN_m;           ///< The cryostat's assigned serial number.
         std::string ESN_m;          ///< The cryostat's electronic serial number.
     };
@@ -62,23 +60,21 @@ namespace FEConfig {
     /// configuration data for the LPR.
     class LPRConfig {
     public:
-        LPRConfig(unsigned keyFacility = 0, unsigned keyLPR = 0)
-          : keyFacility_m(keyFacility),
-            keyLPR_m(keyLPR) 
+        LPRConfig(unsigned keyLPR = 0)
+          : keyLPR_m(keyLPR)
             {}
-        ///< construct with the primary key values keyFacility and keyLPR
+        ///< construct with the primary keyLPR
         
         ~LPRConfig()
           {}
     
-        void reset(unsigned keyFacility = 0, unsigned keyLPR = 0);
+        void reset(unsigned keyLPR = 0);
         ///< reset all data to defaults
 
         void streamOut(std::ostream& out) const;
         ///< stream output for debugging 
 
     public:
-        unsigned keyFacility_m;     ///< the provider portion of the primary key.
         unsigned keyLPR_m;          ///< along with provider, uniquely identifies a record in the LPRs table.
         std::string SN_m;           ///< The LPR's assigned serial number.
         std::string ESN_m;          ///< The LPR's electronic serial number.

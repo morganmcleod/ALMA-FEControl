@@ -43,7 +43,6 @@ using namespace std;
 namespace FrontEndLVWrapper {
 	unsigned long CANChannelSigSrc = 0;
     unsigned long nodeAddressSigSrc = 0x14;
-    unsigned long facilityIdSigSrc = 40;
     unsigned long configIdSigSrc = 1;
     std::string sigSrcIniFilename;
     static SignalSourceImpl *sigSrc = NULL;
@@ -108,21 +107,10 @@ DLLEXPORT short sigSrcControlInit() {
         LOG(LM_INFO) << "Connecting to signal source on CAN" << CANChannelSigSrc
             << " nodeAddress=" << uppercase << hex << setw(2) << setfill('0') << nodeAddressSigSrc << dec << setw(0) << endl;
 
-        // get the facility code from the new key facilityId:
-        tmp = configINI.GetValue("configuration", "facilityIdSigSrc");
-        if (!tmp.empty())
-            facilityIdSigSrc = from_string<unsigned long>(tmp);
-        else {
-            // but fall back on the old name if that doesn't work:
-            tmp = configINI.GetValue("configuration", "providerCodeSigSrc");
-            if (!tmp.empty())
-                facilityIdSigSrc = from_string<unsigned long>(tmp);
-        }
-
         tmp = configINI.GetValue("configuration", "configIdSigSrc");
         if (!tmp.empty())
             configIdSigSrc = from_string<unsigned long>(tmp);
-        LOG(LM_INFO) << "Using configuration facilityIdSigSrc=" << facilityIdSigSrc << " configIdSigSrc=" << configIdSigSrc << endl;
+        LOG(LM_INFO) << "Using configuration configIdSigSrc=" << configIdSigSrc << endl;
 
     } catch (...) {
     	LOG(LM_ERROR) << "sigSrcControlInit exception loading configuration file." << endl;
@@ -203,7 +191,7 @@ DLLEXPORT short sigSrcGetNextConfiguration(short reset, short *configId, char *d
 
     if (reset) {
         ConfigProvider *provider = new ConfigProviderIniFile(sigSrcIniFilename);
-        ret = provider -> getAllConfigurations(facilityIdSigSrc, configsList);
+        ret = provider -> getAllConfigurations(configsList);
         nextConfig = configsList.begin();
         delete provider;
     } else
@@ -234,7 +222,7 @@ DLLEXPORT short sigSrcLoadConfiguration(short configId) {
     provider = new ConfigProviderIniFile(sigSrcIniFilename);
 	
     ConfigManager configMgr(*provider);
-    Configuration config(facilityIdSigSrc, configId);
+    Configuration config(configId);
     if (!config.load(*provider)) {
         LOG(LM_ERROR) << "sigSrcLoadConfiguration: failed config.load(*provider)" << endl;
         return -1;
