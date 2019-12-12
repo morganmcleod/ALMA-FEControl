@@ -1,6 +1,8 @@
+#ifndef INCLUDE_TRIMSTR_H_
+#define INCLUDE_TRIMSTR_H_
 /*******************************************************************************
 * ALMA - Atacama Large Millimeter Array
-* (c) Associated Universities Inc., 2007
+* (c) Associated Universities Inc., 2019
 *
 *This library is free software; you can redistribute it and/or
 *modify it under the terms of the GNU Lesser General Public
@@ -16,30 +18,17 @@
 *License along with this library; if not, write to the Free Software
 *Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 *
+*
 */
 
-#include "SubsysConfig.h"
+#include <string>
 
-namespace FEConfig {
-    
-void CryostatConfig::reset(unsigned keyCryostat) {
-    keyCryostat_m = keyCryostat;
-    SN_m = ESN_m = ""; 
+inline std::string TrimStr(const std::string& src, const std::string& c = " \t\r\n") {
+    int p2 = src.find_last_not_of(c);
+    if (p2 == std::string::npos) return std::string();
+    int p1 = src.find_first_not_of(c);
+    if (p1 == std::string::npos) p1 = 0;
+    return src.substr(p1, (p2-p1)+1);
 }
 
-void CryostatConfig::streamOut(std::ostream& out) const {
-    out << "CryostatConfig(" << keyCryostat_m << "): "
-        << "SN='" << SN_m << "' ESN='" << ESN_m << "'" << std::endl;
-}
-
-void LPRConfig::reset(unsigned keyLPR) {
-    keyLPR_m = keyLPR;
-    SN_m = ESN_m = "";
-}
-
-void LPRConfig::streamOut(std::ostream& out) const {
-    out << "LPRConfig(" << keyLPR_m << "): "
-        << "SN='" << SN_m << "' ESN='" << ESN_m << "'" << std::endl;
-}
-    
-}; //namespace FEConfig
+#endif /* INCLUDE_TRIMSTR_H_ */

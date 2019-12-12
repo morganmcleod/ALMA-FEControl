@@ -39,32 +39,28 @@ namespace FEConfig {
         
         virtual ~ConfigProviderIniFile();
     
-        virtual bool exists(unsigned keyFacility, unsigned configId) const;
-        ///< return true if the config specified by (keyFacility, configId) exists in the database, false otherwise.
+        virtual bool exists(unsigned configId) const;
+        ///< return true if the config specified by configId exists in the database, false otherwise.
 
         virtual void setESNList(const StringSet &toCopy);
         ///< Set the list of ESNs for which to search for configuration
 
-        virtual bool getConfiguration(unsigned keyFacility, unsigned configId,
-                                      Configuration::Record &target) const;
-        ///< get the top-level configuration record specified by (keyFacility, configId).
+        virtual bool getConfiguration(unsigned configId, Configuration::Record &target) const;
+        ///< get the top-level configuration record specified by configId.
         ///< returns false if the config does not exist or on error.
 
-        virtual bool getAllConfigurations(unsigned keyFacility, std::vector<Configuration::Record> &target) const;
+        virtual bool getAllConfigurations(std::vector<Configuration::Record> &target) const;
         ///< get all configurations for the given provider.
 
-        virtual bool saveConfiguration(const Configuration &source);
-        ///< write out the entire configuration to the ini file.
-        
-        virtual bool getFrontEndConfig(unsigned keyFacility, unsigned keyFrontEnd, FrontEndConfig &target) const;
+        virtual bool getFrontEndConfig(unsigned keyFrontEnd, FrontEndConfig &target) const;
         ///< get the FrontEndConfig portion of the specified config.
         ///< returns false if that portion is not available or on error.
     
-        virtual bool getCryostatConfig(unsigned keyFacility, unsigned keyCryostat, CryostatConfig &target) const;
+        virtual bool getCryostatConfig(unsigned keyCryostat, CryostatConfig &target) const;
         ///< get the CryostatConfig portion of the specified config.
         ///< returns false if that portion is not available or on error.
     
-        virtual bool getLPRConfig(unsigned keyFacility, unsigned keyLPR, LPRConfig &target) const;
+        virtual bool getLPRConfig(unsigned keyLPR, LPRConfig &target) const;
         ///< get the LPRConfig portion of the specified config.
         ///< returns false if that portion is not available or on error.
     
@@ -72,11 +68,11 @@ namespace FEConfig {
         ///< load the configuration for the specified CartAssembly.
         ///< returns false if the configuration is not available or on error.
     
-        virtual bool getColdCartConfig(unsigned keyFacility, unsigned keyColdCart, ColdCartConfig &target) const;
+        virtual bool getColdCartConfig(unsigned CCABand, unsigned keyColdCart, ColdCartConfig &target) const;
         ///< get the ColdCartConfig portion of the specified config for the specified band.
         ///< returns false if that portion is not available or on error.
     
-        virtual bool getWCAConfig(unsigned keyFacility, unsigned keyWCA, WCAConfig &target) const;
+        virtual bool getWCAConfig(unsigned WCABand, unsigned keyWCA, WCAConfig &target) const;
         ///< get the WCAConfig portion of the specified config for the specified band.
         ///< returns false if that portion is not available or on error.
     
@@ -86,14 +82,6 @@ namespace FEConfig {
         ConfigProviderIniFile &operator =(const ConfigProvider &other);
         ///< assignment is private and forbidden.
 
-        // privaate helper methods to save configuration objects to the ini file:
-        bool saveFrontEndConfig(const FrontEndConfig &source) const;
-        bool saveCryosatConfig(const CryostatConfig &source) const;
-        bool saveLPRConfig(const LPRConfig &source) const;
-        bool saveCartAssemblyConfig(const CartAssemblyConfig &source) const;
-        bool saveColdCartConfig(const ColdCartConfig &source) const;
-        bool saveWCAConfig(const WCAConfig &source) const;
-        
         bool getConfigurationRecord(const char *sectionName, Configuration::Record &target) const;
         ///< get the items which basically define a configuration.
         

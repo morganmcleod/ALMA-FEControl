@@ -27,13 +27,13 @@
 #
 
 CONFIGCPP = CartConfig.cpp ConfigManager.cpp Configuration.cpp \
-	ConfigProviderIniFile.cpp ConfigProviderMySQL.cpp \
+	ConfigProviderIniFile.cpp ConfigProviderMySQL.cpp ConfigProviderXML.cpp \
 	FrontEndConfig.cpp FrontEndDatabase.cpp LookupTables.cpp SubsysConfig.cpp XMLParser.cpp
 
 .PHONY: config
 config: $(CONFIGCPP)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) \
-	$(DBINC) $(PORTABLEINC) $(PROJECTINC) $(MYSQLINC) $(EXPATMMINC) \
+	$(PROJECTINC) $(MYSQLINC) $(EXPATMMINC) \
 	-c $(CONFIGCPP)
 
 clean:

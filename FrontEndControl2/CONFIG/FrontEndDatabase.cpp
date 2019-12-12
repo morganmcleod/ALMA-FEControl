@@ -77,7 +77,7 @@ bool FrontEndDatabase::getConfigurationRecord(const ID_T &configId, FEConfig::Co
         return false;
     }
 
-    string query = "SELECT keyFacility, keyFEConfig, fkFront_Ends, Description FROM FE_Config WHERE "
+    string query = "SELECT keyFEConfig, fkFront_Ends, Description FROM FE_Config WHERE "
                  + configId.whereClause("keyFacility", "keyFEConfig") + ";";
 
     LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
@@ -96,12 +96,10 @@ bool FrontEndDatabase::getConfigurationRecord(const ID_T &configId, FEConfig::Co
     LOG(LM_INFO) << context << ": row=(" << conn_mp -> rowToString(res, row, tmp) << ")" << endl;
 
     MySQLConnection::unpackString(row, 0, tmp);
-    target.keyFacility_m = from_string<unsigned>(tmp);
-    MySQLConnection::unpackString(row, 1, tmp);
     target.configId_m = from_string<unsigned>(tmp);
-    MySQLConnection::unpackString(row, 2, tmp);
+    MySQLConnection::unpackString(row, 1, tmp);
     target.keyFrontEnd_m = from_string<unsigned>(tmp);
-    MySQLConnection::unpackString(row, 3, target.description_m);
+    MySQLConnection::unpackString(row, 2, target.description_m);
 
     target.CAId_m = CartAssemblyID(); // TODO: support configuration with only a cartassembly?
     return true;

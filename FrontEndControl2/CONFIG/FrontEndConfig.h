@@ -36,14 +36,14 @@ namespace FEConfig {
     /// FrontEndConfig is an object with space for the config parameters front end and all of its subsystems.
     class FrontEndConfig {
     public:
-        FrontEndConfig(unsigned keyFacility = 0, unsigned keyFrontEnd = 0);
-        ///< construct with the primary key values keyFacility and keyFrontEnd
+        FrontEndConfig(unsigned keyFrontEnd = 0);
+        ///< construct with the primary keyFrontEnd
             
         ~FrontEndConfig()
           { reset(); }
           
-        void reset(unsigned keyFacility = 0, unsigned keyFrontEnd = 0);
-        ///< reset all data to defaults, optionally assigning new values to the keys.
+        void reset(unsigned keyFrontEnd = 0);
+        ///< reset all data to defaults, optionally assigning new values to the key.
         
         const CryostatConfig *getCryostatConfig() const
           { return cryo_mp; }
@@ -85,7 +85,6 @@ namespace FEConfig {
         ///< stream output for debugging 
          
     public:
-        unsigned keyFacility_m; ///< the provider portion of the primary key.
         unsigned keyFrontEnd_m; ///< along with provider, uniquely identifies a record in the FrontEnds table.
         unsigned fkFETIM_m;     ///< non-zero if a FETIM is installed.
         unsigned fkIFSwitch_m;  ///< non-zero if an IF switch is installed.

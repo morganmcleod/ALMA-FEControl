@@ -2,9 +2,8 @@
 
 namespace FEConfig {
 
-FrontEndConfig::FrontEndConfig(unsigned keyFacility, unsigned keyFrontEnd)
-  : keyFacility_m(keyFacility),
-    keyFrontEnd_m(keyFrontEnd),
+FrontEndConfig::FrontEndConfig(unsigned keyFrontEnd)
+  : keyFrontEnd_m(keyFrontEnd),
     fkFETIM_m(0),
     fkIFSwitch_m(0),
     fkPowerDist_m(0),
@@ -16,8 +15,7 @@ FrontEndConfig::FrontEndConfig(unsigned keyFacility, unsigned keyFrontEnd)
         cartridges_m[index] = NULL; 
 }
 
-void FrontEndConfig::reset(unsigned keyFacility, unsigned keyFrontEnd) {
-    keyFacility_m = keyFacility;
+void FrontEndConfig::reset(unsigned keyFrontEnd) {
     keyFrontEnd_m = keyFrontEnd;
     SN_m = ESN_m = "";
     fkFETIM_m = fkIFSwitch_m = fkPowerDist_m = 0;
@@ -46,7 +44,7 @@ bool FrontEndConfig::setCartridgeConfig(unsigned band, CartAssemblyConfig &cartA
 }
 
 void FrontEndConfig::streamOut(std::ostream& out) const {
-    out << "FrontEndConfig(" << keyFacility_m << ", " << keyFrontEnd_m << "): "
+    out << "FrontEndConfig(" << keyFrontEnd_m << "): "
         << "SN='" << SN_m << "' ESN='" << ESN_m << "'"
         << " cryostat=" << ((cryo_mp) ? cryo_mp -> keyCryostat_m : 0)
         << " FETIM=" << fkFETIM_m

@@ -27,10 +27,9 @@ namespace FEConfig {
     
 static const bool DEBUG_CONFIG_PARAMS = true;
 
-void ColdCartConfig::reset(unsigned keyFacility, unsigned keyColdCart) {
-    keyFacility_m = keyFacility;
+void ColdCartConfig::reset(unsigned band, unsigned keyColdCart) {
+    band_m = band;
     keyColdCart_m = keyColdCart;
-    band_m = 0;
     SN_m = ESN_m = description_m = "";        
     mixerParams_m.clear();
     magnetParams_m.clear(); 
@@ -41,8 +40,8 @@ void ColdCartConfig::reset(unsigned keyFacility, unsigned keyColdCart) {
 }
 
 void ColdCartConfig::streamOut(std::ostream& out) const {
-    out << "ColdCartConfig(" << keyFacility_m << ", " << keyColdCart_m << "): ";
-    if (!(keyFacility_m && keyColdCart_m)) {
+    out << "ColdCartConfig(" << keyColdCart_m << "): ";
+    if (!keyColdCart_m) {
         out << "empty" << endl;
     } else {
         out << "band=" << band_m << " SN='" << SN_m << "' ESN='" << ESN_m << "' '" << description_m << "'" << endl;
@@ -57,10 +56,9 @@ void ColdCartConfig::streamOut(std::ostream& out) const {
     }
 }
     
-void WCAConfig::reset(unsigned keyFacility, unsigned keyWCA) {
-    keyFacility_m = keyFacility;
+void WCAConfig::reset(unsigned band, unsigned keyWCA) {
+    band_m = band;
     keyWCA_m = keyWCA;
-    band_m = 0;
     SN_m = ESN_m = "";
     FLOYIG_m = FHIYIG_m = 0.0;      
     PAParams_m.clear(); 
@@ -68,8 +66,8 @@ void WCAConfig::reset(unsigned keyFacility, unsigned keyWCA) {
 }
 
 void WCAConfig::streamOut(std::ostream& out) const {
-    out << "WCAConfig(" << keyFacility_m << ", " << keyWCA_m << "): ";
-    if (!(keyFacility_m && keyWCA_m)) {
+    out << "WCAConfig(" << keyWCA_m << "): ";
+    if (!keyWCA_m) {
         out << "empty" << endl;
     } else {
         string loopBW;
@@ -97,8 +95,8 @@ void WCAConfig::streamOut(std::ostream& out) const {
 
 void CartAssemblyID::streamOut(std::ostream& out) const {
     out << "CartAssemblyID( port=" << port_m << ", band=" << band_m
-        << ", WCAFacility=" << WCAFacility_m << ", WCAId=" << WCAId_m
-        << ", CCAFacility=" << CCAFacility_m << ", CCAId=" << CCAId_m << " )";
+        << ", WCABand=" << WCABand_m << ", WCAId=" << WCAId_m
+        << ", CCABand=" << CCABand_m << ", CCAId=" << CCAId_m << " )";
 }
 
 void CartAssemblyConfig::reset() {
