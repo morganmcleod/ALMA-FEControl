@@ -77,17 +77,6 @@ bool ConfigManager::configure(const Configuration &config, FrontEndImpl &target)
     }
     return false;
 }
-    
-
-bool ConfigManager::configure(unsigned configId, FrontEndImpl &target) const {
-
-    Configuration config(configId);
-    if (!config.load(provider_m))
-        return false;
-
-    LOG(LM_INFO) << "ConfigManager: Loaded configuration (" << configId << ") '" << config.getDescription() << "'." << endl;
-    return configure(config, target);
-}
 
 bool ConfigManager::configure(const Configuration &config, SignalSourceImpl &target) const {
 // TODO: refactor configurable things.  SignalSource should be similar enough to FrontEndImpl that these duplicate functions aren't needed.
@@ -101,16 +90,8 @@ bool ConfigManager::configure(const Configuration &config, SignalSourceImpl &tar
     return false;
 }
 
-bool ConfigManager::configure(unsigned configId, SignalSourceImpl &target) const {
-// TODO: refactor configurable things.  SignalSource should be similar enough to FrontEndImpl that these duplicate functions aren't needed.
-    Configuration config(configId);
-    if (!config.load(provider_m))
-        return false;
+// private helpers:
 
-    LOG(LM_INFO) << "ConfigManager: Loaded configuration (" << configId << ") '" << config.getDescription() << "'." << endl;
-    return configure(config, target);
-}    
-    
 bool ConfigManager::configureCryostat(const CryostatConfig &cryo, FrontEndImpl &target) const {
     // TODO: insert cryostat config into target.
     LOG(LM_INFO) << "ConfigManager: Configured Cryostat (" << cryo.keyCryostat_m << ")." << endl;

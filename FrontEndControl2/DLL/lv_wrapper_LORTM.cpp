@@ -41,13 +41,20 @@
 using namespace std;
 
 namespace FrontEndLVWrapper {
-    unsigned long CANChannelLORTM = 0; 
-    unsigned long nodeAddressLORTM = 0;
-    std::string LORTMIniFilename;
+    // Configuration loading:
+    std::string LORTMIniFilename;           ///< INI file containing LORTM configurations
+    static double freqRefLaser = 0.0;       ///< Reference laser frequency to use when setting LORTM
+
+    // Library init and lifecycle:
+    static bool LORTMValid = false;         ///< true if we have connected to and configured the LORTM
+    static int connectedLORTMClients = 0;   ///< reference count number of callers to LORTMControlInit()
+
+    // CAN connection:
+    unsigned long CANChannelLORTM = 0;      ///< Which CAN channel the LORTM is connected to
+    unsigned long nodeAddressLORTM = 0;     ///< LORTM node address
+
+    // Software objects we create:
     static LORTMImpl *LORTM = NULL;
-    static bool LORTMValid = false;
-    static int connectedLORTMClients = 0;
-    static double freqRefLaser = 0.0;
 };
 using namespace FrontEndLVWrapper;
 

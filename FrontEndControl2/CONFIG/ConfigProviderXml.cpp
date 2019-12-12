@@ -31,4 +31,43 @@ ConfigProviderXml::~ConfigProviderXml() {
     // TODO Auto-generated destructor stub
 }
 
+bool ConfigProviderXml::exists(unsigned configId) const {
+    return false;
+}
+
+void ConfigProviderXml::setESNList(const StringSet &toCopy) {
+}
+
+bool ConfigProviderXml::getConfiguration(unsigned configId, Configuration::Record &target) const {
+    return false;
+}
+
+bool ConfigProviderXml::getAllConfigurations(std::vector<Configuration::Record> &target) const {
+    return false;
+}
+
+bool ConfigProviderXml::getFrontEndConfig(unsigned keyFrontEnd, FrontEndConfig &target) const {
+    return false;
+}
+
+bool ConfigProviderXml::getCryostatConfig(unsigned keyCryostat, CryostatConfig &target) const {
+    return false;
+}
+
+bool ConfigProviderXml::getLPRConfig(unsigned keyLPR, LPRConfig &target) const {
+    return false;
+}
+
+bool ConfigProviderXml::getCartAssemblyConfig(CartAssemblyID id, CartAssemblyConfig &target) const {
+    return false;
+}
+
+bool ConfigProviderXml::getColdCartConfig(unsigned CCABand, unsigned keyColdCart, ColdCartConfig &target) const {
+    return false;
+}
+
+bool ConfigProviderXml::getWCAConfig(unsigned WCABand, unsigned keyWCA, WCAConfig &target) const {
+    return false;
+}
+
 }; // namespace FEConfig

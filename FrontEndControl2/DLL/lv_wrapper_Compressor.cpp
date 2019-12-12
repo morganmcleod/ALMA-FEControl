@@ -35,11 +35,16 @@
 using namespace std;
 
 namespace FrontEndLVWrapper {
-    unsigned long CANChannelCompressor = 0;
-    unsigned long nodeAddressCompressor = 0;
+    // CAN connection:
+    unsigned long CANChannelCompressor = 0;     ///< Which CAN channel the compressor is connected to
+    unsigned long nodeAddressCompressor = 0;    ///< compressor node address
+
+    // Library init and lifecycle:
+    static bool CompressorValid = false;        ///< true if we have connected to and configured the compressor
+    static int connectedCompressorClients = 0;  ///< reference count number of callers to CompressorControlInit()
+
+    // Software objects we create:
     static CompressorImpl *Compressor = NULL;
-    static bool CompressorValid = false;
-    static int connectedCompressorClients = 0;
 };
 using namespace FrontEndLVWrapper;
 

@@ -29,12 +29,12 @@ class SignalSourceImpl;
 
 namespace FEConfig {
 
-    /// ConfigManager uses a ConfigProvider load config parameters into a target FrontEndImpl or SignalSourceImpl.
+    /// ConfigManager uses a Configuration object to load operating parameters into
+    ///   FrontEndImpl, SignalSourceImpl objects
     class ConfigManager {
     public:
-        ConfigManager(const ConfigProvider &provider)
-          : provider_m(provider)
-            {}
+        ConfigManager()
+          {}
         ///< construct with a reference to the ConfigProvider to use.
         ~ConfigManager()
           {}
@@ -42,20 +42,10 @@ namespace FEConfig {
         bool configure(const Configuration &config, FrontEndImpl &target) const;
         ///< Apply the given Configuration to the target FrontEndImpl object.
         ///< returns true if no error.
-          
-        bool configure(unsigned configId, FrontEndImpl &target) const;
-        ///< load the config identified by configId into the target FrontEndImpl object.
-        ///< returns true if the specified configuration was found and loaded.
-        ///< False on otherwise or on error.
         
         bool configure(const Configuration &config, SignalSourceImpl &target) const;
         ///< Apply the given Configuration to the target SignalSourceImpl object.
         ///< returns true if no error.
-
-        bool configure(unsigned configId, SignalSourceImpl &target) const;
-        ///< load the config identified by configId into the target SignalSourceImpl object.
-        ///< returns true if the specified configuration was found and loaded.
-        ///< False on otherwise or on error.
 
     private:
         ConfigManager(const ConfigManager &other);
@@ -75,8 +65,6 @@ namespace FEConfig {
         bool configureWCA(unsigned port, const WCAConfig &WCA, FrontEndImpl &target) const;
         bool configureWCA(unsigned port, const WCAConfig &wcaConfig, SignalSourceImpl &target) const;
         ///< helpers to apply a WCAConfig to the target.
-    
-        const ConfigProvider &provider_m;   ///< reference to the provider given when constructed.
     };
 
 }; // namespace FEConfig;

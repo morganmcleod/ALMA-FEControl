@@ -44,7 +44,9 @@ Revision history:
   Added read ESNs at startup and push into ConfigProviderIniFile = not tested yet
   Removed all uses of keyFacility from CONFIG and the lv_wrappers.   
     keyFacility has never been implemented correctly in the database.
-  Added ConfigProviderXML skeleton.
+  Deleted ConfigProviderMySQL. Added ConfigProviderXML skeleton.
+  ConfigManager no longer uses ConfigProvider.
+  Improved comments in namespace FrontEndLVWrapper.   Deleted obsolete logLVStructures option. 
   
 2.10.4 2019-06-18
   AMC_MULTIPLIER_D_VOLTAGE -> AMC_MULTIPLIER_D_COUNTS, same for all var names

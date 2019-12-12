@@ -27,7 +27,7 @@
 #
 
 CONFIGCPP = CartConfig.cpp ConfigManager.cpp Configuration.cpp \
-	ConfigProviderIniFile.cpp ConfigProviderMySQL.cpp ConfigProviderXML.cpp \
+	ConfigProviderIniFile.cpp ConfigProviderXML.cpp \
 	FrontEndConfig.cpp FrontEndDatabase.cpp LookupTables.cpp SubsysConfig.cpp XMLParser.cpp
 
 .PHONY: config

@@ -74,8 +74,8 @@ export CPPFLAGS = -O0 -fmessage-length=0
 export DEBUGFLAGS = -g2 -fno-omit-frame-pointer
 
 # list of output files in subdirectories:
-CONFIGOUT = CONFIG/CartConfig.o CONFIG/ConfigManager.o CONFIG/Configuration.o CONFIG/ConfigProviderIniFile.o CONFIG/ConfigProviderMySQL.o \
-	CONFIG/ConfigProviderXml.o CONFIG/FrontEndConfig.o CONFIG/FrontEndDatabase.o CONFIG/LookupTables.o CONFIG/SubsysConfig.o CONFIG/XMLParser.o
+CONFIGOUT = CONFIG/CartConfig.o CONFIG/ConfigManager.o CONFIG/Configuration.o CONFIG/ConfigProviderIniFile.o CONFIG/ConfigProviderXML.o \
+	CONFIG/FrontEndConfig.o CONFIG/FrontEndDatabase.o CONFIG/LookupTables.o CONFIG/SubsysConfig.o CONFIG/XMLParser.o
 FEBASEOUT = FEBASE/AMBSIHardwareDevice.o \
 	FEBASE/ColdCartImplBase.o FEBASE/CompressorImplBase.o FEBASE/CryostatImplBase.o \
 	FEBASE/FETIMImplBase.o FEBASE/FEHardwareDevice.o FEBASE/FrontEndImplBase.o \

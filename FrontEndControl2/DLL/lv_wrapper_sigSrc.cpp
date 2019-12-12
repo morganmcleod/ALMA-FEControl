@@ -41,15 +41,23 @@ using namespace FEConfig;
 using namespace std;
 
 namespace FrontEndLVWrapper {
-	unsigned long CANChannelSigSrc = 0;
-    unsigned long nodeAddressSigSrc = 0x14;
-    unsigned long configIdSigSrc = 1;
-    std::string sigSrcIniFilename;
+    // Configuration loading:
+    unsigned long configIdSigSrc = 1;       ///< configuration ID to load
+    std::string sigSrcIniFilename;          ///< INI file containing signal source configurations
+
+    // Library init and lifecycle:
+    static bool sigSrcValid = false;        ///< true if we have connected to and configured the signal source
+    static int connectedSigSrcClients = 0;  ///< reference count number of callers to sigSrcControlInit()
+
+    // CAN connection:
+    unsigned long CANChannelSigSrc = 0;     ///< Which CAN channel the signal source is connected to
+    unsigned long nodeAddressSigSrc = 0x14; ///< signal source node address
+
+    // Software objects we create:
     static SignalSourceImpl *sigSrc = NULL;
     static WCAImpl *sigSrcWCA_p = NULL;
-    static bool sigSrcValid = false;
-    static int connectedSigSrcClients = 0;
 
+    // Accessor:
     SignalSourceImpl *getSignalSourceImpl()
       { return (sigSrcValid) ? sigSrc : NULL; }
 };
@@ -221,7 +229,6 @@ DLLEXPORT short sigSrcLoadConfiguration(short configId) {
 	ConfigProvider *provider(NULL);
     provider = new ConfigProviderIniFile(sigSrcIniFilename);
 	
-    ConfigManager configMgr(*provider);
     Configuration config(configId);
     if (!config.load(*provider)) {
         LOG(LM_ERROR) << "sigSrcLoadConfiguration: failed config.load(*provider)" << endl;
@@ -255,6 +262,7 @@ DLLEXPORT short sigSrcLoadConfiguration(short configId) {
             sigSrc -> addCartridge(port, *sigSrcWCA_p);
         }
     }
+    ConfigManager configMgr;
     configMgr.configure(config, *sigSrc);
     sigSrcValid = true;
     LOG(LM_INFO) << "sigSrcLoadConfiguration successful" << endl;

@@ -39,21 +39,31 @@
 #include <algorithm>
 using namespace std;
 
+/// Shared infrastructure for configuration, logging, database connection
+///  used by the LabVIEW wrappers for the Front End and the LORTM.
+
 namespace FrontEndLVWrapper {
-    pthread_mutex_t LVWrapperLock;
-    std::string logDir("");
-    std::string FrontEndIni("");
+    // Configuration loading:
+    std::string iniFileName;            ///< the top-level FrontEndControlDLL.ini
+    std::string FrontEndIni("");        ///< the FE specific ini file to use, if different from FrontEndControlDLL.ini
+
+    // Library init and lifecycle:
+    static bool LVWrapperValid = false; ///< true if all objects here were created and configured
+    static int connectedModules = 0;    ///< reference count number of callers to LVWrapperInit()
+    pthread_mutex_t LVWrapperLock;      ///< mutex to protect the above two vars
+
+    // Debug options:
+    std::string logDir("");             ///< output logs are created here
+    bool logTransactions = false;       ///< Normally false: log all low-level CAN transactions to FELog
+    bool debugLVStructures = false;     ///< Normally false: dump all monitor data results to the log
+    bool CAN_noTransmit = false;        ///< Normally false: ignore CAN connection failure and suppress all CAN messages
+    unsigned int thermalLogInterval = 30; ///< Seconds between rows in the thermal log file
+
+    // Software objects we create:
     FILE *logStream = NULL;
-    bool logTransactions = false;
-    bool debugLVStructures = false;
-    bool CAN_noTransmit = false;
-    std::string iniFileName;
-    unsigned int thermalLogInterval = 30;
     static const AmbInterface *ambItf;
     static CANBusInterface *canBus = NULL;
     static AmbTransactionLogger *logger = NULL;
-    static bool LVWrapperValid = false;
-    static int connectedModules = 0;
 };
 using namespace FrontEndLVWrapper;
 

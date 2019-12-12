@@ -34,7 +34,6 @@
 #include "FrontEndImpl.h"
 #include "SignalSourceImpl.h"
 #include "logger.h"
-#include "CONFIG/ConfigProviderMySQL.h"
 #include "CONFIG/ConfigProviderIniFile.h"
 #include "CONFIG/ConfigManager.h"
 #include "CONFIG/IFPowerDataSet.h"
@@ -57,40 +56,69 @@ using namespace FEConfig;
 using namespace std;
 
 namespace FrontEndLVWrapper {
-    unsigned long configId = 1;
-    bool logMonTimers = false;
-    bool allowSISHeaters = false;
-    bool SISOpenLoop = false;
-    short FEMode = 0;
-    extern bool tryAlternateLockMethod;
-    extern bool defeatNormalLockDetect;
-    bool correctSISVoltageError = true;
-    bool randomizeMonitors = false;
-    bool logMonitors = false;
-    bool logAmbErrors = true;
-    unsigned long CANChannel = 0;
-    unsigned long nodeAddress = 0x13;
-    bool startCompressorModule = false;
+    // Configuration loading:
+    unsigned long configId = 1;         ///< configuration ID to load
+    bool useESNLookup = false;          ///< true if we will lookup configs by ESN
+    StringSet ESNList;                  ///< the list of ESNs found in the front end
+
+    // Library init and lifecycle:
+    static bool FEValid = false;        ///< true if we have connected to and configured the front end
+    static int connectedFEClients = 0;  ///< reference count number of callers to FEControlInit()
+
+    // CAN connection and behavior:
+    unsigned long CANChannel = 0;       ///< Which CAN channel the FE is connected to
+    unsigned long nodeAddress = 0x13;   ///< The FE Node address
+    bool startCompressorModule = false; ///< If true, also initialize the compressor module in FEControlInit()
+
+    // Debug options:
+    bool allowSISHeaters = true;        ///< Normally true: allow operation of SIS heaters
+    bool correctSISVoltageError = true; ///< Normally true: perform SIS voltage offset measurement and correction
+    bool SISOpenLoop = false;           ///< Normally false: run SIS voltage open-loop
+    extern bool tryAlternateLockMethod; ///< Normally false, declared in WCAImpl.cpp:
+                                        ///<   indicate lock based on behavior of the PLL correction voltage
+    extern bool defeatNormalLockDetect; ///< Normally false, declared in WCAImpl.cpp:
+                                        ///<   skip normal lock detection altogether
+    short FEMode = 0;                   ///< Normally 0=Operational, 1=Troubleshooting, 2=Maintenance
+    bool randomizeMonitors = false;     ///< Normally false: do all analog monitoring in random order
+    bool logMonitors = false;           ///< Normally false: log all analog monitor data to FELog
+    bool logAmbErrors = true;           ///< Normally true: log CAN bus errors to FELog
+    bool logMonTimers = false;          ///< Normally false: query and log the AMBSI1 monitor timing registers
+                                        ///<   only applies to AMBSI1 firmware 1.2.0
+
+    // Measurement options:
+    std::string FineLoSweepIni("");     ///< INI file with band-specific settings for Fine LO Sweep measurement
+
+    // Software objects we create based on the loaded configuration:
     static FrontEndImpl *frontEnd = NULL;
-    static StringSet ESNList;
-    bool useESNList = false;
     static WCAImpl *WCAs[10] = {0,0,0,0,0,0,0,0,0,0};
     static ColdCartImpl *coldCarts[10] = {0,0,0,0,0,0,0,0,0,0};
     static PowerModuleImpl *powerMods[10] = {0,0,0,0,0,0,0,0,0,0};
-    static bool FEValid = false;
-    static int connectedFEClients = 0;
-    std::string FineLoSweepIni("");
 };
 using namespace FrontEndLVWrapper;
 
 // forward declare some helpers defined below:
-void loadConfigIds();
 static short FEMCReadESNs();
-void createCartridge(int port, const FrontEndConfig &feConfig,
-                     WCAImpl **WCA,
-                     ColdCartImpl **coldCart,
-                     PowerModuleImpl **powerMod);
+///< helper function to read the ESNs from the front end into ESNList
 
+static void createCartridge(int port, const FrontEndConfig &feConfig,
+                            WCAImpl **WCA,
+                            ColdCartImpl **coldCart,
+                            PowerModuleImpl **powerMod);
+///< helper function to create band-specific subassemblies
+
+static void loadDefaultConfiguration() {
+    // Get the default configuration ID from the FrontEndControlDLL.ini file.
+    CIniFile configINI(FrontEndIni);
+    configINI.ReadFile();
+    std::string tmp = configINI.GetValue("configuration", "configId");
+    if (!tmp.empty())
+        configId = from_string<unsigned long>(tmp);
+    LOG(LM_INFO) << "Using configuration configId=" << configId << endl;
+    tmp = configINI.GetValue("configuration", "UseESNLookup");
+    if (!tmp.empty())
+        useESNLookup = from_string<short>(tmp);
+    LOG(LM_INFO) << "useESNLookup: Using ESNs to find XML configs=" << useESNLookup << endl;
+}
 
 DLLEXPORT short FEControlInit() {
     ++connectedFEClients;
@@ -168,11 +196,6 @@ DLLEXPORT short FEControlInit() {
             FEMode = from_string<short>(tmp);
         LOG(LM_INFO) << "debug:FEMode=" << FEMode << endl;
 
-        tmp = configINI.GetValue("debug", "useESNList");
-        if (!tmp.empty())
-            useESNList = from_string<short>(tmp);
-        LOG(LM_INFO) << "debug:useESNList=" << useESNList << endl;
-
         tmp = configINI.GetValue("logger", "randomizeAnalogMonitors");
         if (!tmp.empty())
             randomizeMonitors = from_string<unsigned long>(tmp);
@@ -247,16 +270,15 @@ DLLEXPORT short FEControlInit() {
     }
 
     // Load the default front end configuration:
-    loadConfigIds();
+    loadDefaultConfiguration();
     ConfigProvider *provider(NULL);
     provider = new ConfigProviderIniFile(FrontEndIni);
 
-    if (useESNList) {
+    if (useESNLookup) {
         FEMCReadESNs();
         provider -> setESNList(ESNList);
     }
 
-    ConfigManager configMgr(*provider);
     Configuration config(configId);
     if (!config.load(*provider))
         ret = -1;
@@ -286,6 +308,7 @@ DLLEXPORT short FEControlInit() {
                 frontEnd -> addCPDS();
 
             // Apply the configuration:
+            ConfigManager configMgr;
             configMgr.configure(config, *frontEnd);
             FEValid = true;
             LOG(LM_INFO) << "FEControlInit successful" << endl;
@@ -569,20 +592,10 @@ void createCartridge(int port, const FrontEndConfig &feConfig,
     }
 }
 
-void loadConfigIds() {
-    // get the facility code from the new key facilityId:
-    CIniFile configINI(FrontEndIni);
-    configINI.ReadFile();
-    std::string tmp = configINI.GetValue("configuration", "configId");
-    if (!tmp.empty())
-        configId = from_string<unsigned long>(tmp);
-    LOG(LM_INFO) << "Using configuration configId=" << configId << endl;
-}
-
 DLLEXPORT short FELoadConfiguration(short configId_in) {
     short ret = 0;
 
-    loadConfigIds();
+    loadDefaultConfiguration();
     if (configId_in)
         configId = configId_in;
 
@@ -590,7 +603,6 @@ DLLEXPORT short FELoadConfiguration(short configId_in) {
     ConfigProvider *provider(NULL);
     provider = new ConfigProviderIniFile(FrontEndIni);
 
-    ConfigManager configMgr(*provider);
     Configuration config(configId);
     if (!config.load(*provider))
         ret = -1;
@@ -599,6 +611,7 @@ DLLEXPORT short FELoadConfiguration(short configId_in) {
     // Create the FE subsystems:
     if (ret == 0) {
         // Apply the configuration:
+        ConfigManager configMgr;
         configMgr.configure(config, *frontEnd);
         FEValid = true;
         LOG(LM_INFO) << "FELoadConfiguration successful" << endl;
