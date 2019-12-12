@@ -83,34 +83,36 @@ float AmbDeviceTestFixture::unpackSGL(unsigned char *statusByte) const {
     return target;    
 }
 
-void AmbDeviceTestFixture::packU16(unsigned short value) {
+void AmbDeviceTestFixture::packU16(unsigned short value, bool append) {
+    if (!append)
+        dataLength_m = 0;
     // unsigned short is big-endian:
-    dataLength_m = 2;
-    data_m[0] = (value >> 8) & 0xff;  //shift and set upper byte
-    data_m[1] = value & 0xff;         //set lower byte
+    data_m[dataLength_m++] = (value >> 8) & 0xff;  //shift and set upper byte
+    data_m[dataLength_m++] = value & 0xff;         //set lower byte
 }
 
-
-void AmbDeviceTestFixture::packU32(unsigned long value) {
-    // unsigned long is big-endian:
+void AmbDeviceTestFixture::packU32(unsigned long value, bool append) {
+    if (!append)
+        dataLength_m = 0;
     AmbULConv conv;
     conv.long_val = value;
-    dataLength_m = 4;
-    data_m[0] = conv.chr_val[3];
-    data_m[1] = conv.chr_val[2];
-    data_m[2] = conv.chr_val[1];
-    data_m[3] = conv.chr_val[0];
+    // unsigned long is big-endian:
+    data_m[dataLength_m++] = conv.chr_val[3];
+    data_m[dataLength_m++] = conv.chr_val[2];
+    data_m[dataLength_m++] = conv.chr_val[1];
+    data_m[dataLength_m++] = conv.chr_val[0];
 }
 
-void AmbDeviceTestFixture::packSGL(float value) {
-    // float is big-endian:
+void AmbDeviceTestFixture::packSGL(float value, bool append) {
+    if (!append)
+        dataLength_m = 0;
     AmbFloatConv conv;
     conv.flt_val = value;
-    dataLength_m = 4;
-    data_m[0] = conv.chr_val[3];
-    data_m[1] = conv.chr_val[2];
-    data_m[2] = conv.chr_val[1];
-    data_m[3] = conv.chr_val[0];
+    // float is big-endian:
+    data_m[dataLength_m++] = conv.chr_val[3];
+    data_m[dataLength_m++] = conv.chr_val[2];
+    data_m[dataLength_m++] = conv.chr_val[1];
+    data_m[dataLength_m++] = conv.chr_val[0];
 }
 
 void AmbDeviceTestFixture::resetAmbVars() {

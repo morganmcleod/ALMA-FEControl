@@ -30,6 +30,7 @@ class FEMCTestFixture : public AmbDeviceTestFixture {
     CPPUNIT_TEST(testESNS);
     CPPUNIT_TEST(testERRORS);
     CPPUNIT_TEST(testFE_MODE);
+    CPPUNIT_TEST(testGET_TCPIP_ADDRESS);
 
     CPPUNIT_TEST(testSET_EXIT_PROGRAM);
     CPPUNIT_TEST(testSET_REBOOT);
@@ -67,6 +68,7 @@ public:
     void testESNS();
     void testERRORS();
     void testFE_MODE();
+    void testGET_TCPIP_ADDRESS();
     
     void testSET_EXIT_PROGRAM();
     void testSET_REBOOT();

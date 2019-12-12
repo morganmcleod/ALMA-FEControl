@@ -203,8 +203,8 @@ void WCATestFixture::testGET_CARTRIDGE_LO_AMC_DRAIN_E_CURRENT(){
     implGetFloat(amcDrainECurrent_RCA,-500.0, 500.0,"GET_CARTRIDGE_LO_AMC_DRAIN_E_CURRENT");
 }
 void WCATestFixture::testGET_CARTRIDGE_LO_AMC_MULTIPLIER_D_COUNTS(){
-    unsigned char val, statusByte;
-    val = monitorU8(amcMultiplierDCounts_RCA, "testGET_CARTRIDGE_LO_AMC_MULTIPLIER_D_COUNTS", NULL, &statusByte);
+    unsigned char statusByte;
+    monitorU8(amcMultiplierDCounts_RCA, "testGET_CARTRIDGE_LO_AMC_MULTIPLIER_D_COUNTS", NULL, &statusByte);
 }
 void WCATestFixture::testGET_CARTRIDGE_LO_AMC_MULTIPLIER_D_CURRENT(){
 	implGetFloat(amcMultiplierDCurrent_RCA,-50, 50.0,"GET_CARTRIDGE_LO_AMC_MULTIPLIER_D_CURRENT");
@@ -347,6 +347,149 @@ void WCATestFixture::testSET_CARTRIDGE_LO_PA_POL1_DRAIN_VOLTAGE_SCALE(){
 			ToleranceLOpaDrainVoltageScale,"SET_CARTRIDGE_LO_PA_POL1_DRAIN_VOLTAGE_SCALE");
 }
 
+void WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE() {
+    AmbRelativeAddr clearRCA = CLEAR_PA_LIMITS + band_m - 1;
+    AmbRelativeAddr entryRCA = PA_LIMITS_ENTRY + band_m - 1;
+    string info;
+    unsigned short yto;
+
+    // Clear any existing PA limits table:
+    data_m[0] = 1;
+    dataLength_m = 1;
+    command(clearRCA, "CLEAR_PA_LIMITS", &info);
+
+    // Set 1.0 PAVD:
+    packSGL(1.0);
+
+    // Step across the YTO tuning range:
+    for (yto = 0; yto <= 4096; yto += 256) {
+        // To measure the last endpoint at 4095:
+        if (yto == 4096)
+            yto--;
+
+        // Check that we can set the PA to 1.0 all across the range:
+        //  Not setting 2.5 because that may be unsafe for some bands.
+        command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
+        command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
+    }
+
+    // Now set up a PA LIMITS table:
+    // YTO  maxVD0  maxVD1
+    // 0    0.5     0.5
+    // 1000 0.5     0.5
+    // 1001 0.8     1.0
+    // 2000 0.8     1.0
+    // 2001 1.0     1.0
+    // 4095 1.0     1.0
+
+    resetAmbVars();
+    data_m[0] = 2;      // pol=both
+    dataLength_m = 1;
+    packU16(0, true);   // append yto=0
+    packSGL(0.5, true); // append 0.5
+    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+
+    resetAmbVars();
+    data_m[0] = 2;      // pol=both
+    dataLength_m = 1;
+    packU16(1000, true);// append yto=1000
+    packSGL(0.5, true); // append 0.5
+    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+
+    resetAmbVars();
+    data_m[0] = 0;      // pol=0
+    dataLength_m = 1;
+    packU16(1001, true);// append yto=1001
+    packSGL(0.8, true); // append 0.8
+    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+
+    resetAmbVars();
+    data_m[0] = 1;      // pol=1
+    dataLength_m = 1;
+    packU16(1001, true);// append yto=1001
+    packSGL(1.0, true); // append 1.0
+    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+
+    resetAmbVars();
+    data_m[0] = 0;
+    dataLength_m = 1;
+    packU16(2000, true);
+    packSGL(0.8, true);
+    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+
+    resetAmbVars();
+    data_m[0] = 1;
+    dataLength_m = 1;
+    packU16(2000, true);
+    packSGL(1.0, true);
+    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+
+    resetAmbVars();
+    data_m[0] = 2;
+    dataLength_m = 1;
+    packU16(2001, true);
+    packSGL(1.0, true);
+    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+
+    resetAmbVars();
+    data_m[0] = 1;
+    dataLength_m = 1;
+    packU16(4095, true);
+    packSGL(1.0, true);
+    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+
+    // Now check each limit zone:
+    resetAmbVars();
+    packU16(0);     // YTO = 0
+    command(ctrlytoCoarseTune_RCA, "YTO_COARSE_TUNE", &info);
+    packSGL(0.5);   // PAVD = 0.5
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
+    packSGL(1.0);   // PAVD = 1.0
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info, false);
+    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info, false);
+    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
+
+    resetAmbVars();
+    packU16(500);   // YTO = 500
+    command(ctrlytoCoarseTune_RCA, "YTO_COARSE_TUNE", &info);
+    packSGL(0.5);
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
+    packSGL(1.0);
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info, false);
+    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info, false);
+    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
+    resetAmbVars();
+
+    packU16(1500);   // YTO = 1500
+    command(ctrlytoCoarseTune_RCA, "YTO_COARSE_TUNE", &info);
+    packSGL(0.8);
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
+    packSGL(1.0);
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info, false);
+    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
+
+    packU16(2500);   // YTO = 2500
+    command(ctrlytoCoarseTune_RCA, "YTO_COARSE_TUNE", &info);
+    packSGL(1.0);
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
+    packSGL(1.1);
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info, false);
+    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info, false);
+    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
+
+    // Clear any existing PA limits table:
+    data_m[0] = 1;
+    dataLength_m = 1;
+    command(clearRCA, "CLEAR_PA_LIMITS", &info);
+}
 
 /**
  * Helper functions

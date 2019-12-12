@@ -68,6 +68,7 @@
     CPPUNIT_TEST(testSET_CARTRIDGE_POL0_SB2_LNA_ENABLE); \
     CPPUNIT_TEST(testSET_CARTRIDGE_POL1_SB1_LNA_ENABLE); \
     CPPUNIT_TEST(testSET_CARTRIDGE_POL1_SB2_LNA_ENABLE); \
+    CPPUNIT_TEST(testSET_CARTRIDGE_SIS_CURRENT_SENSE_RESISTOR); \
     CPPUNIT_TEST(testSET_CARTRIDGE_POL0_SB1_SIS_VOLTAGE); \
     CPPUNIT_TEST(testSET_CARTRIDGE_POL0_SB2_SIS_VOLTAGE); \
     CPPUNIT_TEST(testSET_CARTRIDGE_POL1_SB1_SIS_VOLTAGE); \
@@ -98,6 +99,7 @@
     CPPUNIT_TEST(testGET_CARTRIDGE_TEMP3_TEMP); \
     CPPUNIT_TEST(testGET_CARTRIDGE_TEMP4_TEMP); \
     CPPUNIT_TEST(testGET_CARTRIDGE_TEMP5_TEMP); \
+    CPPUNIT_TEST(testSET_CARTRIDGE_TEMP_OFFSET); \
     CPPUNIT_TEST(DISABLE_CARTRIDGE); \
     CPPUNIT_TEST_SUITE_END();
 
@@ -140,16 +142,16 @@ public:
     void testGET_CARTRIDGE_POL1_SB2_LNA_ST2_GATE_VOLTAGE();
     void testGET_CARTRIDGE_POL1_SB2_LNA_ST3_GATE_VOLTAGE();
 
-	void testGET_CARTRIDGE_POL0_SB1_SIS_CURRENT();
-	void testGET_CARTRIDGE_POL0_SB2_SIS_CURRENT();
-	void testGET_CARTRIDGE_POL1_SB1_SIS_CURRENT();
-	void testGET_CARTRIDGE_POL1_SB2_SIS_CURRENT();
-	void testGET_CARTRIDGE_POL0_SB1_SIS_MAGNET_VOLTAGE();
-	void testGET_CARTRIDGE_POL0_SB2_SIS_MAGNET_VOLTAGE();
-	void testGET_CARTRIDGE_POL1_SB1_SIS_MAGNET_VOLTAGE();
-	void testGET_CARTRIDGE_POL1_SB2_SIS_MAGNET_VOLTAGE();
-	void testGET_CARTRIDGE_POL0_SIS_HEATER_CURRENT();
-	void testGET_CARTRIDGE_POL1_SIS_HEATER_CURRENT();
+    void testGET_CARTRIDGE_POL0_SB1_SIS_CURRENT();
+    void testGET_CARTRIDGE_POL0_SB2_SIS_CURRENT();
+    void testGET_CARTRIDGE_POL1_SB1_SIS_CURRENT();
+    void testGET_CARTRIDGE_POL1_SB2_SIS_CURRENT();
+    void testGET_CARTRIDGE_POL0_SB1_SIS_MAGNET_VOLTAGE();
+    void testGET_CARTRIDGE_POL0_SB2_SIS_MAGNET_VOLTAGE();
+    void testGET_CARTRIDGE_POL1_SB1_SIS_MAGNET_VOLTAGE();
+    void testGET_CARTRIDGE_POL1_SB2_SIS_MAGNET_VOLTAGE();
+    void testGET_CARTRIDGE_POL0_SIS_HEATER_CURRENT();
+    void testGET_CARTRIDGE_POL1_SIS_HEATER_CURRENT();
 
     //Control functions
     void testSET_CARTRIDGE_POL0_SB1_LNA_ST1_DRAIN_VOLTAGE();
@@ -165,28 +167,29 @@ public:
     void testSET_CARTRIDGE_POL1_SB2_LNA_ST2_DRAIN_VOLTAGE();
     void testSET_CARTRIDGE_POL1_SB2_LNA_ST3_DRAIN_VOLTAGE();
 
-	void testSET_CARTRIDGE_POL0_SB1_SIS_VOLTAGE();
-	void testSET_CARTRIDGE_POL0_SB2_SIS_VOLTAGE();
-	void testSET_CARTRIDGE_POL1_SB1_SIS_VOLTAGE();
-	void testSET_CARTRIDGE_POL1_SB2_SIS_VOLTAGE();
-	void testSET_CARTRIDGE_POL0_SB1_SIS_OPEN_LOOP();
-	void testSET_CARTRIDGE_POL0_SB2_SIS_OPEN_LOOP();
-	void testSET_CARTRIDGE_POL1_SB1_SIS_OPEN_LOOP();
-	void testSET_CARTRIDGE_POL1_SB2_SIS_OPEN_LOOP();
-	void testSET_CARTRIDGE_POL0_SB1_SIS_MAGNET_CURRENT();
-	void testSET_CARTRIDGE_POL0_SB2_SIS_MAGNET_CURRENT();
-	void testSET_CARTRIDGE_POL1_SB1_SIS_MAGNET_CURRENT();
-	void testSET_CARTRIDGE_POL1_SB2_SIS_MAGNET_CURRENT();
-	void testSET_CARTRIDGE_POL0_SIS_HEATER_ENABLE();
-	void testSET_CARTRIDGE_POL1_SIS_HEATER_ENABLE();
+    void testSET_CARTRIDGE_SIS_CURRENT_SENSE_RESISTOR();
+    void testSET_CARTRIDGE_POL0_SB1_SIS_VOLTAGE();
+    void testSET_CARTRIDGE_POL0_SB2_SIS_VOLTAGE();
+    void testSET_CARTRIDGE_POL1_SB1_SIS_VOLTAGE();
+    void testSET_CARTRIDGE_POL1_SB2_SIS_VOLTAGE();
+    void testSET_CARTRIDGE_POL0_SB1_SIS_OPEN_LOOP();
+    void testSET_CARTRIDGE_POL0_SB2_SIS_OPEN_LOOP();
+    void testSET_CARTRIDGE_POL1_SB1_SIS_OPEN_LOOP();
+    void testSET_CARTRIDGE_POL1_SB2_SIS_OPEN_LOOP();
+    void testSET_CARTRIDGE_POL0_SB1_SIS_MAGNET_CURRENT();
+    void testSET_CARTRIDGE_POL0_SB2_SIS_MAGNET_CURRENT();
+    void testSET_CARTRIDGE_POL1_SB1_SIS_MAGNET_CURRENT();
+    void testSET_CARTRIDGE_POL1_SB2_SIS_MAGNET_CURRENT();
+    void testSET_CARTRIDGE_POL0_SIS_HEATER_ENABLE();
+    void testSET_CARTRIDGE_POL1_SIS_HEATER_ENABLE();
 
-	void testSET_CARTRIDGE_POL0_SB1_LNA_ENABLE();
-	void testSET_CARTRIDGE_POL0_SB2_LNA_ENABLE();
-	void testSET_CARTRIDGE_POL1_SB1_LNA_ENABLE();
-	void testSET_CARTRIDGE_POL1_SB2_LNA_ENABLE();
+    void testSET_CARTRIDGE_POL0_SB1_LNA_ENABLE();
+    void testSET_CARTRIDGE_POL0_SB2_LNA_ENABLE();
+    void testSET_CARTRIDGE_POL1_SB1_LNA_ENABLE();
+    void testSET_CARTRIDGE_POL1_SB2_LNA_ENABLE();
 
-	void testSET_CARTRIDGE_POL0_LNA_LED_ENABLE();
-	void testSET_CARTRIDGE_POL1_LNA_LED_ENABLE();
+    void testSET_CARTRIDGE_POL0_LNA_LED_ENABLE();
+    void testSET_CARTRIDGE_POL1_LNA_LED_ENABLE();
 
     void testGET_CARTRIDGE_TEMP0_TEMP();
     void testGET_CARTRIDGE_TEMP1_TEMP();
@@ -195,6 +198,8 @@ public:
     void testGET_CARTRIDGE_TEMP4_TEMP();
     void testGET_CARTRIDGE_TEMP5_TEMP();
 
+    void testSET_CARTRIDGE_TEMP_OFFSET();
+
 protected:
     void SET_LNA_SIS_VALUE(AmbRelativeAddr monitor_RCA,AmbRelativeAddr control_RCA,
                          const std::vector<float> &test_values,
@@ -202,17 +207,20 @@ protected:
                          const float tolerance, const std::string &msg);
 
     void SET_LNA_VALUE_Id(AmbRelativeAddr controlVd_RCA,
-    			         AmbRelativeAddr monitor_RCA,AmbRelativeAddr control_RCA,
-    			         const std::vector<float> &test_values,
-    			         const float validmin, const float validmax,
-    			         const float tolerance, const std::string &msg);
+             AmbRelativeAddr monitor_RCA,AmbRelativeAddr control_RCA,
+             const std::vector<float> &test_values,
+             const float validmin, const float validmax,
+             const float tolerance, const std::string &msg);
 
     void implTestHeaters(AmbRelativeAddr controlSisHeaterEnable_RCA,
                          AmbRelativeAddr sisHeaterEnable_RCA,
-    		             AmbRelativeAddr sisHeaterCurrent_RCA,
-    		             const std::string &callerDescription);
+                         AmbRelativeAddr sisHeaterCurrent_RCA,
+                         const std::string &callerDescription);
 
 // Get test values and limits, common to all cold carts:
+    virtual const std::vector<float> &getTestValuesSISSenseResistor() const;
+    ///< Get the test values for SIS current sense resistor.
+    ///< Provided by this class but may be overridden.
 
     virtual const std::vector<float> &getTestValuesLNAVd() const;
     ///< Get the test values for LNA drain voltage.
@@ -271,6 +279,7 @@ private:
         pol1                    = 0x0400,   ///< add this to the pol0 RCA to get the corresponding pol1 RCA
         sb2                     = 0x0080,   ///< add this to the sb1 RCA to get the corresponding sb2 RCA
 
+        SIS_SENSE_RESISTOR      = 0x0000,
         SIS_VOLTAGE             = 0x0008,
         SIS_CURRENT             = 0x0010,
         SIS_OPEN_LOOP           = 0x0018,
@@ -298,9 +307,11 @@ private:
         LNA_LED_ENABLE          = 0x0100,
         SIS_HEATER_ENABLE       = 0x0180,
         SIS_HEATER_CURRENT      = 0x01C0,
-        CARTRIDGE_TEMP          = 0x0880
+        CARTRIDGE_TEMP          = 0x0880,
     };
 
+    AmbRelativeAddr sisSenseResistor_RCA;
+    AmbRelativeAddr sisSenseResistor2_RCA;
     AmbRelativeAddr sisPol0Sb1Voltage_RCA;
     AmbRelativeAddr sisPol0Sb1Current_RCA;
     AmbRelativeAddr sisPol0Sb1OpenLoop_RCA;
@@ -381,6 +392,8 @@ private:
     AmbRelativeAddr cartridgeTemperature5_RCA;
 
     //Control RCAs
+    AmbRelativeAddr ctrlsisSenseResistor_RCA;
+    AmbRelativeAddr ctrlsisSenseResistor2_RCA;
     AmbRelativeAddr ctrlsisPol0Sb1Voltage_RCA;
     AmbRelativeAddr ctrlsisPol0Sb1OpenLoop_RCA;
     AmbRelativeAddr ctrlsisPol0Sb2Voltage_RCA;

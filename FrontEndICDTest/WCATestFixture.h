@@ -67,6 +67,7 @@
     CPPUNIT_TEST(testSET_CARTRIDGE_LO_PA_POL1_GATE_VOLTAGE); \
     CPPUNIT_TEST(testSET_CARTRIDGE_LO_PA_POL0_DRAIN_VOLTAGE_SCALE); \
     CPPUNIT_TEST(testSET_CARTRIDGE_LO_PA_POL1_DRAIN_VOLTAGE_SCALE); \
+    CPPUNIT_TEST(testSET_CARTRIDGE_LO_PA_LIMITS_TABLE); \
     CPPUNIT_TEST(DISABLE_CARTRIDGE); \
     CPPUNIT_TEST_SUITE_END();
 
@@ -126,6 +127,8 @@ public:
 	void testSET_CARTRIDGE_LO_PA_POL0_DRAIN_VOLTAGE_SCALE();
 	void testSET_CARTRIDGE_LO_PA_POL1_DRAIN_VOLTAGE_SCALE();
 
+	void testSET_CARTRIDGE_LO_PA_LIMITS_TABLE();
+
 protected:
     void implSET_WCA_VALUE_U16(AmbRelativeAddr monitor_RCA,AmbRelativeAddr control_RCA,
     		std::vector<unsigned short> &test_values, const unsigned short validmin, const unsigned short validmax,
@@ -170,7 +173,9 @@ private:
 	       PA_DRAIN_VOLTAGE                = 0x0841,
 	       PA_DRAIN_CURRENT                = 0x0842,
 	       PA_SUPPLY_VOLTAGE_3V            = 0x0848,
-	       PA_SUPPLY_VOLTAGE_5V            = 0x084C
+	       PA_SUPPLY_VOLTAGE_5V            = 0x084C,
+	       CLEAR_PA_LIMITS                 = 0x21020,
+	       PA_LIMITS_ENTRY                 = 0x21030
 	};
 
 	AmbRelativeAddr ytoCoarseTune_RCA;

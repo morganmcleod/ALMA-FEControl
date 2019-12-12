@@ -11,7 +11,11 @@ void STANDBY2TestFixture::setUp()
 {
     AmbDeviceTestFixture::setUp();
     // Write the special monitor point to establish comms between the AMBSI and ARCOM boards:
-    monitor(0x20001, "GET_SETUP_INFO", NULL);
+    monitor(MON_GET_SETUP_INFO, "GET_SETUP_INFO", NULL);
+    // Set FE Mode to normal:
+    data_m[0] = 0;
+    dataLength_m = 1;
+    commandImpl(CTRL_FE_MODE, "CTRL_FE_MODE", NULL);
 }
 
 void STANDBY2TestFixture::tearDown()
@@ -1019,29 +1023,31 @@ void STANDBY2TestFixture::testColdElectronicsOff() {
     SLEEP(1000);
 
     // Monitor LNA Voltage and Current
+    const float window(0.04);
+
     monitor(monRCA11, "LNA_DRAIN_VOLTAGE", &details);
     monValue = unpackSGL(&statusByte);
     details += " monValue=";
     details += to_string(monValue);
-    CPPUNIT_ASSERT_MESSAGE(details, 1.0 - 0.03 < monValue && monValue < 1.0 + 0.03);
+    CPPUNIT_ASSERT_MESSAGE(details, 1.0 - window < monValue && monValue < 1.0 + window);
 
     monitor(monRCA12, "LNA_DRAIN_CURRENT", &details);
     monValue = unpackSGL(&statusByte);
     details += " monValue=";
     details += to_string(monValue);
-    CPPUNIT_ASSERT_MESSAGE(details, 0.1 - 0.03 < monValue && monValue < 0.1 + 0.03);
+    CPPUNIT_ASSERT_MESSAGE(details, 0.1 - window < monValue && monValue < 0.1 + window);
 
     monitor(monRCA21, "LNA_DRAIN_VOLTAGE", &details);
     monValue = unpackSGL(&statusByte);
     details += " monValue=";
     details += to_string(monValue);
-    CPPUNIT_ASSERT_MESSAGE(details, 1.0 - 0.03 < monValue && monValue < 1.0 + 0.03);
+    CPPUNIT_ASSERT_MESSAGE(details, 1.0 - window < monValue && monValue < 1.0 + window);
 
     monitor(monRCA22, "LNA_DRAIN_CURRENT", &details);
     monValue = unpackSGL(&statusByte);
     details += " monValue=";
     details += to_string(monValue);
-    CPPUNIT_ASSERT_MESSAGE(details, 0.1 - 0.03 < monValue && monValue < 1.0 + 0.03);
+    CPPUNIT_ASSERT_MESSAGE(details, 0.1 - window < monValue && monValue < 1.0 + window);
 
 
     // Set LNA LED enable:
@@ -1140,25 +1146,25 @@ void STANDBY2TestFixture::testColdElectronicsOff() {
     monValue = unpackSGL(&statusByte);
     details += " monValue=";
     details += to_string(monValue);
-    CPPUNIT_ASSERT_MESSAGE(details, -0.03 < monValue && monValue < 0.03);
+    CPPUNIT_ASSERT_MESSAGE(details, -window < monValue && monValue < window);
 
     monitor(monRCA12, "LNA_DRAIN_CURRENT", &details);
     monValue = unpackSGL(&statusByte);
     details += " monValue=";
     details += to_string(monValue);
-    CPPUNIT_ASSERT_MESSAGE(details, -0.03 < monValue && monValue < 0.03);
+    CPPUNIT_ASSERT_MESSAGE(details, -window < monValue && monValue < window);
 
     monitor(monRCA21, "LNA_DRAIN_VOLTAGE", &details);
     monValue = unpackSGL(&statusByte);
     details += " monValue=";
     details += to_string(monValue);
-    CPPUNIT_ASSERT_MESSAGE(details, -0.03 < monValue && monValue < 0.03);
+    CPPUNIT_ASSERT_MESSAGE(details, -window < monValue && monValue < window);
 
     monitor(monRCA22, "LNA_DRAIN_CURRENT", &details);
     monValue = unpackSGL(&statusByte);
     details += " monValue=";
     details += to_string(monValue);
-    CPPUNIT_ASSERT_MESSAGE(details, -0.03 < monValue && monValue < 0.03);
+    CPPUNIT_ASSERT_MESSAGE(details, -window < monValue && monValue < window);
 
     // Monitor LNA LED enable:
     monitor(monRCA30, "LNA_LED_ENABLE", &details);

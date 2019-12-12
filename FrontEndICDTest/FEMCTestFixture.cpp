@@ -254,6 +254,19 @@ void FEMCTestFixture::testFE_MODE() {
     commandImpl(0x2100E, "SET_FE_MODE", &details);
 }
 
+void FEMCTestFixture::testGET_TCPIP_ADDRESS() {
+    // todo:  need to check FEMC firmware version and skip this test if < 2.9
+
+    string details;
+    // get front end IP address:
+    monitor(0x2000F, "GET_TCPIP_ADDRES", &details);
+
+    // we expect four bytes
+    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 4);
+    // For now only check first byte non-zero:
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[0] != 0);
+}
+
 void FEMCTestFixture::testSET_EXIT_PROGRAM() {
     //TODO: can this be tested?
 }
