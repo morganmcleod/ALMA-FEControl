@@ -19,6 +19,7 @@ class IFSwitchTestFixture : public AmbDeviceTestFixture {
     CPPUNIT_TEST(testSET_IF_SWITCH_CHANNEL02_ATTENUATION);
     CPPUNIT_TEST(testSET_IF_SWITCH_CHANNEL11_ATTENUATION);
     CPPUNIT_TEST(testSET_IF_SWITCH_CHANNEL12_ATTENUATION);
+    CPPUNIT_TEST(testSET_IF_SWITCH_ALL_CHANNELS_ATTENUATION);
     CPPUNIT_TEST(testSET_IF_SWITCH_CHANNEL01_TEMP_SERVO_ENABLE);
     CPPUNIT_TEST(testSET_IF_SWITCH_CHANNEL02_TEMP_SERVO_ENABLE);
     CPPUNIT_TEST(testSET_IF_SWITCH_CHANNEL11_TEMP_SERVO_ENABLE);
@@ -33,22 +34,24 @@ public:
     void testGET_IF_SWITCH_CHANNEL02_ASSEMBLY_TEMP();
     void testGET_IF_SWITCH_CHANNEL11_ASSEMBLY_TEMP();
     void testGET_IF_SWITCH_CHANNEL12_ASSEMBLY_TEMP();
-    // TODO: These functions should be implemented in terms of the private helper implGetTemperaure() below.
+    // These functions are implemented in terms of the private helper implGetTemperaure() below.
 
     void testSET_IF_SWITCH_CARTRIDGE();
-    // TODO: This function should be implemented in terms of the private helper implSwitchCartridge() below.
+    // This function is implemented in terms of the private helper implSwitchCartridge() below.
 
     void testSET_IF_SWITCH_CHANNEL01_ATTENUATION();
     void testSET_IF_SWITCH_CHANNEL02_ATTENUATION();
     void testSET_IF_SWITCH_CHANNEL11_ATTENUATION();
     void testSET_IF_SWITCH_CHANNEL12_ATTENUATION();
-    // TODO: These functions should be implemented in terms of the private helper implSetAttenuation() below.
+    // These functions are implemented in terms of the private helper implSetAttenuation() below.
+
+    void testSET_IF_SWITCH_ALL_CHANNELS_ATTENUATION();
 
     void testSET_IF_SWITCH_CHANNEL01_TEMP_SERVO_ENABLE();
     void testSET_IF_SWITCH_CHANNEL02_TEMP_SERVO_ENABLE();
     void testSET_IF_SWITCH_CHANNEL11_TEMP_SERVO_ENABLE();
     void testSET_IF_SWITCH_CHANNEL12_TEMP_SERVO_ENABLE();
-    // TODO: These functions should be implemented in terms of the private helper implSetTempServo() below.
+    // These functions are implemented in terms of the private helper implSetTempServo() below.
 
 private:
 
@@ -57,6 +60,7 @@ private:
         ATTENUATION         = 0x0001,   /// monitor/command each IF channel attenuation
         ASSEMBLY_TEMP       = 0x0002,   /// monitor each IF switch temperature
         SWITCH_CARTRIDGE    = 0x0010,   /// monitor/command the currently selected band
+        ALL_CH_ATTENUATION  = 0x0014,   /// monitor/command all channels attenuation
         controlRCA          = 0x10000,  /// add this to the monitor RCA to get the corresponding command RCA
         baseRCA             = 0xB000,   /// all IF switch M&C points are in this range
         pol1                = 0x0004,   /// add this to the pol0 RCA to get the corresponding pol1 RCA
@@ -75,6 +79,7 @@ private:
         pol0Sb2TempServoEnable_RCA  = baseRCA + TEMP_SERVO_ENABLE + sb2,
         pol1Sb1TempServoEnable_RCA  = baseRCA + TEMP_SERVO_ENABLE + pol1,
         pol1Sb2TempServoEnable_RCA  = baseRCA + TEMP_SERVO_ENABLE + pol1 + sb2,
+        allChannelAttenuation_RCA   = baseRCA + ALL_CH_ATTENUATION,
 
         ctrlSwitchCartridge_RCA    = switchCartridge_RCA + controlRCA,
         ctrlPol0Sb1Attenuation_RCA = pol0Sb1Attenuation_RCA + controlRCA,
@@ -84,7 +89,8 @@ private:
         ctrlPol0Sb1TempServoEnable_RCA  = pol0Sb1TempServoEnable_RCA + controlRCA,
         ctrlPol0Sb2TempServoEnable_RCA  = pol0Sb2TempServoEnable_RCA + controlRCA,
         ctrlPol1Sb1TempServoEnable_RCA  = pol1Sb1TempServoEnable_RCA + controlRCA,
-        ctrlPol1Sb2TempServoEnable_RCA  = pol1Sb2TempServoEnable_RCA + controlRCA
+        ctrlPol1Sb2TempServoEnable_RCA  = pol1Sb2TempServoEnable_RCA + controlRCA,
+        ctrlAllChannelAttenuation_RCA   = allChannelAttenuation_RCA + controlRCA
     };
 
 	//TODO: put in the valid range from the ICD (in the CPP file.)

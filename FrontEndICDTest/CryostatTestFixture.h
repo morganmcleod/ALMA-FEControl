@@ -9,6 +9,7 @@ class CryostatTestFixture : public AmbDeviceTestFixture {
     
     //Register unit tests.   Comment out tests to skip here.
     CPPUNIT_TEST(testGET_CRYOSTAT_TEMPS);
+    CPPUNIT_TEST(testSET_CRYOSTAT_TEMP_TVO_COEFF);
     CPPUNIT_TEST(testGET_CRYOSTAT_TURBO_PUMP_ENABLE);
     CPPUNIT_TEST(testGET_CRYOSTAT_TURBO_PUMP_STATE);
     CPPUNIT_TEST(testGET_CRYOSTAT_TURBO_PUMP_SPEED);
@@ -18,12 +19,11 @@ class CryostatTestFixture : public AmbDeviceTestFixture {
     CPPUNIT_TEST(testGET_CRYOSTAT_VACUUM_GAUGE_STATE);
     CPPUNIT_TEST(testGET_CRYOSTAT_SUPPLY_CURRENT_230V);
     CPPUNIT_TEST(testGET_CRYOSTAT_COLD_HEAD_HOURS);
-    CPPUNIT_TEST(testSET_CRYOSTAT_RESET_COLD_HEAD_HOURS);
+    CPPUNIT_TEST(testSET_CRYOSTAT_COLD_HEAD_HOURS);
     CPPUNIT_TEST(testSET_CRYOSTAT_BACKING_PUMP_ENABLE);
     CPPUNIT_TEST(testSET_CRYOSTAT_TURBO_PUMP_ENABLE);
     CPPUNIT_TEST(testSET_CRYOSTAT_VACUUM_GAUGE_ENABLE);
     CPPUNIT_TEST(testSET_CRYOSTAT_GATE_SOLENOID_VALVES);
-
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -32,6 +32,7 @@ public:
     
     // Declare the tests.
     void testGET_CRYOSTAT_TEMPS();
+    void testSET_CRYOSTAT_TEMP_TVO_COEFF();
     void testGET_CRYOSTAT_TURBO_PUMP_ENABLE();
     void testGET_CRYOSTAT_TURBO_PUMP_STATE();
     void testGET_CRYOSTAT_TURBO_PUMP_SPEED();
@@ -41,7 +42,7 @@ public:
     void testGET_CRYOSTAT_VACUUM_GAUGE_STATE();
     void testGET_CRYOSTAT_SUPPLY_CURRENT_230V();
     void testGET_CRYOSTAT_COLD_HEAD_HOURS();
-    void testSET_CRYOSTAT_RESET_COLD_HEAD_HOURS();
+    void testSET_CRYOSTAT_COLD_HEAD_HOURS();
     void testSET_CRYOSTAT_BACKING_PUMP_ENABLE();
     void testSET_CRYOSTAT_TURBO_PUMP_ENABLE();
     void testSET_CRYOSTAT_VACUUM_GAUGE_ENABLE();
@@ -50,6 +51,7 @@ public:
 private:
     enum MonitorControlOffset {
         CRYOSTAT_TEMP           = 0x0000,
+        CRYOSTAT_TVO_COEFF     = 0x0001,
         BACKING_PUMP_ENABLE     = 0x0034,
         TURBO_PUMP_ENABLE       = 0x0038,
         TURBO_PUMP_STATE        = 0x0039,
@@ -66,6 +68,7 @@ private:
 
         controlRCA              = 0x10000,  /// add this to the monitor RCA to get the corresponding command RCA
         baseRCA                 = 0xC000,   /// all cryostat M&C points are in this range
+        cryostatTempCoeff_RCA       = baseRCA + CRYOSTAT_TVO_COEFF,
         backingPumpEnable_RCA       = baseRCA + BACKING_PUMP_ENABLE,
         turboPumpEnable_RCA         = baseRCA + TURBO_PUMP_ENABLE,
         turboPumpErrorState_RCA     = baseRCA + TURBO_PUMP_STATE,
@@ -78,7 +81,7 @@ private:
         vacuumGaugeErrorState_RCA   = baseRCA + VACUUM_GAUGE_STATE,
         supplyCurrent230V_RCA       = baseRCA + SUPPLY_CURRENT_230V,
         coldHeadHours_RCA           = baseRCA + COLD_HEAD_HOURS,
-        coldHeadHoursReset_RCA      = baseRCA + RESET_COLD_HEAD_HOURS
+        coldHeadHoursReset_RCA      = baseRCA + controlRCA + RESET_COLD_HEAD_HOURS
     };
 
     // helper functions for the above test cases:

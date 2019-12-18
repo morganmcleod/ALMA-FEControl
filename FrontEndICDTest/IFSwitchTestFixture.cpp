@@ -49,6 +49,32 @@ void IFSwitchTestFixture::testSET_IF_SWITCH_CHANNEL12_ATTENUATION() {
     implSetAttenuation(ctrlPol1Sb2Attenuation_RCA, pol1Sb2Attenuation_RCA, "SET_IF_SWITCH_CHANNEL12_ATTENUATION");
 }
 
+void IFSwitchTestFixture::testSET_IF_SWITCH_ALL_CHANNELS_ATTENUATION() {
+    string details;
+    string callerDescription("SET_IF_SWITCH_ALL_CHANNELS_ATTENUATION");
+    for (int atten = 15; atten >= 0; atten--){
+        data_m[0] = data_m[1] = data_m[2] = data_m[3] = (AmbDataMem_t) atten;
+        dataLength_m = 4;
+            command(ctrlAllChannelAttenuation_RCA, callerDescription, &details);
+            monitor(allChannelAttenuation_RCA, callerDescription, &details);
+            CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 5);
+            CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == atten);
+            CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == atten);
+            CPPUNIT_ASSERT_MESSAGE(details, data_m[2] == atten);
+            CPPUNIT_ASSERT_MESSAGE(details, data_m[3] == atten);
+        }
+        // Try an illegal value, expecting an error:
+        data_m[0] = data_m[1] = data_m[2] = data_m[3] = 16;
+        dataLength_m = 4;
+        command(ctrlAllChannelAttenuation_RCA, callerDescription, &details, false);
+        CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 5);
+        CPPUNIT_ASSERT_MESSAGE(details + ": No error was raised for illegal value.", data_m[5] != FEMC_NO_ERROR);
+        // Set the value to 0:
+        data_m[0] = data_m[1] = data_m[2] = data_m[3] = 0;
+        dataLength_m = 4;
+        command(ctrlAllChannelAttenuation_RCA, callerDescription, &details);
+}
+
 void IFSwitchTestFixture::testSET_IF_SWITCH_CHANNEL01_TEMP_SERVO_ENABLE() {
     implSetTempServo(ctrlPol0Sb1TempServoEnable_RCA, pol0Sb1TempServoEnable_RCA, "SET_IF_SWITCH_CHANNEL01_TEMP_SERVO_ENABLE");
 }

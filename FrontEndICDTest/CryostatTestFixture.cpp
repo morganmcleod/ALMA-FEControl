@@ -23,16 +23,76 @@ void CryostatTestFixture::testGET_CRYOSTAT_TEMPS() {
     string details;
     float temp;
     unsigned char statusByte;
-    for (unsigned index = 0; index < 13; ++index) {
+    for (unsigned sensor = 0; sensor < 13; ++sensor) {
         stringstream streamName;
-        streamName << "GET_CRYOSTAT_TEMP_" << index;
+        streamName << "GET_CRYOSTAT_TEMP_" << sensor;
         resetAmbVars();
-        monitor(baseRCA + CRYOSTAT_TEMP + 4 * index, streamName.str(), &details);
+        monitor(baseRCA + CRYOSTAT_TEMP + 4 * sensor, streamName.str(), &details);
         CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 5);
         temp = unpackSGL(&statusByte);
         CPPUNIT_ASSERT_MESSAGE(details, statusByte == FEMC_NO_ERROR);
         CPPUNIT_ASSERT_MESSAGE(details, temp >= 2.0 && temp <= 325.0);
-        LOG(LM_INFO) << details << " t" << index << "(" << temp << "," << (int) statusByte << ")" << endl;
+        LOG(LM_INFO) << details << " t" << sensor << "(" << temp << "," << (int) statusByte << ")" << endl;
+    }
+}
+
+void CryostatTestFixture::testSET_CRYOSTAT_TEMP_TVO_COEFF() {
+    string details;
+    float val, val2;
+    unsigned char statusByte;
+    unsigned sensor, coeff, order, order2;
+
+    // Read and store all the existing coeffs:
+    float coeffs[9][7];
+    for (sensor = 0; sensor < 9; ++sensor) {
+        stringstream streamName;
+        streamName << "GET_CRYOSTAT_TVO_" << sensor;
+        // use 'coeff' to index read because they can come starting at any 'order':
+        for (coeff = 0; coeff < 7; ++coeff) {
+            resetAmbVars();
+            monitor(cryostatTempCoeff_RCA + 4 * sensor, streamName.str(), &details);
+            CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 6);
+            val = unpackSGL(&statusByte);
+            CPPUNIT_ASSERT_MESSAGE(details, statusByte == FEMC_NO_ERROR);
+            order = data_m[5];
+            coeffs[sensor][order] = val;
+            LOG(LM_INFO) << details << " t" << sensor << " a" << order << "=" << val << endl;
+        }
+    }
+
+    // Set the coeffs to new values:
+    for (sensor = 0; sensor < 9; ++sensor) {
+        for (order = 0; order < 7; ++order) {
+            stringstream streamName;
+            streamName << "SET_CRYOSTAT_TVO_" << sensor << "_A" << order;
+            resetAmbVars();
+            val = (order == 1) ? 1.0 : 0.0; // A1 = 1:  return 1000/resistance
+            packSGL(val);
+            data_m[5] = order;
+            dataLength_m = 5;
+            command(cryostatTempCoeff_RCA + controlRCA + 4 * sensor, streamName.str(), &details);
+
+            resetAmbVars();
+            monitor(controlRCA + 4 * sensor, streamName.str(), &details);
+            val2 = unpackSGL(&statusByte);
+            CPPUNIT_ASSERT_MESSAGE(details, val2 == val);
+            order2 = data_m[5];
+            CPPUNIT_ASSERT_MESSAGE(details, order2 == order);
+        }
+    }
+
+    // Set them back to the stored values:
+    for (sensor = 0; sensor < 9; ++sensor) {
+        for (order = 0; order < 7; ++order) {
+            stringstream streamName;
+            streamName << "SET_CRYOSTAT_TVO_" << sensor << "_A" << order;
+            resetAmbVars();
+            val = coeffs[sensor][order];
+            packSGL(val);
+            data_m[5] = order;
+            dataLength_m = 5;
+            command(cryostatTempCoeff_RCA + controlRCA + 4 * sensor, streamName.str(), &details);
+        }
     }
 }
 
@@ -257,27 +317,15 @@ void CryostatTestFixture::testGET_CRYOSTAT_COLD_HEAD_HOURS() {
     // check data length and status byte:
     CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 3);
     CPPUNIT_ASSERT_MESSAGE(details, statusByte == FEMC_NO_ERROR);
-
-    // attempt to set the corresponding, nonexistent control RCA:
-    resetAmbVars();
-    packU16(123);
-    command(coldHeadHours_RCA + controlRCA, "GET_CRYOSTAT_COLD_HEAD_HOURS", &details, false);
-    CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] != FEMC_NO_ERROR);
 }
 
-void CryostatTestFixture::testSET_CRYOSTAT_RESET_COLD_HEAD_HOURS() {
+void CryostatTestFixture::testSET_CRYOSTAT_COLD_HEAD_HOURS() {
     string details;
-    // send the command to do nothing, then check for no errors:
-    resetAmbVars();
-    dataLength_m = 1;
-    data_m[0] = 0;
-    command(coldHeadHoursReset_RCA + controlRCA, "SET_CRYOSTAT_RESET_COLD_HEAD_HOURS(0)", &details, true);
 
-    // send the command to reset the cold head hours and check for no errors:
+    // send the command to zerp the cold head hours and check for no errors:
     resetAmbVars();
-    dataLength_m = 1;
-    data_m[0] = 1;
-    command(coldHeadHoursReset_RCA + controlRCA, "SET_CRYOSTAT_RESET_COLD_HEAD_HOURS(1)", &details, true, 300);
+    packU16(0);
+    command(coldHeadHoursReset_RCA, "SET_CRYOSTAT_COLD_HEAD_HOURS(0)", &details, true, 300);
 
     // check that the hours are now zero, not sufficient if they were zero before this test.
     monitor(coldHeadHours_RCA, "GET_CRYOSTAT_COLD_HEAD_HOURS", &details);
