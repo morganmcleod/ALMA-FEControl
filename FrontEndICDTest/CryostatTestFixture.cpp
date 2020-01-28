@@ -321,7 +321,6 @@ void CryostatTestFixture::testGET_CRYOSTAT_COLD_HEAD_HOURS() {
 
 void CryostatTestFixture::testSET_CRYOSTAT_COLD_HEAD_HOURS() {
     string details;
-
     // send the command to zerp the cold head hours and check for no errors:
     resetAmbVars();
     packU16(0);
