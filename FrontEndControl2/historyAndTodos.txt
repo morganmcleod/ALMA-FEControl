@@ -38,6 +38,9 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.10.4.1 2020-02-23 Band 1 integration
+  Removed divide-by-2 for band 1 RF source
+
 2.10.4 2019-06-18
   AMC_MULTIPLIER_D_VOLTAGE -> AMC_MULTIPLIER_D_COUNTS, same for all var names
   getCenterLOFrequency() defaults to 80 GHz for band 2
