@@ -56,23 +56,6 @@ bool ConfigProviderIniFile::exists(unsigned configId) const {
     return getConfiguration(configId, rec);
 }
 
-void ConfigProviderIniFile::setESNList(const StringSet &toCopy) {
-    ConfigProvider::setESNList(toCopy);
-
-    string iniFile(iniFile_mp -> Path());
-    string iniPath, tmp;
-
-    // get the path where the FrontendControlDLL.ini file is located:
-    splitPath(iniFile, iniPath, tmp);
-    if (iniPath.empty())
-        iniPath = ".";
-
-    list_dir(iniPath, ".xml", xmlFiles_m);
-
-    for (StringSet::const_iterator it = xmlFiles_m.begin(); it != xmlFiles_m.end(); ++it)
-       LOG(LM_INFO) << *it << endl;
-}
-
 bool ConfigProviderIniFile::getConfiguration(unsigned configId, Configuration::Record &target) const {
     target.reset(configId);
     

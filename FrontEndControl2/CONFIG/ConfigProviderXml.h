@@ -37,9 +37,6 @@ namespace FEConfig {
         virtual bool exists(unsigned configId) const;
         ///< return true if the config specified by configId exists in the database, false otherwise.
 
-        virtual void setESNList(const StringSet &toCopy);
-        ///< Set the list of ESNs for which to search for configuration
-
         virtual bool getConfiguration(unsigned configId, Configuration::Record &target) const;
         ///< get the top-level configuration record specified by configId.
         ///< returns false if the config does not exist or on error.

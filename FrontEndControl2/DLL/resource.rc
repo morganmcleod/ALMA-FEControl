@@ -2,7 +2,7 @@
 
 // DLL version information.
 VS_VERSION_INFO    VERSIONINFO
-FILEVERSION        2,10,5,0
+FILEVERSION        2,10,5,2
 PRODUCTVERSION     2,10,5,0
 FILEFLAGSMASK      VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
@@ -20,7 +20,7 @@ BEGIN
     BEGIN
       VALUE "CompanyName", "NRAO"
       VALUE "FileDescription", "Front End Control DLL"
-      VALUE "FileVersion", "2.10.5-beta1"
+      VALUE "FileVersion", "2.10.5-beta2"
       VALUE "InternalName", "FEControl"
       VALUE "LegalCopyright", "2019 NRAO"
       VALUE "OriginalFilename", "FrontEndControl.dll"

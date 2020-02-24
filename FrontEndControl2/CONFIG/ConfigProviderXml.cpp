@@ -35,9 +35,6 @@ bool ConfigProviderXml::exists(unsigned configId) const {
     return false;
 }
 
-void ConfigProviderXml::setESNList(const StringSet &toCopy) {
-}
-
 bool ConfigProviderXml::getConfiguration(unsigned configId, Configuration::Record &target) const {
     return false;
 }

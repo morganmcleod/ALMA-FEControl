@@ -38,10 +38,9 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
-2.10.5-beta1
+2.10.5-beta2
   Added to CppUtilityLib: listDir, stringSet, trimStr
-  Added read XML files from INI file directory to ConfigProviderIniFile = not tested yet
-  Added read ESNs at startup and push into ConfigProviderIniFile = not tested yet
+  Added read ESNs at startup
   Removed all uses of keyFacility from CONFIG and the lv_wrappers.   
     keyFacility has never been implemented correctly in the database.
   Deleted ConfigProviderMySQL. Added ConfigProviderXML skeleton.

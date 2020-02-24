@@ -58,7 +58,6 @@ using namespace std;
 namespace FrontEndLVWrapper {
     // Configuration loading:
     unsigned long configId = 1;         ///< configuration ID to load
-    bool useESNLookup = false;          ///< true if we will lookup configs by ESN
     StringSet ESNList;                  ///< the list of ESNs found in the front end
 
     // Library init and lifecycle:
@@ -114,10 +113,6 @@ static void loadDefaultConfiguration() {
     if (!tmp.empty())
         configId = from_string<unsigned long>(tmp);
     LOG(LM_INFO) << "Using configuration configId=" << configId << endl;
-    tmp = configINI.GetValue("configuration", "UseESNLookup");
-    if (!tmp.empty())
-        useESNLookup = from_string<short>(tmp);
-    LOG(LM_INFO) << "useESNLookup: Using ESNs to find XML configs=" << useESNLookup << endl;
 }
 
 DLLEXPORT short FEControlInit() {
@@ -269,16 +264,13 @@ DLLEXPORT short FEControlInit() {
         }
     }
 
+    // Read the list of ESNs:
+    FEMCReadESNs();
+
     // Load the default front end configuration:
     loadDefaultConfiguration();
     ConfigProvider *provider(NULL);
     provider = new ConfigProviderIniFile(FrontEndIni);
-
-    if (useESNLookup) {
-        FEMCReadESNs();
-        provider -> setESNList(ESNList);
-    }
-
     Configuration config(configId);
     if (!config.load(*provider))
         ret = -1;
@@ -424,7 +416,7 @@ DLLEXPORT short FEMCGetFirmwareInfo(char *_AMBSILibraryVersion,
 }
 
 static short FEMCReadESNs() {
-    if (!FEValid)
+    if (!frontEnd)
         return -1;
 
     // clear the static list of ESNs:
@@ -444,6 +436,7 @@ static short FEMCReadESNs() {
         if (ESN != ESN0)
             ESNList.insert(ESN);
     }
+    LOG(LM_INFO) << "FEMCReadESNs: found " << numESNs << endl;
     return 0;
 }
 
@@ -599,10 +592,9 @@ DLLEXPORT short FELoadConfiguration(short configId_in) {
     if (configId_in)
         configId = configId_in;
 
-    // Load the default front end configuration:
+    // Load the specified front end configuration:
     ConfigProvider *provider(NULL);
     provider = new ConfigProviderIniFile(FrontEndIni);
-
     Configuration config(configId);
     if (!config.load(*provider))
         ret = -1;
