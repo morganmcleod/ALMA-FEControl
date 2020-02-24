@@ -26,8 +26,7 @@
 # MySQL C API version 4.1 or later from http://www.mysql.com/
 #
 
-CONFIGCPP = CartConfig.cpp ConfigManager.cpp Configuration.cpp \
-	ConfigProviderIniFile.cpp ConfigProviderXML.cpp \
+CONFIGCPP = CartConfig.cpp ConfigManager.cpp Configuration.cpp ConfigProviderIniFile.cpp \
 	FrontEndConfig.cpp FrontEndDatabase.cpp LookupTables.cpp SubsysConfig.cpp XMLParser.cpp
 
 .PHONY: config

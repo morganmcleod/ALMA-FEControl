@@ -43,7 +43,7 @@ Revision history:
   Added read ESNs at startup
   Removed all uses of keyFacility from CONFIG and the lv_wrappers.   
     keyFacility has never been implemented correctly in the database.
-  Deleted ConfigProviderMySQL. Added ConfigProviderXML skeleton.
+  Deleted ConfigProviderMySQL.
   ConfigManager no longer uses ConfigProvider.
   Improved comments in namespace FrontEndLVWrapper.   Deleted obsolete logLVStructures option. 
   
