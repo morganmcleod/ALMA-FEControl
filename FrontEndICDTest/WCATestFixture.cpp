@@ -35,6 +35,7 @@
 */
 
 #include "WCATestFixture.h"
+#include "stringConvert.h"
 #include <string>
 #include <logger.h>
 #include <cmath>
@@ -78,9 +79,9 @@ WCATestFixture::WCATestFixture(int band,
     paPol0GateVoltage_RCA           = cartBaseRCA_m + PA_GATE_VOLTAGE;
     paPol0DrainVoltageScale_RCA     = cartBaseRCA_m + PA_DRAIN_VOLTAGE;
     paPol0DrainCurrent_RCA          = cartBaseRCA_m + PA_DRAIN_CURRENT;
-    paPol1GateVoltage_RCA           = cartBaseRCA_m + pol1 + PA_GATE_VOLTAGE;
-    paPol1DrainVoltageScale_RCA     = cartBaseRCA_m + pol1 + PA_DRAIN_VOLTAGE;
-    paPol1DrainCurrent_RCA          = cartBaseRCA_m + pol1 + PA_DRAIN_CURRENT;
+    paPol1GateVoltage_RCA           = cartBaseRCA_m + 4 + PA_GATE_VOLTAGE;
+    paPol1DrainVoltageScale_RCA     = cartBaseRCA_m + 4 + PA_DRAIN_VOLTAGE;
+    paPol1DrainCurrent_RCA          = cartBaseRCA_m + 4 + PA_DRAIN_CURRENT;
     paSupplyVoltage3V_RCA           = cartBaseRCA_m + PA_SUPPLY_VOLTAGE_3V;
     paSupplyVoltage5V_RCA           = cartBaseRCA_m + PA_SUPPLY_VOLTAGE_5V;
 
@@ -100,16 +101,19 @@ WCATestFixture::WCATestFixture(int band,
     ctrlpaPol0DrainVoltageScale_RCA     = controlRCA + paPol0DrainVoltageScale_RCA;
     ctrlpaPol1DrainVoltageScale_RCA     = controlRCA + paPol1DrainVoltageScale_RCA;
     ctrlamcMultiplierDCounts_RCA        = controlRCA + amcMultiplierDCounts_RCA;
+
+    ctrlClearPALimits_RCA               = CLEAR_PA_LIMITS + band_m - 1;
+    ctrlSetPALimitsEntry_RCA            = PA_LIMITS_ENTRY + band_m - 1;
 }
 
 std::vector<float> WCATestFixture::SetValuesLOpaGateVoltage;
 const float WCATestFixture::ValidMinLOpaGateVoltage=-5.0;
-const float WCATestFixture::ValidMaxLOpaGateVoltage=5.0;
+const float WCATestFixture::ValidMaxLOpaGateVoltage=0;
 const float WCATestFixture::ToleranceLOpaGateVoltage=0.1;
 
 std::vector<float> WCATestFixture::SetValuesLOpaDrainVoltageScale;
 const float WCATestFixture::ValidMinLOpaDrainVoltageScale=0;
-const float WCATestFixture::ValidMaxLOpaDrainVoltageScale=5;
+const float WCATestFixture::ValidMaxLOpaDrainVoltageScale=2.5;
 const float WCATestFixture::ToleranceLOpaDrainVoltageScale=0.1;
 
 void WCATestFixture::setUp() {
@@ -119,32 +123,57 @@ void WCATestFixture::setUp() {
 	///Values in the actual settable range, except last value which is illegal
 	SetValuesLOpaGateVoltage.reserve(3);
 	SetValuesLOpaGateVoltage.resize(0);
-	SetValuesLOpaGateVoltage.push_back(1.0);
-	SetValuesLOpaGateVoltage.push_back(1.5);
-	SetValuesLOpaGateVoltage.push_back(200.0);
+	SetValuesLOpaGateVoltage.push_back(-0.2);
+	SetValuesLOpaGateVoltage.push_back(-0.5);
+	SetValuesLOpaGateVoltage.push_back(20.0);
 
 	///PA drain Voltages
 	///Values in the actual settable range, except last value which is illegal
 	SetValuesLOpaDrainVoltageScale.reserve(3);
 	SetValuesLOpaDrainVoltageScale.resize(0);
 	SetValuesLOpaDrainVoltageScale.push_back(1.0);
-	SetValuesLOpaDrainVoltageScale.push_back(4.0);
-	SetValuesLOpaDrainVoltageScale.push_back(200.0);
+	SetValuesLOpaDrainVoltageScale.push_back(2.0);
+	SetValuesLOpaDrainVoltageScale.push_back(20.0);
+	SLEEP(100);
 }
 void WCATestFixture::tearDown() {
     resetAmbVars();
     data_m[0] = 0;
     dataLength_m = 1;
-    // Set the loop bw select back to normal:
-    if (band_m == 3 || band_m == 6 || band_m == 7)
-        data_m[0] = 1;
-    commandImpl(ctrlpllLoopBandwidthSelect_RCA, "WCATestFixture::tearDown");
-    // Set the LO PA gates and drains to off:
-    packSGL(0.0);
-    commandImpl(ctrlpaPol0GateVoltage_RCA, "WCATestFixture::tearDown");
-    commandImpl(ctrlpaPol1GateVoltage_RCA, "WCATestFixture::tearDown");
-    commandImpl(ctrlpaPol0DrainVoltageScale_RCA, "WCATestFixture::tearDown");
-    commandImpl(ctrlpaPol1DrainVoltageScale_RCA, "WCATestFixture::tearDown");
+    // Clear any existing PA limits table:
+    data_m[0] = 1;
+    dataLength_m = 1;
+    commandImpl(ctrlClearPALimits_RCA, "WCATestFixture::tearDown");
+
+    if (isEnabled_m) {
+
+        // Set the YTO to 0:
+        SLEEP(100);
+        packU16(0);     // YTO = 0
+        commandImpl(ctrlytoCoarseTune_RCA, "WCATestFixture::tearDown");
+
+        SLEEP(100);
+
+        // Set the loop bw select back to normal:
+        data_m[0] = 0;
+        dataLength_m = 1;
+        if (band_m == 3 || band_m == 6 || band_m == 7)
+            data_m[0] = 1;
+        commandImpl(ctrlpllLoopBandwidthSelect_RCA, "WCATestFixture::tearDown");
+
+        SLEEP(100);
+
+        // Set the LO PA gates and drains to off:
+        packSGL(0.0);
+        commandImpl(ctrlpaPol0GateVoltage_RCA, "WCATestFixture::tearDown");
+        commandImpl(ctrlpaPol1GateVoltage_RCA, "WCATestFixture::tearDown");
+
+        SLEEP(100);
+
+        commandImpl(ctrlpaPol0DrainVoltageScale_RCA, "WCATestFixture::tearDown");
+        SLEEP(100);
+        commandImpl(ctrlpaPol1DrainVoltageScale_RCA, "WCATestFixture::tearDown");
+    }
 	CartridgeTestFixture::tearDown();
 }
 
@@ -348,18 +377,8 @@ void WCATestFixture::testSET_CARTRIDGE_LO_PA_POL1_DRAIN_VOLTAGE_SCALE(){
 }
 
 void WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE() {
-    AmbRelativeAddr clearRCA = CLEAR_PA_LIMITS + band_m - 1;
-    AmbRelativeAddr entryRCA = PA_LIMITS_ENTRY + band_m - 1;
-    string info;
-    unsigned short yto;
-
-    // Clear any existing PA limits table:
-    data_m[0] = 1;
-    dataLength_m = 1;
-    command(clearRCA, "CLEAR_PA_LIMITS", &info);
-
-    // Set 1.0 PAVD:
-    packSGL(1.0);
+    string info, ytoString, msg;
+    unsigned short yto = 0;
 
     // Step across the YTO tuning range:
     for (yto = 0; yto <= 4096; yto += 256) {
@@ -367,11 +386,29 @@ void WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE() {
         if (yto == 4096)
             yto--;
 
+        SLEEP(100);
+        packU16(yto);
+        ytoString = to_string<unsigned short>(yto);
+        msg = string("YTO_COARSE_TUNE ") + ytoString;
+        LOG(LM_INFO) << msg << endl;
+        command(ctrlytoCoarseTune_RCA, msg, &info);
+
+        SLEEP(100);
+
         // Check that we can set the PA to 1.0 all across the range:
         //  Not setting 2.5 because that may be unsafe for some bands.
+        packSGL(1.0);
         command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
+        SLEEP(10);
         command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
     }
+
+    // Set the LO PAs back to 0:
+    packU16(0);     // YTO = 0
+    command(ctrlytoCoarseTune_RCA, "YTO_COARSE_TUNE 0", &info);
+    packSGL(0.0);   // PAVD = 0
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
 
     // Now set up a PA LIMITS table:
     // YTO  maxVD0  maxVD1
@@ -387,108 +424,135 @@ void WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE() {
     dataLength_m = 1;
     packU16(0, true);   // append yto=0
     packSGL(0.5, true); // append 0.5
-    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+    commandImpl(ctrlSetPALimitsEntry_RCA, "PA_LIMITS_ENTRY");
 
     resetAmbVars();
     data_m[0] = 2;      // pol=both
     dataLength_m = 1;
     packU16(1000, true);// append yto=1000
     packSGL(0.5, true); // append 0.5
-    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+    commandImpl(ctrlSetPALimitsEntry_RCA, "PA_LIMITS_ENTRY");
 
     resetAmbVars();
     data_m[0] = 0;      // pol=0
     dataLength_m = 1;
     packU16(1001, true);// append yto=1001
     packSGL(0.8, true); // append 0.8
-    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+    commandImpl(ctrlSetPALimitsEntry_RCA, "PA_LIMITS_ENTRY");
 
     resetAmbVars();
     data_m[0] = 1;      // pol=1
     dataLength_m = 1;
     packU16(1001, true);// append yto=1001
     packSGL(1.0, true); // append 1.0
-    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+    commandImpl(ctrlSetPALimitsEntry_RCA, "PA_LIMITS_ENTRY");
 
     resetAmbVars();
     data_m[0] = 0;
     dataLength_m = 1;
     packU16(2000, true);
     packSGL(0.8, true);
-    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+    commandImpl(ctrlSetPALimitsEntry_RCA, "PA_LIMITS_ENTRY");
 
     resetAmbVars();
     data_m[0] = 1;
     dataLength_m = 1;
     packU16(2000, true);
     packSGL(1.0, true);
-    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+    commandImpl(ctrlSetPALimitsEntry_RCA, "PA_LIMITS_ENTRY");
 
     resetAmbVars();
     data_m[0] = 2;
     dataLength_m = 1;
     packU16(2001, true);
     packSGL(1.0, true);
-    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+    commandImpl(ctrlSetPALimitsEntry_RCA, "PA_LIMITS_ENTRY");
 
     resetAmbVars();
-    data_m[0] = 1;
+    data_m[0] = 2;
     dataLength_m = 1;
     packU16(4095, true);
     packSGL(1.0, true);
-    command(entryRCA, "PA_LIMITS_ENTRY", &info);
+    commandImpl(ctrlSetPALimitsEntry_RCA, "PA_LIMITS_ENTRY");
 
     // Now check each limit zone:
+    LOG(LM_INFO) << "WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE: YTO=0" << endl;
     resetAmbVars();
     packU16(0);     // YTO = 0
-    command(ctrlytoCoarseTune_RCA, "YTO_COARSE_TUNE", &info);
+    command(ctrlytoCoarseTune_RCA, "YTO_COARSE_TUNE 0", &info);
     packSGL(0.5);   // PAVD = 0.5
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 0=0.5", &info);
+    packSGL(0.5);   // PAVD = 0.5
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 1=0.5", &info);
+    packSGL(1.0);   // PAVD = 1.0
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 0=1.0", &info, false);
+    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
+    packSGL(1.0);   // PAVD = 1.0
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 1=1.0", &info, false);
+    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
+    packSGL(0.0);   // PAVD = 0
     command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
     command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
-    packSGL(1.0);   // PAVD = 1.0
-    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info, false);
-    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
-    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info, false);
-    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
 
+    LOG(LM_INFO) << "WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE: YTO=500" << endl;
     resetAmbVars();
     packU16(500);   // YTO = 500
-    command(ctrlytoCoarseTune_RCA, "YTO_COARSE_TUNE", &info);
+    command(ctrlytoCoarseTune_RCA, "YTO_COARSE_TUNE 500", &info);
     packSGL(0.5);
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 0=0.5 at 500", &info);
+    packSGL(0.5);
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 1=0.5 at 500", &info);
+    packSGL(1.0);
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 0=1.0 at 500", &info, false);
+    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
+    packSGL(1.0);
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 1=1.0 at 500", &info, false);
+    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
+
+    packSGL(0.0);   // PAVD = 0
     command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
     command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
-    packSGL(1.0);
-    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info, false);
-    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
-    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info, false);
-    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
+
+    LOG(LM_INFO) << "WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE: YTO=1500" << endl;
     resetAmbVars();
-
     packU16(1500);   // YTO = 1500
-    command(ctrlytoCoarseTune_RCA, "YTO_COARSE_TUNE", &info);
+    command(ctrlytoCoarseTune_RCA, "YTO_COARSE_TUNE 1500", &info, false);
     packSGL(0.8);
-    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
-    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 0=0.8 at 1500", &info);
+    packSGL(0.8);
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 1=0.8 at 1500", &info);
     packSGL(1.0);
-    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info, false);
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 0=1.0 at 1500", &info, false);
     CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
+    packSGL(1.0);
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 1=1.0 at 1500", &info);
+
+    packSGL(0.0);   // PAVD = 0
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
     command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
 
+    LOG(LM_INFO) << "WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE: YTO=2500" << endl;
     packU16(2500);   // YTO = 2500
-    command(ctrlytoCoarseTune_RCA, "YTO_COARSE_TUNE", &info);
+    command(ctrlytoCoarseTune_RCA, "YTO_COARSE_TUNE 2500", &info, false);
     packSGL(1.0);
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 0=1.0 at 2500", &info);
+    packSGL(1.0);
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 1=1.0 at 2500", &info);
+    packSGL(1.1);
+    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 0=1.1 at 2500", &info, false);
+    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
+    packSGL(1.1);
+    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE 1=1.1 at 2500", &info, false);
+    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
+
+    packSGL(0.0);   // PAVD = 0
     command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
     command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
-    packSGL(1.1);
-    command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info, false);
-    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
-    command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info, false);
-    CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
 
     // Clear any existing PA limits table:
     data_m[0] = 1;
     dataLength_m = 1;
-    command(clearRCA, "CLEAR_PA_LIMITS", &info);
+    commandImpl(ctrlClearPALimits_RCA, "CLEAR_PA_LIMITS", &info);
 }
 
 /**

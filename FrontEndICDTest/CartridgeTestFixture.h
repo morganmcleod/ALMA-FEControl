@@ -48,6 +48,7 @@ protected:
                         const std::string &callerDescription);
 
     int band_m;                         ///< Which cartridge band this class represents.
+    bool isEnabled_m;                   ///< True if the cartridge is powered on
     AmbRelativeAddr cartPowerRCA_m;     ///< RCA for power off/on cartridge
     AmbRelativeAddr cartBaseRCA_m;      ///< RCA for all cartridge m&c points
 };

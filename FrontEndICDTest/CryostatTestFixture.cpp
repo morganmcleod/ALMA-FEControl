@@ -54,7 +54,7 @@ void CryostatTestFixture::testSET_CRYOSTAT_TEMP_TVO_COEFF() {
             CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 6);
             val = unpackSGL(&statusByte);
             CPPUNIT_ASSERT_MESSAGE(details, statusByte == FEMC_NO_ERROR);
-            order = data_m[5];
+            order = data_m[4];
             coeffs[sensor][order] = val;
             LOG(LM_INFO) << details << " t" << sensor << " a" << order << "=" << val << endl;
         }
@@ -68,15 +68,16 @@ void CryostatTestFixture::testSET_CRYOSTAT_TEMP_TVO_COEFF() {
             resetAmbVars();
             val = (order == 1) ? 1.0 : 0.0; // A1 = 1:  return 1000/resistance
             packSGL(val);
-            data_m[5] = order;
+            data_m[4] = order;
             dataLength_m = 5;
             command(cryostatTempCoeff_RCA + controlRCA + 4 * sensor, streamName.str(), &details);
 
+            // Monitor the setting and compare:
             resetAmbVars();
-            monitor(controlRCA + 4 * sensor, streamName.str(), &details);
+            monitor(cryostatTempCoeff_RCA + controlRCA + 4 * sensor, streamName.str(), &details);
             val2 = unpackSGL(&statusByte);
             CPPUNIT_ASSERT_MESSAGE(details, val2 == val);
-            order2 = data_m[5];
+            order2 = data_m[4];
             CPPUNIT_ASSERT_MESSAGE(details, order2 == order);
         }
     }
@@ -89,7 +90,7 @@ void CryostatTestFixture::testSET_CRYOSTAT_TEMP_TVO_COEFF() {
             resetAmbVars();
             val = coeffs[sensor][order];
             packSGL(val);
-            data_m[5] = order;
+            data_m[4] = order;
             dataLength_m = 5;
             command(cryostatTempCoeff_RCA + controlRCA + 4 * sensor, streamName.str(), &details);
         }

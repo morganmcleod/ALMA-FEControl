@@ -64,9 +64,9 @@ void STANDBY2TestFixture::testOnlyBand6Allowed() {
 
         // command() will have monitored on the command RCA.  Check the status byte for FEMC_HARDW_BLOCKED_ERR:
         if (band == 6)
-            CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+            CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
         else
-            CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_HARDW_BLOCKED_ERR);
+            CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_HARDW_BLOCKED_ERR);
 
         // monitor the band power on state:
         RCA = MON_ENABLE_BAND1 + ((band - 1) << 4);
@@ -119,7 +119,7 @@ void STANDBY2TestFixture::testFourBandsAllowed() {
     data_m[0] = 1;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, false);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_HARDW_BLOCKED_ERR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_HARDW_BLOCKED_ERR);
 
     // Num bands on should be 3:
     monitor(MON_NUM_ENABLED, "GET_POWER_DISTRIBUTION_POWERED_MODULES", &details);
@@ -129,7 +129,7 @@ void STANDBY2TestFixture::testFourBandsAllowed() {
     data_m[0] = 2;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Num bands on should be 4:
     monitor(MON_NUM_ENABLED, "GET_POWER_DISTRIBUTION_POWERED_MODULES", &details);
@@ -139,7 +139,7 @@ void STANDBY2TestFixture::testFourBandsAllowed() {
     data_m[0] = 1;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND7, "CTRL_ENABLE_BAND7", &details, false);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_HARDW_BLOCKED_ERR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_HARDW_BLOCKED_ERR);
 
     // Num bands on should be 4:
     monitor(MON_NUM_ENABLED, "GET_POWER_DISTRIBUTION_POWERED_MODULES", &details);
@@ -164,7 +164,7 @@ void STANDBY2TestFixture::testCommandPayload() {
     data_m[0] = 1;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is ON
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -174,7 +174,7 @@ void STANDBY2TestFixture::testCommandPayload() {
     data_m[0] = 0;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is OFF
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -184,7 +184,7 @@ void STANDBY2TestFixture::testCommandPayload() {
     data_m[0] = 2;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is STANDBY2
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -194,7 +194,7 @@ void STANDBY2TestFixture::testCommandPayload() {
     data_m[0] = 0;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is OFF
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -204,7 +204,7 @@ void STANDBY2TestFixture::testCommandPayload() {
     data_m[0] = 255;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, false);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) != FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] != FEMC_NO_ERROR);
 
     // Verify it is OFF
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -214,7 +214,7 @@ void STANDBY2TestFixture::testCommandPayload() {
     data_m[0] = 72;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, false);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) != FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] != FEMC_NO_ERROR);
 
     // Verify it is OFF
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -224,7 +224,7 @@ void STANDBY2TestFixture::testCommandPayload() {
     data_m[0] = 3;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, false);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) != FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] != FEMC_NO_ERROR);
 
     // Verify it is OFF
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -249,7 +249,7 @@ void STANDBY2TestFixture::testStateTransitions() {
     data_m[0] = 1;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is ON
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -264,7 +264,7 @@ void STANDBY2TestFixture::testStateTransitions() {
     data_m[0] = 1;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is ON
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -279,7 +279,7 @@ void STANDBY2TestFixture::testStateTransitions() {
     data_m[0] = 0;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is OFF
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -294,7 +294,7 @@ void STANDBY2TestFixture::testStateTransitions() {
     data_m[0] = 0;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is OFF
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -309,7 +309,7 @@ void STANDBY2TestFixture::testStateTransitions() {
     data_m[0] = 2;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is STANDBY2
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -324,7 +324,7 @@ void STANDBY2TestFixture::testStateTransitions() {
     data_m[0] = 2;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is STANDBY2
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -339,7 +339,7 @@ void STANDBY2TestFixture::testStateTransitions() {
     data_m[0] = 1;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is ON
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -354,7 +354,7 @@ void STANDBY2TestFixture::testStateTransitions() {
     data_m[0] = 1;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is ON
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -369,7 +369,7 @@ void STANDBY2TestFixture::testStateTransitions() {
     data_m[0] = 2;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is STANDBY2
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -384,7 +384,7 @@ void STANDBY2TestFixture::testStateTransitions() {
     data_m[0] = 2;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is STANDBY2
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -399,7 +399,7 @@ void STANDBY2TestFixture::testStateTransitions() {
     data_m[0] = 0;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is OFF
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -414,7 +414,7 @@ void STANDBY2TestFixture::testStateTransitions() {
     data_m[0] = 0;
     dataLength_m = 1;
     command(CTRL_ENABLE_BAND6, "CTRL_ENABLE_BAND6", &details, true);
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == FEMC_NO_ERROR);
 
     // Verify it is OFF
     monitor(MON_ENABLE_BAND6, "MON_ENABLE_BAND6", &details);
@@ -519,9 +519,9 @@ void STANDBY2TestFixture::testLNAHelper(const AmbRelativeAddr &ctrlRCA0,
     command(ctrlRCA0, string("LNA_ENABLE") + shouldSucceedStr, &details, shouldSucceed);
     // Check monitor on command success:
     if (shouldSucceed)
-        CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_NO_ERROR);
+        CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_NO_ERROR);
     else
-        CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_HARDW_BLOCKED_ERR);
+        CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
 
     // Enable and control some LNAs:
     data_m[0] = 1;
@@ -529,27 +529,27 @@ void STANDBY2TestFixture::testLNAHelper(const AmbRelativeAddr &ctrlRCA0,
     command(ctrlRCA0, string("LNA_ENABLE") + shouldSucceedStr, &details, shouldSucceed);
     // Check monitor on command success:
     if (shouldSucceed)
-        CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_NO_ERROR);
+        CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_NO_ERROR);
     else
-        CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_HARDW_BLOCKED_ERR);
+        CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
 
     // Set some LNA values:
     packSGL(1.0);
     command(ctrlRCA1, string("LNA_DRAIN_VOLTAGE") + shouldSucceedStr, &details, shouldSucceed);
     // Check monitor on command success:
     if (shouldSucceed)
-        CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_NO_ERROR);
+        CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_NO_ERROR);
     else
-        CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_HARDW_BLOCKED_ERR);
+        CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
 
     // Set some LNA values:
     packSGL(0.1);
     command(ctrlRCA2, string("LNA1_DRAIN_CURRENT") + shouldSucceedStr, &details, shouldSucceed);
     // Check monitor on command success:
     if (shouldSucceed)
-        CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_NO_ERROR);
+        CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_NO_ERROR);
     else
-        CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_HARDW_BLOCKED_ERR);
+        CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
 
     // Test LNA enable state
     monitor(monRCA0, string("LNA_ENABLE") + shouldSucceedStr, &details);
@@ -595,7 +595,7 @@ void STANDBY2TestFixture::testSetLNALED() {
     dataLength_m = 1;
     command(ctrlRCA1, "LNA_LED_ENABLE", &details, false);
     // Should be rejected:
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_HARDW_BLOCKED_ERR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
 
     // Monitoring permitted:
     monitor(monRCA1, "LNA_LED_ENABLE", &details);
@@ -609,7 +609,7 @@ void STANDBY2TestFixture::testSetLNALED() {
     dataLength_m = 1;
     command(ctrlRCA2, "LNA_LED_ENABLE", &details, false);
     // Should be rejected:
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_HARDW_BLOCKED_ERR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
 
     // Monitoring permitted:
     monitor(monRCA2, "LNA_LED_ENABLE", &details);
@@ -629,7 +629,7 @@ void STANDBY2TestFixture::testSetLNALED() {
     dataLength_m = 1;
     command(ctrlRCA1, "LNA_LED_ENABLE", &details, true);
     // Should be allowed:
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_NO_ERROR);
 
     // Monitoring permitted:
     monitor(monRCA1, "LNA_LED_ENABLE", &details);
@@ -648,7 +648,7 @@ void STANDBY2TestFixture::testSetLNALED() {
     dataLength_m = 1;
     command(ctrlRCA2, "LNA_LED_ENABLE", &details, true);
     // Should be allowed:
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_NO_ERROR);
 
     // Monitoring permitted:
     monitor(monRCA2, "LNA_LED_ENABLE", &details);
@@ -734,18 +734,18 @@ void STANDBY2TestFixture::testSISHelper(const AmbRelativeAddr &ctrlRCA0,
     command(ctrlRCA0, string("SIS_OPEN_LOOP") + shouldSucceedStr, &details, shouldSucceed);
     // Check monitor on command success:
     if (shouldSucceed)
-        CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_NO_ERROR);
+        CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_NO_ERROR);
     else
-        CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_HARDW_BLOCKED_ERR);
+        CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
 
     // Set SIS voltage:
     packSGL(2.3);
     command(ctrlRCA1, string("SIS_VOLTAGE") + shouldSucceedStr, &details, shouldSucceed);
     // Check monitor on command success:
     if (shouldSucceed)
-        CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_NO_ERROR);
+        CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_NO_ERROR);
     else
-        CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_HARDW_BLOCKED_ERR);
+        CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
 
     // Test SIS open loop state:
     monitor(monRCA0, string("SIS_OPEN_LOOP") + shouldSucceedStr, &details);
@@ -822,9 +822,9 @@ void STANDBY2TestFixture::testSISMagnetHelper(const AmbRelativeAddr &ctrlRCA0,
     command(ctrlRCA0, string("SIS_MAGNET_CURRENT") + shouldSucceedStr, &details, shouldSucceed);
     // Check monitor on command success:
     if (shouldSucceed)
-        CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_NO_ERROR);
+        CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_NO_ERROR);
     else
-        CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_HARDW_BLOCKED_ERR);
+        CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
 
     // Monitoring permitted:
     monitor(monRCA0, string("SIS_MAGNET_CURRENT") + shouldSucceedStr, &details);
@@ -867,7 +867,7 @@ void STANDBY2TestFixture::testSetSISHeater() {
     dataLength_m = 1;
     command(ctrlRCA1, "SIS_HEATER_ENABLE", &details, false);
     // Should be rejected:
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_HARDW_BLOCKED_ERR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
 
     // Monitoring permitted:
     monitor(monRCA1, "SIS_HEATER_CURRENT", &details);
@@ -879,7 +879,7 @@ void STANDBY2TestFixture::testSetSISHeater() {
     dataLength_m = 1;
     command(ctrlRCA2, "SIS_HEATER_ENABLE", &details, false);
     // Should be rejected:
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_HARDW_BLOCKED_ERR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
 
     // Monitoring permitted:
     monitor(monRCA2, "SIS_HEATER_CURRENT", &details);
@@ -897,7 +897,7 @@ void STANDBY2TestFixture::testSetSISHeater() {
     dataLength_m = 1;
     command(ctrlRCA1, "SIS_HEATER_ENABLE", &details, true);
     // Should be allowed:
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_NO_ERROR);
 
     // Monitoring permitted:
     monitor(monRCA1, "SIS_HEATER_CURRENT", &details);
@@ -914,7 +914,7 @@ void STANDBY2TestFixture::testSetSISHeater() {
     dataLength_m = 1;
     command(ctrlRCA2, "SIS_HEATER_ENABLE", &details, true);
     // Should be allowed:
-    CPPUNIT_ASSERT_MESSAGE(details, ((char) data_m[dataLength_m - 1]) == FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(details, data_m[dataLength_m - 1] == FEMC_NO_ERROR);
 
     // Monitoring permitted:
     monitor(monRCA2, "SIS_HEATER_CURRENT", &details);
@@ -933,7 +933,7 @@ void STANDBY2TestFixture::testSetSISHeater() {
 }
 
 void STANDBY2TestFixture::testColdElectronicsOff() {
-    //!< Test that all cold eletronics are turned off when entering STANDBY2 mode.
+    //!< Test that all cold electronics are turned off when entering STANDBY2 mode.
     string details;
     unsigned char statusByte;
     float monValue;

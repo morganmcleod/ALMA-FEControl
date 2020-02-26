@@ -113,8 +113,8 @@ ColdCartridgeTestFixture::ColdCartridgeTestFixture(int band,
     cartridgeTemperature5_RCA       = cartBaseRCA_m + CARTRIDGE_TEMP + 0x50;
 
     //Control RCAs
-    ctrlsisSenseResistor_RCA            = controlRCA + ctrlsisSenseResistor_RCA;
-    ctrlsisSenseResistor2_RCA           = controlRCA + ctrlsisSenseResistor2_RCA;
+    ctrlsisSenseResistor_RCA            = controlRCA + sisSenseResistor_RCA;
+    ctrlsisSenseResistor2_RCA           = controlRCA + sisSenseResistor2_RCA;
     ctrlsisPol0Sb1Voltage_RCA           = controlRCA + sisPol0Sb1Voltage_RCA;
     ctrlsisPol0Sb1OpenLoop_RCA          = controlRCA + sisPol0Sb1OpenLoop_RCA;
     ctrlsisPol0Sb2Voltage_RCA           = controlRCA + sisPol0Sb2Voltage_RCA;
@@ -628,6 +628,22 @@ void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SIS_HEATER_CURRENT(){
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_SIS_CURRENT_SENSE_RESISTOR() {
     if (band_m < 3)
         return; // not checking current sense resistor on bands 1 & 2
+
+    unsigned char statusByte;
+    string info;
+
+    // Read and back up the current resistor setting:
+    monitor(sisSenseResistor_RCA, "GET_CARTRIDGE_SIS_CURRENT_SENSE_RESISTOR", &info);
+    // check datalength
+    CPPUNIT_ASSERT_MESSAGE(info, dataLength_m == 5);
+    float resistorBak(unpackSGL(&statusByte));
+
+    // Read and back up the current resistor2 setting:
+    monitor(sisSenseResistor2_RCA, "GET_CARTRIDGE_SIS_CURRENT_SENSE_RESISTOR", &info);
+    // check datalength
+    CPPUNIT_ASSERT_MESSAGE(info, dataLength_m == 5);
+    float resistor2Bak(unpackSGL(&statusByte));
+
     float min(0.000001), max(99999.9), tolerance(0.0);
     SET_LNA_SIS_VALUE(sisSenseResistor_RCA, ctrlsisSenseResistor_RCA,
                     getTestValuesSISSenseResistor(), min, max, tolerance,
@@ -635,6 +651,12 @@ void ColdCartridgeTestFixture::testSET_CARTRIDGE_SIS_CURRENT_SENSE_RESISTOR() {
     SET_LNA_SIS_VALUE(sisSenseResistor2_RCA, ctrlsisSenseResistor2_RCA,
                     getTestValuesSISSenseResistor(), min, max, tolerance,
                     "SET_CARTRIDGE_SIS_CURRENT_SENSE_RESISTOR");
+
+    // Set the resistors back to the original values:
+    packSGL(resistorBak);
+    commandImpl(ctrlsisSenseResistor_RCA, "Restoring original resistor.\n", &info);
+    packSGL(resistor2Bak);
+    commandImpl(ctrlsisSenseResistor2_RCA, "Restoring original resistor.\n", &info);
 }
 
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_SB1_SIS_VOLTAGE(){
@@ -799,24 +821,28 @@ void ColdCartridgeTestFixture::testSET_CARTRIDGE_TEMP_OFFSET() {
         float offsetBak(unpackSGL(&statusByte));
 
         // Set the offset to zero:
-        packSGL(0);
+        packSGL(0.0);
         commandImpl(offsetCtrl, "initially setting offset to zero.\n", &info);
 
         // Read the temperature sensor:
-        monitor(sensorMon, "SET_CARTRIDGE_TEMP_OFFSET", &info);
-        float sensor(unpackSGL(&statusByte));
+        monitor(sensorMon, "GET_CARTRIDGE_TEMP", &info);
+        float reading1(unpackSGL(&statusByte));
 
         // Set the offset to +1
-        packSGL(1);
-        commandImpl(offsetCtrl, "Setting offset to 1.\n", &info);
+        packSGL(1.0);
+        commandImpl(offsetCtrl, "Setting offset to 1.0\n", &info);
 
         // Read the temperature sensor:
-        monitor(sensorMon, "SET_CARTRIDGE_TEMP_OFFSET", &info);
-        float sensor1(unpackSGL(&statusByte));
+        monitor(sensorMon, "GET_CARTRIDGE_TEMP", &info);
+        float reading2(unpackSGL(&statusByte));
 
         // Check that difference is about 1:
-        bool inRange = ((sensor1 - sensor) >= 0.95) && ((sensor1 - sensor) <= 1.05);
-        CPPUNIT_ASSERT_MESSAGE("Offset temperature out of range.", inRange);
+        bool inRange = ((reading2 - reading1) >= 0.8) && ((reading2 - reading1) <= 1.2);
+        LOG(LM_INFO) << "ColdCartridgeTestFixture::testSET_CARTRIDGE_TEMP_OFFSET:" <<
+                " sensorRCA=" << std::hex << sensorMon << std::dec << " reading1=" << reading1 << " reading2=" << reading2 << endl;
+        // Only assert where temp sensor is installed (-1 means spare):
+        if (reading1 >= 0)
+            CPPUNIT_ASSERT_MESSAGE("Offset temperature out of range.", inRange);
 
         // Set the offset back to the original value:
         packSGL(offsetBak);

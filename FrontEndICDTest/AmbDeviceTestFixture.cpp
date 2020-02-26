@@ -202,6 +202,9 @@ void AmbDeviceTestFixture::command(const AmbRelativeAddr &RCA,
 
     // we expect the same amount of data as we sent plus a status byte if expectStatusByte_m is true:
     AmbDataLength_t expectDataLength(dataLength_m + (expectStatusByte_m ? 1 : 0));
+    // but not if there's already 8 bytes in the payload:
+    if (expectDataLength > 8)
+        expectDataLength = 8;
 
     // copy the payload we sent so we can compare what comes back:
     AmbDataMem_t data0[8];

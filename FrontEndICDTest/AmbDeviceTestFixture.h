@@ -153,15 +153,12 @@ protected:
 
     enum FEMC_ERROR {
         FEMC_NO_ERROR           = 0,    //!< No error during the monitor operation.
-        FEMC_GENERIC_ERROR      = -1,   //!< Error during the monitor operation.  FEMC failed to communicate with hardware.
-        FEMC_HARDW_RANGE_ERR    = -2,   //!< The addressed hardware is not installed.
-        FEMC_HARDW_BLOCKED_ERR  = -3,   //!< The hardware cannot be accessed because of operational state.
-        FEMC_HARDW_UPDATE_WARN  = -4,   //!< Properties of the addressed hardware need to be updated in firmware.  Result may be suspect.
-        FEMC_HARDW_CONVERT_ERR  = -5,   //!< Monitor data is out of range for conversion to proper units.
-        FEMC_HARDW_ERROR        = -7,   //!< The selected hardware is in error state. Follow ICD instruction to proceed.
-        FEMC_CON_ERROR_RNG      = -10,  //!< Value of last control message received is outside the allowed range
-        FEMC_UNDEFINED_RCA      = -12,  //!< The monitor request is to an undefined RCA.
-        FEMC_MON_ERROR_ACTION   = -13,  //!< FEMC took action because the monitor value is in the error range.
+        FEMC_GENERIC_ERROR      = 0xFF, //!< Error during the monitor operation.  FEMC failed to communicate with hardware.
+        FEMC_HARDW_RANGE_ERR    = 0xFE, //!< The addressed hardware is not installed.
+        FEMC_HARDW_BLOCKED_ERR  = 0xFD, //!< The hardware cannot be accessed because of operational state.
+        FEMC_HARDW_CONVERT_ERR  = 0xFB, //!< Monitor data is out of range for conversion to proper units.
+        FEMC_HARDW_ERROR        = 0xF0, //!< The selected hardware is in error state. Follow ICD instruction to proceed.
+        FEMC_CON_ERROR_RNG      = 0xF6, //!< Value of last control message received is outside the allowed range
         FEMC_AMB_ERROR          = -44,  //!< The AMB subsystem reported an error.
         FEMC_UNPACK_ERROR       = -45,  //!< Unpacking monitor data failed
         FEMC_NOT_CONNECTED      = -46   //!< Cannot monitor because not connected to FE.

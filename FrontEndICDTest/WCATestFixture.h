@@ -141,8 +141,7 @@ protected:
 private:
 	enum MonitorControlOffset {
 		   controlRCA                      = 0x10000,   ///< add this to the monitor RCA to get the corresponding command RCA
-           pol1                            = 0x0004,    ///< add this to the pol0 RCA to get the corresponding pol1 RCA
-		   YTO_COARSE_TUNE                 = 0x0800,
+           YTO_COARSE_TUNE                 = 0x0800,
 	       PHOTOMIXER_ENABLE               = 0x0810,
 	       PHOTOMIXER_VOLTAGE              = 0x0814,
 	       PHOTOMIXER_CURRENT              = 0x0818,
@@ -230,6 +229,8 @@ private:
     AmbRelativeAddr ctrlpaPol0DrainVoltageScale_RCA;
     AmbRelativeAddr ctrlpaPol1DrainVoltageScale_RCA;
     AmbRelativeAddr ctrlamcMultiplierDCounts_RCA;
+    AmbRelativeAddr ctrlClearPALimits_RCA;
+    AmbRelativeAddr ctrlSetPALimitsEntry_RCA;
 
     static std::vector<float> SetValuesLOpaGateVoltage;
     static const float ValidMinLOpaGateVoltage;

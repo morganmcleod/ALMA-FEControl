@@ -23,6 +23,7 @@ const bool CartridgeTestFixture::checkIllegalFloatCommands(false);
 CartridgeTestFixture::CartridgeTestFixture(int band, const std::string &name, AmbChannel channel, AmbNodeAddr nodeAddress, bool expectStatusByte)
   : AmbDeviceTestFixture(name, channel, nodeAddress, expectStatusByte),
     band_m(0),
+    isEnabled_m(false),
     cartPowerRCA_m(0),
     cartBaseRCA_m(0)
 {
@@ -56,6 +57,7 @@ void CartridgeTestFixture::ENABLE_CARTRIDGE() {
         dataLength_m = 1;
         commandImpl(cartPowerRCA_m, "ENABLE_CARTRIDGE", NULL);
         SLEEP(2000);
+        isEnabled_m = true;
     } else
         LOG(LM_ERROR) << "CartridgeTestFixture::ENABLE_CARTRIDGE not a valid cartridge band." << endl;
 }
@@ -68,6 +70,7 @@ void CartridgeTestFixture::DISABLE_CARTRIDGE() {
         dataLength_m = 1;
         commandImpl(cartPowerRCA_m, "ENABLE_CARTRIDGE", NULL);
         SLEEP(2000);
+        isEnabled_m = false;
     } else
         LOG(LM_ERROR) << "CartridgeTestFixture::DISABLE_CARTRIDGE not a valid cartridge band." << endl;
 }

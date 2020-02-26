@@ -68,7 +68,7 @@ void IFSwitchTestFixture::testSET_IF_SWITCH_ALL_CHANNELS_ATTENUATION() {
         dataLength_m = 4;
         command(ctrlAllChannelAttenuation_RCA, callerDescription, &details, false);
         CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 5);
-        CPPUNIT_ASSERT_MESSAGE(details + ": No error was raised for illegal value.", data_m[5] != FEMC_NO_ERROR);
+        CPPUNIT_ASSERT_MESSAGE(details + ": No error was raised for illegal value.", data_m[4] != FEMC_NO_ERROR);
         // Set the value to 0:
         data_m[0] = data_m[1] = data_m[2] = data_m[3] = 0;
         dataLength_m = 4;
