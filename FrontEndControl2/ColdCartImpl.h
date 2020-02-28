@@ -69,8 +69,16 @@ public:
       { return hasSIS(band_m); }
     ///< true if this cartridge has SIS mixers.
 
+    static bool hasMagnet(int band)
+      { return band >= 5; }
+    ///< true if the given band cartridge has SIS magnets.)
+
+    bool hasMagnet() const
+      { return hasMagnet(band_m); }
+    ///< true if this cartridge has SIS magnets.
+
     static bool hasSb2Magnet(int band)
-      { return (hasSb2(band) && band != 6); }
+      { return (hasMagnet(band) && hasSb2(band) && band != 6); }
     ///< true if the given band cartridge has a separate sb2 magnet coil.
 
     bool hasSb2Magnet() const
@@ -176,14 +184,26 @@ public:
 //-------------------------------------------------------------------------------------------------
 // SIS magnet monitor and control
 
-    // promote the base class virtual functions so that they will not be hidden:
-    using ColdCartImplBase::sisMagnetPol0Sb1Current;
-    using ColdCartImplBase::sisMagnetPol0Sb2Current;
-    using ColdCartImplBase::sisMagnetPol1Sb1Current;
-    using ColdCartImplBase::sisMagnetPol1Sb2Current;
+    // Override the base class magnet monitor functions to filter for hasMagnet()
+    virtual float sisMagnetPol0Sb1Voltage()
+      { return (hasMagnet()) ? ColdCartImplBase::sisMagnetPol0Sb1Voltage() : 0.0; }
+    virtual float sisMagnetPol0Sb1Current()
+      { return (hasMagnet()) ? ColdCartImplBase::sisMagnetPol0Sb1Current() : 0.0; }
+    virtual float sisMagnetPol0Sb2Voltage()
+      { return (hasSb2Magnet()) ? ColdCartImplBase::sisMagnetPol0Sb2Voltage() : 0.0; }
+    virtual float sisMagnetPol0Sb2Current()
+      { return (hasSb2Magnet()) ? ColdCartImplBase::sisMagnetPol0Sb2Current() : 0.0; }
+    virtual float sisMagnetPol1Sb1Voltage()
+      { return (hasMagnet()) ? ColdCartImplBase::sisMagnetPol1Sb1Voltage() : 0.0; }
+    virtual float sisMagnetPol1Sb1Current()
+      { return (hasMagnet()) ? ColdCartImplBase::sisMagnetPol1Sb1Current() : 0.0; }
+    virtual float sisMagnetPol1Sb2Voltage()
+      { return (hasSb2Magnet()) ? ColdCartImplBase::sisMagnetPol1Sb2Voltage() : 0.0; }
+    virtual float sisMagnetPol1Sb2Current()
+      { return (hasSb2Magnet()) ? ColdCartImplBase::sisMagnetPol1Sb2Current() : 0.0; }
 
 private:
-    // Override but hide from public use the raw SIS voltage set functions: 
+    // Override but hide from public use the raw SIS magnet set functions:
     
     virtual void sisMagnetPol0Sb1Current(float val);
     ///< override the base class SIS magnet current control function so that we can cache the value in local state.
@@ -356,6 +376,9 @@ public:
 
     static void appendThermalLogPlaceholder(std::string &target);
     ///< append zero data to the thermal log so that columns will align.
+
+protected:
+    virtual void monitorAction(Time *timestamp_p);
     
 private:
     int band_m;                     ///< which cartridge band this is.
@@ -377,6 +400,9 @@ private:
     static const float mixerHeatingMinTargetTemp_m;
     static const int mixerHeatingMaxTimeout_m;
     static const int mixerHeatingMaxTimeoutBand9_m;
+
+    DECLARE_MONITORS_REGISTRY(ColdCartImpl)
+    void logMon(bool printHeader = false) const;
 };
  
 #endif /*COLDCARTIMPL_H_*/

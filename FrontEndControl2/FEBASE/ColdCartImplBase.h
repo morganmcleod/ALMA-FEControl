@@ -177,8 +177,11 @@ public:
     virtual void sisHeaterPol1Enable(bool val);
 
 protected:
-    virtual void monitorAction(Time *timestamp_p);
-    
+    virtual void monitorAction(Time *timestamp_p) = 0;
+    // monitor registry and logging:
+    Time lastMonitorTime;
+    int monitorPhase;
+
     enum MonitorControlOffset {
         CARTRIDGE_TEMP          = 0x0880,
         SIS_VOLTAGE             = 0x0008,
@@ -286,7 +289,6 @@ protected:
     float cartridgeTemperature4_value;
     float cartridgeTemperature5_value;
 
-//
     int sisPol0Sb1Voltage_status;
     int sisPol0Sb1Current_status;
     int sisPol0Sb1OpenLoop_status;
@@ -365,8 +367,6 @@ protected:
     int cartridgeTemperature3_status;
     int cartridgeTemperature4_status;
     int cartridgeTemperature5_status;
-
-//
 
     AmbRelativeAddr baseRCA;
     AmbRelativeAddr sisPol0Sb1Voltage_RCA;
@@ -453,12 +453,6 @@ protected:
 private:
     // forbid copy constructor:
     ColdCartImplBase(const ColdCartImplBase &other);
-    
-    Time lastMonitorTime;
-    int monitorPhase;
-
-    DECLARE_MONITORS_REGISTRY(ColdCartImplBase)
-    void logMon(bool printHeader = false) const;
 };      
 
 #endif /*COLDCARTIMPLBASE_H_*/

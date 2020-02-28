@@ -490,9 +490,9 @@ DLLEXPORT short FEMCFlushErrors() {
     if (!FEValid)
         return -1;
     else {
-        short moduleNum, errorNum;
-        char description[255];
-        while (FEMCGetNextError(&moduleNum, &errorNum, description) == 0) {
+        unsigned char mod, err;
+        std::string desc;
+        while (frontEnd -> getNextError(mod, err, desc)) {
             0;
         }
     }
@@ -518,8 +518,8 @@ DLLEXPORT short FEMCGetNextError(short *moduleNum, short *errorNum, char *descri
                 *errorNum = (short) err;
             if (description)
                 strcpy(description, desc.c_str());
-            return 0;
         }
+        return 0;
     }
     return -1;
 }

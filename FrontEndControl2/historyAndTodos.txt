@@ -38,7 +38,7 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
-2.10.5-beta2
+2.10.5-beta4
   Added to CppUtilityLib: listDir, stringSet, trimStr
   Added read ESNs at startup
   Removed all uses of keyFacility from CONFIG and the lv_wrappers.   
@@ -46,7 +46,10 @@ Revision history:
   Deleted ConfigProviderMySQL.
   ConfigManager no longer uses ConfigProvider.
   Improved comments in namespace FrontEndLVWrapper.   Deleted obsolete logLVStructures option. 
-  
+  Updated error messages to match Rev.D ICD.  Simplified FEMCErrors.cpp
+  Added check for hasMagnet() and fixed hasSb2Magnet() to prevent monitoring errors in band 3&4
+  Moved ColdCart monitor registry from ColdCartImplBase to ColdCartImpl
+      
 2.10.4.1 2020-02-23 Band 1 integration
   Removed divide-by-2 for band 1 RF source
 

@@ -52,6 +52,73 @@ ColdCartImpl::ColdCartImpl(unsigned long channel,
     reset();
     setESN(ESN);
     ColdCartImplBase::initialize(channel, nodeAddress); 
+
+    // Add all the analog monitor points to the registry:
+    // EXCEPT SIS current monitoring which we handle separately to do averaging.
+    //addMon(&sisPol0Sb1Current_value, &ColdCartImplBase::sisPol0Sb1Current);
+    //addMon(&sisPol0Sb2Current_value, &ColdCartImplBase::sisPol0Sb2Current);
+    //addMon(&sisPol1Sb1Current_value, &ColdCartImplBase::sisPol1Sb1Current);
+    //addMon(&sisPol1Sb2Current_value, &ColdCartImplBase::sisPol1Sb2Current);
+    addMon(&sisPol0Sb1Voltage_value, &ColdCartImplBase::sisPol0Sb1Voltage);
+    addMon(&sisPol0Sb2Voltage_value, &ColdCartImplBase::sisPol0Sb2Voltage);
+    addMon(&sisPol1Sb1Voltage_value, &ColdCartImplBase::sisPol1Sb1Voltage);
+    addMon(&sisPol1Sb2Voltage_value, &ColdCartImplBase::sisPol1Sb2Voltage);
+    // SIS magnet monitoring we override in this class:
+    addMon(&sisMagnetPol0Sb1Voltage_value, &sisMagnetPol0Sb1Voltage);
+    addMon(&sisMagnetPol0Sb1Current_value, &sisMagnetPol0Sb1Current);
+    addMon(&sisMagnetPol0Sb2Voltage_value, &sisMagnetPol0Sb2Voltage);
+    addMon(&sisMagnetPol0Sb2Current_value, &sisMagnetPol0Sb2Current);
+    addMon(&sisMagnetPol1Sb1Voltage_value, &sisMagnetPol1Sb1Voltage);
+    addMon(&sisMagnetPol1Sb1Current_value, &sisMagnetPol1Sb1Current);
+    addMon(&sisMagnetPol1Sb2Voltage_value, &sisMagnetPol1Sb2Voltage);
+    addMon(&sisMagnetPol1Sb2Current_value, &sisMagnetPol1Sb2Current);
+    // LNA monitoring handled by base class:
+    addMon(&lnaPol0Sb1St1DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb1St1DrainVoltage);
+    addMon(&lnaPol0Sb1St1DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb1St1DrainCurrent);
+    addMon(&lnaPol0Sb1St1GateVoltage_value, &ColdCartImplBase::lnaPol0Sb1St1GateVoltage);
+    addMon(&lnaPol0Sb1St2DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb1St2DrainVoltage);
+    addMon(&lnaPol0Sb1St2DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb1St2DrainCurrent);
+    addMon(&lnaPol0Sb1St2GateVoltage_value, &ColdCartImplBase::lnaPol0Sb1St2GateVoltage);
+    addMon(&lnaPol0Sb1St3DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb1St3DrainVoltage);
+    addMon(&lnaPol0Sb1St3DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb1St3DrainCurrent);
+    addMon(&lnaPol0Sb1St3GateVoltage_value, &ColdCartImplBase::lnaPol0Sb1St3GateVoltage);
+    addMon(&lnaPol0Sb2St1DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb2St1DrainVoltage);
+    addMon(&lnaPol0Sb2St1DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb2St1DrainCurrent);
+    addMon(&lnaPol0Sb2St1GateVoltage_value, &ColdCartImplBase::lnaPol0Sb2St1GateVoltage);
+    addMon(&lnaPol0Sb2St2DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb2St2DrainVoltage);
+    addMon(&lnaPol0Sb2St2DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb2St2DrainCurrent);
+    addMon(&lnaPol0Sb2St2GateVoltage_value, &ColdCartImplBase::lnaPol0Sb2St2GateVoltage);
+    addMon(&lnaPol0Sb2St3DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb2St3DrainVoltage);
+    addMon(&lnaPol0Sb2St3DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb2St3DrainCurrent);
+    addMon(&lnaPol0Sb2St3GateVoltage_value, &ColdCartImplBase::lnaPol0Sb2St3GateVoltage);
+    addMon(&lnaPol1Sb1St1DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb1St1DrainVoltage);
+    addMon(&lnaPol1Sb1St1DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb1St1DrainCurrent);
+    addMon(&lnaPol1Sb1St1GateVoltage_value, &ColdCartImplBase::lnaPol1Sb1St1GateVoltage);
+    addMon(&lnaPol1Sb1St2DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb1St2DrainVoltage);
+    addMon(&lnaPol1Sb1St2DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb1St2DrainCurrent);
+    addMon(&lnaPol1Sb1St2GateVoltage_value, &ColdCartImplBase::lnaPol1Sb1St2GateVoltage);
+    addMon(&lnaPol1Sb1St3DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb1St3DrainVoltage);
+    addMon(&lnaPol1Sb1St3DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb1St3DrainCurrent);
+    addMon(&lnaPol1Sb1St3GateVoltage_value, &ColdCartImplBase::lnaPol1Sb1St3GateVoltage);
+    addMon(&lnaPol1Sb2St1DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb2St1DrainVoltage);
+    addMon(&lnaPol1Sb2St1DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb2St1DrainCurrent);
+    addMon(&lnaPol1Sb2St1GateVoltage_value, &ColdCartImplBase::lnaPol1Sb2St1GateVoltage);
+    addMon(&lnaPol1Sb2St2DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb2St2DrainVoltage);
+    addMon(&lnaPol1Sb2St2DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb2St2DrainCurrent);
+    addMon(&lnaPol1Sb2St2GateVoltage_value, &ColdCartImplBase::lnaPol1Sb2St2GateVoltage);
+    addMon(&lnaPol1Sb2St3DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb2St3DrainVoltage);
+    addMon(&lnaPol1Sb2St3DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb2St3DrainCurrent);
+    addMon(&lnaPol1Sb2St3GateVoltage_value, &ColdCartImplBase::lnaPol1Sb2St3GateVoltage);
+    addMon(&sisHeaterPol0Current_value, &ColdCartImplBase::sisHeaterPol0Current);
+    addMon(&sisHeaterPol1Current_value, &ColdCartImplBase::sisHeaterPol1Current);
+    addMon(&cartridgeTemperature0_value, &ColdCartImplBase::cartridgeTemperature0);
+    addMon(&cartridgeTemperature1_value, &ColdCartImplBase::cartridgeTemperature1);
+    addMon(&cartridgeTemperature2_value, &ColdCartImplBase::cartridgeTemperature2);
+    addMon(&cartridgeTemperature3_value, &ColdCartImplBase::cartridgeTemperature3);
+    addMon(&cartridgeTemperature4_value, &ColdCartImplBase::cartridgeTemperature4);
+    addMon(&cartridgeTemperature5_value, &ColdCartImplBase::cartridgeTemperature5);
+
+    nextMon = monitorRegistry.begin();
 }
 
 const std::string &ColdCartImpl::getBandText(std::string &toFill) const {
@@ -586,35 +653,35 @@ bool ColdCartImpl::setSISEnable(bool val) {
 }
 
 void ColdCartImpl::sisMagnetPol0Sb1Current(float val) {
-    if (hasSIS()) {
+    if (hasMagnet()) {
         sisMagnetCurrentSet_m[0] = val;
         ColdCartImplBase::sisMagnetPol0Sb1Current(val);
     }
 }
 
 void ColdCartImpl::sisMagnetPol0Sb2Current(float val) {
-    if (hasSb2() && hasSIS()) {
+    if (hasSb2() && hasMagnet()) {
         sisMagnetCurrentSet_m[1] = val;
         ColdCartImplBase::sisMagnetPol0Sb2Current(val);    
     }
 }
 
 void ColdCartImpl::sisMagnetPol1Sb1Current(float val) {
-    if (hasSIS()) {
+    if (hasMagnet()) {
         sisMagnetCurrentSet_m[2] = val;
         ColdCartImplBase::sisMagnetPol1Sb1Current(val);
     }
 }
 
 void ColdCartImpl::sisMagnetPol1Sb2Current(float val) {
-    if (hasSb2() && hasSIS()) {
+    if (hasSb2() && hasMagnet()) {
         sisMagnetCurrentSet_m[3] = val;
         ColdCartImplBase::sisMagnetPol1Sb2Current(val);    
     }
 }
 
 void ColdCartImpl::setSISMagnetCurrent(int pol, int sb, float val, bool sweep, float sweepStep, unsigned sweepDwell) {
-    if (!hasSIS())
+    if (!hasMagnet())
         return;
     if (!checkPolSb(pol, sb)) 
         return;
@@ -671,7 +738,7 @@ void ColdCartImpl::setSISMagnetCurrent(int pol, int sb, float val, bool sweep, f
 }
 
 float ColdCartImpl::getSISMagnetCurrent(int pol, int sb) {
-    if (!hasSIS())
+    if (!hasMagnet())
         return 0;
     if (!checkPolSb(pol, sb)) 
         return 0;
@@ -690,7 +757,7 @@ float ColdCartImpl::getSISMagnetCurrent(int pol, int sb) {
 }
 
 bool ColdCartImpl::setSISMagnetEnable(bool val) {
-    if (!hasSIS()) {
+    if (!hasMagnet()) {
         if (val == true) {
             string msg("setSISMagnetEnable ERROR: no SIS magnets in band ");
             msg += to_string(band_m);
@@ -1236,4 +1303,151 @@ void ColdCartImpl::appendThermalLogPlaceholder(std::string &target) {
     target += "\t0\t0\t0\t0\t0\t0";
 }
 
+void ColdCartImpl::monitorAction(Time *timestamp_p) {
+    if (!timestamp_p)
+        return;
 
+    // constant factor to convert 100 ns ticks to ms:
+    static const Time milliseconds = 10000;
+    static const Time monitorInterval = 15 * milliseconds;
+
+    bool doMonitor = false;
+
+    if (lastMonitorTime == 0 && logMonitors_m)
+        logMon(true);
+
+    if (lastMonitorTime == 0 || (*timestamp_p - lastMonitorTime >= monitorInterval)) {
+        lastMonitorTime = *timestamp_p;
+        doMonitor = true;
+    }
+
+    if (doMonitor) {
+        switch (monitorPhase) {
+            case 0:
+                // Execute the next registered analog monitor transaction:
+                if (!executeNextMon())
+                    monitorPhase = 1;
+                break;
+            case 1:
+                // Special cases 1-4 do averaging:
+                sisPol0Sb1Current_value = avgSisPol0Sb1Current(20);
+                ++monitorPhase;
+                break;
+
+            case 2:
+                sisPol0Sb2Current_value = avgSisPol0Sb2Current(20);
+                ++monitorPhase;
+                break;
+
+            case 3:
+                sisPol1Sb1Current_value = avgSisPol1Sb1Current(20);
+                ++monitorPhase;
+                break;
+
+            case 4:
+                sisPol1Sb2Current_value = avgSisPol1Sb2Current(20);
+                ++monitorPhase;
+                break;
+
+            case 5:
+                // Special cases 5-14 are not analog monitor points:
+                sisPol0Sb1OpenLoop_value = sisPol0Sb1OpenLoop();
+                ++monitorPhase;
+                break;
+            case 6:
+                sisPol0Sb2OpenLoop_value = sisPol0Sb2OpenLoop();
+                ++monitorPhase;
+                break;
+            case 7:
+                sisPol1Sb1OpenLoop_value = sisPol1Sb1OpenLoop();
+                ++monitorPhase;
+                break;
+            case 8:
+                sisPol1Sb2OpenLoop_value = sisPol1Sb2OpenLoop();
+                ++monitorPhase;
+                break;
+            case 9:
+                lnaPol0Sb1Enable_value = ColdCartImplBase::lnaPol0Sb1Enable();
+                ++monitorPhase;
+                break;
+            case 10:
+                lnaPol0Sb2Enable_value = ColdCartImplBase::lnaPol0Sb2Enable();
+                ++monitorPhase;
+                break;
+            case 11:
+                lnaPol1Sb1Enable_value = ColdCartImplBase::lnaPol1Sb1Enable();
+                ++monitorPhase;
+                break;
+            case 12:
+                lnaPol1Sb2Enable_value = ColdCartImplBase::lnaPol1Sb2Enable();
+                ++monitorPhase;
+                break;
+            case 13:
+                lnaLedPol0Enable_value = ColdCartImplBase::lnaLedPol0Enable();
+                ++monitorPhase;
+                break;
+            case 14:
+                lnaLedPol1Enable_value = lnaLedPol1Enable();
+                ++monitorPhase;
+                // no break;
+            default:
+                if (logMonitors_m)
+                    logMon();
+                monitorPhase = 0;
+                break;
+        }
+    }
+}
+
+DEFINE_MONITORS_REGISTRY(ColdCartImpl)
+
+void ColdCartImpl::logMon(bool printHeader) const {
+    if (printHeader) {
+        LOG(LM_INFO)  << "AllMonitors:ColdCart(" << port_m << "): randomized,"
+                         "IsisPol0Sb1,IsisPol0Sb2,IsisPol1Sb1,IsisPol1Sb2,"
+                         "VsisPol0Sb1,VsisPol0Sb2,VsisPol1Sb1,VsisPol1Sb2,"
+                         "ImagnetPol0Sb1,ImagnetPol0Sb2,ImagnetPol1Sb1,ImagnetPol1Sb2,"
+                         "VmagnetPol0Sb1,VmagnetPol0Sb2,VmagnetPol1Sb1,VmagnetPol1Sb2,"
+                         "VdrainLnaPol0Sb1St1,IdrainLnaPol0Sb1St1,VgateLnaPol0Sb1St1,"
+                         "VdrainLnaPol0Sb1St2,IdrainLnaPol0Sb1St2,VgateLnaPol0Sb1St2,"
+                         "VdrainLnaPol0Sb1St3,IdrainLnaPol0Sb1St3,VgateLnaPol0Sb1St3,"
+                         "VdrainLnaPol0Sb2St1,IdrainLnaPol0Sb2St1,VgateLnaPol0Sb2St1,"
+                         "VdrainLnaPol0Sb2St2,IdrainLnaPol0Sb2St2,VgateLnaPol0Sb2St2,"
+                         "VdrainLnaPol0Sb2St3,IdrainLnaPol0Sb2St3,VgateLnaPol0Sb2St3,"
+                         "VdrainLnaPol1Sb1St1,IdrainLnaPol1Sb1St1,VgateLnaPol1Sb1St1,"
+                         "VdrainLnaPol1Sb1St2,IdrainLnaPol1Sb1St2,VgateLnaPol1Sb1St2,"
+                         "VdrainLnaPol1Sb1St3,IdrainLnaPol1Sb1St3,VgateLnaPol1Sb1St3,"
+                         "VdrainLnaPol1Sb2St1,IdrainLnaPol1Sb2St1,VgateLnaPol1Sb2St1,"
+                         "VdrainLnaPol1Sb2St2,IdrainLnaPol1Sb2St2,VgateLnaPol1Sb2St2,"
+                         "VdrainLnaPol1Sb2St3,IdrainLnaPol1Sb2St3,VgateLnaPol1Sb2St3,"
+                         "IheaterPol0,IheaterPol1,cartTemp0,cartTemp1,"
+                         "cartTemp2,cartTemp3,cartTemp4,cartTemp5,"
+                         "sisPol0Sb1OpenLoop,sisPol0Sb2OpenLoop,sisPol1Sb1OpenLoop,sisPol1Sb2OpenLoop,"
+                         "lnaPol0Sb1Enable,lnaPol0Sb2Enable,lnaPol1Sb1Enable,lnaPol1Sb2Enable,"
+                         "lnaLedPol0Enable,lnaLedPol1Enable" << endl;
+
+    } else {
+        LOG(LM_INFO)  << "AllMonitors:ColdCart(" << port_m << "): " << randomizeAnalogMonitors_m << ","
+                      << sisPol0Sb1Current_value << "," << sisPol0Sb2Current_value << "," << sisPol1Sb1Current_value << "," << sisPol1Sb2Current_value << ","
+                      << sisPol0Sb1Voltage_value << "," << sisPol0Sb2Voltage_value << "," << sisPol1Sb1Voltage_value << "," << sisPol1Sb2Voltage_value << ","
+                      << sisMagnetPol0Sb1Current_value << "," << sisMagnetPol0Sb2Current_value << "," << sisMagnetPol1Sb1Current_value << "," << sisMagnetPol1Sb2Current_value << ","
+                      << sisMagnetPol0Sb1Voltage_value << "," << sisMagnetPol0Sb2Voltage_value << "," << sisMagnetPol1Sb1Voltage_value << "," << sisMagnetPol1Sb2Voltage_value << ","
+                      << lnaPol0Sb1St1DrainVoltage_value << "," << lnaPol0Sb1St1DrainCurrent_value << "," << lnaPol0Sb1St1GateVoltage_value << ","
+                      << lnaPol0Sb1St2DrainVoltage_value << "," << lnaPol0Sb1St2DrainCurrent_value << "," << lnaPol0Sb1St2GateVoltage_value << ","
+                      << lnaPol0Sb1St3DrainVoltage_value << "," << lnaPol0Sb1St3DrainCurrent_value << "," << lnaPol0Sb1St3GateVoltage_value << ","
+                      << lnaPol0Sb2St1DrainVoltage_value << "," << lnaPol0Sb2St1DrainCurrent_value << "," << lnaPol0Sb2St1GateVoltage_value << ","
+                      << lnaPol0Sb2St2DrainVoltage_value << "," << lnaPol0Sb2St2DrainCurrent_value << "," << lnaPol0Sb2St2GateVoltage_value << ","
+                      << lnaPol0Sb2St3DrainVoltage_value << "," << lnaPol0Sb2St3DrainCurrent_value << "," << lnaPol0Sb2St3GateVoltage_value << ","
+                      << lnaPol1Sb1St1DrainVoltage_value << "," << lnaPol1Sb1St1DrainCurrent_value << "," << lnaPol1Sb1St1GateVoltage_value << ","
+                      << lnaPol1Sb1St2DrainVoltage_value << "," << lnaPol1Sb1St2DrainCurrent_value << "," << lnaPol1Sb1St2GateVoltage_value << ","
+                      << lnaPol1Sb1St3DrainVoltage_value << "," << lnaPol1Sb1St3DrainCurrent_value << "," << lnaPol1Sb1St3GateVoltage_value << ","
+                      << lnaPol1Sb2St1DrainVoltage_value << "," << lnaPol1Sb2St1DrainCurrent_value << "," << lnaPol1Sb2St1GateVoltage_value << ","
+                      << lnaPol1Sb2St2DrainVoltage_value << "," << lnaPol1Sb2St2DrainCurrent_value << "," << lnaPol1Sb2St2GateVoltage_value << ","
+                      << lnaPol1Sb2St3DrainVoltage_value << "," << lnaPol1Sb2St3DrainCurrent_value << "," << lnaPol1Sb2St3GateVoltage_value << ","
+                      << sisHeaterPol0Current_value << "," << sisHeaterPol1Current_value << "," << cartridgeTemperature0_value << "," << cartridgeTemperature1_value << ","
+                      << cartridgeTemperature2_value << "," << cartridgeTemperature3_value << "," << cartridgeTemperature4_value << "," << cartridgeTemperature5_value << ","
+                      << (sisPol0Sb1OpenLoop_value ? 1 : 0) << "," << (sisPol0Sb2OpenLoop_value ? 1 : 0) << "," << (sisPol1Sb1OpenLoop_value ? 1 : 0) << "," << (sisPol1Sb2OpenLoop_value ? 1 : 0) << ","
+                      << (lnaPol0Sb1Enable_value ? 1 : 0) << "," << (lnaPol0Sb2Enable_value ? 1 : 0) << "," << (lnaPol1Sb1Enable_value ? 1 : 0) << "," << (lnaPol1Sb2Enable_value ? 1 : 0) << ","
+                      << (lnaLedPol0Enable_value ? 1 : 0) << "," << (lnaLedPol1Enable_value ? 1 : 0) << endl;
+    }
+}
