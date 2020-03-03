@@ -52,16 +52,42 @@ void IFSwitchTestFixture::testSET_IF_SWITCH_CHANNEL12_ATTENUATION() {
 void IFSwitchTestFixture::testSET_IF_SWITCH_ALL_CHANNELS_ATTENUATION() {
     string details;
     string callerDescription("SET_IF_SWITCH_ALL_CHANNELS_ATTENUATION");
+    string chanCallerDescription;
+
+    //Loop through all legal attenuation settings:
     for (int atten = 15; atten >= 0; atten--){
         data_m[0] = data_m[1] = data_m[2] = data_m[3] = (AmbDataMem_t) atten;
         dataLength_m = 4;
+            // Set all channels:
             command(ctrlAllChannelAttenuation_RCA, callerDescription, &details);
+            // Monitor all channels and verify match:
             monitor(allChannelAttenuation_RCA, callerDescription, &details);
             CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 5);
             CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == atten);
             CPPUNIT_ASSERT_MESSAGE(details, data_m[1] == atten);
             CPPUNIT_ASSERT_MESSAGE(details, data_m[2] == atten);
             CPPUNIT_ASSERT_MESSAGE(details, data_m[3] == atten);
+
+            // Monitor single channels and verify match:
+            chanCallerDescription = callerDescription + string(": SET_IF_SWITCH_CHANNEL01_ATTENUATION");
+            monitor(pol0Sb1Attenuation_RCA, chanCallerDescription, &details);
+            CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
+            CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == atten);
+
+            chanCallerDescription = callerDescription + string(": SET_IF_SWITCH_CHANNEL02_ATTENUATION");
+            monitor(pol0Sb2Attenuation_RCA, chanCallerDescription, &details);
+            CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
+            CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == atten);
+
+            chanCallerDescription = callerDescription + string(": SET_IF_SWITCH_CHANNEL11_ATTENUATION");
+            monitor(pol1Sb1Attenuation_RCA, chanCallerDescription, &details);
+            CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
+            CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == atten);
+
+            chanCallerDescription = callerDescription + string(": SET_IF_SWITCH_CHANNEL12_ATTENUATION");
+            monitor(pol1Sb2Attenuation_RCA, chanCallerDescription, &details);
+            CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 2);
+            CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == atten);
         }
         // Try an illegal value, expecting an error:
         data_m[0] = data_m[1] = data_m[2] = data_m[3] = 16;

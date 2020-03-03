@@ -410,6 +410,12 @@ void WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE() {
     command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
     command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
 
+    // Clear any existing PA limits table:
+    resetAmbVars();
+    data_m[0] = 1;
+    dataLength_m = 1;
+    commandImpl(ctrlClearPALimits_RCA, "CLEAR_PA_LIMITS", &info);
+
     // Now set up a PA LIMITS table:
     // YTO  maxVD0  maxVD1
     // 0    0.5     0.5

@@ -32,7 +32,8 @@ namespace FrontEndTestApp {
     const AmbInterface *ambItf_p(NULL);
     CANBusInterface *canBus_p(NULL);
     FILE *logStream = NULL;
-    const char *versionString = "1.4.3: 2020-02-28  final version for FEMC 3.0";
+    const char *versionString = "1.4.4: 2020-03-02  improved tests ALL_CHANNELS_ATTENUATION, SET_CARTRIDGE_LO_PA_LIMITS_TABLE";
+//                              "1.4.3: 2020-02-28  final version for FEMC 3.0";
 //                              "1.4.2: 2020-02-26  Continue verify changes for FEMC 2.9.x";
 //                              "1.4.1: 2019-12-19  Verify changes for FEMC 2.9.x";
 //                              "1.3.3: 2017-01-06  Used to verify FEMC 2.8.4.  No delay after STANDBY2 command.";
