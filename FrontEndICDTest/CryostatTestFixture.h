@@ -10,6 +10,7 @@ class CryostatTestFixture : public AmbDeviceTestFixture {
     //Register unit tests.   Comment out tests to skip here.
     CPPUNIT_TEST(testGET_CRYOSTAT_TEMPS);
     CPPUNIT_TEST(testSET_CRYOSTAT_TEMP_TVO_COEFF);
+    CPPUNIT_TEST(testSET_CRYOSTAT_TEMP_TVO_COEFF_SPECIFIC);
     CPPUNIT_TEST(testGET_CRYOSTAT_TURBO_PUMP_ENABLE);
     CPPUNIT_TEST(testGET_CRYOSTAT_TURBO_PUMP_STATE);
     CPPUNIT_TEST(testGET_CRYOSTAT_TURBO_PUMP_SPEED);
@@ -33,6 +34,7 @@ public:
     // Declare the tests.
     void testGET_CRYOSTAT_TEMPS();
     void testSET_CRYOSTAT_TEMP_TVO_COEFF();
+    void testSET_CRYOSTAT_TEMP_TVO_COEFF_SPECIFIC();
     void testGET_CRYOSTAT_TURBO_PUMP_ENABLE();
     void testGET_CRYOSTAT_TURBO_PUMP_STATE();
     void testGET_CRYOSTAT_TURBO_PUMP_SPEED();
@@ -51,7 +53,7 @@ public:
 private:
     enum MonitorControlOffset {
         CRYOSTAT_TEMP           = 0x0000,
-        CRYOSTAT_TVO_COEFF     = 0x0001,
+        CRYOSTAT_TVO_COEFF      = 0x0001,
         BACKING_PUMP_ENABLE     = 0x0034,
         TURBO_PUMP_ENABLE       = 0x0038,
         TURBO_PUMP_STATE        = 0x0039,
@@ -65,10 +67,12 @@ private:
         SUPPLY_CURRENT_230V     = 0x0048,
         COLD_HEAD_HOURS         = 0x004C,
         RESET_COLD_HEAD_HOURS   = 0x004D,
+        CRYOSTAT_TVO_COEFF_SPECIFIC = 0x0080,
 
         controlRCA              = 0x10000,  /// add this to the monitor RCA to get the corresponding command RCA
         baseRCA                 = 0xC000,   /// all cryostat M&C points are in this range
         cryostatTempCoeff_RCA       = baseRCA + CRYOSTAT_TVO_COEFF,
+        cryostatTempCoeff_Specific_RCA = baseRCA + CRYOSTAT_TVO_COEFF_SPECIFIC,
         backingPumpEnable_RCA       = baseRCA + BACKING_PUMP_ENABLE,
         turboPumpEnable_RCA         = baseRCA + TURBO_PUMP_ENABLE,
         turboPumpErrorState_RCA     = baseRCA + TURBO_PUMP_STATE,

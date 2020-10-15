@@ -66,7 +66,7 @@ void CryostatTestFixture::testSET_CRYOSTAT_TEMP_TVO_COEFF() {
             stringstream streamName;
             streamName << "SET_CRYOSTAT_TVO_" << sensor << "_A" << order;
             resetAmbVars();
-            val = (order == 1) ? 1.0 : 0.0; // A1 = 1:  return 1000/resistance
+            val = (order == 1) ? 1.0 : 0.0; // A0 = 1:  return 1000/resistance
             packSGL(val);
             data_m[4] = order;
             dataLength_m = 5;
@@ -93,6 +93,61 @@ void CryostatTestFixture::testSET_CRYOSTAT_TEMP_TVO_COEFF() {
             data_m[4] = order;
             dataLength_m = 5;
             command(cryostatTempCoeff_RCA + controlRCA + 4 * sensor, streamName.str(), &details);
+        }
+    }
+}
+
+void CryostatTestFixture::testSET_CRYOSTAT_TEMP_TVO_COEFF_SPECIFIC() {
+    string details;
+    float val, val2;
+    unsigned char statusByte;
+    unsigned sensor, coeff;
+
+    // Read and store all the existing coeffs:
+    float coeffs[9][7];
+    for (sensor = 0; sensor < 9; ++sensor) {
+        stringstream streamName;
+        streamName << "GET_CRYOSTAT_TVO_" << sensor;
+        // use 'coeff' to index read because they can come starting at any 'order':
+        for (coeff = 0; coeff < 7; ++coeff) {
+            streamName << "_COEFF_" << coeff;
+            resetAmbVars();
+            monitor(cryostatTempCoeff_Specific_RCA + 8 * sensor + coeff, streamName.str(), &details);
+            CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 5);
+            val = unpackSGL(&statusByte);
+            CPPUNIT_ASSERT_MESSAGE(details, statusByte == FEMC_NO_ERROR);
+            coeffs[sensor][coeff] = val;
+            LOG(LM_INFO) << details << " t" << sensor << " a" << coeff << "=" << val << endl;
+        }
+    }
+
+    // Set the coeffs to new values:
+    for (sensor = 0; sensor < 9; ++sensor) {
+        for (coeff = 0; coeff < 7; ++coeff) {
+            stringstream streamName;
+            streamName << "SET_CRYOSTAT_TVO_" << sensor << "_A" << coeff;
+            resetAmbVars();
+            val = (coeff == 1) ? 1.0 : 0.0; // A0 = 1:  return 1000/resistance
+            packSGL(val);
+            command(cryostatTempCoeff_Specific_RCA + controlRCA + 8 * sensor + coeff, streamName.str(), &details);
+
+            // Monitor the setting and compare:
+            resetAmbVars();
+            monitor(cryostatTempCoeff_Specific_RCA + controlRCA + 8 * sensor + coeff, streamName.str(), &details);
+            val2 = unpackSGL(&statusByte);
+            CPPUNIT_ASSERT_MESSAGE(details, val2 == val);
+        }
+    }
+
+    // Set them back to the stored values:
+    for (sensor = 0; sensor < 9; ++sensor) {
+        for (coeff = 0; coeff < 7; ++coeff) {
+            stringstream streamName;
+            streamName << "SET_CRYOSTAT_TVO_" << sensor << "_A" << coeff;
+            resetAmbVars();
+            val = coeffs[sensor][coeff];
+            packSGL(val);
+            command(cryostatTempCoeff_Specific_RCA + controlRCA + 8 * sensor + coeff, streamName.str(), &details);
         }
     }
 }
