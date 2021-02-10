@@ -108,7 +108,7 @@ void CryostatTestFixture::testSET_CRYOSTAT_TEMP_TVO_COEFF_SPECIFIC() {
     for (sensor = 0; sensor < 9; ++sensor) {
         stringstream streamName;
         streamName << "GET_CRYOSTAT_TVO_" << sensor;
-        // use 'coeff' to index read because they can come starting at any 'order':
+        // In this version coeff is part of the RCA:
         for (coeff = 0; coeff < 7; ++coeff) {
             streamName << "_COEFF_" << coeff;
             resetAmbVars();

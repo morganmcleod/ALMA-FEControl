@@ -243,6 +243,12 @@ public:
 //-------------------------------------------------------------------------------------------------
 // SIS heater operation
 
+    // Override the base class heater monitor functions to filter for hasSIS()
+    virtual float sisHeaterPol0Current()
+      { return (hasSIS()) ? ColdCartImplBase::sisHeaterPol0Current() : 0.0; }
+    virtual float sisHeaterPol1Current()
+      { return (hasSIS()) ? ColdCartImplBase::sisHeaterPol1Current() : 0.0; }
+
     void setSISHeaterEnable(int pol, bool enable);
     ///< Enable/disable the SIS heaters.  Pol must be 0 or 1.
     

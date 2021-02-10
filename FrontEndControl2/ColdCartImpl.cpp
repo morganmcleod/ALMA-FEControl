@@ -55,14 +55,11 @@ ColdCartImpl::ColdCartImpl(unsigned long channel,
 
     // Add all the analog monitor points to the registry:
     // EXCEPT SIS current monitoring which we handle separately to do averaging.
-    //addMon(&sisPol0Sb1Current_value, &ColdCartImplBase::sisPol0Sb1Current);
-    //addMon(&sisPol0Sb2Current_value, &ColdCartImplBase::sisPol0Sb2Current);
-    //addMon(&sisPol1Sb1Current_value, &ColdCartImplBase::sisPol1Sb1Current);
-    //addMon(&sisPol1Sb2Current_value, &ColdCartImplBase::sisPol1Sb2Current);
-    addMon(&sisPol0Sb1Voltage_value, &ColdCartImplBase::sisPol0Sb1Voltage);
-    addMon(&sisPol0Sb2Voltage_value, &ColdCartImplBase::sisPol0Sb2Voltage);
-    addMon(&sisPol1Sb1Voltage_value, &ColdCartImplBase::sisPol1Sb1Voltage);
-    addMon(&sisPol1Sb2Voltage_value, &ColdCartImplBase::sisPol1Sb2Voltage);
+    // SIS voltage monitoring we override in this class:
+    addMon(&sisPol0Sb1Voltage_value, &sisPol0Sb1Voltage);
+    addMon(&sisPol0Sb2Voltage_value, &sisPol0Sb2Voltage);
+    addMon(&sisPol1Sb1Voltage_value, &sisPol1Sb1Voltage);
+    addMon(&sisPol1Sb2Voltage_value, &sisPol1Sb2Voltage);
     // SIS magnet monitoring we override in this class:
     addMon(&sisMagnetPol0Sb1Voltage_value, &sisMagnetPol0Sb1Voltage);
     addMon(&sisMagnetPol0Sb1Current_value, &sisMagnetPol0Sb1Current);
@@ -109,8 +106,10 @@ ColdCartImpl::ColdCartImpl(unsigned long channel,
     addMon(&lnaPol1Sb2St3DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb2St3DrainVoltage);
     addMon(&lnaPol1Sb2St3DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb2St3DrainCurrent);
     addMon(&lnaPol1Sb2St3GateVoltage_value, &ColdCartImplBase::lnaPol1Sb2St3GateVoltage);
-    addMon(&sisHeaterPol0Current_value, &ColdCartImplBase::sisHeaterPol0Current);
-    addMon(&sisHeaterPol1Current_value, &ColdCartImplBase::sisHeaterPol1Current);
+    // SIS heater monitoring we override in this class:
+    addMon(&sisHeaterPol0Current_value, &sisHeaterPol0Current);
+    addMon(&sisHeaterPol1Current_value, &sisHeaterPol1Current);
+    // Cartridge temps handled by the base class:
     addMon(&cartridgeTemperature0_value, &ColdCartImplBase::cartridgeTemperature0);
     addMon(&cartridgeTemperature1_value, &ColdCartImplBase::cartridgeTemperature1);
     addMon(&cartridgeTemperature2_value, &ColdCartImplBase::cartridgeTemperature2);
@@ -1330,40 +1329,40 @@ void ColdCartImpl::monitorAction(Time *timestamp_p) {
                 break;
             case 1:
                 // Special cases 1-4 do averaging:
-                sisPol0Sb1Current_value = avgSisPol0Sb1Current(20);
+                sisPol0Sb1Current_value = (hasSIS()) ? avgSisPol0Sb1Current(20) : 0.0;
                 ++monitorPhase;
                 break;
 
             case 2:
-                sisPol0Sb2Current_value = avgSisPol0Sb2Current(20);
+                sisPol0Sb2Current_value = (hasSIS()) ? avgSisPol0Sb2Current(20) : 0.0;
                 ++monitorPhase;
                 break;
 
             case 3:
-                sisPol1Sb1Current_value = avgSisPol1Sb1Current(20);
+                sisPol1Sb1Current_value = (hasSIS()) ? avgSisPol1Sb1Current(20) : 0.0;
                 ++monitorPhase;
                 break;
 
             case 4:
-                sisPol1Sb2Current_value = avgSisPol1Sb2Current(20);
+                sisPol1Sb2Current_value = (hasSIS()) ? avgSisPol1Sb2Current(20) : 0.0;
                 ++monitorPhase;
                 break;
 
             case 5:
                 // Special cases 5-14 are not analog monitor points:
-                sisPol0Sb1OpenLoop_value = sisPol0Sb1OpenLoop();
+                sisPol0Sb1OpenLoop_value = (hasSIS()) ? sisPol0Sb1OpenLoop() : false;
                 ++monitorPhase;
                 break;
             case 6:
-                sisPol0Sb2OpenLoop_value = sisPol0Sb2OpenLoop();
+                sisPol0Sb2OpenLoop_value = (hasSIS()) ? sisPol0Sb2OpenLoop() : false;
                 ++monitorPhase;
                 break;
             case 7:
-                sisPol1Sb1OpenLoop_value = sisPol1Sb1OpenLoop();
+                sisPol1Sb1OpenLoop_value = (hasSIS()) ? sisPol1Sb1OpenLoop() : false;
                 ++monitorPhase;
                 break;
             case 8:
-                sisPol1Sb2OpenLoop_value = sisPol1Sb2OpenLoop();
+                sisPol1Sb2OpenLoop_value = (hasSIS()) ? sisPol1Sb2OpenLoop() : false;
                 ++monitorPhase;
                 break;
             case 9:
@@ -1387,7 +1386,7 @@ void ColdCartImpl::monitorAction(Time *timestamp_p) {
                 ++monitorPhase;
                 break;
             case 14:
-                lnaLedPol1Enable_value = lnaLedPol1Enable();
+                lnaLedPol1Enable_value = ColdCartImplBase::lnaLedPol1Enable();
                 ++monitorPhase;
                 // no break;
             default:

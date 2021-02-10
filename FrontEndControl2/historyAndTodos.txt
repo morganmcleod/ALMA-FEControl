@@ -38,6 +38,9 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.10.6 2021-02-10
+  Additional monitor point filtering for band 1&2 (SIS and heater) 
+
 2.10.5 2020-03-01
   Added to CppUtilityLib: listDir, stringSet, trimStr
   Added read ESNs at startup
