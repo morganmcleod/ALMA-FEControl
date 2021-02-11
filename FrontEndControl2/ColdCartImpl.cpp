@@ -56,19 +56,19 @@ ColdCartImpl::ColdCartImpl(unsigned long channel,
     // Add all the analog monitor points to the registry:
     // EXCEPT SIS current monitoring which we handle separately to do averaging.
     // SIS voltage monitoring we override in this class:
-    addMon(&sisPol0Sb1Voltage_value, &sisPol0Sb1Voltage);
-    addMon(&sisPol0Sb2Voltage_value, &sisPol0Sb2Voltage);
-    addMon(&sisPol1Sb1Voltage_value, &sisPol1Sb1Voltage);
-    addMon(&sisPol1Sb2Voltage_value, &sisPol1Sb2Voltage);
+    addMon(&sisPol0Sb1Voltage_value, &ColdCartImpl::sisPol0Sb1Voltage);
+    addMon(&sisPol0Sb2Voltage_value, &ColdCartImpl::sisPol0Sb2Voltage);
+    addMon(&sisPol1Sb1Voltage_value, &ColdCartImpl::sisPol1Sb1Voltage);
+    addMon(&sisPol1Sb2Voltage_value, &ColdCartImpl::sisPol1Sb2Voltage);
     // SIS magnet monitoring we override in this class:
-    addMon(&sisMagnetPol0Sb1Voltage_value, &sisMagnetPol0Sb1Voltage);
-    addMon(&sisMagnetPol0Sb1Current_value, &sisMagnetPol0Sb1Current);
-    addMon(&sisMagnetPol0Sb2Voltage_value, &sisMagnetPol0Sb2Voltage);
-    addMon(&sisMagnetPol0Sb2Current_value, &sisMagnetPol0Sb2Current);
-    addMon(&sisMagnetPol1Sb1Voltage_value, &sisMagnetPol1Sb1Voltage);
-    addMon(&sisMagnetPol1Sb1Current_value, &sisMagnetPol1Sb1Current);
-    addMon(&sisMagnetPol1Sb2Voltage_value, &sisMagnetPol1Sb2Voltage);
-    addMon(&sisMagnetPol1Sb2Current_value, &sisMagnetPol1Sb2Current);
+    addMon(&sisMagnetPol0Sb1Voltage_value, &ColdCartImpl::sisMagnetPol0Sb1Voltage);
+    addMon(&sisMagnetPol0Sb1Current_value, &ColdCartImpl::sisMagnetPol0Sb1Current);
+    addMon(&sisMagnetPol0Sb2Voltage_value, &ColdCartImpl::sisMagnetPol0Sb2Voltage);
+    addMon(&sisMagnetPol0Sb2Current_value, &ColdCartImpl::sisMagnetPol0Sb2Current);
+    addMon(&sisMagnetPol1Sb1Voltage_value, &ColdCartImpl::sisMagnetPol1Sb1Voltage);
+    addMon(&sisMagnetPol1Sb1Current_value, &ColdCartImpl::sisMagnetPol1Sb1Current);
+    addMon(&sisMagnetPol1Sb2Voltage_value, &ColdCartImpl::sisMagnetPol1Sb2Voltage);
+    addMon(&sisMagnetPol1Sb2Current_value, &ColdCartImpl::sisMagnetPol1Sb2Current);
     // LNA monitoring handled by base class:
     addMon(&lnaPol0Sb1St1DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb1St1DrainVoltage);
     addMon(&lnaPol0Sb1St1DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb1St1DrainCurrent);
@@ -107,8 +107,8 @@ ColdCartImpl::ColdCartImpl(unsigned long channel,
     addMon(&lnaPol1Sb2St3DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb2St3DrainCurrent);
     addMon(&lnaPol1Sb2St3GateVoltage_value, &ColdCartImplBase::lnaPol1Sb2St3GateVoltage);
     // SIS heater monitoring we override in this class:
-    addMon(&sisHeaterPol0Current_value, &sisHeaterPol0Current);
-    addMon(&sisHeaterPol1Current_value, &sisHeaterPol1Current);
+    addMon(&sisHeaterPol0Current_value, &ColdCartImpl::sisHeaterPol0Current);
+    addMon(&sisHeaterPol1Current_value, &ColdCartImpl::sisHeaterPol1Current);
     // Cartridge temps handled by the base class:
     addMon(&cartridgeTemperature0_value, &ColdCartImplBase::cartridgeTemperature0);
     addMon(&cartridgeTemperature1_value, &ColdCartImplBase::cartridgeTemperature1);

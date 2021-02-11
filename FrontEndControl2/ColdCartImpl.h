@@ -136,11 +136,15 @@ public:
 //-------------------------------------------------------------------------------------------------    
 // SIS voltage monitor & control
 
-    // promote the base class virtual functions so that they will not be hidden:
-    using ColdCartImplBase::sisPol0Sb1Voltage;
-    using ColdCartImplBase::sisPol0Sb2Voltage;
-    using ColdCartImplBase::sisPol1Sb1Voltage;
-    using ColdCartImplBase::sisPol1Sb2Voltage;
+    // Override the base class monitor functions to filter for hasSIS() and gasSb2():
+    virtual float sisPol0Sb1Voltage()
+      { return hasSIS() ? ColdCartImplBase::sisPol0Sb1Voltage() : 0.0; }
+    virtual float sisPol0Sb2Voltage()
+      { return hasSb2() && hasSIS() ? ColdCartImplBase::sisPol0Sb2Voltage() : 0.0; }
+    virtual float sisPol1Sb1Voltage()
+      { return hasSIS() ? ColdCartImplBase::sisPol1Sb1Voltage() : 0.0; }
+    virtual float sisPol1Sb2Voltage()
+      { return hasSb2() && hasSIS() ? ColdCartImplBase::sisPol1Sb2Voltage() : 0.0; }
     
 private:
     // Override but hide from public use the raw SIS voltage set functions: 
