@@ -64,6 +64,15 @@ ColdCartridgeTestFixture::ColdCartridgeTestFixture(int band,
     lnaPol0Sb1St3DrainVoltage_RCA   = cartBaseRCA_m + LNA3_DRAIN_VOLTAGE;
     lnaPol0Sb1St3DrainCurrent_RCA   = cartBaseRCA_m + LNA3_DRAIN_CURRENT;
     lnaPol0Sb1St3GateVoltage_RCA    = cartBaseRCA_m + LNA3_GATE_VOLTAGE;
+    lnaPol0Sb1St4DrainVoltage_RCA   = cartBaseRCA_m + LNA4_DRAIN_VOLTAGE;
+    lnaPol0Sb1St4DrainCurrent_RCA   = cartBaseRCA_m + LNA4_DRAIN_CURRENT;
+    lnaPol0Sb1St4GateVoltage_RCA    = cartBaseRCA_m + LNA4_GATE_VOLTAGE;
+    lnaPol0Sb1St5DrainVoltage_RCA   = cartBaseRCA_m + LNA5_DRAIN_VOLTAGE;
+    lnaPol0Sb1St5DrainCurrent_RCA   = cartBaseRCA_m + LNA5_DRAIN_CURRENT;
+    lnaPol0Sb1St5GateVoltage_RCA    = cartBaseRCA_m + LNA5_GATE_VOLTAGE;
+    lnaPol0Sb1St6DrainVoltage_RCA   = cartBaseRCA_m + LNA6_DRAIN_VOLTAGE;
+    lnaPol0Sb1St6DrainCurrent_RCA   = cartBaseRCA_m + LNA6_DRAIN_CURRENT;
+    lnaPol0Sb1St6GateVoltage_RCA    = cartBaseRCA_m + LNA6_GATE_VOLTAGE;
 
     lnaPol0Sb2Enable_RCA            = cartBaseRCA_m + sb2 + LNA_ENABLE;
     lnaPol0Sb2St1DrainVoltage_RCA   = cartBaseRCA_m + sb2 + LNA1_DRAIN_VOLTAGE;
@@ -86,6 +95,15 @@ ColdCartridgeTestFixture::ColdCartridgeTestFixture(int band,
     lnaPol1Sb1St3DrainVoltage_RCA   = cartBaseRCA_m + pol1 + LNA3_DRAIN_VOLTAGE;
     lnaPol1Sb1St3DrainCurrent_RCA   = cartBaseRCA_m + pol1 + LNA3_DRAIN_CURRENT;
     lnaPol1Sb1St3GateVoltage_RCA    = cartBaseRCA_m + pol1 + LNA3_GATE_VOLTAGE;
+    lnaPol1Sb1St4DrainVoltage_RCA   = cartBaseRCA_m + pol1 + LNA4_DRAIN_VOLTAGE;
+    lnaPol1Sb1St4DrainCurrent_RCA   = cartBaseRCA_m + pol1 + LNA4_DRAIN_CURRENT;
+    lnaPol1Sb1St4GateVoltage_RCA    = cartBaseRCA_m + pol1 + LNA4_GATE_VOLTAGE;
+    lnaPol1Sb1St5DrainVoltage_RCA   = cartBaseRCA_m + pol1 + LNA4_DRAIN_VOLTAGE;
+    lnaPol1Sb1St5DrainCurrent_RCA   = cartBaseRCA_m + pol1 + LNA4_DRAIN_CURRENT;
+    lnaPol1Sb1St5GateVoltage_RCA    = cartBaseRCA_m + pol1 + LNA4_GATE_VOLTAGE;
+    lnaPol1Sb1St6DrainVoltage_RCA   = cartBaseRCA_m + pol1 + LNA6_DRAIN_VOLTAGE;
+    lnaPol1Sb1St6DrainCurrent_RCA   = cartBaseRCA_m + pol1 + LNA6_DRAIN_CURRENT;
+    lnaPol1Sb1St6GateVoltage_RCA    = cartBaseRCA_m + pol1 + LNA6_GATE_VOLTAGE;
 
     lnaPol1Sb2Enable_RCA            = cartBaseRCA_m + pol1 + sb2 + LNA_ENABLE;
     lnaPol1Sb2St1DrainVoltage_RCA   = cartBaseRCA_m + pol1 + sb2 + LNA1_DRAIN_VOLTAGE;
@@ -134,6 +152,12 @@ ColdCartridgeTestFixture::ColdCartridgeTestFixture(int band,
     ctrllnaPol0Sb1St2DrainCurrent_RCA   = controlRCA + lnaPol0Sb1St2DrainCurrent_RCA;
     ctrllnaPol0Sb1St3DrainVoltage_RCA   = controlRCA + lnaPol0Sb1St3DrainVoltage_RCA;
     ctrllnaPol0Sb1St3DrainCurrent_RCA   = controlRCA + lnaPol0Sb1St3DrainCurrent_RCA;
+    ctrllnaPol0Sb1St4DrainVoltage_RCA   = controlRCA + lnaPol0Sb1St4DrainVoltage_RCA;
+    ctrllnaPol0Sb1St4DrainCurrent_RCA   = controlRCA + lnaPol0Sb1St4DrainCurrent_RCA;
+    ctrllnaPol0Sb1St5DrainVoltage_RCA   = controlRCA + lnaPol0Sb1St5DrainVoltage_RCA;
+    ctrllnaPol0Sb1St5DrainCurrent_RCA   = controlRCA + lnaPol0Sb1St5DrainCurrent_RCA;
+    ctrllnaPol0Sb1St6DrainVoltage_RCA   = controlRCA + lnaPol0Sb1St6DrainVoltage_RCA;
+    ctrllnaPol0Sb1St6DrainCurrent_RCA   = controlRCA + lnaPol0Sb1St6DrainCurrent_RCA;
 
     ctrllnaPol0Sb2St1DrainVoltage_RCA   = controlRCA + lnaPol0Sb2St1DrainVoltage_RCA;
     ctrllnaPol0Sb2St1DrainCurrent_RCA   = controlRCA + lnaPol0Sb2St1DrainCurrent_RCA;
@@ -148,6 +172,12 @@ ColdCartridgeTestFixture::ColdCartridgeTestFixture(int band,
     ctrllnaPol1Sb1St2DrainCurrent_RCA   = controlRCA + lnaPol1Sb1St2DrainCurrent_RCA;
     ctrllnaPol1Sb1St3DrainVoltage_RCA   = controlRCA + lnaPol1Sb1St3DrainVoltage_RCA;
     ctrllnaPol1Sb1St3DrainCurrent_RCA   = controlRCA + lnaPol1Sb1St3DrainCurrent_RCA;
+    ctrllnaPol1Sb1St4DrainVoltage_RCA   = controlRCA + lnaPol1Sb1St4DrainVoltage_RCA;
+    ctrllnaPol1Sb1St4DrainCurrent_RCA   = controlRCA + lnaPol1Sb1St4DrainCurrent_RCA;
+    ctrllnaPol1Sb1St5DrainVoltage_RCA   = controlRCA + lnaPol1Sb1St5DrainVoltage_RCA;
+    ctrllnaPol1Sb1St5DrainCurrent_RCA   = controlRCA + lnaPol1Sb1St5DrainCurrent_RCA;
+    ctrllnaPol1Sb1St6DrainVoltage_RCA   = controlRCA + lnaPol1Sb1St6DrainVoltage_RCA;
+    ctrllnaPol1Sb1St6DrainCurrent_RCA   = controlRCA + lnaPol1Sb1St6DrainCurrent_RCA;
 
     ctrllnaPol1Sb2St1DrainVoltage_RCA   = controlRCA + lnaPol1Sb2St1DrainVoltage_RCA;
     ctrllnaPol1Sb2St1DrainCurrent_RCA   = controlRCA + lnaPol1Sb2St1DrainVoltage_RCA;

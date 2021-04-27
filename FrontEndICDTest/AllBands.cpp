@@ -18,6 +18,7 @@
 *
 */
 
+#include "Band1.h"
 #include "Band3.h"
 #include "Band6.h"
 #include "Band7.h"
@@ -25,6 +26,10 @@
 
 // Register the fixtures into the CppUnit registry:
 // If a line is commented out then the corresponding tests won't run.
+
+// Band 1:
+//CPPUNIT_TEST_SUITE_REGISTRATION(Band1CCATestFixture);
+//CPPUNIT_TEST_SUITE_REGISTRATION(Band1WCATestFixture);
 
 // Band 3:
 CPPUNIT_TEST_SUITE_REGISTRATION(Band3CCATestFixture);

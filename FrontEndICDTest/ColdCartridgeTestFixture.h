@@ -244,33 +244,48 @@ protected:
 
 // Get test values and limits, band specific values to be implemented in derived class:
 
-    virtual const std::vector<float> &getTestValuesSISVoltage() const = 0;
+    virtual const std::vector<float> &getTestValuesSISVoltage() const
+      { static std::vector<float> values;
+        values.reserve(1);
+        values.resize(0);
+        values.push_back(0.0);
+        return values; }
     ///< Get the band-specific test values for SIS voltage.
-    ///< Derived class must provide this function.
+    ///< Derived class should provide this function if applicable.
 
-    virtual void getLimitsSisVoltage(float &min, float &max, float &tolerance) const = 0;
+    virtual void getLimitsSisVoltage(float &min, float &max, float &tolerance) const
+      {}
     ///< Get the band-specific limits and tolerance for SIS voltage.
-    ///< Derived class must provide this function.
+    ///< Derived class should provide this function if applicable.
 
-    virtual void getLimitsSISCurrent(float &min, float &max) const = 0;
+    virtual void getLimitsSISCurrent(float &min, float &max) const
+      {}
     ///< Get the band-specific limits for SIS current.
-    ///< Derived class must provide this function.
+    ///< Derived class should provide this function if applicable.
 
-    virtual const std::vector<float> &getTestValuesMagnetCurrent() const = 0;
+    virtual const std::vector<float> &getTestValuesMagnetCurrent() const
+    { static std::vector<float> values;
+      values.reserve(1);
+      values.resize(0);
+      values.push_back(0.0);
+      return values; }
     ///< Get the band-specific test values for SIS magnet current.
-    ///< Derived class must provide this function.
+    ///< Derived class should provide this function if applicable.
 
-    virtual void getLimitsMagnetCurrent(float &min, float &max, float &tolerance) const = 0;
+    virtual void getLimitsMagnetCurrent(float &min, float &max, float &tolerance) const
+      {}
     ///< Get the band-specific limits for magnet current.
-    ///< Derived class must provide this function.
+    ///< Derived class should provide this function if applicable.
 
-    virtual void getLimitsMagnetVoltage(float &min, float &max) const = 0;
+    virtual void getLimitsMagnetVoltage(float &min, float &max) const
+      {}
     ///< Get the band-specific limits for magnet voltage.
-    ///< Derived class must provide this function.
+    ///< Derived class should provide this function if applicable.
 
-    virtual void getLimitsHeaterCurrent(float &min, float &max) const = 0;
+    virtual void getLimitsHeaterCurrent(float &min, float &max) const
+      {}
     ///< Get the band-specific limits for heater current.
-    ///< Derived class must provide this function.
+    ///< Derived class should provide this function if applicable.
 
 private:
 
@@ -295,20 +310,22 @@ private:
         LNA3_DRAIN_VOLTAGE      = 0x0048,
         LNA3_DRAIN_CURRENT      = 0x0049,
         LNA3_GATE_VOLTAGE       = 0x004A,
-        LNA4_DRAIN_VOLTAGE      = 0x004C,
-        LNA4_DRAIN_CURRENT      = 0x004D,
-        LNA4_GATE_VOLTAGE       = 0x004E,
-        LNA5_DRAIN_VOLTAGE      = 0x0050,
-        LNA5_DRAIN_CURRENT      = 0x0051,
-        LNA5_GATE_VOLTAGE       = 0x0052,
-        LNA6_DRAIN_VOLTAGE      = 0x0054,
-        LNA6_DRAIN_CURRENT      = 0x0055,
-        LNA6_GATE_VOLTAGE       = 0x0056,
+        LNA4_DRAIN_VOLTAGE      = 0x00C0,
+        LNA4_DRAIN_CURRENT      = 0x00C1,
+        LNA4_GATE_VOLTAGE       = 0x00C2,
+        LNA5_DRAIN_VOLTAGE      = 0x00C4,
+        LNA5_DRAIN_CURRENT      = 0x00C5,
+        LNA5_GATE_VOLTAGE       = 0x00C6,
+        LNA6_DRAIN_VOLTAGE      = 0x00C8,
+        LNA6_DRAIN_CURRENT      = 0x00C9,
+        LNA6_GATE_VOLTAGE       = 0x00CA,
         LNA_LED_ENABLE          = 0x0100,
         SIS_HEATER_ENABLE       = 0x0180,
         SIS_HEATER_CURRENT      = 0x01C0,
         CARTRIDGE_TEMP          = 0x0880,
     };
+
+protected:
 
     AmbRelativeAddr sisSenseResistor_RCA;
     AmbRelativeAddr sisSenseResistor2_RCA;
@@ -343,6 +360,15 @@ private:
     AmbRelativeAddr lnaPol0Sb1St3DrainVoltage_RCA;
     AmbRelativeAddr lnaPol0Sb1St3DrainCurrent_RCA;
     AmbRelativeAddr lnaPol0Sb1St3GateVoltage_RCA;
+    AmbRelativeAddr lnaPol0Sb1St4DrainVoltage_RCA;
+    AmbRelativeAddr lnaPol0Sb1St4DrainCurrent_RCA;
+    AmbRelativeAddr lnaPol0Sb1St4GateVoltage_RCA;
+    AmbRelativeAddr lnaPol0Sb1St5DrainVoltage_RCA;
+    AmbRelativeAddr lnaPol0Sb1St5DrainCurrent_RCA;
+    AmbRelativeAddr lnaPol0Sb1St5GateVoltage_RCA;
+    AmbRelativeAddr lnaPol0Sb1St6DrainVoltage_RCA;
+    AmbRelativeAddr lnaPol0Sb1St6DrainCurrent_RCA;
+    AmbRelativeAddr lnaPol0Sb1St6GateVoltage_RCA;
 
     AmbRelativeAddr lnaPol0Sb2Enable_RCA;
     AmbRelativeAddr lnaPol0Sb2St1DrainVoltage_RCA;
@@ -365,6 +391,15 @@ private:
     AmbRelativeAddr lnaPol1Sb1St3DrainVoltage_RCA;
     AmbRelativeAddr lnaPol1Sb1St3DrainCurrent_RCA;
     AmbRelativeAddr lnaPol1Sb1St3GateVoltage_RCA;
+    AmbRelativeAddr lnaPol1Sb1St4DrainVoltage_RCA;
+    AmbRelativeAddr lnaPol1Sb1St4DrainCurrent_RCA;
+    AmbRelativeAddr lnaPol1Sb1St4GateVoltage_RCA;
+    AmbRelativeAddr lnaPol1Sb1St5DrainVoltage_RCA;
+    AmbRelativeAddr lnaPol1Sb1St5DrainCurrent_RCA;
+    AmbRelativeAddr lnaPol1Sb1St5GateVoltage_RCA;
+    AmbRelativeAddr lnaPol1Sb1St6DrainVoltage_RCA;
+    AmbRelativeAddr lnaPol1Sb1St6DrainCurrent_RCA;
+    AmbRelativeAddr lnaPol1Sb1St6GateVoltage_RCA;
 
     AmbRelativeAddr lnaPol1Sb2Enable_RCA;
     AmbRelativeAddr lnaPol1Sb2St1DrainVoltage_RCA;
@@ -414,6 +449,12 @@ private:
     AmbRelativeAddr ctrllnaPol0Sb1St2DrainCurrent_RCA;
     AmbRelativeAddr ctrllnaPol0Sb1St3DrainVoltage_RCA;
     AmbRelativeAddr ctrllnaPol0Sb1St3DrainCurrent_RCA;
+    AmbRelativeAddr ctrllnaPol0Sb1St4DrainVoltage_RCA;
+    AmbRelativeAddr ctrllnaPol0Sb1St4DrainCurrent_RCA;
+    AmbRelativeAddr ctrllnaPol0Sb1St5DrainVoltage_RCA;
+    AmbRelativeAddr ctrllnaPol0Sb1St5DrainCurrent_RCA;
+    AmbRelativeAddr ctrllnaPol0Sb1St6DrainVoltage_RCA;
+    AmbRelativeAddr ctrllnaPol0Sb1St6DrainCurrent_RCA;
 
     AmbRelativeAddr ctrllnaPol0Sb2St1DrainVoltage_RCA;
     AmbRelativeAddr ctrllnaPol0Sb2St1DrainCurrent_RCA;
@@ -428,6 +469,12 @@ private:
     AmbRelativeAddr ctrllnaPol1Sb1St2DrainCurrent_RCA;
     AmbRelativeAddr ctrllnaPol1Sb1St3DrainVoltage_RCA;
     AmbRelativeAddr ctrllnaPol1Sb1St3DrainCurrent_RCA;
+    AmbRelativeAddr ctrllnaPol1Sb1St4DrainVoltage_RCA;
+    AmbRelativeAddr ctrllnaPol1Sb1St4DrainCurrent_RCA;
+    AmbRelativeAddr ctrllnaPol1Sb1St5DrainVoltage_RCA;
+    AmbRelativeAddr ctrllnaPol1Sb1St5DrainCurrent_RCA;
+    AmbRelativeAddr ctrllnaPol1Sb1St6DrainVoltage_RCA;
+    AmbRelativeAddr ctrllnaPol1Sb1St6DrainCurrent_RCA;
 
     AmbRelativeAddr ctrllnaPol1Sb2St1DrainVoltage_RCA;
     AmbRelativeAddr ctrllnaPol1Sb2St1DrainCurrent_RCA;
