@@ -145,20 +145,23 @@ void ColdCartImpl::queryCartridgeState() {
         status = syncMonitorWithRetry(sisPol1Sb1Voltage_RCA + 0x10000, sisVoltageSet_m[2]);
         // SIS enabled:
         sisEnableSet_m = (fabsf(sisVoltageSet_m[0]) > 0.2 || fabsf(sisVoltageSet_m[2]) > 0.2);
-        // SIS1 magnet current settings:
-        status = syncMonitorWithRetry(sisMagnetPol0Sb1Current_RCA + 0x10000, sisMagnetCurrentSet_m[0]);
-        status = syncMonitorWithRetry(sisMagnetPol1Sb1Current_RCA + 0x10000, sisMagnetCurrentSet_m[2]);
-        // SIS1 magnet enabled:
-        sisMagnetEnableSet_m = (fabsf(sisMagnetCurrentSet_m[0]) > 0.2 || fabsf(sisMagnetCurrentSet_m[2]) > 0.2);
+        if (hasMagnet()) {
+            // SIS1 magnet current settings:
+            status = syncMonitorWithRetry(sisMagnetPol0Sb1Current_RCA + 0x10000, sisMagnetCurrentSet_m[0]);
+            status = syncMonitorWithRetry(sisMagnetPol1Sb1Current_RCA + 0x10000, sisMagnetCurrentSet_m[2]);
+            // SIS1 magnet enabled:
+            sisMagnetEnableSet_m = (fabsf(sisMagnetCurrentSet_m[0]) > 0.2 || fabsf(sisMagnetCurrentSet_m[2]) > 0.2);
+        }
 
         if (hasSb2()) {
             // SIS2 voltage settings:
             status = syncMonitorWithRetry(sisPol0Sb2Voltage_RCA + 0x10000, sisVoltageSet_m[1]);
             status = syncMonitorWithRetry(sisPol1Sb2Voltage_RCA + 0x10000, sisVoltageSet_m[3]);
-            // SIS2 magnet current settings:
-            status = syncMonitorWithRetry(sisMagnetPol0Sb2Current_RCA + 0x10000, sisMagnetCurrentSet_m[1]);
-            status = syncMonitorWithRetry(sisMagnetPol1Sb2Current_RCA + 0x10000, sisMagnetCurrentSet_m[3]);
-
+            if (hasMagnet()) {
+            	// SIS2 magnet current settings:
+            	status = syncMonitorWithRetry(sisMagnetPol0Sb2Current_RCA + 0x10000, sisMagnetCurrentSet_m[1]);
+            	status = syncMonitorWithRetry(sisMagnetPol1Sb2Current_RCA + 0x10000, sisMagnetCurrentSet_m[3]);
+            }
         }
     }
     // Query for the LNA settings:

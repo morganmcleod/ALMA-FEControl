@@ -11,11 +11,13 @@
 #ifdef OSX
     #include <unistd.h>
     #define SLEEP(MSEC) usleep(MSEC * 1000)
-#else
+	#define GETTIMER() 0 // implement based on gettimeofday()
+#endif /* OSX */
+
+#ifdef _WIN32
     #include <windows.h>
     #include <mmsystem.h>
     #define SLEEP(MSEC) Sleep(MSEC)
     #define GETTIMER() timeGetTime()
-#endif
-
+#endif /* _WIN32      */
 #endif /* PORTABLE_H_ */

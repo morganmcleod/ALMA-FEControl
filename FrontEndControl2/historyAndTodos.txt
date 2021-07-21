@@ -38,6 +38,10 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.10.7b1
+  Log CAN bus timings to stdout
+  Check hasMagnet in queryCartridgeState()
+
 2.10.6 2021-02-10
   Additional monitor point filtering for band 1&2 (SIS and heater) 
 
