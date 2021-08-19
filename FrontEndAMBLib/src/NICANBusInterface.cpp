@@ -25,6 +25,11 @@
 #include <nican.h>
 #include "portable.h"
 
+#ifdef _WIN32
+//#define MEASURE_CAN_LATENCY 1
+#endif
+
+
 // --------------------------------------------------------------------------
 //private:
 
@@ -130,16 +135,16 @@ void NICANBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &msg)
     request.DataLength = 0;
     memset(request.Data, 0, AMB_DATA_MSG_SIZE);
 
-#ifdef _WIN32
+#ifdef MEASURE_CAN_LATENCY
     static bool firstTime(true);
     static LARGE_INTEGER sum, freq, start, end;
     sum.QuadPart = 0;
-    static int count;
+    static int count = 0;
     static const int averagingSize = 1000;
     if (firstTime) {
     	firstTime = false;
     	QueryPerformanceFrequency(&freq);
-    	printf("NICANBusInterface::monitorImpl: Ticks/second: %f\nAveraging: %d\nAverage microseconds...\n", double(freq.QuadPart), averagingSize);
+    	printf("NICANBusInterface::monitorImpl:Ticks\nN\tStart\tEnd\tSum\tAvg\tFreq\n");
     }
     QueryPerformanceCounter(&start);
 #endif
@@ -155,17 +160,24 @@ void NICANBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &msg)
             status = -1;
         }
         if (status >= 0) {
-#ifdef _WIN32
+
+#ifdef MEASURE_CAN_LATENCY
         	QueryPerformanceCounter(&end);
         	sum.QuadPart += (end.QuadPart - start.QuadPart);
         	if (++count == averagingSize) {
-        		double avgTicks(double(sum.QuadPart) / averagingSize);
-        		printf("%f\n", (avgTicks / double(freq.QuadPart)) * 1.0e6); // microseconds
+        		double avgTicks(double(sum.QuadPart) / count);
+        		printf("%d\t%f\t%f\t%f\t%f\t%f\n",
+        				count,
+						double(start.QuadPart),
+						double(end.QuadPart),
+						double(sum.QuadPart),
+						avgTicks,
+						double(freq.QuadPart));
         		sum.QuadPart = 0;
         		count = 0;
         	}
 #endif
-            status = ncRead(handle,  sizeof(NCTYPE_CAN_STRUCT), &response);
+            status = ncRead(handle, sizeof(NCTYPE_CAN_STRUCT), &response);
         
             if (enableDebug_m) {        
                 printf("monitorImpl: %x -> %x [ ", (unsigned) request.ArbitrationId, (unsigned) response.ArbitrationId);

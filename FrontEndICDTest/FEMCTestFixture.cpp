@@ -241,6 +241,8 @@ void FEMCTestFixture::testFE_MODE() {
         dataLength_m = 1;
         // Use commandImpl because we don't want to monitor on the control RCA
         commandImpl(0x2100E, "SET_FE_MODE", &details);
+        // Sleep in case the mode change wrote to the console:
+        SLEEP(5000);
         // check that it changed:
         monitor(0x2000E, "GET_FE_MODE", &details);
         CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 1);
@@ -252,6 +254,7 @@ void FEMCTestFixture::testFE_MODE() {
     dataLength_m = 1;
     // Use commandImpl because we don't want to monitor on the control RCA
     commandImpl(0x2100E, "SET_FE_MODE", &details);
+    SLEEP(5000);
 }
 
 void FEMCTestFixture::testGET_TCPIP_ADDRESS() {

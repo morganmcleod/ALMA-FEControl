@@ -3,6 +3,9 @@
 	<name>FrontEndControl2</name>
 	<comment></comment>
 	<projects>
+		<project>CppUtilityLib</project>
+		<project>FEICDBLib</project>
+		<project>FrontEndAMBLib</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

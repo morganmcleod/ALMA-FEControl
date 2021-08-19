@@ -3,6 +3,7 @@
 	<name>FrontEndAMBLib</name>
 	<comment></comment>
 	<projects>
+		<project>CppUtilityLib</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

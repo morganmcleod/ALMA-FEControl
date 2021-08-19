@@ -38,8 +38,8 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
-2.10.7b1
-  Log CAN bus timings to stdout
+2.10.7b2
+  Log CAN bus timings to stdout - commented out
   Check hasMagnet in queryCartridgeState()
 
 2.10.6 2021-02-10

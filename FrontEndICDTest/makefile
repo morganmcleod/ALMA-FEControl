@@ -97,6 +97,14 @@ FrontEnd2Test.exe : $(FRONTEND2SRC)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/FrontEnd2Test.exe \
 	$(FRONTEND2SRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
+# target CommandLossTest:
+#  for testing the band6 STANDBY2 feature
+COMMANDLOSSSRC = AmbDeviceTestFixture.cpp TestApp.cpp CommandLossTestFixture.cpp
+
+CommandLossTest.exe : $(COMMANDLOSSSRC)
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/CommandLossTest.exe \
+	$(COMMANDLOSSSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
+
 # target LPRICDTest:
 LPRSRC = AmbDeviceTestFixture.cpp LPRTestFixture_deepika.cpp TestApp.cpp
 
