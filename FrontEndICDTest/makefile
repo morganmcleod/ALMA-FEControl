@@ -120,7 +120,8 @@ PowerSupplyICDTest.exe : $(POWERSUPPLYSRC)
 	$(POWERSUPPLYSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
 # target all:
-all : CompressorICDTest.exe CryostatICDTest.exe FrontEndICDTest.exe FrontEnd2Test.exe LPRICDTest.exe PowerSupplyICDTest.exe
+all : CompressorICDTest.exe CryostatICDTest.exe FrontEndICDTest.exe FrontEnd2Test.exe LPRICDTest.exe \
+	PowerSupplyICDTest.exe CommandLossTest.exe
 
 # target clean:
 clean:

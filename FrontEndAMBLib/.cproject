@@ -33,10 +33,10 @@
 								<option id="gnu.cpp.compiler.mingw.lib.debug.option.optimization.level.884942376" name="Optimization Level" superClass="gnu.cpp.compiler.mingw.lib.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.mingw.lib.debug.option.debugging.level.170466235" name="Debug Level" superClass="gnu.cpp.compiler.mingw.lib.debug.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.1311309016" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ALMA-FEControl/FrontEndAMBLib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ALMA-FEControl/FrontEndAMBLib/include/FrontEndAMB}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ALMA-FEControl/3rdparty/Nican/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ALMA-FEControl/CppUtilityLib/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;L:\ALMA-FEControl\FrontEndAMBLib\include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;L:\ALMA-FEControl\FrontEndAMBLib\include\FrontEndAMB&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;L:\ALMA-FEControl\3rdparty\Nican\include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;L:\ALMA-FEControl\CppUtilityLib\include&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.dialect.std.1711179083" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.357827436" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false"/>
