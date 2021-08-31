@@ -19,13 +19,11 @@
 
 class CommandLossTestFixture : public AmbDeviceTestFixture {
     CPPUNIT_TEST_SUITE(CommandLossTestFixture);
-    CPPUNIT_TEST(testIVCurve);
+//    CPPUNIT_TEST(testIVCurve);
+    CPPUNIT_TEST(testPPComm);
     CPPUNIT_TEST_SUITE_END();
 
 public:
-    void setUp();
-    void tearDown();
-
     void allBandsOff();
 
     void getIVCurveDefaults(int band, float *VJlow_p, float *VJhigh_p, float *VJstep_p) const;
@@ -33,6 +31,8 @@ public:
     bool measureIVCurveInnerLoop(int band, int pol, int sb, float VJstart, float VJstop, float VJstep);
 
     void testIVCurve();
+
+    void testPPComm();
 
 private:
 
@@ -52,6 +52,9 @@ private:
         CONTROL_RCA             = 0x10000,  ///< add this to the monitor RCA to get the corresponding command RCA
         POL1                    = 0x0400,   ///< add this to the pol0 RCA to get the corresponding pol1 RCA
         SB2                     = 0x0080,   ///< add this to the sb1 RCA to get the corresponding sb2 RCA
+        GET_PPCOMM_TIME         = 0x20007,
+        SET_PPCOMM_BYTES        = 0x21007,
+
         CTRL_FE_MODE            = 0x2100E,
 
         SIS_VOLTAGE             = 0x0008,

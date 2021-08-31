@@ -8,24 +8,6 @@ using namespace std;
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION(CommandLossTestFixture);
 
-void CommandLossTestFixture::setUp()
-{
-    AmbDeviceTestFixture::setUp();
-    // Set FE Mode to normal:
-    data_m[0] = 0;
-    dataLength_m = 1;
-    commandImpl(CTRL_FE_MODE, "CTRL_FE_MODE", NULL);
-    // Make sure all bands are off:
-    allBandsOff();
-}
-
-void CommandLossTestFixture::tearDown()
-{
-    // Make sure all bands are off:
-    allBandsOff();
-    AmbDeviceTestFixture::tearDown();
-}
-
 void CommandLossTestFixture::allBandsOff() {
 
     string details;
@@ -127,7 +109,7 @@ bool CommandLossTestFixture::measureIVCurveInnerLoop(int band, int pol, int sb, 
 }
 
 void CommandLossTestFixture::testIVCurve() {
-    //!< Test that only band6 may be set to STANDBY2 mode and that proper errors are returned for other bands.
+    allBandsOff();
 
     string details;
     AmbRelativeAddr RCA;
@@ -176,5 +158,29 @@ void CommandLossTestFixture::testIVCurve() {
         measureIVCurveInnerLoop(7, 1, 1, VJhigh, VJlow, -VJstep);
         measureIVCurveInnerLoop(7, 1, 2, VJlow, VJhigh, VJstep);
         measureIVCurveInnerLoop(7, 1, 2, VJhigh, VJlow, -VJstep);
+    }
+}
+
+void CommandLossTestFixture::testPPComm() {
+    // Test setting the bytes expected from GET_PPCOMM_TIME and then getting them and comparing.
+    // Note that SET_PPCOMM_BYTES is not implemented in FEMC Firmware 3.5.3 and before.
+
+    // Store what we expect here:
+    AmbDataMem_t my_data[4];
+    resetAmbVars();
+
+    // Not using the last 4 bytes of SET_PPCOMM_TIME payload so set them to the default:
+    data_m[4] = data_m[5] = data_m[6] = data_m[7] = 0xFF;
+    dataLength_m = 8;
+    // At 3.5 ms per iteration this will take about 6 minutes.
+    for (unsigned long i = 0; i < 100000; i++) {
+        // Store the iteration number in the first four bytes:
+        my_data[0] = data_m[0] = i & 0xFF;
+        my_data[1] = data_m[1] = (i >> 8) & 0xFF;
+        my_data[2] = data_m[2] = (i >> 16) & 0xFF;
+        my_data[3] = data_m[3] = (i >> 24) & 0xFF;
+        commandImpl(SET_PPCOMM_BYTES, "SET_PPCOMM_BYTES");
+        monitorImpl(GET_PPCOMM_TIME, "GET_PPCOMM_TIME");
+        CPPUNIT_ASSERT(data_m[0] == my_data[0] && data_m[1] == my_data[1] && data_m[2] == my_data[2] && data_m[3] == my_data[3]);
     }
 }
