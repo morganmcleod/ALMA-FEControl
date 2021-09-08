@@ -226,7 +226,7 @@ DLLEXPORT short sigSrcLoadConfiguration(short configId) {
     if (configId <= 0)
         configId = configIdSigSrc;
 
-	ConfigProvider *provider(NULL);
+    ConfigProvider *provider(NULL);
     provider = new ConfigProviderIniFile(sigSrcIniFilename);
 	
     Configuration config(configId);
@@ -290,7 +290,7 @@ DLLEXPORT short sigSrcIsErrorStop() {
     if (!sigSrcValid)
         return 1;
     else
-        (sigSrc -> isErrorStop()) ? 1 : 0;
+        return (sigSrc -> isErrorStop()) ? 1 : 0;
 }
 
 DLLEXPORT short sigSrcGetAMBSIInfo(char *_serialNum,

@@ -19,6 +19,7 @@ void *thread1(void *arg) {
                     << std::endl;
     }        
     pthread_exit(NULL);
+    return NULL;
 }
 
 int main(int, char*[]) {

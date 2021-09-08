@@ -260,7 +260,7 @@ public:
       { return (pol == 1) ? sisHeaterPol1Current() : ((pol == 0) ? sisHeaterPol0Current() : 0.0); } 
     ///< get the SIS heater current for the specified pol.
     
-    bool sisMixerHeatingProcess(int pol = -1, float targetTemp = 12.0, int timeout = 30);
+    bool sisMixerHeatingProcess(int pol = -1, float targetTemp = 12.0, unsigned timeout = 30);
     ///< Start the mixer heating process.
     ///< If pol == -1, heat both polarizations.  Else pol must be 0 or 1.
     ///< If targetTemp >= 4, retrigger the the heater for up to timeout seconds to attain the target temperature.

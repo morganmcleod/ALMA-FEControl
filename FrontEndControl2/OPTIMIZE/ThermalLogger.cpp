@@ -77,7 +77,7 @@ void ThermalLogger::stop() {
 
 void ThermalLogger::optimizeAction() {
     // loop for interval_m seconds:
-    for (int count = 0; enable_m && count < 10 * interval_m; ++count)
+    for (unsigned count = 0; enable_m && count < 10 * interval_m; ++count)
         SLEEP(100);
     
     // if still enabled and interval > 0, get and save a row of data:

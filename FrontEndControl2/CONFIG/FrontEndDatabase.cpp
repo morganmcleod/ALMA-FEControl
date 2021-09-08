@@ -1125,7 +1125,7 @@ bool FrontEndDatabase::insertFineLOSSweepData(const ID_T &subHeaderId, const XYP
     if (!subHeaderId.valid())
         return false;
 
-    if (!sisCurrents.size() == loPaVoltages.size()) {
+    if (sisCurrents.size() != loPaVoltages.size()) {
         LOG(LM_ERROR) << context << ": sisCurrents and loPaVoltages are not the same size." << endl;
         return false;
     }

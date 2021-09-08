@@ -137,42 +137,41 @@ void ColdCartImpl::reset() {
 }
 
 void ColdCartImpl::queryCartridgeState() {
-    int status;
     // Query the FEMC firmware for the SIS and magnet settings:
     if (hasSIS()) {
         // SIS1 voltage settings:
-        status = syncMonitorWithRetry(sisPol0Sb1Voltage_RCA + 0x10000, sisVoltageSet_m[0]);
-        status = syncMonitorWithRetry(sisPol1Sb1Voltage_RCA + 0x10000, sisVoltageSet_m[2]);
+        lastFemcError_m = syncMonitorWithRetry(sisPol0Sb1Voltage_RCA + 0x10000, sisVoltageSet_m[0]);
+        lastFemcError_m = syncMonitorWithRetry(sisPol1Sb1Voltage_RCA + 0x10000, sisVoltageSet_m[2]);
         // SIS enabled:
         sisEnableSet_m = (fabsf(sisVoltageSet_m[0]) > 0.2 || fabsf(sisVoltageSet_m[2]) > 0.2);
         if (hasMagnet()) {
             // SIS1 magnet current settings:
-            status = syncMonitorWithRetry(sisMagnetPol0Sb1Current_RCA + 0x10000, sisMagnetCurrentSet_m[0]);
-            status = syncMonitorWithRetry(sisMagnetPol1Sb1Current_RCA + 0x10000, sisMagnetCurrentSet_m[2]);
+            lastFemcError_m = syncMonitorWithRetry(sisMagnetPol0Sb1Current_RCA + 0x10000, sisMagnetCurrentSet_m[0]);
+            lastFemcError_m = syncMonitorWithRetry(sisMagnetPol1Sb1Current_RCA + 0x10000, sisMagnetCurrentSet_m[2]);
             // SIS1 magnet enabled:
             sisMagnetEnableSet_m = (fabsf(sisMagnetCurrentSet_m[0]) > 0.2 || fabsf(sisMagnetCurrentSet_m[2]) > 0.2);
         }
 
         if (hasSb2()) {
             // SIS2 voltage settings:
-            status = syncMonitorWithRetry(sisPol0Sb2Voltage_RCA + 0x10000, sisVoltageSet_m[1]);
-            status = syncMonitorWithRetry(sisPol1Sb2Voltage_RCA + 0x10000, sisVoltageSet_m[3]);
+            lastFemcError_m = syncMonitorWithRetry(sisPol0Sb2Voltage_RCA + 0x10000, sisVoltageSet_m[1]);
+            lastFemcError_m = syncMonitorWithRetry(sisPol1Sb2Voltage_RCA + 0x10000, sisVoltageSet_m[3]);
             if (hasMagnet()) {
             	// SIS2 magnet current settings:
-            	status = syncMonitorWithRetry(sisMagnetPol0Sb2Current_RCA + 0x10000, sisMagnetCurrentSet_m[1]);
-            	status = syncMonitorWithRetry(sisMagnetPol1Sb2Current_RCA + 0x10000, sisMagnetCurrentSet_m[3]);
+                lastFemcError_m = syncMonitorWithRetry(sisMagnetPol0Sb2Current_RCA + 0x10000, sisMagnetCurrentSet_m[1]);
+                lastFemcError_m = syncMonitorWithRetry(sisMagnetPol1Sb2Current_RCA + 0x10000, sisMagnetCurrentSet_m[3]);
             }
         }
     }
     // Query for the LNA settings:
     if (hasLNA()) {
         // LNA1s enabled:
-        status = syncMonitorWithRetry(lnaPol0Sb1Enable_RCA + 0x10000, lnaEnableSet_m[0]);
-        status = syncMonitorWithRetry(lnaPol1Sb1Enable_RCA + 0x10000, lnaEnableSet_m[2]);
+        lastFemcError_m = syncMonitorWithRetry(lnaPol0Sb1Enable_RCA + 0x10000, lnaEnableSet_m[0]);
+        lastFemcError_m = syncMonitorWithRetry(lnaPol1Sb1Enable_RCA + 0x10000, lnaEnableSet_m[2]);
         if (hasSb2()) {
             // LNA2s enabled:
-            status = syncMonitorWithRetry(lnaPol0Sb2Enable_RCA + 0x10000, lnaEnableSet_m[1]);
-            status = syncMonitorWithRetry(lnaPol1Sb2Enable_RCA + 0x10000, lnaEnableSet_m[3]);
+            lastFemcError_m = syncMonitorWithRetry(lnaPol0Sb2Enable_RCA + 0x10000, lnaEnableSet_m[1]);
+            lastFemcError_m = syncMonitorWithRetry(lnaPol1Sb2Enable_RCA + 0x10000, lnaEnableSet_m[3]);
         }
     }
 
@@ -808,7 +807,7 @@ void ColdCartImpl::resetMixerHeating() {
     }
 }
 
-bool ColdCartImpl::sisMixerHeatingProcess(int pol, float targetTemp, int timeout) {
+bool ColdCartImpl::sisMixerHeatingProcess(int pol, float targetTemp, unsigned timeout) {
     resetMixerHeating();
 
     if (!hasSISHeater()) {

@@ -185,7 +185,6 @@ float LORTMImplBase::AmbientTemperature() {
     sem_t synchLock;
     Time timestamp;
     AmbErrorCode_t status = AMBERR_NOERR;
-    FEMC_ERROR feStatus = FEMC_NO_ERROR;
     sem_init(&synchLock, 0, 0);
     monitor(GET_AMBIENT_TEMPERATURE, dataLength, data, &synchLock, &timestamp, &status);
     sem_wait(&synchLock);

@@ -77,7 +77,7 @@ namespace FEConfig {
         ///< set the value at index 'col'.  Return false if out of bounds.
 
         void weightedAdd(double weight, const ParamTableRow &other)
-          { for (int col = 0; col < size(); ++col)
+          { for (unsigned col = 0; col < size(); ++col)
                 set(col, get(col) * (1.0 - weight) + other.get(col) * weight); }
         ///< set all values to a point between this and other, determined by 'weight',
         ///< which should be between 0.0 and 1.0 (not enforced.)

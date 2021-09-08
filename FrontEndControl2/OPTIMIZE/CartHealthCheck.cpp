@@ -552,6 +552,8 @@ void CartHealthCheck::optimizeAction() {
                 if (wca_p)
                     wca_p -> setEnableLO(true);
 
+                if (cfgError)
+                    LOG(LM_ERROR) << context << ": getIVCurveDefaults failed for band=" << band << endl;
                 if (measError)
                     LOG(LM_ERROR) << context << ": measureIVCurveSingleSynchronous failed for band=" << band << endl;
                 if (fileError)

@@ -24,9 +24,9 @@
 #include <string>
 
 inline std::string TrimStr(const std::string& src, const std::string& c = " \t\r\n") {
-    int p2 = src.find_last_not_of(c);
+    unsigned p2 = src.find_last_not_of(c);
     if (p2 == std::string::npos) return std::string();
-    int p1 = src.find_first_not_of(c);
+    unsigned p1 = src.find_first_not_of(c);
     if (p1 == std::string::npos) p1 = 0;
     return src.substr(p1, (p2-p1)+1);
 }

@@ -49,7 +49,7 @@ static T LVGet(int field, const unsigned char data[], const int offsets[], const
 }
 
 template<typename T>
-static T LVSet(int field, unsigned char data[], const int offsets[], const T &value) {
+static void LVSet(int field, unsigned char data[], const int offsets[], const T &value) {
     T *target = reinterpret_cast<T *>(data + offsets[field]);
     if (target)
         *target = value;

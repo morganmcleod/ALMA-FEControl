@@ -38,7 +38,11 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
-2.10.7b2
+2.11.0
+  Fix compiler warnings, though some still suppressed.
+  Compiled with msys64-mingw32 GCC 10.3.0
+
+2.10.7b2 2021-08-19
   Log CAN bus timings to stdout - commented out
   Check hasMagnet in queryCartridgeState()
 

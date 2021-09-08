@@ -186,9 +186,9 @@ void AmbTransactionLogger::LogBuffer::reset() {
 int AmbTransactionLogger::LogBuffer::getNextInsertIndex() {
     pthread_mutex_lock(&mutex);
     // get the next insert position:
-    int preInsertPos(nextInsertPos_m);
-    int preLogPos(nextLogPos_m);
-    int preNumItems(numItems_m);
+//    int preInsertPos(nextInsertPos_m);
+//    int preLogPos(nextLogPos_m);
+//    int preNumItems(numItems_m);
     int pos(nextInsertPos_m);
     // if an entry already exists then the buffer is full; return -1:
     if (buffer_m[pos] != NULL)
@@ -200,8 +200,8 @@ int AmbTransactionLogger::LogBuffer::getNextInsertIndex() {
         if (nextInsertPos_m == bufferSize_m)
             nextInsertPos_m = 0;
     }
-    int postInsertPos(nextInsertPos_m);
-    int postNumItems(numItems_m);
+//    int postInsertPos(nextInsertPos_m);
+//    int postNumItems(numItems_m);
     // unlock and return the saved position:
     pthread_mutex_unlock(&mutex);
     //LOG(LM_DEBUG) << "LogBuffer::getNextInsertIndex preInsertPos=" << preInsertPos 
@@ -213,7 +213,7 @@ int AmbTransactionLogger::LogBuffer::getNextInsertIndex() {
 
 int AmbTransactionLogger::LogBuffer::getNextLogIndex(int &nextLogBegin, int &nextLogEnd) {        
     pthread_mutex_lock(&mutex);
-    int preNumItems(numItems_m);
+//    int preNumItems(numItems_m);
     // set nextLogBegin to the first available item:
     nextLogBegin = nextLogPos_m;
     // set nextLogEnd one past the last available item, = the next insert position:    
@@ -228,11 +228,11 @@ int AmbTransactionLogger::LogBuffer::getNextLogIndex(int &nextLogBegin, int &nex
 
 void AmbTransactionLogger::LogBuffer::setNextLogIndex(int nextLogBegin, int numItemsLogged) {
     pthread_mutex_lock(&mutex);
-    int preLogPos(nextLogPos_m);
-    int preNumItems(numItems_m);
+//    int preLogPos(nextLogPos_m);
+//    int preNumItems(numItems_m);
     nextLogPos_m = nextLogBegin;
     numItems_m -= numItemsLogged;
-    int postNumItems(numItems_m);
+//    int postNumItems(numItems_m);
     pthread_mutex_unlock(&mutex);
     //LOG(LM_DEBUG) << "LogBuffer::setNextLogIndex preLogPos=" << preLogPos << " preNumItems=" << preNumItems
     //              << " nextLogPos_m=" << nextLogPos_m << " postNumItems=" << postNumItems << endl;

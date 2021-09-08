@@ -298,6 +298,7 @@ protected:
     
 protected:
     bool minimalMonitoring_m;   ///< true if only the bare minimum monitoring should be performed.
+    FEMC_ERROR lastFemcError_m; ///< store error/status of last operation.
     static bool randomizeAnalogMonitors_m;  ///< true if the analog monitoring should be done in randomized order. 
     static bool logMonitors_m;  ///< true if analog monitor points should be continuously dumped to the log.
     static bool logAmbErrors_m; ///< true if AMB errors should be logged.

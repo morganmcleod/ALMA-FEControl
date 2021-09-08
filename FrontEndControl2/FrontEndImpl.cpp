@@ -548,7 +548,6 @@ bool FrontEndImpl::existsCartAssembly(int port) {
 }
 
 void FrontEndImpl::queryCartridgeState() {
-    char buf[20];
     int observingBand = 0;
 
     if (ifSwitch_mp) {

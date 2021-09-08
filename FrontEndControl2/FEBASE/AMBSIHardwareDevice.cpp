@@ -84,7 +84,7 @@ unsigned long AMBSIHardwareDevice::AMBSINumTransactions() {
 
 float AMBSIHardwareDevice::AMBSITemperature() {
     AMBSITemperature_value = 0;
-    int feStatus = FEMC_NO_ERROR;
+    lastFemcError_m = FEMC_NO_ERROR;
     AmbDataLength_t dataLength;
     AmbDataMem_t data[8];
     sem_t synchLock;
@@ -95,9 +95,9 @@ float AMBSIHardwareDevice::AMBSITemperature() {
     sem_wait(&synchLock);
     sem_destroy(&synchLock);
     if (status != AMBERR_NOERR)
-        feStatus = FEMC_UNPACK_ERROR;
+        lastFemcError_m = FEMC_UNPACK_ERROR;
     else if (0 != unpackDS1820Temperature(AMBSITemperature_value, dataLength, data))
-        feStatus = FEMC_UNPACK_ERROR;
+        lastFemcError_m = FEMC_UNPACK_ERROR;
     return AMBSITemperature_value;
 }
 

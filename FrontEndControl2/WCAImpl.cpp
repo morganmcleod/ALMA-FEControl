@@ -74,14 +74,13 @@ void WCAImpl::reset() {
 }
 
 void WCAImpl::queryCartridgeState() {
-    int status;
     ytoCoarseTune_m = ytoCoarseTune();
     pllSidebandLockSelect_m = pllSidebandLockSelect();
     pllNullLoopIntegrator_m = pllNullLoopIntegrator();
-    status = syncMonitorWithRetry(paPol0DrainVoltage_RCA + 0x10000, paDrainVoltage_m[0]);
-    status = syncMonitorWithRetry(paPol1DrainVoltage_RCA + 0x10000, paDrainVoltage_m[1]);
-    status = syncMonitorWithRetry(paPol0GateVoltage_RCA + 0x10000, paGateVoltage_m[0]);
-    status = syncMonitorWithRetry(paPol1GateVoltage_RCA + 0x10000, paGateVoltage_m[1]);
+    lastFemcError_m = syncMonitorWithRetry(paPol0DrainVoltage_RCA + 0x10000, paDrainVoltage_m[0]);
+    lastFemcError_m = syncMonitorWithRetry(paPol1DrainVoltage_RCA + 0x10000, paDrainVoltage_m[1]);
+    lastFemcError_m = syncMonitorWithRetry(paPol0GateVoltage_RCA + 0x10000, paGateVoltage_m[0]);
+    lastFemcError_m = syncMonitorWithRetry(paPol1GateVoltage_RCA + 0x10000, paGateVoltage_m[1]);
     paEnable_m = (paDrainVoltage_m[0] > 0.2 || paDrainVoltage_m[1] > 0.2);
     photomixerEnable_m = photomixerEnable();
     

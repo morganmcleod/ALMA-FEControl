@@ -55,7 +55,6 @@ int main(int, char*[]) {
     }
 
     bool done = false;
-    short configId = 0;
     while (!done) {
         fflush(stdout);
         {

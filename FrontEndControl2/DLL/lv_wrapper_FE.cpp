@@ -493,7 +493,7 @@ DLLEXPORT short FEMCFlushErrors() {
         unsigned char mod, err;
         std::string desc;
         while (frontEnd -> getNextError(mod, err, desc)) {
-            0;
+            ;
         }
     }
     return 0;
@@ -1074,14 +1074,11 @@ DLLEXPORT short cartSetEnableLNABias(short port, short enable, short pol, short 
     if (!FEValid)
         return -1;
         
-    bool setAll = false;
     if (pol < 0 || pol > 1) {
         pol = -1;
-        setAll = true;
     }
     if (sb < 1 || sb > 2) {        
         sb = -1;
-        setAll = true;
     }        
     if (!frontEnd -> cartSetEnableLNABias(port, enable, pol, sb))
         return -1;

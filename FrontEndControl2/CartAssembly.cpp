@@ -288,9 +288,6 @@ bool CartAssembly::setLOFrequency(double freqLO, double freqFLOOG, int sbLock) {
     }
     LOG(LM_DEBUG) << "CartAssembly: Setting loop BW = " << (altLoopBW ? "ALTERNATE" : "NORMAL") << endl;
     WCA_mp -> pllLoopBandwidthSelect(altLoopBW);
-    
-    double bandFreqMin = config_m.WCA_m.FLOYIG_m * multAMC_m * multCold_m;
-    double bandFreqMax = config_m.WCA_m.FHIYIG_m * multAMC_m * multCold_m;
 
     if (sbLock < 0)
         sbLock = 0;
@@ -1902,7 +1899,6 @@ bool CartAssembly::getOptimizedResult(std::string &mixerParamsText) {
         return false;
 
     const MixerParams &mp = optimizerIFPower_mp -> getMixerParamsResult();
-    const PowerAmpParams &pp = optimizerIFPower_mp -> getPowerAmpParamsResult();
 
     std::stringstream tmp;
     mp.streamOut(tmp, true);
@@ -2106,8 +2102,12 @@ bool CartAssembly::measureFineLOSweepSingleSynchronous(int pol, float VJ, float 
     }
 
     // setup stepping parameters:
+    if (LOStop < LOStart) {
+        float t(LOStart);
+        LOStart = LOStop;
+        LOStop = t;
+    }
     double span = LOStop - LOStart;
-    double sign = (span < 0.0) ? -1.0 : 1.0;
     span = fabs(span);
     LOStep = fabs(LOStep);
 
@@ -2239,31 +2239,6 @@ bool CartAssembly::measureIVCurveSingleSynchronous(int pol, int sb, float VJlow,
 }
 
 bool CartAssembly::getIVCurveDefaults(int pol, int sb, float *VJlow_p, float *VJhigh_p, float *VJstep_p) {
-
-    {   // Previously we were setting the VJ to nominal after each sweep.  Now we set it to whatever it was prior.
-        // So this code block to get the nominal is vestigial.  TODO: remove?
-
-        ParamTableRow row;
-        bool success = config_m.coldCart_m.mixerParams_m.get(freqLO_m, row);
-
-        if (!success) {
-            LOG(LM_ERROR) << "Getting SIS parameters failed" << endl;
-            return false;
-        }
-
-        float VJNom(0);
-        if (pol == 0 || pol == -1) {
-            if (sb == 1 || sb == -1)
-                VJNom = row[MixerParams::VJ01];
-            else
-                VJNom = row[MixerParams::VJ02];
-        } else {
-            if (sb == 1)
-                VJNom = row[MixerParams::VJ11];
-            else
-                VJNom = row[MixerParams::VJ12];
-        }
-    }
 
     float VJMax = 3.0;
     switch (band_m) {

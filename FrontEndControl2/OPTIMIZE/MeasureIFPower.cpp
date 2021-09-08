@@ -173,6 +173,11 @@ bool MeasureIFPower::startVsVD(int pol, const std::string &description,
         repeatCount = 1;
     
     // Setup the operating variables:
+    if (VDStop < VDStart) {
+        float t(VDStop);
+        VDStop = VDStart;
+        VDStart = t;
+    }
     mode_m = MODE_VD;
     pol_m = pol;
     sb_m = -1;
@@ -185,7 +190,6 @@ bool MeasureIFPower::startVsVD(int pol, const std::string &description,
 
     // Check parameters and calculate the data set size:
     float span = VStop_m - VStart_m;
-    float sign = (span < 0.0) ? -1.0 : 1.0;
     span = fabsf(span);
     VStep_m = fabsf(VStep_m);
         

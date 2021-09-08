@@ -66,27 +66,23 @@ bool ParamTable::get(const double &freq, ParamTableRow &target, bool interpolate
 
     // find the first item whose key is not less than freq:
     const_iterator it(base_type::lower_bound(freq));
-    double foundFreq(0.0);
 
     // check for past the last element:
     if (it == base_type::end()) {
         // back up one and return the last element:
         --it;
-        foundFreq = it -> first;
         target = it -> second;
         return true;
     }
     // check for freq <= the first element
     if (it == base_type::begin()) {
         // return the first element:
-        foundFreq = it -> first;
         target = it -> second;
         return true;
     }
     // check for exact frequency match:
     double freqHi = it -> first;
     if (freqHi == freq) {
-        foundFreq = it -> first;
         target = it -> second;
         return true;
     }
@@ -104,17 +100,14 @@ bool ParamTable::get(const double &freq, ParamTableRow &target, bool interpolate
     if (!interpolate) {
         if (weight >= 0.5) {
             // return the upper one:
-            foundFreq = freqHi;
             target = it2 -> second;
         } else {
             // return the lower one:
-            foundFreq = freqLo;
             target = it -> second;
         }
 
     // interpolate:
     } else {
-        // don't assign foundFreq;
         target = it -> second;
         target.weightedAdd(weight, it2 -> second);
     }

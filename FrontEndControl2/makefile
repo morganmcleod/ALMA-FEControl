@@ -29,7 +29,8 @@ export BUILD = L:/ALMA-FEControl
 
 # includes and libs for "portable" code = POSIX threads.  2.6.0: Using pthreds from MinGW 0.6 now.
 PTHREADINC =
-PTHREADLIB = -lpthreadGC-3.dll
+PTHREADLIB =
+#PTHREADLIB = -lpthreadGC-3.dll
 #PTHREADLIB = -Wl,-Bstatic -lpthread  # for static linking pthreads
 STATICGCCLIB =
 
@@ -69,9 +70,8 @@ export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) $(EXCHNDLINC) -I$(CURDIR)
 WINLIB = -lwinmm -lwsock32
 
 # flags for compiling C++ code:
-export CPPFLAGS = -O0 -fmessage-length=0
-#-Wall 
-export DEBUGFLAGS = -g2 -fno-omit-frame-pointer
+export CPPFLAGS = -O0 -fmessage-length=0 -Wall -Wno-dangling-else -Wno-reorder
+export DEBUGFLAGS = -g2
 
 # list of output files in subdirectories:
 CONFIGOUT = CONFIG/CartConfig.o CONFIG/ConfigManager.o CONFIG/Configuration.o CONFIG/ConfigProviderIniFile.o \
