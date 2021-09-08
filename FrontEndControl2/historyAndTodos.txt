@@ -38,7 +38,10 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
-2.11.0
+2.11.1b0
+  Fix I-V curve default numPoints.
+
+2.11.0 2021-09-07
   Fix compiler warnings, though some still suppressed.
   Compiled with msys64-mingw32 GCC 10.3.0
 

@@ -2240,6 +2240,8 @@ bool CartAssembly::measureIVCurveSingleSynchronous(int pol, int sb, float VJlow,
 
 bool CartAssembly::getIVCurveDefaults(int pol, int sb, float *VJlow_p, float *VJhigh_p, float *VJstep_p) {
 
+    static const unsigned numPoints(401);
+
     float VJMax = 3.0;
     switch (band_m) {
         case 4:
@@ -2265,7 +2267,7 @@ bool CartAssembly::getIVCurveDefaults(int pol, int sb, float *VJlow_p, float *VJ
     if (VJhigh_p)
         *VJhigh_p = VJMax;
     if (VJstep_p) {
-        *VJstep_p = (2 * VJMax) / 401;
+        *VJstep_p = (2 * VJMax) / (numPoints - 1);
         if (*VJstep_p < 0.001)
             *VJstep_p = 0.001;
     }
