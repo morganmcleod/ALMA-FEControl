@@ -29,7 +29,8 @@ BUILD = ..
 
 # includes and libs for "portable" code = POSIX threads:
 PTHREADINC =
-PTHREADLIB = -lpthreadGC-3.dll
+PTHREADLIB = 
+#PTHREADLIB = -lpthreadGC-3.dll # MingW32 0.6
 #PTHREADLIB = -Wl,-Bstatic -lpthread  # for static linking pthreads
 STATICGCCLIB =
 
@@ -60,7 +61,7 @@ APPLIBS = $(UTILLIB) $(AMBLIB) $(CPPUNITLIB) $(PORTABLELIB) $(NICANLIB)
 
 # C++ build options:
 CPPFLAGS = -O0 -fmessage-length=0 -Wall -Wno-deprecated-declarations
-DEBUGFLAGS = -g2 -fno-omit-frame-pointer
+DEBUGFLAGS = -g2
 
 # Link flags:
 LDFLAGS = -Wl,--enable-auto-import

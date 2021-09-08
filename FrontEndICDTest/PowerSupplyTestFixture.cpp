@@ -349,10 +349,9 @@ void PowerSupplyTestFixture:: implGetByte(AmbRelativeAddr monitor_RCA, const std
 	 */
 	string info,strReturn;
 	ostringstream bufReturn;
-	int num;
 
 	bufReturn.str("");
-	num = monitorU8(monitor_RCA, msg, &info);
+	monitorU8(monitor_RCA, msg, &info);
 
 	//Append monitored value to the message
 	bufReturn <<  "\n" << msg << ", Monitored Value=" << data_m[0] << "." << endl;
