@@ -171,6 +171,13 @@ DLLEXPORT short randomizeAnalogMonitors(short enable);
 //-----------------------
 // LO tuning and locking
 
+DLLEXPORT short cartSetLockingStrategy(short port, short strategy);
+///< Set the locking strategy to use:
+///< 0: original FETMS strategy with no LPR EDFA adjustment
+///< 1: ALMA cycle 8 strategy with LPR EDFA adjustment
+///< 2: Giorgio's 5-Points strategy, with LPR EDFA adjustment
+///< 3: Giorgio's 9-Points strategy, with LPR EDFA adjustment
+
 DLLEXPORT short cartSetLOFrequency(short port, double freqLO, double freqFLOOG, short sbLock);
 ///< Set the YTO tuning according to the given LO reference & floog frequencies.
 ///< sbLock = 0 means lock below the reference:  freqREF = freqLO + freqFLOOG;

@@ -32,12 +32,6 @@ using namespace FEConfig;
 #include <math.h>
 using namespace std;
 
-namespace FrontEndLVWrapper {
-    bool tryAlternateLockMethod = false;
-    bool defeatNormalLockDetect = false;
-};
-using namespace FrontEndLVWrapper;
-
 WCAImpl::WCAImpl(unsigned long channel, 
                  unsigned long nodeAddress,
                  const std::string &name,
@@ -68,9 +62,6 @@ void WCAImpl::reset() {
     paDrainVoltage_m[0] = paDrainVoltage_m[1] = 0.0;
     paGateVoltage_m[0] = paGateVoltage_m[1] = 0.0;
     amcDrainEVoltage_m = amcGateEVoltage_m = 0.0;
-    isLockedLO_m = false;
-    LockDetectStrategy_m = LOCK_DETECT_VOLTAGE;
-    resetPllCorrectionVoltageStats();
 }
 
 void WCAImpl::queryCartridgeState() {
@@ -83,14 +74,10 @@ void WCAImpl::queryCartridgeState() {
     lastFemcError_m = syncMonitorWithRetry(paPol1GateVoltage_RCA + 0x10000, paGateVoltage_m[1]);
     paEnable_m = (paDrainVoltage_m[0] > 0.2 || paDrainVoltage_m[1] > 0.2);
     photomixerEnable_m = photomixerEnable();
-    
-    // Check whether locked:
-    isLockedLO_m = testNormalLockDetect();
-    LockDetectStrategy_m = LOCK_DETECT_VOLTAGE;
 
     LOG(LM_INFO) << "WCAImpl::queryCartridgeState: port=" << port_m << " band=" << band_m << " YTO=" << ytoCoarseTune_m
         << " sbLock=" <<  ((pllSidebandLockSelect_m == 1) ? "1-aboveRef" : "0-belowRef") 
-        << " isLocked=" << isLockedLO_m
+        << " isLocked=" << testNormalLockDetect()
         << " nullInt=" << pllNullLoopIntegrator_m << " paEnable=" << paEnable_m << " photomixerEnable=" << photomixerEnable_m
         << " VD0=" << paDrainVoltage_m[0] << " VD1=" << paDrainVoltage_m[1]
         << " VG0=" << paGateVoltage_m[0] << " VG1=" << paGateVoltage_m[1] << endl;
@@ -102,7 +89,6 @@ void WCAImpl::queryCartridgeState() {
 void WCAImpl::ytoCoarseTune(unsigned short val) {
     ytoCoarseTune_m = val;
     WCAImplBase::ytoCoarseTune(val);
-    resetPllCorrectionVoltageStats();
 }
 
 void WCAImpl::ytoCoarseTuneWithTrace(unsigned short coarseYIG, const char *traceText) {
@@ -123,52 +109,9 @@ void WCAImpl::pllNullLoopIntegrator(bool val) {
 //-------------------------------------------------------------------------------------------------
 // Lock detection and monitoring
 
-const float WCAImpl::maxCVVariation(0.5);
-const float WCAImpl::lowCVRange(-6.5);
-const float WCAImpl::highCVRange(6.5);
 const float WCAImpl::lowLockDetectVoltage(3.0);
 const float WCAImpl::lowIFTotalPower(0.5);
 const float WCAImpl::lowRefTotalPower(0.5);
-
-float WCAImpl::pllLockDetectVoltage() {
-    float val = WCAImplBase::pllLockDetectVoltage();
-    if (FrontEndLVWrapper::defeatNormalLockDetect)
-        return 0.0;
-    else
-        return val;
-}
-
-float WCAImpl::pllCorrectionVoltage() {
-    float val = WCAImplBase::pllCorrectionVoltage();
-    pllCorrectionVoltage_count++;
-    if (val < pllCorrectionVoltage_min)
-        pllCorrectionVoltage_min = val;
-    if (val > pllCorrectionVoltage_max)
-        pllCorrectionVoltage_max = val;
-    return val;
-}
-
-void WCAImpl::resetPllCorrectionVoltageStats() {
-    pllCorrectionVoltage_count = 0;
-    pllCorrectionVoltage_min = 99.0;
-    pllCorrectionVoltage_max = -99.0;
-}
-
-bool WCAImpl::testPLLCorrectionVoltageStats() const {
-    return ((pllCorrectionVoltage_max - pllCorrectionVoltage_min) < maxCVVariation);
-}
-
-bool WCAImpl::testPLLUnlockDetect() {
-    return WCAImplBase::pllUnlockDetectLatch();
-}
-
-void WCAImpl::clearUnlockDetect() {
-    WCAImplBase::pllClearUnlockDetectLatch();
-}
-
-bool WCAImpl::testPLLCVInRange(const float &cv) const {
-    return (lowCVRange <= cv && cv <= highCVRange);
-}
 
 bool WCAImpl::testPLLPowerLevels() {
     return (fabsf(pllRefTotalPower()) > lowRefTotalPower
@@ -183,84 +126,8 @@ bool WCAImpl::testNormalLockDetect() {
     return (testPLLLockDetectVoltage() && testPLLPowerLevels());
 }
 
-bool WCAImpl::testPLLLockDetectVoltage2X() {
-    bool lock = testPLLLockDetectVoltage();
-    SLEEP(3);
-    lock &= testPLLLockDetectVoltage();
-    return lock;
-}
-
-bool WCAImpl::test2XVoltageLockDetect() {
-    return (testPLLLockDetectVoltage2X() && testPLLPowerLevels());
-}
-
-bool WCAImpl::testCorrVoltageLockDetect() {
-    if (band_m < 9) {
-        LOG(LM_ERROR) << "WCAImpl::testCorrVoltageLockDetect: only supported for band 9 and 10." << endl;
-        return false;
-    }
-    if (!testPLLPowerLevels()) {
-        LOG(LM_DEBUG) << "WCAImpl::testCorrVoltageLockDetect: failed testPLLPowerLevels" << endl;
-        return false;
-    }
-    short yto = getYTOCoarseTuneSetting();
-    float cv0 = pllCorrectionVoltage();
-    float cv1, cv2;
-    bool stepsOk(false), statsOk(false);
-    // move the YTO to +2 steps, then +1, measuring CV at each step:
-    if (testPLLCVInRange(cv0)) {
-        LOG(LM_INFO) << "WCAImpl::testCorrVoltageLockDetect: yto=" << yto << " cv0=" << cv0 << endl;
-        ytoCoarseTune(yto + 2);
-        SLEEP(1);
-        cv2 = pllCorrectionVoltage();
-        ytoCoarseTune(yto + 1);
-        SLEEP(1);
-        cv1 = pllCorrectionVoltage();
-        // Move back to starting YTO:
-        ytoCoarseTune(yto);
-        // When locked, the correction voltage decreases as the YTO tuning increases:
-        stepsOk = (cv0 > cv1 && cv1 > cv2);
-    }
-    if (stepsOk) {
-        // read several more times to collect stats on the variance of the CV:
-        SLEEP(1);
-        pllCorrectionVoltage();
-        SLEEP(1);
-        pllCorrectionVoltage();
-        SLEEP(1);
-        pllCorrectionVoltage();
-        SLEEP(1);
-        pllCorrectionVoltage();
-        SLEEP(1);
-        pllCorrectionVoltage();
-        statsOk = testPLLCorrectionVoltageStats();
-    }
-    if (stepsOk) {
-        LOG(LM_INFO) << "WCAImpl::testCorrVoltageLockDetect: cv1=" << cv1 << " cv2=" << cv2
-                     << " success=" << (stepsOk && statsOk)
-                     << " cvSize=" << pllCorrectionVoltage_count
-                     << " cvMin=" << pllCorrectionVoltage_min
-                     << " cvMax=" << pllCorrectionVoltage_max
-                     << endl;
-    }
-    return stepsOk && statsOk;
-}
-
-bool WCAImpl::interrogateLock() {
-    switch (LockDetectStrategy_m) {
-        case LOCK_DETECT_CORR_V:
-            return (testPLLCorrectionVoltageStats()
-                         && !pllNullLoopIntegrator_m
-                         && testPLLPowerLevels()
-                         && testPLLCVInRange(pllCorrectionVoltage()));
-
-        case LOCK_DETECT_2XVOLTAGE:
-            return test2XVoltageLockDetect();
-
-        case LOCK_DETECT_VOLTAGE:
-        default:
-            return testNormalLockDetect();
-    }
+bool WCAImpl::getLocked() {
+    return testNormalLockDetect();
 }
 
 bool WCAImpl::monitorLockForDisplay() const {
@@ -268,31 +135,9 @@ bool WCAImpl::monitorLockForDisplay() const {
         return false;   // the ref total power is now too low.
     if (fabsf(pllIfTotalPower_value) < lowIFTotalPower)
         return false;   // the IF total power is now too low.
-
-    switch (LockDetectStrategy_m) {
-        case LOCK_DETECT_CORR_V:
-            // previous lock was in the 'CORR_V' way.
-            if (pllNullLoopIntegrator_value)
-                return false;   // ...but now the PLL is defeated so it can't be considered locked.
-            if (!testPLLCVInRange(pllCorrectionVoltage_value))
-                return false;   // ...but now the PLL cv is out of range.
-            if (!testPLLCorrectionVoltageStats()) {
-                LOG(LM_DEBUG) << "WCAImpl::monitorLockForDisplay: no lock"
-                             << " cvSize=" << pllCorrectionVoltage_count
-                             << " cvMin=" << pllCorrectionVoltage_min
-                             << " cvMax=" << pllCorrectionVoltage_max << endl;
-                return false;   // ...but now the correction voltage variance is too large.
-            }
-            break;
-
-        case LOCK_DETECT_VOLTAGE:
-        case LOCK_DETECT_2XVOLTAGE:
-        default:
-            // we were previously locked in the 'normal' or '2XVOLTAGE' way.
-            if (pllLockDetectVoltage_value < lowLockDetectVoltage)
-                return false;   // ...but lock detect voltage has dropped below threshold.
-            break;
-    }
+    // we were previously locked in the 'normal' or '2XVOLTAGE' way.
+    if (pllLockDetectVoltage_value < lowLockDetectVoltage)
+        return false;   // ...but lock detect voltage has dropped below threshold.
     // appears we are still locked:
     return true;
 }
@@ -300,93 +145,8 @@ bool WCAImpl::monitorLockForDisplay() const {
 //-------------------------------------------------------------------------------------------------
 // Locking procedure
 
-bool WCAImpl::searchForLock(int &coarseYIG, int windowSteps, int stepSize) {
-    int loLimit = coarseYIG - windowSteps;
-    if (loLimit < 0)
-        loLimit = 0;
-    int hiLimit = coarseYIG + windowSteps;
-    if (hiLimit > 4095)
-        hiLimit = 4095;
-    int tryCoarseYIG = coarseYIG;
-    int stepSleep = 2;  // ms - YTO moves to within 10% of commanded value after 1 ms.
-    bool lock = false;
-    bool error = false;
-
-    isLockedLO_m = false;
-    LockDetectStrategy_m = LOCK_DETECT_VOLTAGE;
-    if (band_m == 1 || band_m == 2) {
-        // Use the 2XVOLTAGE lock detect for bands 1 and 2:
-        LockDetectStrategy_m = LOCK_DETECT_2XVOLTAGE;
-        // Band1 seems to have a slower YTO:
-        stepSleep = 10;
-    }
-
-    // outer loop tries normal lock search and then alternateLockTest for bands 9 & 10:
-    while (!lock && !error) {
-        ytoCoarseTuneWithTrace(coarseYIG, "WCAImpl::searchForLock initial");
-        // give the YTO time to slew:
-        SLEEP(stepSleep);
-        LOG(LM_INFO) << "Searching for Lock with strategy " << LockDetectStrategy_m << "..." << endl;
-
-        // initialize stepping size and direction:
-        int step = stepSize;
-
-        // inner loop searches for lock using standard or alternateLockTest strategy:
-        while (!lock && !error) {
-            switch (LockDetectStrategy_m) {
-                case LOCK_DETECT_CORR_V:
-                    lock = testCorrVoltageLockDetect();
-                    break;
-
-                case LOCK_DETECT_2XVOLTAGE:
-                    lock = test2XVoltageLockDetect();
-                    break;
-
-                case LOCK_DETECT_VOLTAGE:
-                default:
-                    lock = testPLLLockDetectVoltage();
-                    break;
-            }
-
-            if (!lock) {
-                // no lock so move the YTO to the next try frequency:
-                tryCoarseYIG = coarseYIG + step;
-                if (tryCoarseYIG >= loLimit && tryCoarseYIG <= hiLimit) {
-                    pllNullLoopIntegrator(true);
-                    ytoCoarseTuneWithTrace(tryCoarseYIG, "WCAImpl::searchForLock");
-                    SLEEP(stepSleep);
-                    pllNullLoopIntegrator(false);
-                    SLEEP(stepSleep);   // was clearUnlockDetect() but that shouldn't be needed inside the loop.
-                }
-                // step increases by stepsize or alternates sign each iteration
-                //  to expand the search outward from the starting value:
-                if (step > 0)
-                    step = -step;
-                else {
-                    step = -step + stepSize;
-                    if (step > windowSteps)
-                        error = true;
-                }
-            }
-        }
-        // can we try again with the correction voltage strategy?
-        if (!lock && LockDetectStrategy_m == LOCK_DETECT_VOLTAGE
-                  && tryAlternateLockMethod)
-        {
-            // retry inner loop again:
-            LockDetectStrategy_m = LOCK_DETECT_CORR_V;
-            error = false;
-        }
-    }
-    if (lock)
-        coarseYIG = tryCoarseYIG;
-    isLockedLO_m = lock;
-    return isLockedLO_m;
-}
-
 bool WCAImpl::adjustPLL(float targetCorrVoltage) {
     LOG(LM_INFO) << "WCAImpl::adjustPLL targetCV=" << targetCorrVoltage << endl;
-
     int maxDist(50);
     int dist(0);
     double window(0.25);
@@ -401,9 +161,12 @@ bool WCAImpl::adjustPLL(float targetCorrVoltage) {
 
     LOG(LM_INFO) << "WCAImpl::adjustPLL CV=" << correctionVoltage << " vError=" << voltageError << " coarseYIG=" << tryCoarseYIG << endl;
 
-    if (tryCoarseYIG >= 0)
+    vector<unsigned short> controlHistory;
+
+    if (tryCoarseYIG >= 0) {
         ytoCoarseTuneWithTrace(tryCoarseYIG, "WCAImpl::adjustPLL initial");
-    else
+        controlHistory.push_back(tryCoarseYIG);
+    } else
         return false;
 
     bool done = false;
@@ -413,7 +176,11 @@ bool WCAImpl::adjustPLL(float targetCorrVoltage) {
         correctionVoltage = pllCorrectionVoltage();
         if (correctionVoltage >= loThreshold && correctionVoltage <= hiThreshold)
             done = true;
-        else if (--retries <= 0) {
+        // check for oscillations:
+        else if (controlHistory.size() == 5 && controlHistory[0] == controlHistory[2] && controlHistory[2] == controlHistory[4]) {
+            done = true;
+            LOG(LM_INFO) << "WCAImpl::adjustPLL detected oscillation." << endl;
+        } else if (--retries <= 0) {
             done = true;
             LOG(LM_INFO) << "WCAImpl::adjustPLL too many retries." << endl;
         } else {
@@ -424,12 +191,17 @@ bool WCAImpl::adjustPLL(float targetCorrVoltage) {
                 dist = -dist;
             if (dist > maxDist)
                 error = true;
-            else if (tryCoarseYIG >= 0 && tryCoarseYIG <= 4095)
+            else if (tryCoarseYIG >= 0 && tryCoarseYIG <= 4095) {
                 ytoCoarseTuneWithTrace(tryCoarseYIG, "WCAImpl::adjustPLL");
+                // Save the history of control values, limited to 5 elements:
+                controlHistory.push_back(tryCoarseYIG);
+                if (controlHistory.size() == 6)
+                    controlHistory.erase(controlHistory.begin());
+            }
         }
     }
 
-    if (!interrogateLock()) {
+    if (!getLocked()) {
         string msg("WCAImpl ERROR: band ");
         msg += to_string(band_m);
         msg += " lost the lock while adjusting the PLL.";
@@ -438,7 +210,7 @@ bool WCAImpl::adjustPLL(float targetCorrVoltage) {
         error = true;
     } else
         // clear the unlock detect latch so we will see if lock is lost hereafter:
-        clearUnlockDetect();
+        pllClearUnlockDetectLatch();
     return done && !error;
 }
 
@@ -536,7 +308,7 @@ void WCAImpl::setEnableLO(bool enable, bool setAMC, bool detune) {
         WCAImplBase::paPol0DrainVoltage(paDrainVoltage_m[0]);
         WCAImplBase::paPol1DrainVoltage(paDrainVoltage_m[1]);
         // Clear the unlock detect latch:
-        clearUnlockDetect();
+        pllClearUnlockDetectLatch();
     }
 }
 

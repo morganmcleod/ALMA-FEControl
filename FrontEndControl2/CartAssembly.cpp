@@ -28,6 +28,9 @@
 
 #include "CartAssembly.h"
 #include "FEMCEventQueue.h"
+#include "LockingStrategy.h"
+#include "LOCK_ONLINE_2021JUL_B.h"
+#include "ICT_19283_LOCK_CV_Points.h"
 #include "iniFile.h"
 #include "logger.h"
 #include "stringConvert.h"
@@ -44,19 +47,20 @@
 #include "OPTIMIZE/XYPlotArray.h"
 
 using namespace FEConfig;
+using namespace std;
 #include <stdio.h>
 #include <math.h>
 #include <algorithm>
 #include <string>
 #include <sstream>
 #include <vector>
-using namespace std;
 
 std::string CartAssembly::FineLoSweepIni_m = std::string();
 
 CartAssembly::CartAssembly(const std::string &name, WCAImpl *WCA, ColdCartImpl *coldCart)
   : WCA_mp(WCA),
     coldCart_mp(coldCart),
+    lockingStrategy_mp(NULL),
 	measureSISVoltageErr_mp(NULL),
     cartHealthCheck_mp(NULL),
     optimizerPA_mp(NULL),
@@ -72,6 +76,7 @@ CartAssembly::CartAssembly(const std::string &name, WCAImpl *WCA, ColdCartImpl *
 {
     int WCABand((WCA_mp) ? WCA_mp -> getBand() : 0); 
     int CCBand((coldCart_mp) ? coldCart_mp -> getBand() : 0);
+    setLockingStrategy(WCAConfig::LOCK_NORMAL);
     reset();
     if (WCA_mp) {
         if (coldCart_mp) {
@@ -94,6 +99,7 @@ CartAssembly::CartAssembly(const std::string &name, WCAImpl *WCA, ColdCartImpl *
 }
 
 CartAssembly::~CartAssembly() {
+    delete lockingStrategy_mp;
 	delete measureSISVoltageErr_mp;
     delete cartHealthCheck_mp;
     delete optimizerPA_mp;
@@ -115,6 +121,29 @@ void CartAssembly::reset() {
     enable_m = observing_m = false;
     freqLO_m = freqFLOOG_m = freqREF_m = 0;
     isTunedLO_m = false;
+    LOG(LM_DEBUG) << "reset()" << endl;
+}
+
+void CartAssembly::setLockingStrategy(WCAConfig::LOCK_STRATEGY_OPTS strategy, bool allowEdfaAdjust) {
+    if (lockingStrategy_mp) {
+        delete lockingStrategy_mp;
+        lockingStrategy_mp = NULL;
+    }
+    switch (strategy) {
+        case WCAConfig::LOCK_ONLINE_2021JUL_B:
+            lockingStrategy_mp = new LOCK_ONLINE_2021JUL_B(allowEdfaAdjust);
+            break;
+        case WCAConfig::LOCK_5_POINTS:
+            lockingStrategy_mp = new ICT_19283_LOCK_CV_Points(5, 6, allowEdfaAdjust);
+            break;
+        case WCAConfig::LOCK_9_POINTS:
+            lockingStrategy_mp = new ICT_19283_LOCK_CV_Points(9, 5, allowEdfaAdjust);
+            break;
+        case WCAConfig::LOCK_NORMAL:
+        default:
+            lockingStrategy_mp = new LOCK_Normal(allowEdfaAdjust);
+            break;
+    }
 }
 
 const std::string &CartAssembly::getBandText(std::string &toFill) const {
@@ -142,6 +171,8 @@ void CartAssembly::queryCartridgeState() {
         freqLO_m = (floor(freqLO_m * 10 + 0.5) / 10);
         freqREF_m = freqWCA + ((sbLock == 0) ? freqFLOOG : -freqFLOOG);
         isTunedLO_m = true;
+        LOG(LM_DEBUG) << "CartAssembly::queryCartridgeState: band_m=" << band_m
+                      << " freqLO_m=" << freqLO_m << " freqREF_m=" << freqREF_m << " isTunedLO_m=" << isTunedLO_m << endl;
     }
     if (coldCart_mp)
         coldCart_mp -> queryCartridgeState();
@@ -245,6 +276,7 @@ void CartAssembly::setWCAConfig(const WCAConfig &params) {
     if (checkWCA("CartAssembly::setWCAConfig")) {
         config_m.Id_m.band_m = params.band_m;
         config_m.WCA_m = params;
+        setLockingStrategy(params.lockingStrategy_m);
         LOG(LM_INFO) << config_m.WCA_m;
     }
 }
@@ -340,48 +372,11 @@ bool CartAssembly::getMonitorYTO(WCAImpl::YTO_t &target) const {
 bool CartAssembly::lockPLL() {
     if (!checkWCA("CartAssembly::lockPLL"))
         return false;
-
-    if (freqLO_m == 0.0)
-        return false;
-
-    LOG(LM_INFO) << "Locking PLL...." << endl;
-
-    double freqYIG = 0;
-    double freqREF = 0;
-    int sbLock = WCA_mp -> getPLLSidebandLockSelectSetting();
-    int coarseYIG = getCoarseYIG(freqYIG, freqREF, freqLO_m, freqFLOOG_m, sbLock);
-    if (coarseYIG < 0) {  
-        coarseYIG = 0;
+    if (freqLO_m == 0.0) {
+        LOG(LM_ERROR) << "CartAssembly::lockPLL: LO frequency is 0.0" << endl;
         return false;
     }
-
-    // lock search window is +/- 50 MHz:
-    const double window(0.05);
-
-    // lock search step size is 3 MHz:
-    const double step(0.003);
-    
-    // compute YIG step size:
-    double stepYIG = (config_m.WCA_m.FHIYIG_m - config_m.WCA_m.FLOYIG_m) / 4095.0;
-
-    // lock search window in YIG steps: 
-    int windowSteps = (int) (window / stepYIG) + 1;
-     
-    // lock step size in YIG steps:
-    int stepSize = (int) (step / stepYIG);
-    if (stepSize == 0)
-        stepSize = 1;
-    
-    pauseMonitor(true, true, "Searching for lock.");
-
-    bool success = WCA_mp -> searchForLock(coarseYIG, windowSteps, stepSize);
-    if (success) {
-        // clear the unlock detect latch so we will see if lock is lost from here on:
-        WCA_mp -> clearUnlockDetect();
-        success = WCA_mp -> adjustPLL(0.0);
-    }
-    pauseMonitor(false, false);
-    return success;
+    return lockingStrategy_mp -> lockPLL(*this);
 }
 
 bool CartAssembly::adjustPLL(float targetCorrVoltage) {

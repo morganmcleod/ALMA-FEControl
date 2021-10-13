@@ -369,7 +369,15 @@ bool ConfigProviderIniFile::getWCAConfig(unsigned WCABand, unsigned keyWCA, WCAC
     target.SN_m = iniFile_mp -> GetValue(sectionName, "SN");
     target.ESN_m = iniFile_mp -> GetValue(sectionName, "ESN");
     target.description_m = iniFile_mp -> GetValue(sectionName, "Description");
+
+    tmp = iniFile_mp -> GetValue(sectionName, "LoopBW");
+    if (!tmp.empty())
+        target.loopBW_m = static_cast<WCAConfig::LOOPBW_OPTS>(from_string<int>(tmp));
     
+    tmp = iniFile_mp -> GetValue(sectionName, "LockStrategy");
+    if (!tmp.empty())
+        target.lockingStrategy_m = static_cast<WCAConfig::LOCK_STRATEGY_OPTS>(from_string<int>(tmp));
+
     // If the XML key is defined, load the configuration from the XML file instead:
     tmp = iniFile_mp -> GetValue(sectionName, "XML");
     if (!tmp.empty()) {
@@ -399,10 +407,6 @@ bool ConfigProviderIniFile::getWCAConfig(unsigned WCABand, unsigned keyWCA, WCAC
     tmp = iniFile_mp -> GetValue(sectionName, "LOParams");
     if (!tmp.empty())
         numParams = from_string<unsigned>(tmp);
-
-    tmp = iniFile_mp -> GetValue(sectionName, "LoopBW");
-    if (!tmp.empty())
-        target.loopBW_m = static_cast<WCAConfig::LOOPBW_OPTS>(from_string<int>(tmp));
 
     if (numParams) {       
         double freqLO;

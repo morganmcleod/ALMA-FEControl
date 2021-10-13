@@ -20,6 +20,7 @@
 */
 
 #include "CartConfig.h"
+#include "logger.h"
 #include <iomanip>
 using namespace std;
 
@@ -63,6 +64,7 @@ void WCAConfig::reset(unsigned band, unsigned keyWCA) {
     FLOYIG_m = FHIYIG_m = 0.0;      
     PAParams_m.clear(); 
     loopBW_m = LOOPBW_DEFAULT;
+    lockingStrategy_m = LOCK_NORMAL;
 }
 
 void WCAConfig::streamOut(std::ostream& out) const {
@@ -85,10 +87,10 @@ void WCAConfig::streamOut(std::ostream& out) const {
         }
         out  << "band=" << band_m <<" SN='" << SN_m << "' ESN='" << ESN_m << "'"
              << setprecision(4) << " FLOYIG=" << FLOYIG_m << " FHIYIG=" << FHIYIG_m
-             << " loopBW=" << loopBW
+             << " loopBW=" << loopBW << " lockingStrategy=" << lockingStrategy_m
              << " '" << description_m << "'" << endl;
         if (DEBUG_CONFIG_PARAMS) {
-            out << " - PowerAmpParams:" << endl << PAParams_m;
+            out << " - PowerAmpParams:" << PAParams_m << endl;
         }
     }
 }

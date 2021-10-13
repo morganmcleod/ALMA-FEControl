@@ -17,13 +17,14 @@
 #
 # Morgan McLeod <mmcleod@nrao.edu> 2021-10-15
 
-CONFIGCPP = $(wildcard *.cpp) 
+DLLCPP = $(wildcard *.cpp) 
 
-.PHONY: config
-config: $(CONFIGCPP)
-	g++ $(CPPFLAGS) $(DEBUGFLAGS) \
-	$(PROJECTINC) $(MYSQLINC) $(EXPATMMINC) \
-	-c $(CONFIGCPP)
+.PHONY: dllimpl
+dllimpl: $(DLLCPP)
+	windres -i resource.rc -o resource.o
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -DBUILD_FRONTENDCONTROL \
+	$(PROJECTINC) \
+	-c $(DLLCPP)
 
 clean:
 	@rm -rf *.a

@@ -73,10 +73,6 @@ namespace FrontEndLVWrapper {
     bool allowSISHeaters = true;        ///< Normally true: allow operation of SIS heaters
     bool correctSISVoltageError = true; ///< Normally true: perform SIS voltage offset measurement and correction
     bool SISOpenLoop = false;           ///< Normally false: run SIS voltage open-loop
-    extern bool tryAlternateLockMethod; ///< Normally false, declared in WCAImpl.cpp:
-                                        ///<   indicate lock based on behavior of the PLL correction voltage
-    extern bool defeatNormalLockDetect; ///< Normally false, declared in WCAImpl.cpp:
-                                        ///<   skip normal lock detection altogether
     short FEMode = 0;                   ///< Normally 0=Operational, 1=Troubleshooting, 2=Maintenance
     bool randomizeMonitors = false;     ///< Normally false: do all analog monitoring in random order
     bool logMonitors = false;           ///< Normally false: log all analog monitor data to FELog
@@ -176,16 +172,6 @@ DLLEXPORT short FEControlInit() {
             SISOpenLoop = from_string<unsigned long>(tmp);
         LOG(LM_INFO) << "SISOpenLoop=" << SISOpenLoop << endl;
 
-        tmp = configINI.GetValue("debug", "tryAlternateLockMethod");
-        if (!tmp.empty())
-            tryAlternateLockMethod = from_string<unsigned long>(tmp);
-        LOG(LM_INFO) << "tryAlternateLockMethod=" << tryAlternateLockMethod << endl;
-
-        tmp = configINI.GetValue("debug", "defeatNormalLockDetect");
-        if (!tmp.empty())
-            defeatNormalLockDetect = from_string<unsigned long>(tmp);
-        LOG(LM_INFO) << "defeatNormalLockDetect=" << defeatNormalLockDetect << endl;
-
         tmp = configINI.GetValue("debug", "FEMode");
         if (!tmp.empty())
             FEMode = from_string<short>(tmp);
@@ -237,7 +223,7 @@ DLLEXPORT short FEControlInit() {
     
     short ret = -1;
     if (nodeAddress) {
-        frontEnd = new FrontEndImpl(CANChannel, nodeAddress, "ESN-FE");
+        frontEnd = new FrontEndImpl(CANChannel, nodeAddress);
         if (frontEnd -> connected()) {
             frontEnd -> setLogMonTimers(logMonTimers);
             ret = 0;
@@ -862,6 +848,28 @@ DLLEXPORT short randomizeAnalogMonitors(short enable) {
 }
 
 //----------------------------------------------------------------------------
+
+DLLEXPORT short cartSetLockingStrategy(short port, short strategy) {
+    bool isSignalSource(false);
+    if (!validatePortNumber(port, &isSignalSource))
+        return -1;
+
+    if (isSignalSource) {
+       SignalSourceImpl *sigSrc = getSignalSourceImpl();
+       if (!sigSrc)
+           return -1;
+       if (!sigSrc -> cartSetLockingStrategy(strategy))
+           return -1;
+       return 0;
+
+   } else {
+       if (!FEValid)
+           return -1;
+       if (!frontEnd -> cartSetLockingStrategy(port, strategy))
+           return -1;
+       return 0;
+   }
+}
 
 DLLEXPORT short cartSetLOFrequency(short port, double freqLO, double freqFLOOG, short sbLock) {
     bool isSignalSource(false);

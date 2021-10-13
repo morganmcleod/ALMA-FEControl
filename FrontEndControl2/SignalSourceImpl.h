@@ -83,6 +83,7 @@ public:
     bool cartGetMonitorPA(WCAImpl::PA_t &target) const;
 
 // Control commands for cartridges:
+    bool cartSetLockingStrategy(int strategy);
     bool cartSetLOFrequency(double freqLO, double freqFLOOG, int sbLock);
     bool cartGetLOFrequency(double &freqLO, double &freqREF) const;
     bool cartLockPLL();

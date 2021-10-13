@@ -82,7 +82,8 @@ namespace FEConfig {
             band_m(0),
             FLOYIG_m(0.0),
             FHIYIG_m(0.0),
-            loopBW_m(LOOPBW_DEFAULT)
+            loopBW_m(LOOPBW_DEFAULT),
+            lockingStrategy_m(LOCK_NORMAL)
             {}
         ///< construct with the primary keyWCA
         ~WCAConfig()
@@ -100,7 +101,12 @@ namespace FEConfig {
             LOOPBW_NORMAL   = 0,    ///< override to use the "normal" loop BW:   7.5MHz/V (Band 4,8,9)
             LOOPBW_ALT      = 1     ///< override to use the "alternate" loop BW: 15MHz/V (Band 3,5,6,7,10)
         };
-
+        enum LOCK_STRATEGY_OPTS {
+            LOCK_NORMAL             = 0,
+            LOCK_ONLINE_2021JUL_B   = 1,
+            LOCK_5_POINTS           = 2,
+            LOCK_9_POINTS           = 3
+        };
         unsigned keyWCA_m;          ///< along with provider, uniquely identifies a record in ColdCarts table.
         unsigned band_m;            ///< the cartridge band.
         std::string SN_m;           ///< the assigned serial number for the WCA.
@@ -110,6 +116,7 @@ namespace FEConfig {
         PowerAmpParams PAParams_m;  ///< contains the LO PA bias values which vary with LO frequency.
         std::string description_m;  ///< description of the WCA
         LOOPBW_OPTS loopBW_m;       ///< loop bandwidth option.
+        LOCK_STRATEGY_OPTS lockingStrategy_m;  ///< locking strategy to use.
     };
 
     inline std::ostream &operator << (std::ostream& out, const WCAConfig &config)

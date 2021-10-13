@@ -1,5 +1,5 @@
 # ALMA - Atacama Large Millimiter Array
-# (c) Associated Universities Inc., 2006-2017
+# (c) Associated Universities Inc., 2006-2021
 #
 # This library is free software; you can redistribute it and/or modify it 
 # under the terms of the GNU Library General Public License as published by 
@@ -15,23 +15,24 @@
 # along with this library; if not, write to the Free Software Foundation, 
 # Inc., 675 Massachusetts Ave, Cambridge, MA, 02139, USA.
 #
-# Morgan McLeod <mmcleod@nrao.edu> 15 February 2017
+# Morgan McLeod <mmcleod@nrao.edu> 2021-10-15
 #
-# makefile for ALMA FrontEnd low-level control library for Windows.
+# makefile for ALMA FrontEnd control library for Windows.
 #
 # uses:
-# MinGW from http://www.mingw.org/ provides a POSIX build environment including GCC 3.4.5.
-# Pthreads-win32 from http://sourceware.org/pthreads-win32/
-# NI-CAN 2.2 from National Instruments via nicanmsc.lib which is the API for Microsoft VCPP.
-# MySQL C API version 4.1 or later from http://www.mysql.com/
-#
+#   MSYS2 from https://www.msys2.org/ with mingw32 for 32-bit build 
+#     a POSIX build environment including GCC 10.3 or newer
+#   NI-CAN 2.2 or newer from National Instruments via nicanmsc.lib which is the API for Microsoft VCPP.
+#   MySQL C API version 4.1 or later from http://www.mysql.com/
+#   ExcHndl from Dr.Mingw https://github.com/jrfonseca/drmingw embeddable exception handler 
+#     for Windows post-mortem crash analysis 
+#   ExpatMM XML Parser class for C++ based upon Expat https://github.com/ckane/expatmm
+#     
 export BUILD = L:/ALMA-FEControl
 
-# includes and libs for "portable" code = POSIX threads.  2.6.0: Using pthreds from MinGW 0.6 now.
+# these may be vestigial:
 PTHREADINC =
 PTHREADLIB =
-#PTHREADLIB = -lpthreadGC-3.dll
-#PTHREADLIB = -Wl,-Bstatic -lpthread  # for static linking pthreads
 STATICGCCLIB =
 
 export PORTABLEINC = $(PTHREADINC)
@@ -40,8 +41,8 @@ PORTABLELIB = $(PTHREADLIB) $(STATICGCCLIB)
 export EXCHNDLINC = -I$(BUILD)/3rdparty/drmingw/include
 EXCHNDLIB = -L$(BUILD)/3rdparty/drmingw/lib -lexchndl
 
-export EXPATMMINC = -IC:\MinGW\msys\1.0\local\include\expatmm-1.0
-EXPATMMLIB = -LC:\MinGW\msys\1.0\local\lib -lexpatmm
+export EXPATMMINC = -I$(BUILD)/3rdparty/expatmm-1.0
+EXPATMMLIB = -L$(BUILD)/3rdparty/expatmm-1.0/lib -lexpatmm
 
 # includes and libs for the CppUtilityLib library:
 export UTILINC = -I$(BUILD)/CppUtilityLib/include
@@ -63,32 +64,28 @@ MYSQLLIB = -L$(BUILD)/3rdparty/MySQL41/lib/debug -Wl,-Bdynamic -llibmysql
 export NICANINC = -I$(BUILD)/3rdparty/Nican/include
 NICANLIB = $(BUILD)/3rdparty/Nican/lib/nicanmsc.lib
 
-# project includes are CppUtilityLib, FEICDBLib, FrontEndAMBLib, and this directory:
-export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) $(EXCHNDLINC) -I$(CURDIR)
+# project includes plus this directory:
+export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) $(EXCHNDLINC) $(EXPATMMINC) -I$(CURDIR)
 
 # windows libs:
 WINLIB = -lwinmm -lwsock32
 
 # flags for compiling C++ code:
+#  don't warn about else clauses without braces
+#  don't warn about C++ member initializers out of order in constructor 
 export CPPFLAGS = -O0 -fmessage-length=0 -Wall -Wno-dangling-else -Wno-reorder
 export DEBUGFLAGS = -g2
 
 # list of output files in subdirectories:
-CONFIGOUT = CONFIG/CartConfig.o CONFIG/ConfigManager.o CONFIG/Configuration.o CONFIG/ConfigProviderIniFile.o \
-	CONFIG/FrontEndConfig.o CONFIG/FrontEndDatabase.o CONFIG/LookupTables.o CONFIG/SubsysConfig.o CONFIG/XMLParser.o
-FEBASEOUT = FEBASE/AMBSIHardwareDevice.o \
-	FEBASE/ColdCartImplBase.o FEBASE/CompressorImplBase.o FEBASE/CryostatImplBase.o \
-	FEBASE/FETIMImplBase.o FEBASE/FEHardwareDevice.o FEBASE/FrontEndImplBase.o \
-	FEBASE/IFSwitchImplBase.o FEBASE/LORTMImplBase.o FEBASE/LPRImplBase.o \
-	FEBASE/PowerModuleImplBase.o FEBASE/WCAImplBase.o
-LOGGEROUT = LOGGER/ambTransactionLogger.o LOGGER/feAddressMeta.o LOGGER/logDir.o
-OPTIMIZEOUT = OPTIMIZE/CartHealthCheck.o OPTIMIZE/CryostatPumping.o \
-    OPTIMIZE/Maximizer.o OPTIMIZE/MaximizeIFPower.o OPTIMIZE/MeasureFineLOSweep.o \
-	OPTIMIZE/MeasureIVCurve.o OPTIMIZE/MeasureSISCurrent.o OPTIMIZE/MeasureSISVoltageError.o \
-	OPTIMIZE/MeasureIFPower.o OPTIMIZE/MixerDeflux.o OPTIMIZE/MixerHeating.o \
-    OPTIMIZE/OptimizeBase.o OPTIMIZE/OptimizeLOPowerAmp.o OPTIMIZE/ThermalLogger.o
+DLLOUT = $(patsubst %.cpp,%.o,$(wildcard DLL/*.cpp)) DLL/resource.o
+CONFIGOUT := $(patsubst %.cpp,%.o,$(wildcard CONFIG/*.cpp))
+FEBASEOUT := $(patsubst %.cpp,%.o,$(wildcard FEBASE/*.cpp))
+LOGGEROUT := $(patsubst %.cpp,%.o,$(wildcard LOGGER/*.cpp))
+OPTIMIZEOUT := $(patsubst %.cpp,%.o,$(wildcard OPTIMIZE/*.cpp))
 
-# rules to build all library files in subdirectories:
+# rules to build library files in subdirectories:
+$(DLLOUT):
+	$(MAKE) -C DLL	
 $(CONFIGOUT):
 	$(MAKE) -C CONFIG
 $(FEBASEOUT):
@@ -98,44 +95,32 @@ $(LOGGEROUT):
 $(OPTIMIZEOUT):
 	$(MAKE) -C OPTIMIZE
 	
-# rule to build the top-level Front End files:
-FRONTENDCPP = CartAssembly.cpp CartridgesContainer.cpp ColdCartImpl.cpp CompressorImpl.cpp CryostatImpl.cpp \
-	FEMCErrors.cpp FEMCEventQueue.cpp FETIMImpl.cpp FrontEndImpl.cpp IFSwitchImpl.cpp LORTMImpl.cpp LPRImpl.cpp \
-	PowerModuleImpl.cpp PowerModulesContainer.cpp SignalSourceImpl.cpp DLL/SWVersion.cpp WCAImpl.cpp
-FRONTENDOUT = CartAssembly.o CartridgesContainer.o ColdCartImpl.o CompressorImpl.o CryostatImpl.o \
-	FEMCErrors.o FEMCEventQueue.o FETIMImpl.o FrontEndImpl.o IFSwitchImpl.o LORTMImpl.o LPRImpl.o \
-	PowerModuleImpl.o PowerModulesContainer.o SignalSourceImpl.o SWVersion.o WCAImpl.o
+# rules to build the top-level Front End files:
+FRONTENDCPP = $(wildcard *.cpp)
+FRONTENDOUT = $(patsubst %.cpp,%.o,$(wildcard $(FRONTENDCPP)))
 	
 .PHONY: frontend
 frontend: $(FRONTENDOUT)
 $(FRONTENDOUT): $(FRONTENDCPP)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) \
-	 $(PROJECTINC) $(PORTABLEINC) $(MYSQLINC) \
+	$(PROJECTINC) $(PORTABLEINC) $(MYSQLINC) \
 	-c $(FRONTENDCPP)
 
 # List of all output files:
-ALLOUT = $(CONFIGOUT) $(FEBASEOUT) $(FRONTENDOUT) $(LOGGEROUT) $(OPTIMIZEOUT) DLL/resource.o
+ALLOUT = $(CONFIGOUT) $(FEBASEOUT) $(FRONTENDOUT) $(LOGGEROUT) $(OPTIMIZEOUT) $(DLLOUT)
 
 .PHONY: allout
 allout: $(ALLOUT)
 
-# Rule to compile the resource file:
-DLL/resource.o: DLL/resource.rc
-	windres -i DLL/resource.rc -o DLL/resource.o
-
-# Rule to make the DLL:
 .PHONY: dll
 dll: FrontEndControl.dll DLL/libFrontEndControl.a DLL/FrontEndControl.def
 
-DLLCPP = DLL/DllMain.c DLL/lv_structs.cpp DLL/lv_wrapper.cpp DLL/lv_wrapper_Compressor.cpp DLL/lv_wrapper_FE.cpp DLL/lv_wrapper_LORTM.cpp DLL/lv_wrapper_sigSrc.cpp
-
 FrontEndControl.dll DLL/FrontEndControl.def: $(DLLCPP) $(ALLOUT)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -DBUILD_FRONTENDCONTROL -shared -o FrontEndControl.dll \
-	$(DLLCPP) $(ALLOUT) \
+	$(ALLOUT) \
 	$(PROJECTINC) $(PORTABLEINC) $(MYSQLINC) \
 	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIB) $(NICANLIB) $(PORTABLELIB) $(EXCHNDLIB) $(EXPATMMLIB) \
 	-Wl,--enable-auto-import,--output-def,DLL/FrontEndControl.def
-#	- cp FrontEndControl.dll "../../labview2013/drivers/FE Control/"
 
 # Build the import library for linking to the DLL:
 DLL/libFrontEndControl.a: FrontEndControl.dll DLL/FrontEndControl.def
@@ -197,7 +182,7 @@ oneFile:
 	$(MAKE) FEMCEventQueue.o
 	
 clean:
-	@for dir in CONFIG FEBASE LOGGER OPTIMIZE; do \
+	@for dir in DLL CONFIG FEBASE LOGGER OPTIMIZE; do \
 	           $(MAKE) -C $$dir clean; \
              done
 	rm -rf *.a

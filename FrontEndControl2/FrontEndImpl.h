@@ -44,8 +44,7 @@ class PowerModulesContainer;
 class FrontEndImpl : public FrontEndImplBase, public ThermalLoggable {
 public:
     FrontEndImpl(unsigned long channel, 
-                 unsigned long nodeAddress, 
-                 const std::string &ESN = "");
+                 unsigned long nodeAddress);
     virtual ~FrontEndImpl();
 
     virtual void initialize(unsigned long channel, unsigned long nodeAddress);
@@ -151,6 +150,7 @@ public:
     bool cartGetMonitorAux(int port, int pol, ColdCartImpl::Aux_t &target) const;
 
 // Control commands for cartridges:
+    bool cartSetLockingStrategy(int port, int strategy);
     bool cartSetLOFrequency(int port, double freqLO, double freqFLOOG, int sbLock);
     bool cartSetCenterLOFrequency(int port, double freqFLOOG, int sbLock);
     bool cartGetLOFrequency(int port, double &freqLO, double &freqREF) const;
@@ -354,7 +354,6 @@ private:
 
     // configuration data for the front end:
     unsigned SN_m;      ///< this front end's serial number, numeric portion only.
-    std::string ESN_m;  ///< this front end's ESN (can serial number)
 
     // class to contain cartridge configuration and CartAssembly objects:
     CartridgesContainer *carts_mp;

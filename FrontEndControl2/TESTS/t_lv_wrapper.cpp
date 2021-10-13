@@ -50,9 +50,9 @@ int main(int, char*[]) {
     short moduleNum, errorNum;
     char description[200];
 
-    while (FEMCGetNextError(&moduleNum, &errorNum, description) == 0) {
-        SLEEP(10);
-    }
+//    while (FEMCGetNextError(&moduleNum, &errorNum, description) == 0) {
+//        SLEEP(10);
+//    }
 
     bool done = false;
     while (!done) {
@@ -61,18 +61,15 @@ int main(int, char*[]) {
             for (int band = 1; band <= 10; ++band) {
             	FESetCartridgeOff(band);
             }
-//            FESetCartridgeOn(5);
-//            FESetCartridgeOn(7);
-//            FESetCartridgeOn(8);
-//        	SLEEP(50000);
-//            FESetCartridgeOff(5);
-//            FESetCartridgeOff(7);
-//            FESetCartridgeOff(8);
-        	SLEEP(10000);
+        	SLEEP(1000);
         }
         if (MessageBox(NULL, "OK to proceed with test.  Cancel to exit", "t_lv_wrapper", MB_OKCANCEL) != IDOK)
             done = true;
-
+        else {
+            FESetCartridgeOn(9);
+            cartSetLOFrequency(9, 655.0, 0.0315, 0);
+            cartLockPLL(9);
+        }
     }
     FEControlShutdown();
     return 0;   

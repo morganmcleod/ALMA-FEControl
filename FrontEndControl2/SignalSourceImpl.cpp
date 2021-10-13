@@ -272,6 +272,16 @@ bool SignalSourceImpl::cartPauseMonitor(bool pause) {
 //----------------------------------------------------------------------------
 // Control commands for CartAssemblies:
 
+
+bool SignalSourceImpl::cartSetLockingStrategy(int strategy) {
+    if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
+        LOG(LM_INFO) << "SignalSourceImpl::cartSetLockingStrategy port=" << port_m << " strategy= " << strategy << endl;
+        cart_mp -> setLockingStrategy(static_cast<WCAConfig::LOCK_STRATEGY_OPTS>(strategy));
+        return true;
+    }
+    return false;
+}
+
 bool SignalSourceImpl::cartSetLOFrequency(double freqLO, double freqFLOOG, int sbLock) {
     if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         LOG(LM_INFO) << "SignalSourceImpl::cartSetLOFrequency port=" << port_m << " freqLO= " << freqLO
@@ -328,7 +338,7 @@ bool SignalSourceImpl::cartLockPLL() {
 bool SignalSourceImpl::cartGetLocked() {
     if (!FEHardwareDevice::isErrorStop() && cart_mp && cart_mp -> getEnable() && cart_mp -> existsWCA()) {
         WCAImpl *wca = cart_mp -> useWCA();
-        return wca -> interrogateLock();
+        return wca -> getLocked();
     }
     return false;
 }

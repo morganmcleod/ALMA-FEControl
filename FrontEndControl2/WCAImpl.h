@@ -92,28 +92,6 @@ public:
 //-------------------------------------------------------------------------------------------------
 // Lock detection and monitoring
 
-    virtual float pllLockDetectVoltage();
-    ///< override base class lock voltage reading, for debugging with defeatNormalLockDetect.
-
-    virtual float pllCorrectionVoltage();
-    ///< override base class correction voltage reading, for measuring statistics.
-
-    void resetPllCorrectionVoltageStats();
-    ///< reset accumulating statistics on PLL correction voltage.
-
-    bool testPLLCorrectionVoltageStats() const;
-    ///< Test whether the variance of the PLL correction voltage is in range.
-    ///< Used as a double-check on the alternateLockDetect method.
-
-    bool testPLLUnlockDetect();
-    ///< Test unlock detect latch.  Returns true if the lock was previously lost.
-
-    void clearUnlockDetect();
-    ///< Clear the unlock detect latch.
-
-    bool testPLLCVInRange(const float &cv) const;
-    ///< Test whether the given PLL correction voltage is not on or near the voltage rails.
-
     bool testPLLPowerLevels();
     ///< Test the Ref and IF power levels for normal in locked state.
 
@@ -129,20 +107,14 @@ public:
     bool test2XVoltageLockDetect();
     ///< Read the voltage twice and the IF and reference power levels.
 
-    bool testCorrVoltageLockDetect();
-    ///< Ignores lock detect voltage, uses the PLL correction voltage instead.
-
-    bool interrogateLock();
+    bool getLocked();
     ///< Interrogate normal and, if appropriate, alternate lock signals.
 
     bool monitorLockForDisplay() const;
     ///< Return whether the PLL seems locked based on prior state and latest monitor data.
 
 //-------------------------------------------------------------------------------------------------
-// Locking procedure
-
-    bool searchForLock(int &coarseYIG, int windowSteps, int stepSize);
-    ///< Perform the LO lock search algorithm.
+// Locking procedures
 
     bool adjustPLL(float targetCorrVoltage);
     ///< Step the YTO to achieve the target PLL correction voltage.
@@ -365,23 +337,7 @@ private:
     float paGateVoltage_m[2];       ///< caches latest control values set.
     float amcDrainEVoltage_m;       ///< caches latest control value set.
     float amcGateEVoltage_m;        ///< caches latest control value set.
-    bool isLockedLO_m;              ///< true if the LO is currently locked.
 
-    typedef enum {
-        LOCK_DETECT_VOLTAGE,        ///< Normal: Use the lock detector voltage.
-        LOCK_DETECT_CORR_V,         ///< Alternate: Use the behavior of the correction voltage.
-        LOCK_DETECT_2XVOLTAGE       ///< Alternate: Read the lock detector twice with a short delay.  AND result.
-    } LockDetectStrategy_t;
-
-    LockDetectStrategy_t LockDetectStrategy_m;
-
-    int pllCorrectionVoltage_count;     ///< accumulate sample size of PLL CV since last tuning or reset.
-    float pllCorrectionVoltage_max;     ///< accumulate max PLL CV in sample.
-    float pllCorrectionVoltage_min;     ///< accumulate min PLL CV in sample.
-
-    static const float maxCVVariation;          ///< maximum threshold for PLL Correction Voltage variation when properly locked.
-    static const float lowCVRange;              ///< minimum PLL Correction Voltage considered in-range
-    static const float highCVRange;             ///< maximum PLL CV in-range
     static const float lowLockDetectVoltage;    ///< minimum Lock Detect Voltage when locked
     static const float lowIFTotalPower;         ///< minimum IF Total Power Detect Voltage magnitude when locked
     static const float lowRefTotalPower;        ///< minimum Reference Total Power Detect Voltage magnitude when locked

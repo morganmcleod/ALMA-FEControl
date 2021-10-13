@@ -53,6 +53,7 @@ namespace FrontEndLVWrapper {
     pthread_mutex_t LVWrapperLock;      ///< mutex to protect the above two vars
 
     // Debug options:
+    logLevel reportingLevel(LM_DEBUG);  ///< global logging level
     std::string logDir("");             ///< output logs are created here
     bool logTransactions = false;       ///< Normally false: log all low-level CAN transactions to FELog
     bool debugLVStructures = false;     ///< Normally false: dump all monitor data results to the log
@@ -141,7 +142,7 @@ short LVWrapperInit() {
             logFile = logDir + "FELOG-" + tmp + ".txt";
             logStream = fopen(logFile.c_str(), "w");
             StreamOutput::setStream(logStream);
-            StreamLogger::setReportingLevel(LM_INFO);
+            StreamLogger::setReportingLevel(reportingLevel);
 
             excHndlFile = logDir + "ExcHndl-" + tmp  + ".txt";
             ExcHndlSetLogFileNameA(excHndlFile.c_str());

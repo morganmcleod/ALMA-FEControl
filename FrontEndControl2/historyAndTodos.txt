@@ -38,9 +38,21 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
-2.11.1b0
-  Fix I-V curve default numPoints.
+2.12.0
+  Added LockingStrategy class used by CartAssembly to select a strategy at runtime
+  Added 4 locking strategies, selectable from FrontEndControlDLL.INI or via cartSetLockingStrategy()
+  0: original FETMS strategy with no LPR EDFA adjustment
+  1: ALMA cycle 8 strategy with LPR EDFA adjustment
+  2: Giorgio's 5-Points strategy, with LPR EDFA adjustment
+  3: Giorgio's 9-Points strategy, with LPR EDFA adjustment
+  Ripped out all the 'tryAlternateLockMethod' stuff which was unused since 2016
 
+2.11.1b2 2021-10-01 (NOT MERGED)
+  Added querying AMBSI command queue to MeasureIVCurve
+
+2.11.1b0 2021-09-08
+  Fix I-V curve default numPoints.
+  
 2.11.0 2021-09-07
   Fix compiler warnings, though some still suppressed.
   Compiled with msys64-mingw32 GCC 10.3.0

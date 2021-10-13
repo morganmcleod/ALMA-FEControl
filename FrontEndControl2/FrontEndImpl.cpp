@@ -33,6 +33,7 @@
 #include "FEMCEventQueue.h"
 #include "CartridgesContainer.h"
 #include "PowerModulesContainer.h"
+#include "LockingStrategy.h"
 #include "DLL/SWVersion.h"
 #include "CONFIG/FrontEndDataBase.h"
 #include "CONFIG/IFPowerDataSet.h"
@@ -49,8 +50,7 @@ bool FrontEndImpl::correctSISVoltageError_m(true);
 // private constructor and destructor definitions:
 
 FrontEndImpl::FrontEndImpl(unsigned long channel, 
-                           unsigned long nodeAddress, 
-                           const std::string &ESN)
+                           unsigned long nodeAddress)
   : FrontEndImplBase("FrontEnd"),
     SN_m(0),
     carts_mp(new CartridgesContainer()),
@@ -75,7 +75,6 @@ FrontEndImpl::FrontEndImpl(unsigned long channel,
     monTimersCount_m(0),
     maxTimerValue_m(0)
 { 
-    setESN(ESN);
     initialize(channel, nodeAddress);
 }
 
@@ -92,7 +91,7 @@ FrontEndImpl::~FrontEndImpl() {
 
 void FrontEndImpl::initialize(unsigned long channel, unsigned long nodeAddress) {
     FrontEndImplBase::initialize(channel, nodeAddress);
-    int retries = 20;
+    int retries = 1 ;
     while (retries && !connected_m) {
         unsigned char stat = specialGetSetupInfo();
         if (stat == 0 || stat == 5) {
@@ -789,6 +788,7 @@ void FrontEndImpl::deleteIFSwitch() {
 void FrontEndImpl::addLPR() {
     deleteLPR();
     lpr_mp = new LPRImpl(m_channel, m_nodeAddress);
+    LockingStrategy::setLPR(lpr_mp);
 }
 
 void FrontEndImpl::deleteLPR() {
@@ -999,6 +999,16 @@ bool FrontEndImpl::cartPauseMonitor(int port, bool pauseWCA, bool pauseCC) {
 //----------------------------------------------------------------------------
 // Control commands for CartAssemblies:
 
+bool FrontEndImpl::cartSetLockingStrategy(int port, int strategy) {
+    CartAssembly *ca = carts_mp -> getCartAssembly(port);
+    if (ca && ca -> getEnable() && ca -> existsWCA()) {
+        LOG(LM_INFO) << "FrontEndImpl::cartSetLockingStrategy port=" << port << " strategy= " << strategy << endl;
+        ca -> setLockingStrategy(static_cast<WCAConfig::LOCK_STRATEGY_OPTS>(strategy));
+        return true;
+    }
+    return false;
+}
+
 bool FrontEndImpl::cartSetLOFrequency(int port, double freqLO, double freqFLOOG, int sbLock) {
     CartAssembly *ca = carts_mp -> getCartAssembly(port);
     if (ca && ca -> getEnable() && ca -> existsWCA()) {
@@ -1083,7 +1093,7 @@ bool FrontEndImpl::cartGetLocked(int port) {
     CartAssembly *ca = carts_mp -> getCartAssembly(port);
     if (ca && ca -> getEnable()) {
         WCAImpl *wca = ca -> useWCA();
-        return wca -> interrogateLock();
+        return wca -> getLocked();
     }
     return false;
 }

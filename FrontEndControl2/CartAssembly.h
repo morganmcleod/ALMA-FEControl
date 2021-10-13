@@ -22,12 +22,13 @@
 
 #include "ColdCartImpl.h"
 #include "WCAImpl.h"
+#include "LockingStrategy.h"
 #include "CONFIG/FrontEndConfig.h"
 #include "CONFIG/FrontEndDatabase.h"
 #include "OPTIMIZE/ThermalLoggable.h"
 
 class CartHealthCheck;
-class OptimizeLOPowerAmp;
+class LPRImpl;
 class MaximizeIFPower;
 class MeasureFineLOSweep;
 class MeasureIVCurve;
@@ -36,11 +37,11 @@ class MeasureSISVoltageError;
 class MeasureIFPower;
 class MixerDeflux;
 class MixerHeating;
+class OptimizeLOPowerAmp;
 class XYPlotArray;
 
-
-/// The class representing a generic cartridge assembly, including
-/// cartrioperations for which a CartAssembly is responsible.
+/// The class representing a generic cartridge assembly, its configuration,
+/// and operations which may coordinate action between the CCA and the WCA.
 /// All cartridge operations are implemented here or in the constituent ColdCartImpl or WCAImpl objects.
 /// Cartridge behavior which varies from band-to-band is discriminated here.
 
@@ -49,12 +50,17 @@ public:
     CartAssembly(const std::string &name, WCAImpl *WCA, ColdCartImpl *coldCart);
     ///< construct with a name and providing WCA and coldCart pointers to use.
     ///< either WCA or coldCart may be NULL but not both.
-    
+
     ~CartAssembly();
-    
+
     void reset();
     ///< set all state data to defaults, as if just constructed.
 
+    void setLockingStrategy(FEConfig::WCAConfig::LOCK_STRATEGY_OPTS strategy, bool allowEdfaAdjust = true);
+    ///< Set the locking strategy to use.
+    ///< allowEdfaAdjust is normally true for WCAs in the front end but should be false for RF signal sources
+
+// Test/get WCA and CCA children:
     bool existsWCA() const
       { return WCA_mp != NULL; }
     bool existsColdCart() const
@@ -153,7 +159,7 @@ public:
       { freqFLOOG = freqFLOOG_m;
         sbLock = (existsWCA() ? WCA_mp -> getPLLSidebandLockSelectSetting() : 0);
         return true; }
-    ///< Get the last set FLOOG frequency and sbLock settting.
+    ///< Get the last set FLOOG frequency and sbLock setting.
     
     static double getCenterLOFrequency(int band)
       { static double freqs[11] = {
@@ -190,6 +196,12 @@ public:
 
     bool getNullPLLIntegrator() const;
     ///< return the state of the LO_PLL_NULL_LOOP_INTEGRATOR
+
+    int getCoarseYIG(double &freqYIG, double &freqREF,
+                     double freqLO, double freqFLOOG, int sbLock) const;
+    ///< Compute the coarse YIG tuning given freqLO, freqFLOOG, and sbLock.
+    ///< uses the lower and upper YIG limits and multAMC.
+    ///< returns the resulting YIG frequency and expected reference frequency as freqYIG and freqREF.
 
 // Other cold cartridge bias:
 
@@ -435,15 +447,6 @@ private:
     
     void onDisableTasks();
     ///< shutdown tasks to be done before a cartridge is powered off.
-    
-    bool searchForLock(int &coarseYIG, int windowSteps, int stepSize);
-    ///< Perform the LO lock search algorithm.  TODO: move to worker thread.
-    
-    int getCoarseYIG(double &freqYIG, double &freqREF,
-                     double freqLO, double freqFLOOG, int sbLock) const;
-    ///< Compute the coarse YIG tuning given freqLO, freqFLOOG, and sbLock.
-    ///< uses the lower and upper YIG limits and multAMC.
-    ///< returns the resulting YIG frequency and expected reference frequency as freqYIG and freqREF.
 
     int YIGFreqToCoarse(double freqYIG) const;
     ///< Convert freqYIG to the corresponding coarse tuning; uses the lower and upper YIG limits.
@@ -458,6 +461,9 @@ private:
     WCAImpl *WCA_mp;                        ///< WCA sub-object.
     ColdCartImpl *coldCart_mp;              ///< cold cartridge sub-object.
     
+    // what strategy to use for locking the LO:
+    LockingStrategy *lockingStrategy_mp;
+
     MeasureSISVoltageError *measureSISVoltageErr_mp;	///< worker object for measure SIS voltage error
     CartHealthCheck *cartHealthCheck_mp;            	///< worker object for cartridge health check
     OptimizeLOPowerAmp *optimizerPA_mp;             	///< optimizer object for adjustLOPowerAmps()

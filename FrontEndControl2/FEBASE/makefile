@@ -15,21 +15,9 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 #
-# Morgan McLeod <mmcleod@nrao.edu> 30 August 2006
-#
-# makefile for ALMA FrontEnd low-level control library for Windows.
-#
-# uses:
-# MinGW from http://www.mingw.org/ provides a POSIX build environment including GCC 3.4.2.
-# Pthreads-win32 from http://sourceware.org/pthreads-win32/
-# STLPort from http://www.stlport.org/ thought it can be built with GCC's STL as well.
-#
+# Morgan McLeod <mmcleod@nrao.edu> 2021-10-15
 
-FEBASECPP = AMBSIHardwareDevice.cpp \
-	ColdCartImplBase.cpp CompressorImplBase.cpp CryostatImplBase.cpp \
-	FEHardwareDevice.cpp FETIMImplBase.cpp FrontEndImplBase.cpp \
-	IFSwitchImplBase.cpp LORTMImplBase.cpp LPRImplBase.cpp \
-	PowerModuleImplBase.cpp WCAImplBase.cpp
+FEBASECPP = $(wildcard *.cpp) 
 
 .PHONY: febase
 febase: $(FEBASECPP)
@@ -40,7 +28,3 @@ febase: $(FEBASECPP)
 clean:
 	@rm -rf *.a
 	@rm -rf *.o
-	@rm -rf *.exe
-	@rm -rf *.dll
-
-
