@@ -1,6 +1,6 @@
 /*******************************************************************************
 * ALMA - Atacama Large Millimeter Array
-* (c) Associated Universities Inc., 2005-2015
+* (c) Associated Universities Inc., 2005-2021
 *
 *This library is free software; you can redistribute it and/or
 *modify it under the terms of the GNU Lesser General Public
@@ -38,7 +38,7 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
-2.12.0
+2.12.0 2021-12-13
   Added LockingStrategy class used by CartAssembly to select a strategy at runtime
   Added 4 locking strategies, selectable from FrontEndControlDLL.INI or via cartSetLockingStrategy()
   0: original FETMS strategy with no LPR EDFA adjustment
