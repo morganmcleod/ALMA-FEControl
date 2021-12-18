@@ -165,6 +165,9 @@ void CommandLossTestFixture::testPPComm() {
     // Test setting the bytes expected from GET_PPCOMM_TIME and then getting them and comparing.
     // Note that SET_PPCOMM_BYTES is not implemented in FEMC Firmware 3.5.3 and before.
 
+    string msg, monDetails;
+    char buf[30];
+
     // Store what we expect here:
     AmbDataMem_t my_data[4];
     resetAmbVars();
@@ -180,7 +183,13 @@ void CommandLossTestFixture::testPPComm() {
         my_data[2] = data_m[2] = (i >> 16) & 0xFF;
         my_data[3] = data_m[3] = (i >> 24) & 0xFF;
         commandImpl(SET_PPCOMM_BYTES, "SET_PPCOMM_BYTES");
-        monitorImpl(GET_PPCOMM_TIME, "GET_PPCOMM_TIME");
-        CPPUNIT_ASSERT(data_m[0] == my_data[0] && data_m[1] == my_data[1] && data_m[2] == my_data[2] && data_m[3] == my_data[3]);
+        monitorImpl(GET_PPCOMM_TIME, "GET_PPCOMM_TIME", &monDetails);
+        msg = string("\ndata_m: ");
+        sprintf(buf, "%02X %02X %02X %02X", data_m[0], data_m[1], data_m[2], data_m[3]);
+        msg += buf;
+        sprintf(buf, "%02X %02X %02X %02X", my_data[0], my_data[1], my_data[2], my_data[3]);
+        msg += " my_data: ";
+        msg += buf;
+        CPPUNIT_ASSERT_MESSAGE(monDetails + msg, data_m[0] == my_data[0] && data_m[1] == my_data[1] && data_m[2] == my_data[2] && data_m[3] == my_data[3]);
     }
 }
