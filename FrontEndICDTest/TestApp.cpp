@@ -32,7 +32,8 @@ namespace FrontEndTestApp {
     const AmbInterface *ambItf_p(NULL);
     CANBusInterface *canBus_p(NULL);
     FILE *logStream = NULL;
-    const char *versionString = "1.4.5: 2020-10-15  Added testSET_CRYOSTAT_TEMP_TVO_COEFF_SPECIFIC for FEMC 3.5.0";
+    const char *versionString = "1.4.6: 2022-01-12  Added CommandLossTest for FEMC 3.6.x";
+//                              "1.4.5: 2020-10-15  Added testSET_CRYOSTAT_TEMP_TVO_COEFF_SPECIFIC for FEMC 3.5.0";
 //                              "1.4.4: 2020-03-02  improved tests ALL_CHANNELS_ATTENUATION, SET_CARTRIDGE_LO_PA_LIMITS_TABLE";
 //                              "1.4.3: 2020-02-28  final version for FEMC 3.0";
 //                              "1.4.2: 2020-02-26  Continue verify changes for FEMC 2.9.x";
