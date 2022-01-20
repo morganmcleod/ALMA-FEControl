@@ -176,12 +176,21 @@ void CommandLossTestFixture::testPPComm() {
     data_m[4] = data_m[5] = data_m[6] = data_m[7] = 0xFF;
     dataLength_m = 8;
     // At 3.5 ms per iteration this will take about 6 minutes.
-    for (unsigned long i = 0; i < 100000; i++) {
+    for (unsigned long i = 0; i < 10000; i++) {
         // Store the iteration number in the first four bytes:
         my_data[0] = data_m[0] = i & 0xFF;
         my_data[1] = data_m[1] = (i >> 8) & 0xFF;
         my_data[2] = data_m[2] = (i >> 16) & 0xFF;
         my_data[3] = data_m[3] = (i >> 24) & 0xFF;
+        commandImpl(SET_PPCOMM_BYTES, "SET_PPCOMM_BYTES");
+        commandImpl(SET_PPCOMM_BYTES, "SET_PPCOMM_BYTES");
+        commandImpl(SET_PPCOMM_BYTES, "SET_PPCOMM_BYTES");
+        commandImpl(SET_PPCOMM_BYTES, "SET_PPCOMM_BYTES");
+        commandImpl(SET_PPCOMM_BYTES, "SET_PPCOMM_BYTES");
+        commandImpl(SET_PPCOMM_BYTES, "SET_PPCOMM_BYTES");
+        commandImpl(SET_PPCOMM_BYTES, "SET_PPCOMM_BYTES");
+        commandImpl(SET_PPCOMM_BYTES, "SET_PPCOMM_BYTES");
+        commandImpl(SET_PPCOMM_BYTES, "SET_PPCOMM_BYTES");
         commandImpl(SET_PPCOMM_BYTES, "SET_PPCOMM_BYTES");
         monitorImpl(GET_PPCOMM_TIME, "GET_PPCOMM_TIME", &monDetails);
         if (data_m[0] != my_data[0] || data_m[1] != my_data[1] || data_m[2] != my_data[2] || data_m[3] != my_data[3]) {
@@ -193,5 +202,11 @@ void CommandLossTestFixture::testPPComm() {
             msg += buf;
             CPPUNIT_FAIL(monDetails + msg);
         }
+        monitorImpl(MON_NUM_ENABLED, "MON_NUM_ENABLED");
     }
+    resetAmbVars();
+    data_m[0] = data_m[1] = data_m[2] = data_m[3] = 0xFF;
+    data_m[4] = data_m[5] = data_m[6] = data_m[7] = 0xFF;
+    dataLength_m = 8;
+    commandImpl(SET_PPCOMM_BYTES, "SET_PPCOMM_BYTES");
 }

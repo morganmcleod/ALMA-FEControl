@@ -9,7 +9,6 @@ using namespace std;
 
 void AmbDeviceTestFixture::setUp() {
     device_p = new FEAmbDevice(name_m, channel_m, nodeAddress_m);
-    CANBusInterface::monitorTimeout_m = 1000;
     sem_init(&synchLock_m, 0, 0);
     resetAmbVars();
 }
