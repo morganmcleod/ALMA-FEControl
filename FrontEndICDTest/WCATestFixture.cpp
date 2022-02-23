@@ -185,6 +185,8 @@ void WCATestFixture::testGET_CARTRIDGE_LO_PHOTOMIXER_VOLTAGE(){
 }
 void WCATestFixture::testGET_CARTRIDGE_LO_PHOTOMIXER_CURRENT(){
 	implGetFloat(photomixerCurrent_RCA,-50.0, 5.0,"GET_CARTRIDGE_LO_PHOTOMIXER_CURRENT");
+	for (int i = 0; i < 1000; i++)
+	    monitor(photomixerCurrent_RCA, "1000x GET_CARTRIDGE_LO_PHOTOMIXER_CURRENT");
 }
 void WCATestFixture::testGET_CARTRIDGE_LO_PLL_LOCK_DETECT_VOLTAGE(){
 	implGetFloat(pllLockDetectVoltage_RCA,-10.0, 10.0,"GET_CARTRIDGE_LO_PLL_LOCK_DETECT_VOLTAGE");

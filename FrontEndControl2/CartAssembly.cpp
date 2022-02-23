@@ -121,7 +121,6 @@ void CartAssembly::reset() {
     enable_m = observing_m = false;
     freqLO_m = freqFLOOG_m = freqREF_m = 0;
     isTunedLO_m = false;
-    LOG(LM_DEBUG) << "reset()" << endl;
 }
 
 void CartAssembly::setLockingStrategy(WCAConfig::LOCK_STRATEGY_OPTS strategy, bool allowEdfaAdjust) {

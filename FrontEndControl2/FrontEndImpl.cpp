@@ -143,7 +143,7 @@ bool FrontEndImpl::getNextError(unsigned char &moduleNum, unsigned char &errorNu
 }
 
 void FrontEndImpl::setFEMode(unsigned char val) {
-    if (val > 2) {
+    if (val > 3) {
         LOG(LM_ERROR) << "FrontEndImpl::setFEMode: invalid mode requested, using 0 instead." << endl;
         val = 0;
     }
