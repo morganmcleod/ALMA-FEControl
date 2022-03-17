@@ -136,6 +136,11 @@ bool FrontEndImpl::getNextError(unsigned char &moduleNum, unsigned char &errorNu
     result.shortVal = FrontEndImplBase::getNextError();
     moduleNum = result.bytes.mod;
     errorNum = result.bytes.err;
+
+    // Don't report Cryostat serial timeout errors:
+    if (moduleNum == 0x2B && errorNum == 0x08)
+        return true;
+
     FEMCGetErrorDescription(moduleNum, errorNum, description);
     LOG(LM_INFO) << "FEMC(" << std::uppercase << std::hex << std::setw(2) << std::setfill('0') << (short) moduleNum
                  << ":" << std::setw(2) << std::setfill('0') << (short) errorNum << ") " << description << std::endl;

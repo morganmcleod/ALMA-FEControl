@@ -37,6 +37,9 @@ FEND-40.09.03.00-053-A-MAN
 http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
+2.12.1.1 2022-03-17
+  Don't report Cryostat serial timeout errors
+
 2.12.1 2022-02-23
   Logging level back to LM_INFO
   Add support for FEMode=3 simulation
