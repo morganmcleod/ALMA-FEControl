@@ -147,7 +147,9 @@ WCAImplBase::WCAImplBase(const std::string &name, int port)
     paPol1DrainCurrent_RCA              = baseRCA + pol1 + PA_DRAIN_CURRENT;
     paSupplyVoltage3V_RCA               = baseRCA + PA_SUPPLY_VOLTAGE_3V;
     paSupplyVoltage5V_RCA               = baseRCA + PA_SUPPLY_VOLTAGE_5V;
-    
+    paHasTeledyneChip_RCA               = baseRCA + PA_HAS_TELEDYNE_CHIP;
+    paPol0TeledyneCollector_RCA         = baseRCA + PA_TELEDYNE_COLLECTOR;
+    paPol1TeledyneCollector_RCA         = baseRCA + PA_TELEDYNE_COLLECTOR + 1;
     // Add all the analog monitor points to the registry:
     
     addMon(&photomixerVoltage_value, &WCAImplBase::photomixerVoltage);
@@ -326,6 +328,18 @@ float WCAImplBase::paSupplyVoltage5V() {
     SYNCMON_LOG_FLOAT(paSupplyVoltage5V, "LO_PA_SUPPLY_VOLTAGE_5V")
 }
 
+bool WCAImplBase::paHasTeledyneChip() {
+    SYNCMON_LOG_BOOL(paHasTeledyneChip, "PA_HAS_TELEDYNE_CHIP")
+}
+
+unsigned char WCAImplBase::paPol0TeledyneCollector() {
+    SYNCMON_LOG_BYTE(paPol0TeledyneCollector, "PA_TELEDYNE_COLLECTOR Po=0")
+}
+
+unsigned char WCAImplBase::paPol1TeledyneCollector() {
+    SYNCMON_LOG_BYTE(paPol1TeledyneCollector, "PA_TELEDYNE_COLLECTOR Po=1")
+}
+
 // control points:
 void WCAImplBase::ytoCoarseTune(unsigned short val) {
     SYNCCMD_LOG_INT(ytoCoarseTune, val, "LO_YTO_COURSE_TUNE");
@@ -381,6 +395,18 @@ void WCAImplBase::paPol1GateVoltage(float val) {
 
 void WCAImplBase::paPol1DrainVoltage(float val) {
     SYNCCMD_LOG_FLOAT(paPol1DrainVoltage, val, "LO_PA_DRAIN_VOLTAGE Po=1");
+}
+
+void WCAImplBase::paHasTeledyneChip(bool val) {
+    SYNCCMD_LOG_FLOAT(paPol1DrainVoltage, val, "PA_HAS_TELEDYNE_CHIP");
+}
+
+void WCAImplBase::paPol0TeledyneCollector(unsigned char val) {
+    SYNCCMD_LOG_BYTE(paPol0TeledyneCollector, val, "PA_TELEDYNE_COLLECTOR Po=0");
+}
+
+void WCAImplBase::paPol1TeledyneCollector(unsigned char val) {
+    SYNCCMD_LOG_BYTE(paPol1TeledyneCollector, val, "PA_TELEDYNE_COLLECTOR Po=1");
 }
 
 void WCAImplBase::monitorAction(Time *timestamp_p) {

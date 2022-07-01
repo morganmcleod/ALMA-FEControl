@@ -37,6 +37,9 @@ FEND-40.09.03.00-053-A-MAN
 http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
+2.13.0 2022-07-01
+  Add monitor and control for band 7 Teledyne PA chip.
+
 2.12.1.1 2022-03-17
   Don't report Cryostat serial timeout errors
 

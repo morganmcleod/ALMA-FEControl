@@ -77,6 +77,9 @@ public:
     virtual float paPol1DrainCurrent();
     virtual float paSupplyVoltage3V();
     virtual float paSupplyVoltage5V();
+    virtual bool paHasTeledyneChip();
+    virtual unsigned char paPol0TeledyneCollector();
+    virtual unsigned char paPol1TeledyneCollector();
     
 // control points:
     virtual void ytoCoarseTune(unsigned short val);
@@ -93,6 +96,9 @@ public:
     virtual void paPol0DrainVoltage(float val);
     virtual void paPol1GateVoltage(float val);
     virtual void paPol1DrainVoltage(float val);
+    virtual void paHasTeledyneChip(bool val);
+    virtual void paPol0TeledyneCollector(unsigned char val);
+    virtual void paPol1TeledyneCollector(unsigned char val);
 
 protected:
     virtual void monitorAction(Time *timestamp_p);
@@ -133,7 +139,9 @@ protected:
         PA_DRAIN_VOLTAGE                = 0x0841,
         PA_DRAIN_CURRENT                = 0x0842,
         PA_SUPPLY_VOLTAGE_3V            = 0x0848,
-        PA_SUPPLY_VOLTAGE_5V            = 0x084C
+        PA_SUPPLY_VOLTAGE_5V            = 0x084C,
+        PA_HAS_TELEDYNE_CHIP            = 0x0850,
+        PA_TELEDYNE_COLLECTOR           = 0x0851
     };
     
     unsigned short ytoCoarseTune_value;
@@ -206,7 +214,10 @@ protected:
     int paPol1DrainCurrent_status;
     int paSupplyVoltage3V_status;
     int paSupplyVoltage5V_status;
-    
+    int paHasTeledyneChip_status;
+    int paPol0TeledyneCollector_status;
+    int paPol1TeledyneCollector_status;
+
     AmbRelativeAddr baseRCA;
     AmbRelativeAddr ytoCoarseTune_RCA;
     AmbRelativeAddr photomixerEnable_RCA;
@@ -243,6 +254,9 @@ protected:
     AmbRelativeAddr paPol1DrainCurrent_RCA;
     AmbRelativeAddr paSupplyVoltage3V_RCA;
     AmbRelativeAddr paSupplyVoltage5V_RCA;
+    AmbRelativeAddr paHasTeledyneChip_RCA;
+    AmbRelativeAddr paPol0TeledyneCollector_RCA;
+    AmbRelativeAddr paPol1TeledyneCollector_RCA;
 
 protected:    
     int port_m; ///< to which FEMC port is this module connected. 
