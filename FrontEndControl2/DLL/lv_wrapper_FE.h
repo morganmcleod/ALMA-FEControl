@@ -110,6 +110,7 @@ DLLEXPORT short FEMCSetFEMode(short mode);
 ///<  0 -> Operational
 ///<  1 -> Troubleshooting
 ///<  2 -> Maintenance
+///<  3 -> Simulation (for testing with no connected FE hardware)
 ///< All other values are rejected.
 
 //----------------------------------------------------------------------------
