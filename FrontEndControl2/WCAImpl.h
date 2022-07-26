@@ -210,7 +210,7 @@ public:
       { static int mults[11] = {
             1,  // band 0: no multiplier 
             1,  // band 1
-            6,  // band 2
+            4,  // band 2 ESO first article
             6,  // band 3
             3,  // band 4
             6,  // band 5
@@ -226,8 +226,8 @@ public:
       { static bool selects[11] = {
             false,  // band 0: none
             false,  // band 1: don't care. fixed 2.5 MHz/V
-            true,   // band 2: 1 -> 15MHz/V (Band 3,5,6,7,10 & band2-proto)
-            true,   // band 3
+            false,  // band 2: ESO first article
+            true,   // band 3: 1 -> 15MHz/V (Band 3,5,6,7,10 & band2-proto)
             false,  // band 4: 0 -> 7.5MHz/V (Band 4,8,9)
             true,   // band 5
             true,   // band 6

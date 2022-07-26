@@ -410,7 +410,7 @@ int CartAssembly::getCoarseYIG(double &freqYIG, double &freqREF,
 
     int coarseYIG = YIGFreqToCoarse(freqYIG);
 
-    LOG(LM_DEBUG) << "getCoarseYIG: band=" << band_m << fixed << setprecision(6)
+    LOG(LM_INFO) << "getCoarseYIG: band=" << band_m << fixed << setprecision(6)
         << " freqLO=" << freqLO << " freqFLOOG=" << freqFLOOG << " freqREF=" << freqREF << " freqYIG=" << freqYIG
         << " coarseYIG=" << coarseYIG << " lock=" << ((sbLock == 1) ? "above ref" : "below ref") << endl;
     return coarseYIG;
