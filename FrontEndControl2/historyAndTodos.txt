@@ -36,7 +36,11 @@ The user manual for the LabVIEW software which uses this library is here:
 FEND-40.09.03.00-053-A-MAN
 http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
+
 Revision history:
+2.13.3 2022-08-18
+  Extra debugging in cartGetMonitorSIS
+
 2.13.2 2022-08-15
   LM_DEBUG logging
 

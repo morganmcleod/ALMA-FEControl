@@ -1872,6 +1872,11 @@ DLLEXPORT short cartGetMonitorSIS(short port, short pol, short sb, CartSISData_t
         target -> setFloat(CartSISData_t::SIS_MAGNET_CURRENT, sisInfo.sisMagnetCurrent_value);    
         if (debugLVStructures)
             LOG(LM_DEBUG) << *target;
+        LOG(LM_DEBUG) << "openLoop=" << sisInfo.sisOpenLoop_value
+                      << " sisVoltage=" << sisInfo.sisVoltage_value
+                      << " sisCurrent=" << sisInfo.sisCurrent_value
+                      << " magnetVoltage=" << sisInfo.sisMagnetVoltage_value
+                      << " magnetCurrent=" << sisInfo.sisMagnetCurrent_value << endl;
         return 0;       
     }
     return -1;
