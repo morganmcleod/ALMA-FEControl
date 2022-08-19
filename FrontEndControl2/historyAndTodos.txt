@@ -46,6 +46,10 @@ Revision history:
   Simplified monitorAction() for most classes having monitor threads 
   Modified the monitor thread action queue so that items can be inserted at the front for one-time monitoring
   All ColdCart control points now push the respective monitor action onto the front of the queue.
+  Added FrontEndControlDLL.ini file options:
+  [debug]
+  sweepSISVoltage=0|1     ;Normally true: for bands 7 and up, gradually sweep SIS voltage to target value
+  sweepMagnetCurrent=0|1  ;Normally true: gradually sweep SIS magnet current to target value
 
 2.13.3 2022-08-18
   Extra debugging in cartGetMonitorSIS
