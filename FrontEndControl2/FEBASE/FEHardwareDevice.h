@@ -22,7 +22,8 @@
  
 #include <FrontEndAMB/ambDeviceImpl.h>
 #include "logger.h"
-#include <vector>
+#include <tuple>
+#include <list>
 #include <algorithm>
 #include <iomanip>
 
@@ -330,30 +331,37 @@ private:
 };
 
 // These macros support declaring and defining a MONITORS_REGISTRY in a derived class having the interface:
-// addMon(float *target, (pointer to member function) pf);
+// addMon(float *target, (pointer to member function) pf), bool isTemporary;
 //  - add a monitor point and its corresponding function to the registry.
+//  - if isTemporary insert it at the front and reset the iterator to service it next.
 // executeNextMon()
 //  - call a monitor function from the registry and put its value in the target float variable.
+//  - if isTemporary, delete it after servicing.
 
-#define DECLARE_MONITORS_REGISTRY(CLASS)                    \
-    typedef float (CLASS ::*MonFuncPtr) (void);             \
-    typedef std::pair<float *, MonFuncPtr> RegEntry;        \
-    std::vector<RegEntry> monitorRegistry;                  \
-    std::vector<RegEntry>::iterator nextMon;                \
-    void addMon(float *target, MonFuncPtr pf)               \
-      { monitorRegistry.push_back(RegEntry(target, pf)); }  \
+#define DECLARE_MONITORS_REGISTRY(CLASS)                                    \
+    typedef float (CLASS:: *MonFuncPtr) (void);                             \
+    typedef std::tuple<float *, MonFuncPtr, bool> RegEntry;                 \
+    std::list<RegEntry> monitorRegistry;                                    \
+    std::list<RegEntry>::iterator nextMon;                                  \
+    void addMon(float *target, MonFuncPtr pf, bool isTemporary = false) {   \
+        if (isTemporary) {                                                  \
+            monitorRegistry.push_front(RegEntry(target, pf, true));         \
+            nextMon = monitorRegistry.begin();                              \
+        } else monitorRegistry.push_back(RegEntry(target, pf, false)); }    \
     bool executeNextMon();
 
-#define DEFINE_MONITORS_REGISTRY(CLASS)                     \
-    bool CLASS ::executeNextMon() {                         \
-        if (nextMon == monitorRegistry.end()) {             \
-            nextMon = monitorRegistry.begin();              \
-            return false;                                   \
-        } else {                                            \
-            RegEntry ent = *nextMon;                        \
-            float val = (this ->* ent.second)();            \
-            if (ent.first) *(ent.first) = val;              \
-            ++nextMon;  return true;                        \
+#define DEFINE_MONITORS_REGISTRY(CLASS)                                 \
+    bool CLASS ::executeNextMon() {                                     \
+        if (nextMon == monitorRegistry.end()) {                         \
+            nextMon = monitorRegistry.begin();                          \
+            return false;                                               \
+        } else {                                                        \
+            float *target; MonFuncPtr pf; bool isTemporary;             \
+            std::tie(target, pf, isTemporary) = *nextMon;               \
+            float val = (this ->* pf)();                                \
+            if (target) *(target) = val;                                \
+            if (isTemporary) nextMon = monitorRegistry.erase(nextMon);  \
+            else ++nextMon;  return true;                               \
     }}
 
 

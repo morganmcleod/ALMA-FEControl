@@ -173,20 +173,12 @@ void LPRImplBase::monitorAction(Time *timestamp_p) {
                 break;
             case 1:
                 opticalSwitchPort_value = opticalSwitchPort();
-                ++monitorPhase;
+                opticalSwitchShutter_value = opticalSwitchShutter();
+                opticalSwitchState_value = opticalSwitchState();
+                opticalSwitchBusy_value = opticalSwitchBusy();
+                monitorPhase = 2;
                 break;
             case 2:
-                opticalSwitchShutter_value = opticalSwitchShutter();
-                ++monitorPhase;
-                break;
-            case 3:
-                opticalSwitchState_value = opticalSwitchState();
-                ++monitorPhase;
-                break;
-            case 4:
-                opticalSwitchBusy_value = opticalSwitchBusy();
-                ++monitorPhase;
-                // no break;
             default:
                 if (logMonitors_m)
                     logMon();

@@ -39,10 +39,13 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
-2.14.0
+2.14.0 
+  LM_DEBUG logging
+  Changes made to improve performance in the Bias Module Test Set:
   Remove all RandomizeAnalogMonitors functions
-
-
+  Simplified monitorAction() for most classes having monitor threads 
+  Modified the monitor thread action queue so that items can be inserted at the front for one-time monitoring
+  All ColdCart control points now push the respective monitor action onto the front of the queue.
 
 2.13.3 2022-08-18
   Extra debugging in cartGetMonitorSIS

@@ -444,32 +444,18 @@ void WCAImplBase::monitorAction(Time *timestamp_p) {
                     break;
                 case 1:
                     pllUnlockDetectLatch_value = pllUnlockDetectLatch();
-                    ++monitorPhase;
+                    ytoCoarseTune_value = ytoCoarseTune();
+                    pllNullLoopIntegrator_value = pllNullLoopIntegrator();
+                    monitorPhase = 2;
                     break;
                 case 2:
-                    ytoCoarseTune_value = ytoCoarseTune();
-                    ++monitorPhase;
+                    amcMultiplierDCounts_value = amcMultiplierDCounts();
+                    photomixerEnable_value = photomixerEnable();
+                    pllLoopBandwidthSelect_value = pllLoopBandwidthSelect();
+                    pllSidebandLockSelect_value = pllSidebandLockSelect();
+                    monitorPhase = 3;
                     break;
                 case 3:
-                    amcMultiplierDCounts_value = amcMultiplierDCounts();
-                    ++monitorPhase;
-                    break;
-                case 4:
-                    photomixerEnable_value = photomixerEnable();
-                    ++monitorPhase;
-                    break;
-                case 5:
-                    pllLoopBandwidthSelect_value = pllLoopBandwidthSelect();
-                    ++monitorPhase;
-                    break;
-                case 6:
-                    pllSidebandLockSelect_value = pllSidebandLockSelect();
-                    ++monitorPhase;
-                    break;
-                case 7:
-                    pllNullLoopIntegrator_value = pllNullLoopIntegrator();
-                    ++monitorPhase;
-                    //no break;
                 default:
                     if (logMonitors_m)
                        logMon();

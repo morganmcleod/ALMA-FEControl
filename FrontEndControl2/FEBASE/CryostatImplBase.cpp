@@ -329,36 +329,18 @@ void CryostatImplBase::monitorAction(Time *timestamp_p) {
                 break;
             case 1:
                 backingPumpEnable_value = backingPumpEnable();
-                ++monitorPhase;
-                break;
-            case 2:
                 turboPumpEnable_value = turboPumpEnable();
-                ++monitorPhase;
+                turboPumpErrorState_value = turboPumpErrorState();
+                turboPumpHighSpeed_value = turboPumpHighSpeed();
+                monitorPhase = 2;
+            case 2:
+                gateValveState_value = gateValveState();
+                solenoidValveState_value = solenoidValveState();
+                vacuumGaugeEnable_value = vacuumGaugeEnable();
+                vacuumGaugeErrorState_value = vacuumGaugeErrorState();
+                monitorPhase = 3;
                 break;
             case 3:
-                turboPumpErrorState_value = turboPumpErrorState();
-                ++monitorPhase;
-                break;
-            case 4:
-                turboPumpHighSpeed_value = turboPumpHighSpeed();
-                ++monitorPhase;
-                break;
-            case 5:
-                gateValveState_value = gateValveState();
-                ++monitorPhase;
-                break;
-            case 6:
-                solenoidValveState_value = solenoidValveState();
-                ++monitorPhase;
-                break;
-            case 7:
-                vacuumGaugeEnable_value = vacuumGaugeEnable();
-                ++monitorPhase;
-                break;
-            case 8:
-                vacuumGaugeErrorState_value = vacuumGaugeErrorState();
-                ++monitorPhase;
-                // no break;
             default:
                 if (logMonitors_m)
                     logMon();

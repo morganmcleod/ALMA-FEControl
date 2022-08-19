@@ -260,56 +260,27 @@ void FETIMImplBase::monitorAction(Time *timestamp_p) {
                 break;
             case 1:
                 internalTemperatureOOR_value = internalTemperatureOOR();
-                ++monitorPhase;
+                externalTemperatureOOR1_value = externalTemperatureOOR1();
+                externalTemperatureOOR2_value = externalTemperatureOOR2();
+                airflowSensorOOR_value = airflowSensorOOR();
+                heliumBufferPressureOOR_value = heliumBufferPressureOOR();
+                monitorPhase = 2;
                 break;
             case 2:
-                externalTemperatureOOR1_value = externalTemperatureOOR1();
-                ++monitorPhase;
+                sensorSingleFailed_value = sensorSingleFailed();
+                sensorMultiFailed_value = sensorMultiFailed();
+                glitchCounterTriggered_value = glitchCounterTriggered();
+                delayShutdownTriggered_value = delayShutdownTriggered();
+                finalShutdownTriggered_value = finalShutdownTriggered();
+                monitorPhase = 3;
                 break;
             case 3:
-                externalTemperatureOOR2_value = externalTemperatureOOR2();
-                ++monitorPhase;
+                getCompressorStatus_value = getCompressorStatus();
+                getCompressorInterlockStatus_value = getCompressorInterlockStatus();
+                getCompressorCableStatus_value = getCompressorCableStatus();
+                monitorPhase = 4;
                 break;
             case 4:
-                airflowSensorOOR_value = airflowSensorOOR();
-                ++monitorPhase;
-                break;
-            case 5:
-                heliumBufferPressureOOR_value = heliumBufferPressureOOR();
-                ++monitorPhase;
-                break;
-            case 6:
-                sensorSingleFailed_value = sensorSingleFailed();
-                ++monitorPhase;
-                break;
-            case 7:
-                sensorMultiFailed_value = sensorMultiFailed();
-                ++monitorPhase;
-                break;
-            case 8:
-                glitchCounterTriggered_value = glitchCounterTriggered();
-                ++monitorPhase;
-                break;
-            case 9:
-                delayShutdownTriggered_value = delayShutdownTriggered();
-                ++monitorPhase;
-                break;
-            case 10:
-                finalShutdownTriggered_value = finalShutdownTriggered();
-                ++monitorPhase;
-                break;
-            case 11:
-                getCompressorStatus_value = getCompressorStatus();
-                ++monitorPhase;
-                break;
-            case 12:
-                getCompressorInterlockStatus_value = getCompressorInterlockStatus();
-                ++monitorPhase;
-                break;
-            case 13:
-                getCompressorCableStatus_value = getCompressorCableStatus();
-                ++monitorPhase;
-                // no break;
             default:
                 if (logMonitors_m)
                     logMon();

@@ -60,6 +60,11 @@ ColdCartImpl::ColdCartImpl(unsigned long channel,
     addMon(&sisPol0Sb2Voltage_value, &ColdCartImpl::sisPol0Sb2Voltage);
     addMon(&sisPol1Sb1Voltage_value, &ColdCartImpl::sisPol1Sb1Voltage);
     addMon(&sisPol1Sb2Voltage_value, &ColdCartImpl::sisPol1Sb2Voltage);
+    // SIS current monitoring we average 8 readings:
+    addMon(&sisPol0Sb1Current_value, &ColdCartImpl::avgSisPol0Sb1Currentx8);
+    addMon(&sisPol0Sb2Current_value, &ColdCartImpl::avgSisPol0Sb2Currentx8);
+    addMon(&sisPol1Sb1Current_value, &ColdCartImpl::avgSisPol1Sb1Currentx8);
+    addMon(&sisPol1Sb2Current_value, &ColdCartImpl::avgSisPol1Sb2Currentx8);
     // SIS magnet monitoring we override in this class:
     addMon(&sisMagnetPol0Sb1Voltage_value, &ColdCartImpl::sisMagnetPol0Sb1Voltage);
     addMon(&sisMagnetPol0Sb1Current_value, &ColdCartImpl::sisMagnetPol0Sb1Current);
@@ -191,6 +196,9 @@ void ColdCartImpl::sisPol0Sb1Voltage(float val) {
         sisVoltageSet_m[0] = val;
         val -= sisVoltageError_m[0];
         ColdCartImplBase::sisPol0Sb1Voltage(val);
+        // push monitoring this on the front of the monitor registry:
+        addMon(&sisPol0Sb1Voltage_value, &ColdCartImpl::sisPol0Sb1Voltage, true);
+        addMon(&sisPol0Sb1Current_value, &ColdCartImpl::avgSisPol0Sb1Currentx8, true);
     }
 }
 
@@ -199,6 +207,9 @@ void ColdCartImpl::sisPol0Sb2Voltage(float val) {
         sisVoltageSet_m[1] = val;
         val -= sisVoltageError_m[1];
         ColdCartImplBase::sisPol0Sb2Voltage(val);
+        // push monitoring this on the front of the monitor registry:
+        addMon(&sisPol0Sb2Voltage_value, &ColdCartImpl::sisPol0Sb2Voltage, true);
+        addMon(&sisPol0Sb2Current_value, &ColdCartImpl::avgSisPol0Sb2Currentx8, true);
     }    
 }
 
@@ -207,6 +218,9 @@ void ColdCartImpl::sisPol1Sb1Voltage(float val) {
         sisVoltageSet_m[2] = val;
         val -= sisVoltageError_m[2];
         ColdCartImplBase::sisPol1Sb1Voltage(val);
+        // push monitoring this on the front of the monitor registry:
+        addMon(&sisPol1Sb1Voltage_value, &ColdCartImpl::sisPol1Sb1Voltage, true);
+        addMon(&sisPol1Sb1Current_value, &ColdCartImpl::avgSisPol1Sb1Currentx8, true);
     }
 }
 
@@ -215,6 +229,9 @@ void ColdCartImpl::sisPol1Sb2Voltage(float val) {
         sisVoltageSet_m[3] = val;
         val -= sisVoltageError_m[3];
         ColdCartImplBase::sisPol1Sb2Voltage(val);
+        // push monitoring this on the front of the monitor registry:
+        addMon(&sisPol1Sb2Voltage_value, &ColdCartImpl::sisPol1Sb2Voltage, true);
+        addMon(&sisPol1Sb2Current_value, &ColdCartImpl::avgSisPol1Sb2Currentx8, true);
     }    
 }
 
@@ -657,6 +674,9 @@ void ColdCartImpl::sisMagnetPol0Sb1Current(float val) {
     if (hasMagnet()) {
         sisMagnetCurrentSet_m[0] = val;
         ColdCartImplBase::sisMagnetPol0Sb1Current(val);
+        // push monitoring this on the front of the monitor registry:
+        addMon(&sisMagnetPol0Sb1Voltage_value, &ColdCartImpl::sisMagnetPol0Sb1Voltage, true);
+        addMon(&sisMagnetPol0Sb1Current_value, &ColdCartImpl::sisMagnetPol0Sb1Current, true);
     }
 }
 
@@ -664,6 +684,9 @@ void ColdCartImpl::sisMagnetPol0Sb2Current(float val) {
     if (hasSb2() && hasMagnet()) {
         sisMagnetCurrentSet_m[1] = val;
         ColdCartImplBase::sisMagnetPol0Sb2Current(val);    
+        // push monitoring this on the front of the monitor registry:
+        addMon(&sisMagnetPol0Sb2Voltage_value, &ColdCartImpl::sisMagnetPol0Sb2Voltage, true);
+        addMon(&sisMagnetPol0Sb2Current_value, &ColdCartImpl::sisMagnetPol0Sb2Current, true);
     }
 }
 
@@ -671,6 +694,9 @@ void ColdCartImpl::sisMagnetPol1Sb1Current(float val) {
     if (hasMagnet()) {
         sisMagnetCurrentSet_m[2] = val;
         ColdCartImplBase::sisMagnetPol1Sb1Current(val);
+        // push monitoring this on the front of the monitor registry:
+        addMon(&sisMagnetPol1Sb1Voltage_value, &ColdCartImpl::sisMagnetPol1Sb1Voltage, true);
+        addMon(&sisMagnetPol1Sb1Current_value, &ColdCartImpl::sisMagnetPol1Sb1Current, true);
     }
 }
 
@@ -678,6 +704,9 @@ void ColdCartImpl::sisMagnetPol1Sb2Current(float val) {
     if (hasSb2() && hasMagnet()) {
         sisMagnetCurrentSet_m[3] = val;
         ColdCartImplBase::sisMagnetPol1Sb2Current(val);    
+        // push monitoring this on the front of the monitor registry:
+        addMon(&sisMagnetPol1Sb2Voltage_value, &ColdCartImpl::sisMagnetPol1Sb2Voltage, true);
+        addMon(&sisMagnetPol1Sb2Current_value, &ColdCartImpl::sisMagnetPol1Sb2Current, true);
     }
 }
 
@@ -791,10 +820,13 @@ const int ColdCartImpl::mixerHeatingMaxTimeoutBand9_m(3);
 void ColdCartImpl::setSISHeaterEnable(int pol, bool enable) {
     if (!hasSISHeater())
         return;
-    if (pol == 0)
+    if (pol == 0) {
         sisHeaterPol0Enable(enable);
-    else if (pol == 1)
+        addMon(&sisHeaterPol0Current_value, &ColdCartImpl::sisHeaterPol0Current, true);
+    } else if (pol == 1) {
         sisHeaterPol1Enable(enable);
+        addMon(&sisHeaterPol1Current_value, &ColdCartImpl::sisHeaterPol1Current, true);
+    }
 }
 
 void ColdCartImpl::resetMixerHeating() {
@@ -1075,6 +1107,8 @@ void ColdCartImpl::lnaPol0Sb1Enable(bool val) {
     if (hasLNA()) {
         lnaEnableSet_m[0] = val;
         ColdCartImplBase::lnaPol0Sb1Enable(val);
+        // monitor it right away:
+        lnaPol0Sb1Enable_value = ColdCartImplBase::lnaPol0Sb1Enable();
     }
 }
 
@@ -1082,6 +1116,8 @@ void ColdCartImpl::lnaPol0Sb2Enable(bool val) {
     if (hasSb2() && hasLNA()) {
         lnaEnableSet_m[1] = val;
         ColdCartImplBase::lnaPol0Sb2Enable(val);
+        // monitor it right away:
+        lnaPol0Sb2Enable_value = ColdCartImplBase::lnaPol0Sb2Enable();
     }
 }
 
@@ -1089,6 +1125,8 @@ void ColdCartImpl::lnaPol1Sb1Enable(bool val) {
     if (hasLNA()) {
         lnaEnableSet_m[2] = val;
         ColdCartImplBase::lnaPol1Sb1Enable(val);
+        // monitor it right away:
+        lnaPol1Sb1Enable_value = ColdCartImplBase::lnaPol1Sb1Enable();
     }
 }
 
@@ -1096,6 +1134,8 @@ void ColdCartImpl::lnaPol1Sb2Enable(bool val) {
     if (hasSb2() && hasLNA()) {
         lnaEnableSet_m[3] = val;
         ColdCartImplBase::lnaPol1Sb2Enable(val);
+        // monitor it right away:
+        lnaPol1Sb2Enable_value = ColdCartImplBase::lnaPol1Sb2Enable();
     }
 }
 
@@ -1330,67 +1370,25 @@ void ColdCartImpl::monitorAction(Time *timestamp_p) {
                     monitorPhase = 1;
                 break;
             case 1:
-                // Special cases 1-4 do averaging:
-                sisPol0Sb1Current_value = (hasSIS()) ? avgSisPol0Sb1Current(20) : 0.0;
-                ++monitorPhase;
+                sisPol0Sb1OpenLoop_value = (hasSIS()) ? ColdCartImplBase::sisPol0Sb1OpenLoop() : false;
+                sisPol0Sb2OpenLoop_value = (hasSIS()) ? ColdCartImplBase::sisPol0Sb2OpenLoop() : false;
+                sisPol1Sb1OpenLoop_value = (hasSIS()) ? ColdCartImplBase::sisPol1Sb1OpenLoop() : false;
+                sisPol1Sb2OpenLoop_value = (hasSIS()) ? ColdCartImplBase::sisPol1Sb2OpenLoop() : false;
+                monitorPhase = 2;
                 break;
-
             case 2:
-                sisPol0Sb2Current_value = (hasSIS()) ? avgSisPol0Sb2Current(20) : 0.0;
-                ++monitorPhase;
-                break;
-
-            case 3:
-                sisPol1Sb1Current_value = (hasSIS()) ? avgSisPol1Sb1Current(20) : 0.0;
-                ++monitorPhase;
-                break;
-
-            case 4:
-                sisPol1Sb2Current_value = (hasSIS()) ? avgSisPol1Sb2Current(20) : 0.0;
-                ++monitorPhase;
-                break;
-
-            case 5:
-                // Special cases 5-14 are not analog monitor points:
-                sisPol0Sb1OpenLoop_value = (hasSIS()) ? sisPol0Sb1OpenLoop() : false;
-                ++monitorPhase;
-                break;
-            case 6:
-                sisPol0Sb2OpenLoop_value = (hasSIS()) ? sisPol0Sb2OpenLoop() : false;
-                ++monitorPhase;
-                break;
-            case 7:
-                sisPol1Sb1OpenLoop_value = (hasSIS()) ? sisPol1Sb1OpenLoop() : false;
-                ++monitorPhase;
-                break;
-            case 8:
-                sisPol1Sb2OpenLoop_value = (hasSIS()) ? sisPol1Sb2OpenLoop() : false;
-                ++monitorPhase;
-                break;
-            case 9:
                 lnaPol0Sb1Enable_value = ColdCartImplBase::lnaPol0Sb1Enable();
-                ++monitorPhase;
-                break;
-            case 10:
                 lnaPol0Sb2Enable_value = ColdCartImplBase::lnaPol0Sb2Enable();
-                ++monitorPhase;
-                break;
-            case 11:
                 lnaPol1Sb1Enable_value = ColdCartImplBase::lnaPol1Sb1Enable();
-                ++monitorPhase;
-                break;
-            case 12:
                 lnaPol1Sb2Enable_value = ColdCartImplBase::lnaPol1Sb2Enable();
-                ++monitorPhase;
+                monitorPhase = 3;
                 break;
-            case 13:
+            case 3:
                 lnaLedPol0Enable_value = ColdCartImplBase::lnaLedPol0Enable();
-                ++monitorPhase;
-                break;
-            case 14:
                 lnaLedPol1Enable_value = ColdCartImplBase::lnaLedPol1Enable();
-                ++monitorPhase;
-                // no break;
+                monitorPhase = 4;
+                break;
+            case 4:
             default:
                 if (logMonitors_m)
                     logMon();
