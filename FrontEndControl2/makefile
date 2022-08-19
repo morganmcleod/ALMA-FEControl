@@ -71,9 +71,13 @@ export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) $(EXCHNDLINC) $(EXPATMMINC) -I
 WINLIB = -lwinmm -lwsock32
 
 # flags for compiling C++ code:
+#  optimization: "Reduce compilation time and make debugging produce the expected results. This is the default."
+#  don't wrap compiler error/warning messages
 #  don't warn about else clauses without braces
 #  don't warn about C++ member initializers out of order in constructor 
 export CPPFLAGS = -O0 -fmessage-length=0 -Wall -Wno-dangling-else -Wno-reorder
+# flags for debug build:
+#  debug level 2
 export DEBUGFLAGS = -g2
 
 # list of output files in subdirectories:
@@ -176,7 +180,7 @@ t_FEICDataBase.exe : tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp
 all: allout dll tests
 
 current:
-	$(MAKE) -C CONFIG
+	$(MAKE) -C FEBASE
 
 oneFile:
 	$(MAKE) FEMCEventQueue.o

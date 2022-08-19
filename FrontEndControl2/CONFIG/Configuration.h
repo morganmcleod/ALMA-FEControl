@@ -23,7 +23,6 @@
 
 /// \file
 /// \brief declaration of class FEConfig::Configuration.
-#include <FrontEndAMB/ambDefs.h>
 #include "CartConfig.h"
 
 namespace FEConfig {

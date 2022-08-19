@@ -1,7 +1,6 @@
 #ifndef EVENTQUEUE_H_
 #define EVENTQUEUE_H_
 
-#include <FrontEndAMB/ambDefs.h>
 #include <string>
 #include <deque>
 

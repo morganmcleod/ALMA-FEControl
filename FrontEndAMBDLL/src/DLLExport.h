@@ -1,6 +1,8 @@
+#ifndef _FRONTENDAMB_LV_WRAPPER_DLL_EXPORT_H_
+#define _FRONTENDAMB_LV_WRAPPER_DLL_EXPORT_H_
 /*******************************************************************************
 * ALMA - Atacama Large Millimeter Array
-* (c) Associated Universities Inc., 2011
+* (c) Associated Universities Inc., 2022
 *
 *This library is free software; you can redistribute it and/or
 *modify it under the terms of the GNU Lesser General Public
@@ -19,10 +21,29 @@
 *
 */
 
-#include "SWVersion.h"
+/************************************************************************
+ * Macros for exporting functions from a Windows DLL.
+ * 
+ *----------------------------------------------------------------------
+ */
 
-const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.14.0");
+#ifdef __cplusplus
+     #define LINKAGE extern "C"
+#else
+     #define LINKAGE
+#endif
 
-//******* Be sure to update resource.rc!
+#ifdef STATIC_FRONTENDAMB
+     // use the code statically
+     #define DLL_CALL extern
+     #define DLL_CALL
+#else
+    #ifdef BUILD_FRONTENDAMB
+        #define DLL_API __declspec(dllexport)
+    #else
+        #define DLL_API LINKAGE __declspec(dllimport)
+    #endif
+    #define DLL_CALL __cdecl
+#endif
 
-// See the file historyAndTodos.txt for version history descriptions.
+#endif /*_FRONTENDAMB_LV_WRAPPER_DLL_EXPORT_H_*/

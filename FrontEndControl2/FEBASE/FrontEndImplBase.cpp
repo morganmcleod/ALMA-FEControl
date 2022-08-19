@@ -24,11 +24,10 @@
  * This will be replaced by auto-generated code in the Control environment.
  *----------------------------------------------------------------------
  */
- 
+
 #include "FrontEndImplBase.h"
 #include "MonCtrlMacros.h"
 #include "logger.h"
-#include <FrontEndAMB/ds1820.h>
 using namespace std;
 
 FrontEndImplBase::FrontEndImplBase(const std::string &name)

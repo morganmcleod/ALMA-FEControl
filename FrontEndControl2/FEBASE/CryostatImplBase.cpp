@@ -140,8 +140,8 @@ void CryostatImplBase::initialize(unsigned long channel, unsigned long nodeAddre
 void CryostatImplBase::shutdown() {
 }
 
-FEHardwareDevice::FEMC_ERROR CryostatImplBase::CryostatMonitorTempsensor(AmbRelativeAddr RCA, float &target) {
-    FEHardwareDevice::FEMC_ERROR ret(FEMC_NO_ERROR);
+FEMC_ERROR CryostatImplBase::CryostatMonitorTempsensor(AmbRelativeAddr RCA, float &target) {
+    FEMC_ERROR ret(FEMC_NO_ERROR);
     sem_t synchLock;
     sem_init(&synchLock, 0, 0);
     ret = syncMonitor(RCA, target, synchLock);
@@ -324,44 +324,23 @@ void CryostatImplBase::monitorAction(Time *timestamp_p) {
     if (doMonitor) {
         switch (monitorPhase) {
             case 0:
-                if (!executeNextMon()) {
-                    if (randomizeAnalogMonitors_m)
-                        randomizeMon();
+                if (!executeNextMon())
                     monitorPhase = 1;
-                }
                 break;
             case 1:
                 backingPumpEnable_value = backingPumpEnable();
-                ++monitorPhase;
-                break;
-            case 2:
                 turboPumpEnable_value = turboPumpEnable();
-                ++monitorPhase;
+                turboPumpErrorState_value = turboPumpErrorState();
+                turboPumpHighSpeed_value = turboPumpHighSpeed();
+                monitorPhase = 2;
+            case 2:
+                gateValveState_value = gateValveState();
+                solenoidValveState_value = solenoidValveState();
+                vacuumGaugeEnable_value = vacuumGaugeEnable();
+                vacuumGaugeErrorState_value = vacuumGaugeErrorState();
+                monitorPhase = 3;
                 break;
             case 3:
-                turboPumpErrorState_value = turboPumpErrorState();
-                ++monitorPhase;
-                break;
-            case 4:
-                turboPumpHighSpeed_value = turboPumpHighSpeed();
-                ++monitorPhase;
-                break;
-            case 5:
-                gateValveState_value = gateValveState();
-                ++monitorPhase;
-                break;
-            case 6:
-                solenoidValveState_value = solenoidValveState();
-                ++monitorPhase;
-                break;
-            case 7:
-                vacuumGaugeEnable_value = vacuumGaugeEnable();
-                ++monitorPhase;
-                break;
-            case 8:
-                vacuumGaugeErrorState_value = vacuumGaugeErrorState();
-                ++monitorPhase;
-                // no break;
             default:
                 if (logMonitors_m)
                     logMon();
@@ -384,7 +363,7 @@ void CryostatImplBase::logMon(bool printHeader) const {
                          "Temp12,CryostatPressure,PortPressure,Isupply230V" << endl;
     
     } else {
-        LOG(LM_INFO)  << "AllMonitors:Cryostat: " << randomizeAnalogMonitors_m << ","
+        LOG(LM_INFO)  << "AllMonitors:Cryostat: "
                       << (backingPumpEnable_value ? 1 : 0) << "," << (turboPumpEnable_value ? 1 : 0) << "," << (turboPumpErrorState_value ? 1 : 0) << "," << (turboPumpHighSpeed_value ? 1 : 0) << ","
                       << (int) gateValveState_value << "," << (int) solenoidValveState_value << "," << (vacuumGaugeEnable_value ? 1 : 0) << "," << (vacuumGaugeErrorState_value ? 1 : 0) << ","
                       << cryostatTemperature0_value << "," << cryostatTemperature1_value << "," << cryostatTemperature2_value << "," << cryostatTemperature3_value << ","

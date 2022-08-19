@@ -23,7 +23,6 @@
 /// \file
 /// \brief A generic base class which defines a common interface and worker thread for optimization procedures.
 
-#include <FrontEndAMB/ambDefs.h>
 #include "FEMCEventQueue.h"
 #include <string>
 

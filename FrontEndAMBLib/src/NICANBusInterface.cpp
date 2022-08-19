@@ -41,6 +41,18 @@ void printNCStatus(NCTYPE_STATUS status, const char *source) {
     }
 }
 
+const nodeList_t* NICANBusInterface::findNodes(AmbChannel channel) {
+    // Not shutting down.  Is the channel open?
+    if (!channelNodeMap_m.isOpenChannel(channel)) {
+        // no. Try opening the channel:
+        if (!openChannel(channel)) {
+            printf("NICANBusInterface::findNodes cannot open channel\n");
+            return NULL;
+        }
+    }
+    findChannelNodes(channel);
+    return &(channelNodeMap_m.getNodes(channel));
+}
 
 
 bool NICANBusInterface::openChannel(AmbChannel channel) {
@@ -97,10 +109,6 @@ bool NICANBusInterface::openChannel(AmbChannel channel) {
         channelNodeMap_m.setHandle(channel, handle);
         channelNodeMap_m.openChannel(channel);
     }
-
-    // Find all the nodes on the channel:
-    //if (success)
-    //    findChannelNodes(channel);
 
     return success;        
 }
@@ -277,7 +285,7 @@ void NICANBusInterface::findChannelNodes(AmbChannel channel) {
         bool done = false;
         while (!done) {
             try {
-                status = ncWaitForState(handle, NC_ST_READ_AVAIL, monitorTimeout_m, &currentState);
+                status = ncWaitForState(handle, NC_ST_READ_AVAIL, 200, &currentState);
             } catch (...) {
                 status = -1;
             }

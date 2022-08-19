@@ -39,6 +39,12 @@ public:
 
     virtual ~SocketClientBusInterface();
     
+    virtual const nodeList_t* findNodes(AmbChannel channel) {
+        return NULL;   //TODO: implement
+    }
+    ///< Find all nodes on the specified channel.  Opens the channel if necessary.
+    ///< Returns NULL if the channel could not be opened.
+
 private:
 
     virtual bool openChannel(AmbChannel channel);

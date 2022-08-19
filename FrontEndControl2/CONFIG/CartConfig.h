@@ -23,7 +23,6 @@
 /// \file
 /// \brief declares data structures for cartridge configuration items as-loaded from the config database.
 
-#include <FrontEndAMB/ambDefs.h>
 #include "LookupTables.h"
 #include <iostream>
 

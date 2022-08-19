@@ -136,7 +136,7 @@ public:
 //-------------------------------------------------------------------------------------------------    
 // SIS voltage monitor & control
 
-    // Override the base class monitor functions to filter for hasSIS() and gasSb2():
+    // Override the base class monitor and control functions to filter for hasSIS() and gasSb2():
     virtual float sisPol0Sb1Voltage()
       { return hasSIS() ? ColdCartImplBase::sisPol0Sb1Voltage() : 0.0; }
     virtual float sisPol0Sb2Voltage()
@@ -146,6 +146,36 @@ public:
     virtual float sisPol1Sb2Voltage()
       { return hasSb2() && hasSIS() ? ColdCartImplBase::sisPol1Sb2Voltage() : 0.0; }
     
+
+    virtual void sisPol0Sb1OpenLoop(bool val) {
+        if (hasSIS()) {
+            ColdCartImplBase::sisPol0Sb1OpenLoop(val);
+            // monitor it right away:
+            sisPol0Sb1OpenLoop_value = ColdCartImplBase::sisPol0Sb1OpenLoop();
+        }
+    }
+    virtual void sisPol0Sb2OpenLoop(bool val) {
+        if (hasSb2() && hasSIS()) {
+            ColdCartImplBase::sisPol0Sb2OpenLoop(val);
+            // monitor it right away:
+            sisPol0Sb2OpenLoop_value = ColdCartImplBase::sisPol0Sb2OpenLoop();
+        }
+    }
+    virtual void sisPol1Sb1OpenLoop(bool val) {
+        if (hasSIS()) {
+            ColdCartImplBase::sisPol1Sb1OpenLoop(val);
+            // monitor it right away:
+            sisPol1Sb1OpenLoop_value = ColdCartImplBase::sisPol1Sb1OpenLoop();
+        }
+    }
+    virtual void sisPol1Sb2OpenLoop(bool val) {
+        if (hasSb2() && hasSIS()) {
+            ColdCartImplBase::sisPol1Sb2OpenLoop(val);
+            // monitor it right away:
+            sisPol1Sb2OpenLoop_value = ColdCartImplBase::sisPol1Sb2OpenLoop();
+        }
+    }
+
 private:
     // Override but hide from public use the raw SIS voltage set functions: 
     
@@ -178,13 +208,22 @@ public:
 
     float getSISVoltage(int pol, int sb, int average = 1, bool print = false);
     ///< get the SIS voltage monitor for the the specified pol and sb, averaging multiple readings if requested.
-    
+
 //-------------------------------------------------------------------------------------------------    
 // SIS current monitoring
     
     float getSISCurrent(int pol, int sb, int average = 1);
     ///< get the SIS current monitor for the specified pol and sb, averaging multiple readings if requested.
 
+    // helpers monitor with averaging:
+    float avgSisPol0Sb1Currentx8()
+      { return (hasSIS()) ? avgSisPol0Sb1Current(8) : 0.0; }
+    float avgSisPol0Sb2Currentx8()
+      { return (hasSIS()) ? avgSisPol0Sb2Current(8) : 0.0; }
+    float avgSisPol1Sb1Currentx8()
+      { return (hasSIS()) ? avgSisPol1Sb1Current(8) : 0.0; }
+    float avgSisPol1Sb2Currentx8()
+      { return (hasSIS()) ? avgSisPol1Sb2Current(8) : 0.0; }
 //-------------------------------------------------------------------------------------------------
 // SIS magnet monitor and control
 
@@ -302,6 +341,114 @@ public:
         return lnaEnableSet_m[pol * 2 + sb - 1]; }
     ///< get the LNA enable setting for the specified pol and sb.
     
+    // override the base class LNA drain voltage and current controls, so we can trigger early monitoring:
+    virtual void lnaPol0Sb1St1DrainVoltage(float val) {
+        ColdCartImplBase::lnaPol0Sb1St1DrainVoltage(val);
+        addMon(&lnaPol0Sb1St1DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb1St1DrainVoltage, true);
+    }
+    virtual void lnaPol0Sb1St1DrainCurrent(float val) {
+        ColdCartImplBase::lnaPol0Sb1St1DrainCurrent(val);
+        addMon(&lnaPol0Sb1St1DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb1St1DrainCurrent, true);
+    }
+    virtual void lnaPol0Sb1St2DrainVoltage(float val) {
+        ColdCartImplBase::lnaPol0Sb1St2DrainVoltage(val);
+        addMon(&lnaPol0Sb1St2DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb1St2DrainVoltage, true);
+    }
+    virtual void lnaPol0Sb1St2DrainCurrent(float val) {
+        ColdCartImplBase::lnaPol0Sb1St2DrainCurrent(val);
+        addMon(&lnaPol0Sb1St2DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb1St2DrainCurrent, true);
+    }
+    virtual void lnaPol0Sb1St3DrainVoltage(float val) {
+        ColdCartImplBase::lnaPol0Sb1St3DrainVoltage(val);
+        addMon(&lnaPol0Sb1St3DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb1St3DrainVoltage, true);
+    }
+    virtual void lnaPol0Sb1St3DrainCurrent(float val) {
+        ColdCartImplBase::lnaPol0Sb1St3DrainCurrent(val);
+        addMon(&lnaPol0Sb1St3DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb1St3DrainCurrent, true);
+    }
+    virtual void lnaPol0Sb2St1DrainVoltage(float val) {
+        ColdCartImplBase::lnaPol0Sb2St1DrainVoltage(val);
+        addMon(&lnaPol0Sb2St1DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb2St1DrainVoltage, true);
+    }
+    virtual void lnaPol0Sb2St1DrainCurrent(float val) {
+        ColdCartImplBase::lnaPol0Sb2St1DrainCurrent(val);
+        addMon(&lnaPol0Sb2St1DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb2St1DrainCurrent, true);
+    }
+    virtual void lnaPol0Sb2St2DrainVoltage(float val) {
+        ColdCartImplBase::lnaPol0Sb2St2DrainVoltage(val);
+        addMon(&lnaPol0Sb2St2DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb2St2DrainVoltage, true);
+    }
+    virtual void lnaPol0Sb2St2DrainCurrent(float val) {
+        ColdCartImplBase::lnaPol0Sb2St2DrainCurrent(val);
+        addMon(&lnaPol0Sb2St2DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb2St2DrainCurrent, true);
+    }
+    virtual void lnaPol0Sb2St3DrainVoltage(float val) {
+        ColdCartImplBase::lnaPol0Sb2St3DrainVoltage(val);
+        addMon(&lnaPol0Sb2St3DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb2St3DrainVoltage, true);
+    }
+    virtual void lnaPol0Sb2St3DrainCurrent(float val) {
+        ColdCartImplBase::lnaPol0Sb2St3DrainCurrent(val);
+        addMon(&lnaPol0Sb2St3DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb2St3DrainCurrent, true);
+    }
+    virtual void lnaPol1Sb1St1DrainVoltage(float val) {
+        ColdCartImplBase::lnaPol1Sb1St1DrainVoltage(val);
+        addMon(&lnaPol1Sb1St1DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb1St1DrainVoltage, true);
+    }
+    virtual void lnaPol1Sb1St1DrainCurrent(float val) {
+        ColdCartImplBase::lnaPol1Sb1St1DrainCurrent(val);
+        addMon(&lnaPol1Sb1St1DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb1St1DrainCurrent, true);
+    }
+    virtual void lnaPol1Sb1St2DrainVoltage(float val) {
+        ColdCartImplBase::lnaPol1Sb1St2DrainVoltage(val);
+        addMon(&lnaPol1Sb1St2DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb1St2DrainVoltage, true);
+    }
+    virtual void lnaPol1Sb1St2DrainCurrent(float val) {
+        ColdCartImplBase::lnaPol1Sb1St2DrainCurrent(val);
+        addMon(&lnaPol1Sb1St2DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb1St2DrainCurrent, true);
+    }
+    virtual void lnaPol1Sb1St3DrainVoltage(float val) {
+        ColdCartImplBase::lnaPol1Sb1St3DrainVoltage(val);
+        addMon(&lnaPol1Sb1St3DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb1St3DrainVoltage, true);
+    }
+    virtual void lnaPol1Sb1St3DrainCurrent(float val) {
+        ColdCartImplBase::lnaPol1Sb1St3DrainCurrent(val);
+        addMon(&lnaPol1Sb1St3DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb1St3DrainCurrent, true);
+    }
+    virtual void lnaPol1Sb2St1DrainVoltage(float val) {
+        ColdCartImplBase::lnaPol1Sb2St1DrainVoltage(val);
+        addMon(&lnaPol1Sb2St1DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb2St1DrainVoltage, true);
+    }
+    virtual void lnaPol1Sb2St1DrainCurrent(float val) {
+        ColdCartImplBase::lnaPol1Sb2St1DrainCurrent(val);
+        addMon(&lnaPol1Sb2St1DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb2St1DrainCurrent, true);
+    }
+    virtual void lnaPol1Sb2St2DrainVoltage(float val) {
+        ColdCartImplBase::lnaPol1Sb2St2DrainVoltage(val);
+        addMon(&lnaPol1Sb2St2DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb2St2DrainVoltage, true);
+    }
+    virtual void lnaPol1Sb2St2DrainCurrent(float val) {
+        ColdCartImplBase::lnaPol1Sb2St2DrainCurrent(val);
+        addMon(&lnaPol1Sb2St2DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb2St2DrainCurrent, true);
+    }
+    virtual void lnaPol1Sb2St3DrainVoltage(float val) {
+        ColdCartImplBase::lnaPol1Sb2St3DrainVoltage(val);
+        addMon(&lnaPol1Sb2St3DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb2St3DrainVoltage, true);
+    }
+    virtual void lnaPol1Sb2St3DrainCurrent(float val) {
+        ColdCartImplBase::lnaPol1Sb2St3DrainCurrent(val);
+        addMon(&lnaPol1Sb2St3DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb2St3DrainCurrent, true);
+    }
+    virtual void lnaLedPol0Enable(bool val) {
+        ColdCartImplBase::lnaLedPol0Enable(val);
+        // monitor it right away:
+        lnaLedPol0Enable_value = ColdCartImplBase::lnaLedPol0Enable();
+    }
+    virtual void lnaLedPol1Enable(bool val) {
+        ColdCartImplBase::lnaLedPol1Enable(val);
+        // monitor it right away:
+        lnaLedPol1Enable_value = ColdCartImplBase::lnaLedPol1Enable();
+    }
+
 //-------------------------------------------------------------------------------------------------
 // misc public helpers:
     

@@ -72,9 +72,10 @@ namespace FrontEndLVWrapper {
     // Debug options:
     bool allowSISHeaters = true;        ///< Normally true: allow operation of SIS heaters
     bool correctSISVoltageError = true; ///< Normally true: perform SIS voltage offset measurement and correction
+    bool sweepSISVoltage = true;        ///< Normally true: for bands 7 and up, gradually sweep SIS voltage to target value
+    bool sweepMagnetCurrent = true;     ///< Normally true: gradually sweep SIS magnet current to target value
     bool SISOpenLoop = false;           ///< Normally false: run SIS voltage open-loop
     short FEMode = 0;                   ///< Normally 0=Operational, 1=Troubleshooting, 2=Maintenance
-    bool randomizeMonitors = false;     ///< Normally false: do all analog monitoring in random order
     bool logMonitors = false;           ///< Normally false: log all analog monitor data to FELog
     bool logAmbErrors = true;           ///< Normally true: log CAN bus errors to FELog
     bool logMonTimers = false;          ///< Normally false: query and log the AMBSI1 monitor timing registers
@@ -167,6 +168,18 @@ DLLEXPORT short FEControlInit() {
         LOG(LM_INFO) << "correctSISVoltageError=" << correctSISVoltageError << endl;
         FrontEndImpl::correctSISVoltageError(correctSISVoltageError);
 
+        tmp = configINI.GetValue("debug", "sweepSISVoltage");
+        if (!tmp.empty())
+            sweepSISVoltage = from_string<unsigned long>(tmp);
+        LOG(LM_INFO) << "sweepSISVoltage=" << sweepSISVoltage << endl;
+        CartAssembly::sweepSISVoltage(sweepSISVoltage);
+
+        tmp = configINI.GetValue("debug", "sweepMagnetCurrent");
+        if (!tmp.empty())
+            sweepMagnetCurrent = from_string<unsigned long>(tmp);
+        LOG(LM_INFO) << "sweepMagnetCurrent=" << sweepMagnetCurrent << endl;
+        CartAssembly::sweepMagnetCurrent(sweepMagnetCurrent);
+
         tmp = configINI.GetValue("debug", "SISOpenLoop");
         if (!tmp.empty())
             SISOpenLoop = from_string<unsigned long>(tmp);
@@ -176,12 +189,6 @@ DLLEXPORT short FEControlInit() {
         if (!tmp.empty())
             FEMode = from_string<short>(tmp);
         LOG(LM_INFO) << "debug:FEMode=" << FEMode << endl;
-
-        tmp = configINI.GetValue("logger", "randomizeAnalogMonitors");
-        if (!tmp.empty())
-            randomizeMonitors = from_string<unsigned long>(tmp);
-        FEHardwareDevice::randomizeAnalogMonitors(randomizeMonitors);
-        LOG(LM_INFO) << "randomizeAnalogMonitors=" << randomizeMonitors << endl;
         
         tmp = configINI.GetValue("logger", "logMonitors");
         if (!tmp.empty())
@@ -840,11 +847,6 @@ DLLEXPORT short cartPauseMonitor(short port, short pauseWCA, short pauseCC) {
             return -1;
         return frontEnd -> cartPauseMonitor(port, (pauseWCA!=0), (pauseCC!=0));
     }
-}
-
-DLLEXPORT short randomizeAnalogMonitors(short enable) {
-    FEHardwareDevice::randomizeAnalogMonitors(enable != 0);
-    return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -1872,6 +1874,11 @@ DLLEXPORT short cartGetMonitorSIS(short port, short pol, short sb, CartSISData_t
         target -> setFloat(CartSISData_t::SIS_MAGNET_CURRENT, sisInfo.sisMagnetCurrent_value);    
         if (debugLVStructures)
             LOG(LM_DEBUG) << *target;
+        LOG(LM_DEBUG) << "openLoop=" << sisInfo.sisOpenLoop_value
+                      << " sisVoltage=" << sisInfo.sisVoltage_value
+                      << " sisCurrent=" << sisInfo.sisCurrent_value
+                      << " magnetVoltage=" << sisInfo.sisMagnetVoltage_value
+                      << " magnetCurrent=" << sisInfo.sisMagnetCurrent_value << endl;
         return 0;       
     }
     return -1;

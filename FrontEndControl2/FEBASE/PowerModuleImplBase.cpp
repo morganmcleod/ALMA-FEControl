@@ -177,8 +177,6 @@ void PowerModuleImplBase::monitorAction(Time *timestamp_p) {
     if (doMonitor) {
         enableModule_value = enableModule();
         while (executeNextMon()) ;
-        if (randomizeAnalogMonitors_m)
-            randomizeMon();
         if (logMonitors_m)
            logMon();
     }
@@ -193,7 +191,7 @@ void PowerModuleImplBase::logMon(bool printHeader) const {
                          "voltageP15V,currentP15V,voltageN15V,currentN15V,"
                          "voltageP24V,currentP24V,voltageP8V,currentP8V" << endl;
     } else {
-        LOG(LM_INFO)  << "AllMonitors:PowerModule(" << port_m << "): " << randomizeAnalogMonitors_m << ","
+        LOG(LM_INFO)  << "AllMonitors:PowerModule(" << port_m << "): "
                       << (enableModule_value ? 1 : 0) << ","
                       << voltageP6V_value << "," << currentP6V_value << "," << voltageN6V_value << "," << currentN6V_value << ","
                       << voltageP15V_value << "," << currentP15V_value << "," << voltageN15V_value << "," << currentN15V_value << ","

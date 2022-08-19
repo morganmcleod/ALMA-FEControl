@@ -21,8 +21,7 @@
 
 #include "SWVersion.h"
 
-const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.14.0");
+const std::string FRONTENDAMB_SW_VERSION_STRING("FrontEndAMB.DLL 0.0.1");
 
 //******* Be sure to update resource.rc!
 
-// See the file historyAndTodos.txt for version history descriptions.

@@ -439,40 +439,23 @@ void WCAImplBase::monitorAction(Time *timestamp_p) {
         } else {        
             switch (monitorPhase) {
                 case 0:
-                    if (!executeNextMon()) {
-                        if (randomizeAnalogMonitors_m)
-                            randomizeMon();
+                    if (!executeNextMon())
                         monitorPhase = 1;
-                    }
                     break;
                 case 1:
                     pllUnlockDetectLatch_value = pllUnlockDetectLatch();
-                    ++monitorPhase;
+                    ytoCoarseTune_value = ytoCoarseTune();
+                    pllNullLoopIntegrator_value = pllNullLoopIntegrator();
+                    monitorPhase = 2;
                     break;
                 case 2:
-                    ytoCoarseTune_value = ytoCoarseTune();
-                    ++monitorPhase;
+                    amcMultiplierDCounts_value = amcMultiplierDCounts();
+                    photomixerEnable_value = photomixerEnable();
+                    pllLoopBandwidthSelect_value = pllLoopBandwidthSelect();
+                    pllSidebandLockSelect_value = pllSidebandLockSelect();
+                    monitorPhase = 3;
                     break;
                 case 3:
-                    amcMultiplierDCounts_value = amcMultiplierDCounts();
-                    ++monitorPhase;
-                    break;
-                case 4:
-                    photomixerEnable_value = photomixerEnable();
-                    ++monitorPhase;
-                    break;
-                case 5:
-                    pllLoopBandwidthSelect_value = pllLoopBandwidthSelect();
-                    ++monitorPhase;
-                    break;
-                case 6:
-                    pllSidebandLockSelect_value = pllSidebandLockSelect();
-                    ++monitorPhase;
-                    break;
-                case 7:
-                    pllNullLoopIntegrator_value = pllNullLoopIntegrator();
-                    ++monitorPhase;
-                    //no break;
                 default:
                     if (logMonitors_m)
                        logMon();
@@ -498,7 +481,7 @@ void WCAImplBase::logMon(bool printHeader) const {
                          "IpaPol1Drain,IamcMultiplierD,amcSupply5V,paSupply3V,"
                          "paSupply5V,pllAssemblyTemp,IpllYTOHeater" << endl;
     } else {
-        LOG(LM_INFO)  << "AllMonitors:WCA(" << port_m << "): " << randomizeAnalogMonitors_m << ","
+        LOG(LM_INFO)  << "AllMonitors:WCA(" << port_m << "): "
                       << ytoCoarseTune_value << "," << (photomixerEnable_value ? 1 : 0) << "," << (pllLoopBandwidthSelect_value ? 1 : 0) << "," << (pllSidebandLockSelect_value ? 1 : 0) << ","
                       << (int) amcMultiplierDCounts_value << "," << (pllNullLoopIntegrator_value ? 1 : 0) << "," << (pllUnlockDetectLatch_value ? 1 : 0) << ","
                       << photomixerVoltage_value << "," << photomixerCurrent_value << "," << pllLockDetectVoltage_value << "," << pllCorrectionVoltage_value << ","

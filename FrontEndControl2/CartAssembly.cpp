@@ -56,6 +56,8 @@ using namespace std;
 #include <vector>
 
 std::string CartAssembly::FineLoSweepIni_m = std::string();
+bool CartAssembly::sweepSISVoltage_m(true);
+bool CartAssembly::sweepMagnetCurrent_m(true);
 
 CartAssembly::CartAssembly(const std::string &name, WCAImpl *WCA, ColdCartImpl *coldCart)
   : WCA_mp(WCA),
@@ -674,7 +676,7 @@ bool CartAssembly::setSISBias(bool enable, int pol, int sb, const float *_VJ, in
             if (!_VJ)
                 VJ = row[MixerParams::VJ01];
             LOG(LM_DEBUG) << "Setting SIS_POL0_SB1_VOLTAGE to " << VJ << endl;
-            coldCart_mp -> setSISVoltage(0, 1, VJ);
+            coldCart_mp -> setSISVoltage(0, 1, VJ, CartAssembly::sweepSISVoltage_m);
             if (_openLoop >= 0) {
                 LOG(LM_DEBUG) << "Setting SIS_POL0_SB1 mode to " << ((openLoop) ? "open loop" : "closed loop") << endl;
                 coldCart_mp -> sisPol0Sb1OpenLoop(openLoop);                      
@@ -684,7 +686,7 @@ bool CartAssembly::setSISBias(bool enable, int pol, int sb, const float *_VJ, in
             if (!_VJ)
                 VJ = row[MixerParams::VJ02];
             LOG(LM_DEBUG) << "Setting SIS_POL0_SB2_VOLTAGE to " << VJ << endl;
-            coldCart_mp -> setSISVoltage(0, 2, VJ);
+            coldCart_mp -> setSISVoltage(0, 2, VJ, CartAssembly::sweepSISVoltage_m);
             if (_openLoop >= 0) {
                 LOG(LM_DEBUG) << "Setting SIS_POL0_SB2 mode to " << ((openLoop) ? "open loop" : "closed loop") << endl;
                 coldCart_mp -> sisPol0Sb2OpenLoop(openLoop);                      
@@ -694,7 +696,7 @@ bool CartAssembly::setSISBias(bool enable, int pol, int sb, const float *_VJ, in
             if (!_VJ)
                 VJ = row[MixerParams::VJ11];
             LOG(LM_DEBUG) << "Setting SIS_POL1_SB1_VOLTAGE to " << VJ << endl;
-            coldCart_mp -> setSISVoltage(1, 1, VJ);
+            coldCart_mp -> setSISVoltage(1, 1, VJ, CartAssembly::sweepSISVoltage_m);
             if (_openLoop >= 0) {
                 LOG(LM_DEBUG) << "Setting SIS_POL1_SB1 mode to " << ((openLoop) ? "open loop" : "closed loop") << endl;
                 coldCart_mp -> sisPol1Sb1OpenLoop(openLoop);                      
@@ -704,7 +706,7 @@ bool CartAssembly::setSISBias(bool enable, int pol, int sb, const float *_VJ, in
             if (!_VJ)
                 VJ = row[MixerParams::VJ12];
             LOG(LM_DEBUG) << "Setting SIS_POL1_SB2_VOLTAGE to " << VJ << endl;
-            coldCart_mp -> setSISVoltage(1, 2, VJ);
+            coldCart_mp -> setSISVoltage(1, 2, VJ, CartAssembly::sweepSISVoltage_m);
             if (_openLoop >= 0) {
                 LOG(LM_DEBUG) << "Setting SIS_POL1_SB2 mode to " << ((openLoop) ? "open loop" : "closed loop") << endl;
                 coldCart_mp -> sisPol1Sb2OpenLoop(openLoop);                      
@@ -757,19 +759,19 @@ bool CartAssembly::setSISMagnet(bool enable, int pol, int sb, const float *_IMag
 
         if (setAll || (pol == 0 && sb == 1)) {
             LOG(LM_DEBUG) << "Setting SIS_POL0_SB1_MAGNET_CURRENT to " << IMag01 << endl;
-            coldCart_mp -> setSISMagnetCurrent(0, 1, IMag01);
+            coldCart_mp -> setSISMagnetCurrent(0, 1, IMag01, CartAssembly::sweepMagnetCurrent_m);
         }
         if (coldCart_mp -> hasSb2() && (setAll || (pol == 0 && sb == 2))) {
             LOG(LM_DEBUG) << "Setting SIS_POL0_SB2_MAGNET_CURRENT to " << IMag02 << endl;
-            coldCart_mp -> setSISMagnetCurrent(0, 2, IMag02);
+            coldCart_mp -> setSISMagnetCurrent(0, 2, IMag02, CartAssembly::sweepMagnetCurrent_m);
         }
         if (setAll || (pol == 1 && sb == 1)) {
             LOG(LM_DEBUG) << "Setting SIS_POL1_SB1_MAGNET_CURRENT to " << IMag11 << endl;
-            coldCart_mp -> setSISMagnetCurrent(1, 1, IMag11);
+            coldCart_mp -> setSISMagnetCurrent(1, 1, IMag11, CartAssembly::sweepMagnetCurrent_m);
         }
         if (coldCart_mp -> hasSb2() && (setAll || (pol == 1 && sb == 2))) {
             LOG(LM_DEBUG) << "Setting SIS_POL1_SB2_MAGNET_CURRENT to " << IMag12 << endl;
-            coldCart_mp -> setSISMagnetCurrent(1, 2, IMag12);
+            coldCart_mp -> setSISMagnetCurrent(1, 2, IMag12, CartAssembly::sweepMagnetCurrent_m);
         }
     }
     return true;       

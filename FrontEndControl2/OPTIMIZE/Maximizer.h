@@ -20,7 +20,7 @@
 *
 */
 
-#include <FrontEndAMB/ambDefs.h>
+#include <pthread.h>
 
 class Maximizer {
 public:

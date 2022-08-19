@@ -23,7 +23,6 @@
 /// \file
 /// \brief declaration of class FEConfig::ConfigProvider. 
 
-#include <FrontEndAMB/ambDefs.h>
 #include "Configuration.h"
 #include "StringSet.h"
 #include <vector>

@@ -1,6 +1,8 @@
+#ifndef SWVERSION_H_
+#define SWVERSION_H_
 /*******************************************************************************
 * ALMA - Atacama Large Millimeter Array
-* (c) Associated Universities Inc., 2011
+* (c) Associated Universities Inc., 2022
 *
 *This library is free software; you can redistribute it and/or
 *modify it under the terms of the GNU Lesser General Public
@@ -19,10 +21,8 @@
 *
 */
 
-#include "SWVersion.h"
+#include <string>
 
-const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.14.0");
+extern const std::string FRONTENDAMB_SW_VERSION_STRING;
 
-//******* Be sure to update resource.rc!
-
-// See the file historyAndTodos.txt for version history descriptions.
+#endif /* SWVERSION_H_ */

@@ -100,10 +100,12 @@ void AmbInterface::deleteInstance() {
     if (sem_trywait(&semCount_m) == 0) {
         sem_getvalue(&semCount_m, &currentValue);
         if (currentValue == 0) {
-            /* No Instances left, delete the instance */
+            /* No clients left, delete the instance */
             pthread_mutex_unlock(&instanceLock_m);
-            delete instance_mp;
-            instance_mp = NULL;
+            if (instance_mp) {
+                delete instance_mp;
+                instance_mp = NULL;
+            }
             return;
         }
     }

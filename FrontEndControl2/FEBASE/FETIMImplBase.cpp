@@ -255,64 +255,32 @@ void FETIMImplBase::monitorAction(Time *timestamp_p) {
     if (doMonitor) {
         switch (monitorPhase) {
             case 0:
-                if (!executeNextMon()) {
-                    if (randomizeAnalogMonitors_m)
-                        randomizeMon();
+                if (!executeNextMon())
                     monitorPhase = 1;
-                }
                 break;
             case 1:
                 internalTemperatureOOR_value = internalTemperatureOOR();
-                ++monitorPhase;
+                externalTemperatureOOR1_value = externalTemperatureOOR1();
+                externalTemperatureOOR2_value = externalTemperatureOOR2();
+                airflowSensorOOR_value = airflowSensorOOR();
+                heliumBufferPressureOOR_value = heliumBufferPressureOOR();
+                monitorPhase = 2;
                 break;
             case 2:
-                externalTemperatureOOR1_value = externalTemperatureOOR1();
-                ++monitorPhase;
+                sensorSingleFailed_value = sensorSingleFailed();
+                sensorMultiFailed_value = sensorMultiFailed();
+                glitchCounterTriggered_value = glitchCounterTriggered();
+                delayShutdownTriggered_value = delayShutdownTriggered();
+                finalShutdownTriggered_value = finalShutdownTriggered();
+                monitorPhase = 3;
                 break;
             case 3:
-                externalTemperatureOOR2_value = externalTemperatureOOR2();
-                ++monitorPhase;
+                getCompressorStatus_value = getCompressorStatus();
+                getCompressorInterlockStatus_value = getCompressorInterlockStatus();
+                getCompressorCableStatus_value = getCompressorCableStatus();
+                monitorPhase = 4;
                 break;
             case 4:
-                airflowSensorOOR_value = airflowSensorOOR();
-                ++monitorPhase;
-                break;
-            case 5:
-                heliumBufferPressureOOR_value = heliumBufferPressureOOR();
-                ++monitorPhase;
-                break;
-            case 6:
-                sensorSingleFailed_value = sensorSingleFailed();
-                ++monitorPhase;
-                break;
-            case 7:
-                sensorMultiFailed_value = sensorMultiFailed();
-                ++monitorPhase;
-                break;
-            case 8:
-                glitchCounterTriggered_value = glitchCounterTriggered();
-                ++monitorPhase;
-                break;
-            case 9:
-                delayShutdownTriggered_value = delayShutdownTriggered();
-                ++monitorPhase;
-                break;
-            case 10:
-                finalShutdownTriggered_value = finalShutdownTriggered();
-                ++monitorPhase;
-                break;
-            case 11:
-                getCompressorStatus_value = getCompressorStatus();
-                ++monitorPhase;
-                break;
-            case 12:
-                getCompressorInterlockStatus_value = getCompressorInterlockStatus();
-                ++monitorPhase;
-                break;
-            case 13:
-                getCompressorCableStatus_value = getCompressorCableStatus();
-                ++monitorPhase;
-                // no break;
             default:
                 if (logMonitors_m)
                     logMon();
@@ -333,7 +301,7 @@ void FETIMImplBase::logMon(bool printHeader) const {
                          "sensorSingleFailed,sensorMultiFailed,glitchValue,glitchCounterTriggered,"
                          "delayShutdownTriggered,finalShutdownTriggered,getCompressorStatus,getCompressorInterlockStatus,getCompressorCableStatus" << endl;
     } else {
-        LOG(LM_INFO)  << "AllMonitors:LPR: " << randomizeAnalogMonitors_m << ","
+        LOG(LM_INFO)  << "AllMonitors:LPR: "
                       << internalTemperature1_value << "," << internalTemperature2_value << "," << internalTemperature3_value << "," << internalTemperature4_value << ","
                       << internalTemperature5_value << "," << internalTemperatureOOR_value << "," << externalTemperature1_value << "," << externalTemperature2_value << ","
                       << externalTemperatureOOR1_value << "," << externalTemperatureOOR2_value << "," << getAirflowSensor1_value << "," << getAirflowSensor2_value << ","

@@ -29,21 +29,21 @@
  */
 
 #ifdef __cplusplus
-     #define cppfudge "C"
+     #define linkage "C"
 #else
-     #define cppfudge
+     #define linkage
 #endif
 
 #ifdef STATIC_FRONTENDCONTROL
      // use the code statically
-     #define DLLEXPORT extern cppfudge
+     #define DLLEXPORT extern linkage
 #else
     #ifdef BUILD_FRONTENDCONTROL
          // the dll exports
          #define DLLEXPORT __declspec(dllexport) __cdecl
     #else
          // the exe imports
-         #define DLLEXPORT extern cppfudge __declspec(dllimport) __cdecl
+         #define DLLEXPORT extern linkage __declspec(dllimport) __cdecl
     #endif
 #endif
 #endif /*_FRONTENDCONTROL_LV_WRAPPER_DLL_EXPORT_H_*/

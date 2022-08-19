@@ -232,6 +232,10 @@ public:
     ///< If openLoop is -1, no change is made to the SIS openLoop state.
     ///< If either pol or sb is -1, then all junctions are biased according to the database.
 
+    static void sweepSISVoltage(bool doSweep)
+      { sweepSISVoltage_m = doSweep; }
+    ///< enable/disable for bands 7 and up, gradually sweep SIS voltage to target value
+
     bool getEnableSISBias() const;
     ///< Return true if the SIS bias is enabled -- for updating the GUI.
 
@@ -240,6 +244,10 @@ public:
     ///< Enable/disable and set the SIS magnet bias for a given pol and sb or for all SIS magnets simultanously.
     ///< If IMag is NULL the setting from the configuration database is used.
     ///< If either pol or sb is -1, then all magnets are biased according to the database.
+
+    static void sweepMagnetCurrent(bool doSweep)
+      { sweepMagnetCurrent_m = doSweep; }
+    ///< enable/disable gradually sweep SIS magnet current to target value
 
     bool getEnableSISMagnet() const;
     ///< Return true if the SIS magnet is enabled -- for updating the GUI.
@@ -489,6 +497,10 @@ private:
     bool isTunedLO_m;   ///< true if the LO frequency has been successfully set.
 
     static std::string FineLoSweepIni_m;    ///< path to fine LO sweep ini file.
+
+    // Switches for debugging options:
+    static bool sweepSISVoltage_m;
+    static bool sweepMagnetCurrent_m;
 
 public:        
     const std::string &asString(std::string &target) const;

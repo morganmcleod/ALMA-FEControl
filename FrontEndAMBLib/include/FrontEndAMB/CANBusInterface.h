@@ -52,8 +52,12 @@ public:
     virtual ~CANBusInterface();
     ///< Destructor for abstract class.
     
+    virtual const nodeList_t* findNodes(AmbChannel channel) = 0;
+    ///< Find all nodes on the specified channel.  Opens the channel if necessary.
+
     virtual void sendMessage(const AmbMessage_t &msg);
-    ///< Send a message on the CAN bus.  Implementation of method required by AmbInterfaceBus.    
+    ///< Send a message on the CAN bus.  Opens the msg.channel if necessary.
+    ///< Implementation of method required by AmbInterfaceBus.
     
     virtual void shutdown();
     ///< Shut down and disconenct the bus.  Implementation of method required by AmbInterfaceBus.

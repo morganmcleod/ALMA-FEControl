@@ -43,7 +43,7 @@ struct AmbTransactionLogger::LogEntry {
              FEHardwareDevice::Transaction_t _trans = FEHardwareDevice::FEMC_LOG_NONE,
              const char *_text = "",
              AmbRelativeAddr _RCA = 0,
-             int _FEStatus = FEHardwareDevice::FEMC_NO_ERROR,
+             int _FEStatus = FEMC_NO_ERROR,
              unsigned long _iValue = 0,
              float _fValue = 0.0)
       : ts(_ts),

@@ -2,7 +2,7 @@
 #define CANCHANNELNODEMAP_H_
 /*******************************************************************************
 * ALMA - Atacama Large Millimeter Array
-* (c) Associated Universities Inc., 2003 
+* (c) Associated Universities Inc., 2022
 *
 *This library is free software; you can redistribute it and/or
 *modify it under the terms of the GNU Lesser General Public
@@ -21,6 +21,7 @@
 */
 
 #include "ambDefs.h"
+#include "NodeList.h"
 #include <vector>
 
 /// A data structure with an entry for each CAN channel:
@@ -65,27 +66,16 @@ public:
     void addNode(AmbChannel channel, AmbNodeAddr node, unsigned char *serialNumber);
     ///< add a node to the given channel.
     
+    const nodeList_t &getNodes(AmbChannel channel) const
+      { return channels[channel].nodes; }
+    ///< peek at the list of nodes on the channel.
+
 private:
     // forbid copy construct and assignment:
     ChannelNodeMap(const ChannelNodeMap &other);
     ChannelNodeMap &operator =(const ChannelNodeMap &other);
 
     mutable pthread_mutex_t mutex_m;  ///< Mutex to protect access to the data structures.
-
-    /// Define a structure for containing the node addresses and serial numbers seen on a channel:
-    struct NodeInfo {
-        AmbNodeAddr node;
-        unsigned char serialNumber[8];
-
-        NodeInfo(AmbNodeAddr _node = 0, const unsigned char *sn = NULL)
-          {init(_node, sn); }    
-
-        void init(AmbNodeAddr _node, const unsigned char *sn = NULL)
-          { node = _node;
-            if (sn) memcpy(serialNumber, sn, 8);
-            else memset(serialNumber, 0, 8); }
-    };
-    typedef std::vector<NodeInfo> nodeList_t; 
 
     /// Define a structure for holding the state of each can controller channel:
     struct ChannelState {
@@ -99,10 +89,6 @@ private:
             {}
     };
     std::vector<ChannelState> channels;  ///< The list of channel state structures.
-    
-    const nodeList_t &getNodes(AmbChannel channel) const
-      { return channels[channel].nodes; }
-    ///< peek at the list of nodes on the channel.
 };
 
 #endif /*CANCHANNELNODEMAP_H_*/

@@ -24,8 +24,6 @@
 
 /// \file
 /// \brief declares data structures for front end subsystems configuration items in namespace FEConfig.  
-
-#include <FrontEndAMB/ambDefs.h>
 #include <iostream>
 
 namespace FEConfig {

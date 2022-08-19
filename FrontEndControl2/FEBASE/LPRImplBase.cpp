@@ -168,28 +168,17 @@ void LPRImplBase::monitorAction(Time *timestamp_p) {
     if (doMonitor) {
         switch (monitorPhase) {
             case 0:
-                if (!executeNextMon()) {
-                    if (randomizeAnalogMonitors_m)
-                        randomizeMon();
+                if (!executeNextMon())
                     monitorPhase = 1;
-                }
                 break;
             case 1:
                 opticalSwitchPort_value = opticalSwitchPort();
-                ++monitorPhase;
+                opticalSwitchShutter_value = opticalSwitchShutter();
+                opticalSwitchState_value = opticalSwitchState();
+                opticalSwitchBusy_value = opticalSwitchBusy();
+                monitorPhase = 2;
                 break;
             case 2:
-                opticalSwitchShutter_value = opticalSwitchShutter();
-                ++monitorPhase;
-                break;
-            case 3:
-                opticalSwitchState_value = opticalSwitchState();
-                ++monitorPhase;
-                break;
-            case 4:
-                opticalSwitchBusy_value = opticalSwitchBusy();
-                ++monitorPhase;
-                // no break;
             default:
                 if (logMonitors_m)
                     logMon();
@@ -208,7 +197,7 @@ void LPRImplBase::logMon(bool printHeader) const {
                          "Temp0,Temp1,EDFALaserPumpTemp,EDFALaserDriveCurrent,"
                          "EDFALaserPhotoDetectCurrent,EDFAPhotoDetectCurrent,EDFAPhotoDetectPower,EDFAModulationInput" << endl;
     } else {
-        LOG(LM_INFO)  << "AllMonitors:LPR: " << randomizeAnalogMonitors_m << ","                      
+        LOG(LM_INFO)  << "AllMonitors:LPR: "
                       << ((int) opticalSwitchPort_value + 1) << "," << (opticalSwitchShutter_value ? 1 : 0) << "," << (opticalSwitchState_value ? 1 : 0) << "," << (opticalSwitchBusy_value ? 1 : 0) << "," 
                       << LPRTemperature0_value << "," << LPRTemperature1_value << "," << EDFALaserPumpTemperature_value << "," << EDFALaserDriveCurrent_value << "," 
                       << EDFALaserPhotoDetectCurrent_value << "," << EDFAPhotoDetectCurrent_value << "," << EDFAPhotoDetectPower_value << "," << EDFAModulationInput_value << endl;
