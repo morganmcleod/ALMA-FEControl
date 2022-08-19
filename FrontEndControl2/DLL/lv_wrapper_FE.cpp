@@ -72,6 +72,8 @@ namespace FrontEndLVWrapper {
     // Debug options:
     bool allowSISHeaters = true;        ///< Normally true: allow operation of SIS heaters
     bool correctSISVoltageError = true; ///< Normally true: perform SIS voltage offset measurement and correction
+    bool sweepSISVoltage = true;        ///< Normally true: for bands 7 and up, gradually sweep SIS voltage to target value
+    bool sweepMagnetCurrent = true;     ///< Normally true: gradually sweep SIS magnet current to target value
     bool SISOpenLoop = false;           ///< Normally false: run SIS voltage open-loop
     short FEMode = 0;                   ///< Normally 0=Operational, 1=Troubleshooting, 2=Maintenance
     bool logMonitors = false;           ///< Normally false: log all analog monitor data to FELog
@@ -165,6 +167,18 @@ DLLEXPORT short FEControlInit() {
             correctSISVoltageError = from_string<unsigned long>(tmp);
         LOG(LM_INFO) << "correctSISVoltageError=" << correctSISVoltageError << endl;
         FrontEndImpl::correctSISVoltageError(correctSISVoltageError);
+
+        tmp = configINI.GetValue("debug", "sweepSISVoltage");
+        if (!tmp.empty())
+            sweepSISVoltage = from_string<unsigned long>(tmp);
+        LOG(LM_INFO) << "sweepSISVoltage=" << sweepSISVoltage << endl;
+        CartAssembly::sweepSISVoltage(sweepSISVoltage);
+
+        tmp = configINI.GetValue("debug", "sweepMagnetCurrent");
+        if (!tmp.empty())
+            sweepMagnetCurrent = from_string<unsigned long>(tmp);
+        LOG(LM_INFO) << "sweepMagnetCurrent=" << sweepMagnetCurrent << endl;
+        CartAssembly::sweepMagnetCurrent(sweepMagnetCurrent);
 
         tmp = configINI.GetValue("debug", "SISOpenLoop");
         if (!tmp.empty())
