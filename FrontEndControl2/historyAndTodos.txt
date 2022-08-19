@@ -37,6 +37,9 @@ FEND-40.09.03.00-053-A-MAN
 http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
+2.13.2 2022-08-15
+  LM_DEBUG logging
+
 2.13.1 2022-07-07
   WCA multiplication factor = 4 for band 2 ESO first article
 
