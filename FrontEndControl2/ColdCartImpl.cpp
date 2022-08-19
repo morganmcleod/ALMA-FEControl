@@ -1428,7 +1428,7 @@ void ColdCartImpl::logMon(bool printHeader) const {
                          "lnaLedPol0Enable,lnaLedPol1Enable" << endl;
 
     } else {
-        LOG(LM_INFO)  << "AllMonitors:ColdCart(" << port_m << "): " << randomizeAnalogMonitors_m << ","
+        LOG(LM_INFO)  << "AllMonitors:ColdCart(" << port_m << "): "
                       << sisPol0Sb1Current_value << "," << sisPol0Sb2Current_value << "," << sisPol1Sb1Current_value << "," << sisPol1Sb2Current_value << ","
                       << sisPol0Sb1Voltage_value << "," << sisPol0Sb2Voltage_value << "," << sisPol1Sb1Voltage_value << "," << sisPol1Sb2Voltage_value << ","
                       << sisMagnetPol0Sb1Current_value << "," << sisMagnetPol0Sb2Current_value << "," << sisMagnetPol1Sb1Current_value << "," << sisMagnetPol1Sb2Current_value << ","

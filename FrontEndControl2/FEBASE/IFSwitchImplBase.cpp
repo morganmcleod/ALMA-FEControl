@@ -217,8 +217,6 @@ void IFSwitchImplBase::monitorAction(Time *timestamp_p) {
         pol1Sb1TempServoEnable_value = pol1Sb1TempServoEnable();
         pol1Sb2TempServoEnable_value = pol1Sb2TempServoEnable();        
         while (executeNextMon()) ;
-        if (randomizeAnalogMonitors_m)
-            randomizeMon();
         if (logMonitors_m)
            logMon();
     }        
@@ -233,7 +231,7 @@ void IFSwitchImplBase::logMon(bool printHeader) const {
                          "pol0Sb1TempServo,pol0Sb2TempServo,pol1Sb1TempServo,pol1Sb2TempServo"
                          "pol0Sb1Temp,pol0Sb2Temp,pol1Sb1Temp,pol1Sb2Temp" << endl;
     } else {
-        LOG(LM_INFO)  << "AllMonitors:IFSwitch: " << randomizeAnalogMonitors_m << ","
+        LOG(LM_INFO)  << "AllMonitors:IFSwitch: "
                       << (switchCartridge_value + 1) << "," << (int) pol0Sb1Attenuation_value << "," << (int) pol0Sb2Attenuation_value << "," << (int) pol1Sb1Attenuation_value << "," << (int) pol1Sb2Attenuation_value << ","
                       << (pol0Sb1TempServoEnable_value ? 1 : 0) << "," << (pol0Sb2TempServoEnable_value ? 1 : 0) << "," << (pol1Sb1TempServoEnable_value ? 1 : 0) << "," << (pol1Sb2TempServoEnable_value ? 1 : 0) << ","
                       << pol0Sb1AssemblyTemp_value << "," << pol0Sb2AssemblyTemp_value << "," << pol1Sb1AssemblyTemp_value << "," << pol1Sb2AssemblyTemp_value << endl;

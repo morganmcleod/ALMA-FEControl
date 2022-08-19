@@ -81,9 +81,6 @@ public:
     ///< pause/resume the monitor thread.
     void minimalMonitor(bool minimal, const char *reason = NULL);
     ///< reduce monitoring to the minimum if true.
-    static void randomizeAnalogMonitors(bool doRandomize)
-      { randomizeAnalogMonitors_m = doRandomize; }
-    ///< enable/disable randomized order for analog monitor points.    
     static void logMonitors(bool doLog)
       { logMonitors_m = doLog; }
     ///< enable/disable continuous logging of monitor points for all devices.
@@ -299,7 +296,6 @@ protected:
 protected:
     bool minimalMonitoring_m;   ///< true if only the bare minimum monitoring should be performed.
     FEMC_ERROR lastFemcError_m; ///< store error/status of last operation.
-    static bool randomizeAnalogMonitors_m;  ///< true if the analog monitoring should be done in randomized order. 
     static bool logMonitors_m;  ///< true if analog monitor points should be continuously dumped to the log.
     static bool logAmbErrors_m; ///< true if AMB errors should be logged.
     
@@ -336,8 +332,6 @@ private:
 // These macros support declaring and defining a MONITORS_REGISTRY in a derived class having the interface:
 // addMon(float *target, (pointer to member function) pf);
 //  - add a monitor point and its corresponding function to the registry.
-// randomizeMon()
-//  - randomize the order of monitor points in the registry.
 // executeNextMon()
 //  - call a monitor function from the registry and put its value in the target float variable.
 
@@ -348,8 +342,6 @@ private:
     std::vector<RegEntry>::iterator nextMon;                \
     void addMon(float *target, MonFuncPtr pf)               \
       { monitorRegistry.push_back(RegEntry(target, pf)); }  \
-    void randomizeMon()                                     \
-      { std::random_shuffle(monitorRegistry.begin(), monitorRegistry.end()); } \
     bool executeNextMon();
 
 #define DEFINE_MONITORS_REGISTRY(CLASS)                     \

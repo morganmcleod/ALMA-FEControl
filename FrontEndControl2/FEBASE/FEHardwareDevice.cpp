@@ -5,7 +5,6 @@
 #include <iomanip>
 using namespace std;
 
-bool FEHardwareDevice::randomizeAnalogMonitors_m(false); 
 bool FEHardwareDevice::logMonitors_m(false);
 bool FEHardwareDevice::logAmbErrors_m(true);
 FEHardwareDevice::LogInterface FEHardwareDevice::defaultLogger_m;

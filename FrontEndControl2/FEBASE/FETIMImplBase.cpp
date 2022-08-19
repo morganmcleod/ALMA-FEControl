@@ -255,11 +255,8 @@ void FETIMImplBase::monitorAction(Time *timestamp_p) {
     if (doMonitor) {
         switch (monitorPhase) {
             case 0:
-                if (!executeNextMon()) {
-                    if (randomizeAnalogMonitors_m)
-                        randomizeMon();
+                if (!executeNextMon())
                     monitorPhase = 1;
-                }
                 break;
             case 1:
                 internalTemperatureOOR_value = internalTemperatureOOR();
@@ -333,7 +330,7 @@ void FETIMImplBase::logMon(bool printHeader) const {
                          "sensorSingleFailed,sensorMultiFailed,glitchValue,glitchCounterTriggered,"
                          "delayShutdownTriggered,finalShutdownTriggered,getCompressorStatus,getCompressorInterlockStatus,getCompressorCableStatus" << endl;
     } else {
-        LOG(LM_INFO)  << "AllMonitors:LPR: " << randomizeAnalogMonitors_m << ","
+        LOG(LM_INFO)  << "AllMonitors:LPR: "
                       << internalTemperature1_value << "," << internalTemperature2_value << "," << internalTemperature3_value << "," << internalTemperature4_value << ","
                       << internalTemperature5_value << "," << internalTemperatureOOR_value << "," << externalTemperature1_value << "," << externalTemperature2_value << ","
                       << externalTemperatureOOR1_value << "," << externalTemperatureOOR2_value << "," << getAirflowSensor1_value << "," << getAirflowSensor2_value << ","

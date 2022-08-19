@@ -163,9 +163,6 @@ DLLEXPORT short FEGetNumCartridgesOn();
 DLLEXPORT short cartPauseMonitor(short port, short pauseWCA, short pauseCC);
 ///< Pause/restart monitoring for the specified port WCA and/or cold cart.
 
-DLLEXPORT short randomizeAnalogMonitors(short enable);
-///< enable/disble random ordering on analog monitor points.
-
 //----------------------------------------------------------------------------
 // Cartridge control operations.
 

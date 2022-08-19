@@ -21,7 +21,7 @@
 
 #include "SWVersion.h"
 
-const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.13.3");
+const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.14.0");
 
 //******* Be sure to update resource.rc!
 

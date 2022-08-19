@@ -74,7 +74,6 @@ namespace FrontEndLVWrapper {
     bool correctSISVoltageError = true; ///< Normally true: perform SIS voltage offset measurement and correction
     bool SISOpenLoop = false;           ///< Normally false: run SIS voltage open-loop
     short FEMode = 0;                   ///< Normally 0=Operational, 1=Troubleshooting, 2=Maintenance
-    bool randomizeMonitors = false;     ///< Normally false: do all analog monitoring in random order
     bool logMonitors = false;           ///< Normally false: log all analog monitor data to FELog
     bool logAmbErrors = true;           ///< Normally true: log CAN bus errors to FELog
     bool logMonTimers = false;          ///< Normally false: query and log the AMBSI1 monitor timing registers
@@ -176,12 +175,6 @@ DLLEXPORT short FEControlInit() {
         if (!tmp.empty())
             FEMode = from_string<short>(tmp);
         LOG(LM_INFO) << "debug:FEMode=" << FEMode << endl;
-
-        tmp = configINI.GetValue("logger", "randomizeAnalogMonitors");
-        if (!tmp.empty())
-            randomizeMonitors = from_string<unsigned long>(tmp);
-        FEHardwareDevice::randomizeAnalogMonitors(randomizeMonitors);
-        LOG(LM_INFO) << "randomizeAnalogMonitors=" << randomizeMonitors << endl;
         
         tmp = configINI.GetValue("logger", "logMonitors");
         if (!tmp.empty())
@@ -840,11 +833,6 @@ DLLEXPORT short cartPauseMonitor(short port, short pauseWCA, short pauseCC) {
             return -1;
         return frontEnd -> cartPauseMonitor(port, (pauseWCA!=0), (pauseCC!=0));
     }
-}
-
-DLLEXPORT short randomizeAnalogMonitors(short enable) {
-    FEHardwareDevice::randomizeAnalogMonitors(enable != 0);
-    return 0;
 }
 
 //----------------------------------------------------------------------------

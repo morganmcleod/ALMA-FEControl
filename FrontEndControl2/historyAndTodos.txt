@@ -38,6 +38,12 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 
 Revision history:
+
+2.14.0
+  Remove all RandomizeAnalogMonitors functions
+
+
+
 2.13.3 2022-08-18
   Extra debugging in cartGetMonitorSIS
 
