@@ -29,6 +29,7 @@
 // logging CAN messages sent and received.
 
 #include "DLLExport.h"
+#include "FrontEndAMB/ambDefs.h"
 
 DLL_API short DLL_CALL getSoftwareVersion(char *versionString);
 ///< Get the DLL software version
@@ -62,5 +63,14 @@ DLL_API int DLL_CALL monitor(unsigned char nodeAddr, unsigned long RCA, unsigned
 // RCA:        relative CAN address
 // dataLength: returns the number of valid bytes in the response data payload
 // data:       1-8 bytes response payload
+
+struct Message {
+    AmbRelativeAddr RCA;        // used by command and monitor
+    AmbDataLength_t dataLength; // used when sending command, filled by monitor
+    AmbDataMem_t *data;         // "
+    Time timestamp;             // filled by command and monitor
+};
+
+DLL_API int DLL_CALL runSequence(unsigned char nodeAddr, Message *sequence, unsigned long maxLen);
 
 #endif /* SRC_DLLMAIN_H_ */

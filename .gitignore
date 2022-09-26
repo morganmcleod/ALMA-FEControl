@@ -17,3 +17,5 @@ html
 symsrv.yes
 test_results_local
 ICDLOG*
+*/.vscode/*
+

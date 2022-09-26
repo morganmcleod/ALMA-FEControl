@@ -27,6 +27,7 @@
 #include "FrontEndAMB/ambDefs.h"
 #include "inifile.h"
 #include "logger.h"
+#include "setTimeStamp.h"
 #include "splitPath.h"
 #include "stringConvert.h"
 #include "exchndl.h"
@@ -49,7 +50,7 @@ namespace FrontEndAMBDLL {
     CIniFile *configINI = NULL;         ///< ini file access object
     string iniFileName;                 ///< the top-level FrontEndControlDLL.ini
     string logDir("");                  ///< output logs are created here
-    logLevel reportingLevel(LM_DEBUG);  ///< global logging level
+    logLevel reportingLevel(LM_DEBUG);   ///< global logging level
     bool CAN_noTransmit = false;        ///< Normally false: ignore CAN connection failure and suppress all CAN messages
 
     // Library status:
@@ -268,15 +269,15 @@ DLL_API int DLL_CALL findNodes(unsigned short *numFound, unsigned char *nodeAddr
     if (it != nodes -> end())
         LOG(LM_INFO) << "FrontEndAMB.DLL found nodes:" << endl;
     while (it != nodes -> end() and (*numFound) < maxLen) {
-        LOG(LM_INFO) << uppercase << hex << setfill('0') << setw(2) << it -> node
-                     << ":" << (unsigned)(it -> serialNumber[0])
-                     << " " << (unsigned)(it -> serialNumber[1])
-                     << " " << (unsigned)(it -> serialNumber[2])
-                     << " " << (unsigned)(it -> serialNumber[3])
-                     << " " << (unsigned)(it -> serialNumber[4])
-                     << " " << (unsigned)(it -> serialNumber[5])
-                     << " " << (unsigned)(it -> serialNumber[6])
-                     << " " << (unsigned)(it -> serialNumber[7]) << dec << setw(0) << endl;
+        LOG(LM_DEBUG) << uppercase << hex << setfill('0') << setw(2) << it -> node
+                    << ":" << (unsigned)(it -> serialNumber[0])
+                    << " " << (unsigned)(it -> serialNumber[1])
+                    << " " << (unsigned)(it -> serialNumber[2])
+                    << " " << (unsigned)(it -> serialNumber[3])
+                    << " " << (unsigned)(it -> serialNumber[4])
+                    << " " << (unsigned)(it -> serialNumber[5])
+                    << " " << (unsigned)(it -> serialNumber[6])
+                    << " " << (unsigned)(it -> serialNumber[7]) << dec << setw(0) << endl;
         nodeAddrs[*numFound] = it -> node;
         memcpy(serialNums[*numFound], it -> serialNumber, 8);
         (*numFound)++;
@@ -290,8 +291,8 @@ DLL_API int DLL_CALL command(unsigned char nodeAddr, unsigned long RCA, unsigned
         LOG(LM_ERROR) << "FrontEndAMB.DLL command: bad state or params." << endl;
         return -1;
     }
-    LOG(LM_INFO) << "FrontEndAMB.DLL command(" << uppercase << hex << setfill('0') << setw(2) << (unsigned) nodeAddr << "):"
-                 << RCA << endl;
+    LOG(LM_DEBUG) << "FrontEndAMB.DLL command(" << uppercase << hex << setfill('0') << setw(2) << (unsigned) nodeAddr << "):"
+                  << RCA << endl;
     return ambDevice -> command(nodeAddr, RCA, dataLength, data);
 }
 
@@ -300,7 +301,35 @@ DLL_API int DLL_CALL monitor(unsigned char nodeAddr, unsigned long RCA, unsigned
         LOG(LM_ERROR) << "FrontEndAMB.DLL monitor: bad state or params." << endl;
         return -1;
     }
-    LOG(LM_INFO) << "FrontEndAMB.DLL monitor(" << uppercase << hex << setfill('0') << setw(2) << (unsigned) nodeAddr << "):"
-                 << RCA << endl;
+    LOG(LM_DEBUG) << "FrontEndAMB.DLL monitor(" << uppercase << hex << setfill('0') << setw(2) << (unsigned) nodeAddr << "):"
+                  << RCA << endl;
     return ambDevice -> monitor(nodeAddr, RCA, *dataLength, data);
+}
+
+DLL_API int DLL_CALL runSequence(unsigned char nodeAddr, Message *sequence, unsigned long maxLen) {
+    for (unsigned long i = 0; i < maxLen; i++) {
+        bool command = false;
+        if (sequence[i].dataLength == 0) {
+            ambDevice -> monitor(nodeAddr, sequence[i].RCA, sequence[i].dataLength, sequence[i].data);
+        } else {
+            command = true;
+            ambDevice -> command(nodeAddr, sequence[i].RCA, sequence[i].dataLength, sequence[i].data);
+        }
+        LOG(LM_DEBUG) << (command ? "command 0x" : "monitor 0x")
+                        << uppercase << hex << setfill('0') << setw(5)
+                        << (unsigned) sequence[i].RCA << " "
+                        << dec << sequence[i].dataLength << ": "
+                        << uppercase << hex << setfill('0')
+                        << setw(2) << unsigned(sequence[i].data[0]) << " "
+                        << setw(2) << unsigned(sequence[i].data[1]) << " "
+                        << setw(2) << unsigned(sequence[i].data[2]) << " "
+                        << setw(2) << unsigned(sequence[i].data[3]) << " "
+                        << setw(2) << unsigned(sequence[i].data[4]) << " "
+                        << setw(2) << unsigned(sequence[i].data[5]) << " "
+                        << setw(2) << unsigned(sequence[i].data[6]) << " "
+                        << setw(2) << unsigned(sequence[i].data[7]) << endl;
+
+        setTimeStamp(&(sequence[i].timestamp));
+    }
+    return 0;
 }
