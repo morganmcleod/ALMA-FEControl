@@ -39,6 +39,10 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.14.1
+  LM_INFO logging
+  fix loading FrontEndControlDLL.ini [configuration] with providerCode!=40
+
 2.14.0 
   LM_DEBUG logging
   Changes made to improve performance in the Bias Module Test Set:

@@ -38,10 +38,16 @@ using namespace std;
 namespace FEConfig {
 
 ConfigProviderIniFile::ConfigProviderIniFile(const std::string& filename)
-  : iniFile_mp(new CIniFile(filename)),
+  : providerCode_m(40),
+    iniFile_mp(new CIniFile(filename)),
     xmlFiles_m()
 {
     iniFile_mp -> ReadFile();
+    // load the default providerCode:
+    string tmp = iniFile_mp -> GetValue("configuration", "providerCode");
+    if (!tmp.empty())
+        providerCode_m = from_string<unsigned>(tmp);
+    LOG(LM_INFO) << "Using configuration providerCode=" << providerCode_m << endl;
 }
 
 ConfigProviderIniFile::~ConfigProviderIniFile() {
@@ -63,7 +69,7 @@ bool ConfigProviderIniFile::getConfiguration(unsigned configId, Configuration::R
         return false;
 
     char sectionName[30];
-    sprintf(sectionName, "~Configuration40-%u", configId);
+    sprintf(sectionName, "~Configuration%u-%u", providerCode_m, configId);
 
     target.description_m = iniFile_mp -> GetValue(sectionName, "Description");
 
@@ -115,7 +121,7 @@ bool ConfigProviderIniFile::getFrontEndConfig(unsigned keyFrontEnd, FrontEndConf
     string tmp;
     char sectionName[30];
     char itemName[30];
-    sprintf(sectionName, "~FrontEnd40-%u", keyFrontEnd);
+    sprintf(sectionName, "~FrontEnd%u-%u", providerCode_m, keyFrontEnd);
     
     unsigned fkCryostat(0), fkLPR(0), numCarts(0);
 
@@ -190,7 +196,7 @@ bool ConfigProviderIniFile::getCryostatConfig(unsigned keyCryostat, CryostatConf
         return false;
 
     char sectionName[30];
-    sprintf(sectionName, "~Cryostat40-%u", keyCryostat);
+    sprintf(sectionName, "~Cryostat%u-%u", providerCode_m, keyCryostat);
     
     target.SN_m = iniFile_mp -> GetValue(sectionName, "SN");
     target.ESN_m = iniFile_mp -> GetValue(sectionName, "ESN");
@@ -205,7 +211,7 @@ bool ConfigProviderIniFile::getLPRConfig(unsigned keyLPR, LPRConfig &target) con
         return false;
 
     char sectionName[30];
-    sprintf(sectionName, "~LPR40-%u", keyLPR);
+    sprintf(sectionName, "~LPR%u-%u", providerCode_m, keyLPR);
     
     target.SN_m = iniFile_mp -> GetValue(sectionName, "SN");
     target.ESN_m = iniFile_mp -> GetValue(sectionName, "ESN");

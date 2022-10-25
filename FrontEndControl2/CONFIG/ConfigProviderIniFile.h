@@ -121,6 +121,7 @@ namespace FEConfig {
         ///< private helper to extract a double from the given string formatted as one of the above.
         ///< extraction starts at nextPos.  Also nextPos returns the position of the next item in the string.
         
+        unsigned providerCode_m;    ///< vestigial, for loading like [~Configuration49-9999]
         CIniFile *iniFile_mp;       ///< ini file to use
         StringSet xmlFiles_m;       ///< XML files found in the INI file directory
     };

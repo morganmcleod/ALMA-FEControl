@@ -53,7 +53,7 @@ namespace FrontEndLVWrapper {
     pthread_mutex_t LVWrapperLock;      ///< mutex to protect the above two vars
 
     // Debug options:
-    logLevel reportingLevel(LM_DEBUG);   ///< global logging level
+    logLevel reportingLevel(LM_INFO);   ///< global logging level
     std::string logDir("");             ///< output logs are created here
     bool logTransactions = false;       ///< Normally false: log all low-level CAN transactions to FELog
     bool debugLVStructures = false;     ///< Normally false: dump all monitor data results to the log

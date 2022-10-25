@@ -57,7 +57,7 @@ using namespace std;
 
 namespace FrontEndLVWrapper {
     // Configuration loading:
-    unsigned long configId = 1;         ///< configuration ID to load
+    unsigned configId = 1;         ///< configuration ID to load
     StringSet ESNList;                  ///< the list of ESNs found in the front end
 
     // Library init and lifecycle:
@@ -108,7 +108,7 @@ static void loadDefaultConfiguration() {
     configINI.ReadFile();
     std::string tmp = configINI.GetValue("configuration", "configId");
     if (!tmp.empty())
-        configId = from_string<unsigned long>(tmp);
+        configId = from_string<unsigned>(tmp);
     LOG(LM_INFO) << "Using configuration configId=" << configId << endl;
 }
 
