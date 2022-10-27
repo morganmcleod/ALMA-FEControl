@@ -837,6 +837,8 @@ void ColdCartImpl::resetMixerHeating() {
         delete mixerHeatingdataFile_mp;
         mixerHeatingdataFile_mp = NULL;
     }
+    memset(&lastHeaterCurrentsPol0_m, 0, sizeof(lastHeaterCurrentsPol0_m));
+    memset(&lastHeaterCurrentsPol1_m, 0, sizeof(lastHeaterCurrentsPol1_m));
 }
 
 bool ColdCartImpl::sisMixerHeatingProcess(int pol, float targetTemp, unsigned timeout) {
@@ -927,12 +929,20 @@ bool ColdCartImpl::sisMixerHeatingProcess(int pol, float targetTemp, unsigned ti
     LOG(LM_INFO) << fixed << setprecision(2) << "MixerHeating: base temp pol0=" << offTemp0 << " pol1=" << offTemp1
                  << " base current pol0=" << offCurrentPol0 << " pol1=" << offCurrentPol1 << endl;
 
+    // Save values for later monitoring:
+    if (pol == -1 || pol == 0)
+        lastHeaterCurrentsPol0_m.heaterOff_value = offCurrentPol0;
+    if (pol == -1 || pol == 1)
+        lastHeaterCurrentsPol1_m.heaterOff_value = offCurrentPol1;
+
     float thresholdPol0(offCurrentPol0 + 1.0);  // threshold is off current + 1mA
     float thresholdPol1(offCurrentPol1 + 1.0);
     float thresholdOffTemp0(offTemp0 + 0.20);   // threshold is base temp + 0.20 K.
     float thresholdOffTemp1(offTemp1 + 0.20);
 
     // Initialize loop variables:
+    float sumCurrentPol0(0), sumCurrentPol1(0);
+    int countCurrentPol0(0), countCurrentPol1(0);
     float heaterCurrentPol0(0), heaterCurrentPol1(0);
     float mixerTempPol0(0), mixerTempPol1(0);
     bool targetReachedPol0(false), targetReachedPol1(false);
@@ -979,6 +989,16 @@ bool ColdCartImpl::sisMixerHeatingProcess(int pol, float targetTemp, unsigned ti
             // check heater currents against threshold:
             heaterOnPol0 = (heaterCurrentPol0 > thresholdPol0);
             heaterOnPol1 = (heaterCurrentPol1 > thresholdPol1);
+
+            // accumulate for averages:
+            if (heaterOnPol0) {
+                sumCurrentPol0 += heaterCurrentPol0;
+                countCurrentPol0++;
+            }
+            if (heaterOnPol1) {
+                sumCurrentPol1 += heaterCurrentPol1;
+                countCurrentPol1++;
+            }
 
             // adjust loop exit conditions based on whether heating both pols or just one:
             if (pol == 0)
@@ -1033,6 +1053,12 @@ bool ColdCartImpl::sisMixerHeatingProcess(int pol, float targetTemp, unsigned ti
     // switch off the heaters:
     setSISHeaterEnable(0, false);
     setSISHeaterEnable(1, false);
+
+    // Save values for later monitoring:
+    if (pol == -1 || pol == 0)
+        lastHeaterCurrentsPol0_m.heaterOn_value = sumCurrentPol0 / countCurrentPol0;
+    if (pol == -1 || pol == 1)
+        lastHeaterCurrentsPol1_m.heaterOn_value = sumCurrentPol1 / countCurrentPol1;
 
     // wait for the temperatures to return below the threshold:
     unsigned long mixerCooldownTimerStart = GETTIMER();
@@ -1307,14 +1333,23 @@ bool ColdCartImpl::getMonitorAux(int pol, Aux_t &target) const {
     if (pol == 0) {
         if (hasLNA())
             target.lnaLedEnable_value = lnaLedPol0Enable_value;
-        if (hasSIS())
+        if (hasSISHeater())
             target.sisHeaterCurrent_value = sisHeaterPol0Current_value;
         return true;
     } else if (pol == 1) {
         if (hasLNA())
             target.lnaLedEnable_value = lnaLedPol1Enable_value;
-        if (hasSIS())
+        if (hasSISHeater())
             target.sisHeaterCurrent_value = sisHeaterPol1Current_value;
+        return true;
+    }
+    return false;
+}
+
+bool ColdCartImpl::getLastHeaterCurrents(int pol, HeaterCurrents_t &target) const {
+    memset(&target, 0, sizeof(target));
+    if (hasSISHeater()) {
+        target = (pol == 0) ? lastHeaterCurrentsPol0_m : lastHeaterCurrentsPol1_m;
         return true;
     }
     return false;

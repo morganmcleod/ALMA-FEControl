@@ -148,6 +148,7 @@ public:
     bool cartGetMonitorSIS(int port, int pol, int sb, ColdCartImpl::SIS_t &target) const;
     bool cartGetMonitorLNA(int port, int pol, int sb, ColdCartImpl::LNA_t &target) const;
     bool cartGetMonitorAux(int port, int pol, ColdCartImpl::Aux_t &target) const;
+    bool cartGetLastHeaterCurrents(int port, int pol, ColdCartImpl::HeaterCurrents_t &target) const;
 
 // Control commands for cartridges:
     bool cartSetLockingStrategy(int port, int strategy);

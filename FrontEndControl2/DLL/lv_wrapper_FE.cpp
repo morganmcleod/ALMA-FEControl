@@ -1932,6 +1932,26 @@ DLLEXPORT short cartGetMonitorAux(short port, short pol, CartAuxData_t *target) 
     return -1;
 }
 
+DLLEXPORT short cartGetLastHeaterCurrents(short port, short pol, CartLastHeaterCurrents_t *target) {
+    if (!validatePortNumber(port))
+        return -1;
+    if (!target)
+        return -1;
+    target -> reset();
+    if (!FEValid)
+        return -1;
+
+    ColdCartImpl::HeaterCurrents_t heatInfo;
+    if (frontEnd -> cartGetLastHeaterCurrents(port, pol, heatInfo)) {
+        target -> setHeaterCurrent(false, heatInfo.heaterOff_value);
+        target -> setHeaterCurrent(true, heatInfo.heaterOn_value);
+        if (debugLVStructures)
+            LOG(LM_DEBUG) << *target;
+        return 0;
+    }
+    return -1;
+}
+
 DLLEXPORT short powerGetMonitorModule(short port, PowerModuleData_t *target) {
     if (!validatePortNumber(port))
         return -1;

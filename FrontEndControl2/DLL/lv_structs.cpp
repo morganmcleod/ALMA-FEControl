@@ -296,6 +296,22 @@ const int CartAuxData_t::offsets[] = { 0, 4 };
 
 //----------------------------------------------------------------------------
 
+void CartLastHeaterCurrents_t::streamOut(std::ostream& out) const {
+    string tmp;
+    canDataAsText(tmp, data, sizeof(data));
+    ostringstream ost(ostringstream::out);
+
+    ost << "CartLastHeaterCurrents_t: heaterOff=" << getHeaterCurrent(false)
+        << " heaterOn=" << getHeaterCurrent(true) << endl;
+
+    ost << tmp << endl;
+    out << ost.str();
+}
+
+const int CartLastHeaterCurrents_t::offsets[] = { 0, 4 };
+
+//----------------------------------------------------------------------------
+
 void PowerModuleData_t::streamOut(std::ostream& out) const {
 	string tmp;
 	canDataAsText(tmp, data, sizeof(data));

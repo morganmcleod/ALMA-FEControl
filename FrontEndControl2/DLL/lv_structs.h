@@ -559,6 +559,41 @@ inline std::ostream &operator << (std::ostream& out, const CartAuxData_t &data)
 ///< stream output for debugging CartAuxData_t    
 
 //----------------------------------------------------------------------------
+// Structure to return most recent SIS mixer heater currents
+
+struct CartLastHeaterCurrents_t {
+    enum Field {
+        SIS_HEATER_CURRENT_OFF,    // 4 byte float
+        SIS_HEATER_CURRENT_ON      // 4 byte float
+    };
+    unsigned char data[8];
+    static const int offsets[];
+
+    CartLastHeaterCurrents_t()
+      { reset(); }
+
+    void reset()
+      { memset(data, 0, sizeof(data)); }
+
+    float getHeaterCurrent(bool isOn) const
+      { return LVGetFloat(index(isOn), data, offsets); }
+
+    void setHeaterCurrent(bool isOn, const float &value)
+      { LVSetFloat(index(isOn), data, offsets, value); }
+
+    short index(bool isOn) const
+      { return isOn ? 1 : 0; }
+
+    void streamOut(std::ostream& out) const;
+    ///< stream output for debugging
+};
+
+inline std::ostream &operator << (std::ostream& out, const CartLastHeaterCurrents_t &data)
+  { data.streamOut(out); return out; }
+///< stream output for debugging CartAuxData_t
+
+
+//----------------------------------------------------------------------------
 // Structure to return Power Distribution module data:
     
 struct PowerModuleData_t {

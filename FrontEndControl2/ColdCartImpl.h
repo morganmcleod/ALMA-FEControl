@@ -521,6 +521,14 @@ public:
     bool getMonitorAux(int pol, Aux_t &target) const;
     ///< get the auxiliary monitor values for the given pol. 
 
+    struct HeaterCurrents_t {
+        float heaterOff_value;
+        float heaterOn_value;
+    };
+    ///< structure for returning last heater currents from mixer heating process
+    bool getLastHeaterCurrents(int pol, HeaterCurrents_t &target) const;
+    ///< get the last heater currents for the given pol.
+
     void appendThermalLog(std::string &target) const;
     ///< append thermal information to a logging string
 
@@ -557,6 +565,8 @@ private:
     static const float mixerHeatingMinTargetTemp_m;
     static const int mixerHeatingMaxTimeout_m;
     static const int mixerHeatingMaxTimeoutBand9_m;
+    HeaterCurrents_t lastHeaterCurrentsPol0_m;
+    HeaterCurrents_t lastHeaterCurrentsPol1_m;
 
     DECLARE_MONITORS_REGISTRY(ColdCartImpl)
     void logMon(bool printHeader = false) const;

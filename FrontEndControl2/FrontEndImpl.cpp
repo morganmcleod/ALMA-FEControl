@@ -725,6 +725,17 @@ bool FrontEndImpl::cartGetMonitorAux(int port, int pol, ColdCartImpl::Aux_t &tar
     return false;
 }
 
+bool FrontEndImpl::cartGetLastHeaterCurrents(int port, int pol, ColdCartImpl::HeaterCurrents_t &target) const {
+    // If the requested CartAssembly and ColdCart exist and are enabled, return the recent heater currents data:
+    const CartAssembly *ca = carts_mp -> getCartAssembly(port);
+    if (ca && ca -> getEnable()) {
+        const ColdCartImpl *cc = ca -> getColdCart();
+        if (cc)
+            return cc -> getLastHeaterCurrents(pol, target);
+    }
+    return false;
+}
+
 //----------------------------------------------------------------------------
 // Functions to add and remove sub-assemblies:
 bool FrontEndImpl::addCartridge(int port, WCAImpl &WCA, ColdCartImpl &coldCart) {
