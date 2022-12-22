@@ -41,6 +41,8 @@ Revision history:
 
 2.15.0
   Add DLL function cartGetLastHeaterCurrents to get average off and on currents from mixer heating process 
+  Print firmware versions on startup
+  Added Teledyne PA subsystem to FEMCErrors
 
 2.14.1 2022-10-25
   LM_INFO logging

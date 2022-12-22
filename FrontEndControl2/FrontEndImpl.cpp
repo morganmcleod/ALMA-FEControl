@@ -96,9 +96,12 @@ void FrontEndImpl::initialize(unsigned long channel, unsigned long nodeAddress) 
         unsigned char stat = specialGetSetupInfo();
         if (stat == 0 || stat == 5) {
             connected_m = true;
+
+
             LOG(LM_INFO) << "Connected to front end on CAN" << channel
                          << " at nodeAddress=0x" << uppercase << hex << setw(2) << setfill('0') << nodeAddress << dec << setw(0)
-                         << " AMBSI serialNum=" << AMBSISerialNum() << endl;
+                         << " firmware: ARCOM:" << FEMCFirmwareVersion() << " AMBSI1:" << AMBSIFirmwareRev()
+                         << " serialNum=" << AMBSISerialNum() << endl;
         } else {
             retries--;
             string msg("Waiting to connect to front end. Retries=");
