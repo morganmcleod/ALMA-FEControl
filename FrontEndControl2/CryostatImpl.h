@@ -73,6 +73,9 @@ public:
     ///< append thermal header information to a logging string
     
 private:
+    float checkCryostatTemperature(float value) const;
+    ///< if the temperature is out of bounds, set it to -1
+
     class CryostatPumping *cryoPumpMonitor_mp;
 };
 

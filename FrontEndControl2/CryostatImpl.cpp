@@ -127,3 +127,12 @@ void CryostatImpl::appendThermalLogHeader(std::string &target) const {
               "\tcryo pressure\tport pressure";
 }
 
+float CryostatImpl::checkCryostatTemperature(float value) const {
+    const float maxTemp = 350.0;
+    const float minTemp = 0.0;
+    if (value <= minTemp)
+        return -1;
+    if (value >= maxTemp)
+        return -1;
+    return value;
+}

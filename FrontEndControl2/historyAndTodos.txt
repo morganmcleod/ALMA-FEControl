@@ -39,7 +39,10 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
-2.15.0
+2.15.1 2023-01-04
+  When monitoring cryostat temps, if out of range (0...350) return -1.
+
+2.15.0 2022-12-22
   Add DLL function cartGetLastHeaterCurrents to get average off and on currents from mixer heating process 
   Print firmware versions on startup
   Added Teledyne PA subsystem to FEMCErrors
