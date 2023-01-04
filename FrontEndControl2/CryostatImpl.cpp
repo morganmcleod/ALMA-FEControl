@@ -65,19 +65,19 @@ bool CryostatImpl::cryoPumpingEnable(bool val) {
 
 bool CryostatImpl::getMonitorCryostat(Cryostat_t &target) const {
     memset(&target, 0, sizeof(target));
-    target.cryostatTemperature0_value = cryostatTemperature0_value;
-    target.cryostatTemperature1_value = cryostatTemperature1_value;
-    target.cryostatTemperature2_value = cryostatTemperature2_value;
-    target.cryostatTemperature3_value = cryostatTemperature3_value;
-    target.cryostatTemperature4_value = cryostatTemperature4_value;
-    target.cryostatTemperature5_value = cryostatTemperature5_value;
-    target.cryostatTemperature6_value = cryostatTemperature6_value;
-    target.cryostatTemperature7_value = cryostatTemperature7_value;
-    target.cryostatTemperature8_value = cryostatTemperature8_value;
-    target.cryostatTemperature9_value = cryostatTemperature9_value;
-    target.cryostatTemperature10_value = cryostatTemperature10_value;
-    target.cryostatTemperature11_value = cryostatTemperature11_value;
-    target.cryostatTemperature12_value = cryostatTemperature12_value;
+    target.cryostatTemperature0_value = checkCryostatTemperature(cryostatTemperature0_value);
+    target.cryostatTemperature1_value = checkCryostatTemperature(cryostatTemperature1_value);
+    target.cryostatTemperature2_value = checkCryostatTemperature(cryostatTemperature2_value);
+    target.cryostatTemperature3_value = checkCryostatTemperature(cryostatTemperature3_value);
+    target.cryostatTemperature4_value = checkCryostatTemperature(cryostatTemperature4_value);
+    target.cryostatTemperature5_value = checkCryostatTemperature(cryostatTemperature5_value);
+    target.cryostatTemperature6_value = checkCryostatTemperature(cryostatTemperature6_value);
+    target.cryostatTemperature7_value = checkCryostatTemperature(cryostatTemperature7_value);
+    target.cryostatTemperature8_value = checkCryostatTemperature(cryostatTemperature8_value);
+    target.cryostatTemperature9_value = checkCryostatTemperature(cryostatTemperature9_value);
+    target.cryostatTemperature10_value = checkCryostatTemperature(cryostatTemperature10_value);
+    target.cryostatTemperature11_value = checkCryostatTemperature(cryostatTemperature11_value);
+    target.cryostatTemperature12_value = checkCryostatTemperature(cryostatTemperature12_value);
     target.backingPumpEnable_value = backingPumpEnable_value;
     target.turboPumpEnable_value = turboPumpEnable_value;
     target.turboPumpErrorState_value = turboPumpErrorState_value;
