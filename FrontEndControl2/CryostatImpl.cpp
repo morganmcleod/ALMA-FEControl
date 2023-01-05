@@ -25,6 +25,7 @@
 #include "FEMCEventQueue.h"
 #include "OPTIMIZE/CryostatPumping.h"
 using namespace std;
+#include <cmath>
 
 CryostatImpl::CryostatImpl(unsigned long channel, 
                            unsigned long nodeAddress,
@@ -130,6 +131,8 @@ void CryostatImpl::appendThermalLogHeader(std::string &target) const {
 float CryostatImpl::checkCryostatTemperature(float value) const {
     const float maxTemp = 350.0;
     const float minTemp = 0.0;
+    if (isnan(value))
+        return -1;
     if (value <= minTemp)
         return -1;
     if (value >= maxTemp)
