@@ -268,7 +268,7 @@ public:
     
     void setSISMagnetCurrent(int pol, int sb, float val,
                              bool sweep = true,
-                             float sweepStep = 0.1,
+                             float sweepStep = 1.0,
                              unsigned sweepDwell = 0);
     ///< set the SIS magnet current control for the specified pol and sb.
     ///< sweep = true means to move gradually from the present setting to the new setting.
