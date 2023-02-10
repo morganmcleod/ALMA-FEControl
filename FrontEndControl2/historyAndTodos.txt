@@ -39,7 +39,7 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
-2.14.2 2023-01-25
+2.15.2 2023-01-25
   Roll back monitor queue manipulations which were side-effect of setting SIS voltage and magenet voltage
   (ColdCartImpl.cpp 4a2466fe6)
 
