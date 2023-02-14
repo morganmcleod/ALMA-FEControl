@@ -2,8 +2,8 @@
 
 // DLL version information.
 VS_VERSION_INFO    VERSIONINFO
-FILEVERSION        0,0,1,0
-PRODUCTVERSION     0,0,1,0
+FILEVERSION        0,0,2,0
+PRODUCTVERSION     0,0,2,0
 FILEFLAGSMASK      VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
   FILEFLAGS        VS_FF_DEBUG | VS_FF_PRERELEASE
@@ -20,12 +20,12 @@ BEGIN
     BEGIN
       VALUE "CompanyName", "NRAO"
       VALUE "FileDescription", "FrontEndAMB.DLL"
-      VALUE "FileVersion", "0.0.1"
+      VALUE "FileVersion", "0.0.2"
       VALUE "InternalName", "FrontEndAMB.DLL"
-      VALUE "LegalCopyright", "2022 NRAO"
+      VALUE "LegalCopyright", "2023 NRAO"
       VALUE "OriginalFilename", "FrontEndAMB.DLL"
       VALUE "ProductName", "FrontEndAMB.DLL"
-      VALUE "ProductVersion", "0.0.1"
+      VALUE "ProductVersion", "0.0.2"
     END
   END
   BLOCK "VarFileInfo"

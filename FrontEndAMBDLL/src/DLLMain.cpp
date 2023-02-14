@@ -70,8 +70,8 @@ extern "C" BOOL WINAPI DllMain (
     switch (reason) {
     case DLL_PROCESS_ATTACH: {
             // Get the path to FrontEndControlDLL.ini from the environment or assume it in the working directory:
-            char *fn=getenv("FRONTENDCONTROL.INI");
-            iniFileName = (fn) ? fn : "FrontendControlDLL.ini";
+            char *fn=getenv("FRONTENDAMBDLL.INI");
+            iniFileName = (fn) ? fn : "FrontEndAmbDLL.ini";
             try {
                 configINI = new CIniFile(iniFileName);
                 configINI -> ReadFile();
