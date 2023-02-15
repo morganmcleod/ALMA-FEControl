@@ -10,10 +10,18 @@ Unlike FrontEndControl, this DLL is mostly just a simple pass-through of CAN mes
 ### Installation
 Place the following files in a folder anywhere on your Windows system:
 - FrontEndAMB.dll
+- addr2line.exe
+- catchsegv.exe
+- dbgcore.dll
+- dbghelp.dll
+- drmingw.exe
 - exchndl.dll
+- libgcc_s_dw2-1.dll
 - libstdc++-6.dll
+- libwinpthread-1.dll
 - mgwhelp.dll
-- FrontEndAmbDLL.ini
+- symsrv.dll
+- symsrv.yes
 
 You can customize FrontEndAmbDLL.INI if you wish:
 ```ini
