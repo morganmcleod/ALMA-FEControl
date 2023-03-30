@@ -39,6 +39,13 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.16.0 2023-03-30
+  Add freqBeatNote param to LORTMPhaseLockGetTuning
+
+2.15.3 NRAO-B2
+  Special version for operating the NRAO band 2 prototype cartridge
+  Add freqBeatNote param to LORTMPhaseLockGetTuning
+
 2.15.2 2023-01-25
   Roll back monitor queue manipulations which were side-effect of setting SIS voltage and magenet voltage
   (ColdCartImpl.cpp 4a2466fe6)

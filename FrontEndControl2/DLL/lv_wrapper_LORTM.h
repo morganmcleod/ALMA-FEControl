@@ -116,10 +116,11 @@ DLLEXPORT short LORTMPhaseLockTuningFinalize();
 
 DLLEXPORT short LORTMPhaseLockGetTuning(double *freqLSB, double *freqUSB,
                                         double *freqRef1, double *freqRef2,
-                                        double *freqSlaveLaser, short *factorM);
+                                        double *freqBeatNote, double *freqSlaveLaser,
+                                        short *factorM);
 ///< Get the frequencies to be used for phase locking the LORTM.  Software readback only.
 ///< freqLSB, freqUSB, freqRef1, and freqRef2 must not be NULL.  
-///< freqSlaveLaser and factorM are optional.
+///< freqBeatNote, freqSlaveLaser and factorM are optional.
 
 DLLEXPORT short LORTMLaserEnable(short laser, short enable);
 ///< For use in manual mode, enable or disable the selected laser.

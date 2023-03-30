@@ -165,8 +165,8 @@ bool LORTMImpl::PhaseLockTuningInit(short band, double freqLO1, double freqLO2, 
     //freqRefLaser_m = 192642.675;                  // GHz (from LORTM#4 documentation)
     const double freqRef3 = 0.125;                  // GHz
     
-    double freqBeatNote = freqLSB_m + freqRef2_m;   // GHz
-    freqSlaveLaser_m = freqRefLaser_m - freqBeatNote; // GHz
+    freqBeatNote_m = freqLSB_m + freqRef2_m;   // GHz
+    freqSlaveLaser_m = freqRefLaser_m - freqBeatNote_m; // GHz
     unsigned long freqSlaveMHz = (unsigned long) (freqSlaveLaser_m * 1000.0);
 
     bool oddMOnly = false;
@@ -174,7 +174,7 @@ bool LORTMImpl::PhaseLockTuningInit(short band, double freqLO1, double freqLO2, 
     LOG(LM_INFO) << "LORTMImpl::PhaseLockTuningInit "
                  << " freqRef2=" << freqRef2_m << ", oddMOnly=" << oddMOnly
                  << " freqRefLaser=" << setprecision(9) << freqRefLaser_m << setprecision(6)
-                 << " freqRef3=" << freqRef3 << " freqBeatNote=" << freqBeatNote 
+                 << " freqRef3=" << freqRef3 << " freqBeatNote=" << freqBeatNote_m
                  << " freqSlaveLaser=" << setprecision(9) << freqSlaveLaser_m << setprecision(6)
                  << " freqSlaveMHz=" << freqSlaveMHz << endl;
     
@@ -183,7 +183,7 @@ bool LORTMImpl::PhaseLockTuningInit(short band, double freqLO1, double freqLO2, 
         if (!success) {
             // try M=2 case:  M*Fref1-Fref3 <= 39 GHz
             factorM_m = 2;
-            freqRef1_m = (freqBeatNote + freqRef3) / ((double) factorM_m);
+            freqRef1_m = (freqBeatNote_m + freqRef3) / ((double) factorM_m);
             double freqTest = ((double) factorM_m) * freqRef1_m - freqRef3; 
             if (freqTest <= 39.0)
                 success = true;
@@ -194,7 +194,7 @@ bool LORTMImpl::PhaseLockTuningInit(short band, double freqLO1, double freqLO2, 
     if (!success) {
         // try M=5 case: 64.5 GHz <= M*Fref1-Fref3 < 100 GHz
         factorM_m = 5;
-        freqRef1_m = (freqBeatNote + freqRef3) / ((double) factorM_m);
+        freqRef1_m = (freqBeatNote_m + freqRef3) / ((double) factorM_m);
         double freqTest = ((double) factorM_m) * freqRef1_m - freqRef3; 
         if (freqTest >= 64.5 && freqTest < 100.0)
             success = true;
@@ -204,7 +204,7 @@ bool LORTMImpl::PhaseLockTuningInit(short band, double freqLO1, double freqLO2, 
     if (!success) {
         // try M=7 case: 100 GHz <= M*Fref1-Fref3 <= 150 GHz
         factorM_m = 7;
-        freqRef1_m = (freqBeatNote + freqRef3) / ((double) factorM_m);
+        freqRef1_m = (freqBeatNote_m + freqRef3) / ((double) factorM_m);
         double freqTest = ((double) factorM_m) * freqRef1_m - freqRef3; 
         if (freqTest >= 100.0 && freqTest <= 150.0)
             success = true;
@@ -218,18 +218,17 @@ bool LORTMImpl::PhaseLockTuningInit(short band, double freqLO1, double freqLO2, 
     return success;
 }
 
-bool LORTMImpl::PhaseLockGetTuning(double *freqLSB, double *freqUSB,
-                                   double *freqRef1, double *freqRef2,
-                                   double *freqSlaveLaser, short *factorM) const
+bool LORTMImpl::PhaseLockGetTuning(double &freqLSB, double &freqUSB,
+                                   double &freqRef1, double &freqRef2,
+                                   double *freqBeatNote, double *freqSlaveLaser,
+                                   short *factorM) const
 {
-    if (freqLSB)
-        *freqLSB = freqLSB_m;
-    if (freqUSB)
-        *freqUSB = freqUSB_m;
-    if (freqRef1)
-        *freqRef1 = freqRef1_m;
-    if (freqRef2)
-        *freqRef2 = freqRef2_m;
+    freqLSB = freqLSB_m;
+    freqUSB = freqUSB_m;
+    freqRef1 = freqRef1_m;
+    freqRef2 = freqRef2_m;
+    if (freqBeatNote)
+        *freqBeatNote = freqBeatNote_m;
     if (freqSlaveLaser)
         *freqSlaveLaser = freqSlaveLaser_m;
     if (factorM)
@@ -331,7 +330,7 @@ double LORTMImpl::getRef2DivideBy(short band) const {
 }
 
 void LORTMImpl::resetTuning() {
-    freqFLOOG_m = freqLSB_m = freqUSB_m = freqRef1_m = freqRef2_m = freqSlaveLaser_m = 0.0;
+    freqFLOOG_m = freqLSB_m = freqUSB_m = freqRef1_m = freqRef2_m = freqBeatNote_m = freqSlaveLaser_m = 0.0;
     band_m = factorM_m = 0;
 }
 

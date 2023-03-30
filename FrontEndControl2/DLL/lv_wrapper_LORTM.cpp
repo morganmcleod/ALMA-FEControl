@@ -302,11 +302,12 @@ DLLEXPORT short LORTMPhaseLockTuningFinalize() {
 
 DLLEXPORT short LORTMPhaseLockGetTuning(double *freqLSB, double *freqUSB,
                                         double *freqRef1, double *freqRef2,
-                                        double *freqSlaveLaser, short *factorM)
+                                        double *freqBeatNote, double *freqSlaveLaser,
+                                        short *factorM)
 {
     if (!LORTMValid || !LORTM || !freqLSB || !freqUSB || !freqRef1 || !freqRef2)
         return -1;
-    if (!LORTM -> PhaseLockGetTuning(freqLSB, freqUSB, freqRef1, freqRef2, freqSlaveLaser, factorM))
+    if (!LORTM -> PhaseLockGetTuning(*freqLSB, *freqUSB, *freqRef1, *freqRef2, freqBeatNote, freqSlaveLaser, factorM))
         return -1;
     return 0;
 }

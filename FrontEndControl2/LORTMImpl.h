@@ -73,9 +73,10 @@ public:
     
     bool PhaseLockTuningInit(short band, double freqLO1, double freqLO2, double freqFLOOG, short sbLock);
         
-    bool PhaseLockGetTuning(double *freqLSB, double *freqUSB,
-                            double *freqRef1, double *freqRef2,
-                            double *freqSlaveLaser, short *factorM) const;
+    bool PhaseLockGetTuning(double &freqLSB, double &freqUSB,
+                            double &freqRef1, double &freqRef2,
+                            double *freqBeatNote = NULL, double *freqSlaveLaser = NULL,
+                            short *factorM = NULL) const;
 
     bool laserEnable(int laser, bool enable);
 
@@ -147,6 +148,7 @@ private:
     double freqRef1_m;
     double freqRef2_m;
     double freqRefLaser_m;
+    double freqBeatNote_m;
     double freqSlaveLaser_m;
     short sbLock_m;
     short band_m;
