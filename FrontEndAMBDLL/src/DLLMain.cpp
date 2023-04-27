@@ -52,6 +52,7 @@ namespace FrontEndAMBDLL {
     string logDir("");                  ///< output logs are created here
     logLevel reportingLevel(LM_DEBUG);   ///< global logging level
     bool CAN_noTransmit = false;        ///< Normally false: ignore CAN connection failure and suppress all CAN messages
+    AmbDataMem_t FEMode = 0;            ///< Normally 0=Operational, 1=Troubleshooting, 2=Maintenance, 3=Simulate
 
     // Library status:
     AmbChannel CANChannel = 0;          ///< Which CAN channel to use
@@ -179,6 +180,11 @@ DLL_API int DLL_CALL initialize() {
         }
         LOG(LM_INFO) << "CAN debug no transmit=" << CANBusInterface::noTransmit_m << endl;
 
+        tmp = configINI -> GetValue("debug", "FEMode");
+        if (!tmp.empty())
+            FEMode = from_string<AmbDataMem_t>(tmp);
+        LOG(LM_INFO) << "debug:FEMode=" << FEMode << endl;
+        
         // CAN_monitorTimeout = milliseconds timeout for monitor messages:
         //  2ms typical;  Increase when debugging FE firmware.
         tmp = configINI -> GetValue("debug", "CAN_monitorTimeout");
@@ -215,14 +221,17 @@ DLL_API int DLL_CALL initialize() {
         return -1;
     }
     ambDevice = new AMBDevice(CANChannel, nodeAddress, ambItf);
-    if (ambDevice) {
-        isValid = true;
-        return 0;
-    } else {
+    if (!ambDevice) {
         LOG(LM_ERROR) << "FrontEndAMB.DLL memory allocation failed." << endl;
         return -1;
     }
-}
+
+    isValid = true;
+    // Set FEMode:
+    AmbDataMem_t data[8] = {FEMode, 0, 0, 0, 0, 0, 0, 0};
+    command(nodeAddress, 0x2000E, 1, data);
+    return 0;
+};
 
 DLL_API int DLL_CALL shutdown() {
     if (!isValid)
@@ -247,6 +256,10 @@ DLL_API int DLL_CALL shutdown() {
         logStream = NULL;
     }
     StreamOutput::setStream(NULL);
+
+    delete configINI;
+    configINI = NULL;
+
     return 0;
 }
 
