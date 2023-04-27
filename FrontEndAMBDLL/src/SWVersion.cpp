@@ -21,13 +21,14 @@
 
 #include "SWVersion.h"
 
-const std::string FRONTENDAMB_SW_VERSION_STRING("FrontEndAMB.DLL 0.0.2");
+const std::string FRONTENDAMB_SW_VERSION_STRING("FrontEndAMB.DLL 0.0.3");
 
 //******* Be sure to update resource.rc!
 
 
 
 // Version history:
+// 0.0.3   Read FEMode from FrontEndAmbDLL.INI
 // 0.0.2   Looks for environment variable FRONTENDAMBDLL.INI, full path to FrontEndAmbDLL.INI
 //         Default is current working directory.   Added example FrontEndAmbDLL.INI
 // 0.0.1   Initial version
