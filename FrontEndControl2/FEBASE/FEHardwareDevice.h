@@ -294,7 +294,8 @@ private:
             float val = (this ->* pf)();                                \
             if (target) *(target) = val;                                \
             if (isTemporary) nextMon = monitorRegistry.erase(nextMon);  \
-            else ++nextMon;  return true;                               \
+            else ++nextMon;                                             \
+			return true;                                                \
     }}
 
 

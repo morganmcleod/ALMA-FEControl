@@ -3,6 +3,7 @@
 
 #include <string>
 #include <deque>
+#include <pthread.h>
 
 class FEMCEventQueue {
 public:
