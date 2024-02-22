@@ -41,6 +41,9 @@ PORTABLELIB = $(PTHREADLIB) $(STATICGCCLIB)
 export EXCHNDLINC = -I$(BUILD)/3rdparty/drmingw/include
 EXCHNDLIB = -L$(BUILD)/3rdparty/drmingw/lib -lexchndl
 
+export EXPATINC = -I$(BUILD)/3rdparty/expat/Source/lib
+EXPATLIB = -L$(BUILD)/3rdparty/expat/Bin -lexpat
+
 export EXPATMMINC = -I$(BUILD)/3rdparty/expatmm-1.0
 EXPATMMLIB = -L$(BUILD)/3rdparty/expatmm-1.0/lib -lexpatmm
 
@@ -65,7 +68,7 @@ export NICANINC = -I$(BUILD)/3rdparty/Nican/include
 NICANLIB = $(BUILD)/3rdparty/Nican/lib/nicanmsc.lib
 
 # project includes plus this directory:
-export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) $(EXCHNDLINC) $(EXPATMMINC) -I$(CURDIR)
+export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) $(EXCHNDLINC) $(EXPATINC) $(EXPATMMINC) -I$(CURDIR)
 
 # windows libs:
 WINLIB = -lwinmm -lwsock32
@@ -123,7 +126,7 @@ FrontEndControl.dll DLL/FrontEndControl.def: $(DLLCPP) $(ALLOUT)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -DBUILD_FRONTENDCONTROL -shared -o FrontEndControl.dll \
 	$(ALLOUT) \
 	$(PROJECTINC) $(PORTABLEINC) $(MYSQLINC) \
-	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIB) $(NICANLIB) $(PORTABLELIB) $(EXCHNDLIB) $(EXPATMMLIB) \
+	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIB) $(NICANLIB) $(PORTABLELIB) $(EXCHNDLIB) $(EXPATLIB) $(EXPATMMLIB) \
 	-Wl,--enable-auto-import,--output-def,DLL/FrontEndControl.def
 
 # Build the import library for linking to the DLL:
