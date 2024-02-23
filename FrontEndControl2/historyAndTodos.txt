@@ -39,6 +39,12 @@ http://edm.alma.cl/forums/alma/dispatch.cgi/iptfedocs/showFolder/104673
 
 Revision history:
 
+2.16.2:
+  More agressive analog monitoring
+
+2.16.1: 2024-02-22
+  Build with mingw-w64-i686-gcc 13.2.0-5
+
 2.16.0 2023-03-30
   Add freqBeatNote param to LORTMPhaseLockGetTuning
 
