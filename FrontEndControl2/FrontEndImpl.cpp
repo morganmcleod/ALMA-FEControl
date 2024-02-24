@@ -1458,7 +1458,7 @@ bool FrontEndImpl::cartMeasureFineLOSweep(int port, float tiltAngle, int pol,
         FEICDataBase::ID_T configId;
         getDbConfigId(configId);
 
-        FEICDataBase::DATASTATUS_TYPES dataStatus = FEICDataBase::DS_COLD_PAI;
+        FEICDataBase::DATASTATUS_TYPES dataStatus = FEICDataBase::DS_COLD_PAS;
         return ca -> measureFineLOSweep(*dbObject_mp, configId, dataStatus, tiltAngle, pol, VJ, IJ, fixedVD, LOStart, LOStop, LOStep, repeatCount);
     } else {
         reportBadCartridge(port, "FrontEndImpl::cartMeasureFineLOSweep", "Measuring fine LO sweep failed");
@@ -1739,6 +1739,21 @@ bool FrontEndImpl::cryostatSetEnableCryoPumping(bool enable) {
     return false;
 }
 
+bool FrontEndImpl::cryostatStartStopPlot(bool enable) {
+    if (cryostat_mp) {
+        if (enable) {
+            // get the front end configuration ID and data status to which we will attach the monitor data:
+            FEICDataBase::ID_T feConfig = dbObject_mp -> getConfigId(hcFacility_m, SN_m);
+            FEICDataBase::DATASTATUS_TYPES dataStatus = FEICDataBase::DS_COLD_PAI;
+            cryostat_mp -> startCooldownPlot(*dbObject_mp, feConfig, dataStatus);
+            return true;
+        } else {
+            cryostat_mp -> stopCooldownPlot();
+            return true;
+        }
+    }
+    return false;
+}
 //----------------------------------------------------------------------------
 // FETIM monitor and control points:
 

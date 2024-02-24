@@ -211,7 +211,7 @@ FEICDataBase::ID_T FEICDataBase::getFrontEndId(unsigned facility, unsigned seria
     ID_T ret = unpackID(row);
 
     string tmp;
-    LOG(LM_INFO) << context << ": row=(" << conn_mp -> rowToString(res, row, tmp) << ") ID=" << ret << endl;
+    LOG(LM_DEBUG) << context << ": row=(" << conn_mp -> rowToString(res, row, tmp) << ") ID=" << ret << endl;
     return ret;
 }
 
@@ -230,7 +230,7 @@ bool FEICDataBase::getFrontEndList(unsigned facility, IDList_T &target) const {
 
     query += " ORDER BY SN;";
 
-    LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+    LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
     MySQLConnection::Result res;
     int numRows = conn_mp -> executeQuery(query, &res);
@@ -252,7 +252,7 @@ bool FEICDataBase::getFrontEndList(unsigned facility, IDList_T &target) const {
                 if (SN.length() == 1)
                     SN = "0" + SN;
                 target[SN] = id;
-                LOG(LM_INFO) << context << ": found " << SN << " -> " << id << endl;
+                LOG(LM_DEBUG) << context << ": found " << SN << " -> " << id << endl;
             }
         }
     } while (row != NULL);
@@ -330,7 +330,7 @@ bool FEICDataBase::getFrontEndRecord(const ID_T &frontEndId, std::string *SN, st
     }
 
     string tmp;
-    LOG(LM_INFO) << context << ": row=(" << conn_mp -> rowToString(res, row, tmp) << ")" << endl;
+    LOG(LM_DEBUG) << context << ": row=(" << conn_mp -> rowToString(res, row, tmp) << ")" << endl;
 
     if (SN)
         MySQLConnection::unpackString(row, 1, *SN);
@@ -383,7 +383,7 @@ FEICDataBase::ID_T FEICDataBase::getConfigId(const ID_T &frontEndId) const {
     ret.setKeyIdString(row[0]);
 
     string tmp;
-    LOG(LM_INFO) << context << ": row=(" << conn_mp -> rowToString(res, row, tmp) << ") ID=" << ret << endl;
+    LOG(LM_DEBUG) << context << ": row=(" << conn_mp -> rowToString(res, row, tmp) << ") ID=" << ret << endl;
     return ret;
 }
 
@@ -479,7 +479,7 @@ bool FEICDataBase::getConfigComponentList(const ID_T &configId, IDList_T &target
             if (band > 0)
                 SN = bandStr + ":" + SN;
             target[SN] = id;
-            LOG(LM_INFO) << context << ": found " << SN << " -> " << id << endl;
+            LOG(LM_DEBUG) << context << ": found " << SN << " -> " << id << endl;
         }
     } while (row != NULL);
 
@@ -507,7 +507,7 @@ bool FEICDataBase::getConfigComponent(const ID_T &configId, ID_T &componentId, s
     string bandStr;
     MySQLConnection::unpackString(row, 2, bandStr);
     MySQLConnection::unpackString(row, 3, SN);
-    LOG(LM_INFO) << context << ": found band=" << bandStr << " SN=" << SN << " -> " << componentId << endl;
+    LOG(LM_DEBUG) << context << ": found band=" << bandStr << " SN=" << SN << " -> " << componentId << endl;
     return true;
 }
 
@@ -614,7 +614,7 @@ FEICDataBase::ID_T FEICDataBase::createTestDataHeader(const ID_T &configId, cons
 
     ID_T ret(configId.keyFacility, conn_mp -> getLastInsertID());
 
-    LOG(LM_INFO) << context << ": lastId=" << ret << endl;
+    LOG(LM_DEBUG) << context << ": lastId=" << ret << endl;
     return ret;
 }
 
@@ -657,7 +657,7 @@ FEICDataBase::ID_T FEICDataBase::findTestDataHeader(const ID_T &configId, const 
     }
 
     string tmp;
-    LOG(LM_INFO) << context << ": row=(" << conn_mp -> rowToString(res, row, tmp) << ") ID=" << ret << endl;
+    LOG(LM_DEBUG) << context << ": row=(" << conn_mp -> rowToString(res, row, tmp) << ") ID=" << ret << endl;
 
     if (ret.valid())
         return ret;
@@ -706,7 +706,7 @@ bool FEICDataBase::getEnvConnectionInfo(std::string &host, std::string &user, st
     if (val) {
         path = val;
     } else {
-        LOG(LM_INFO) << context << ": Environment variable TS_CONFIG not found.  Assuming" << escape_string(path) << endl;
+        LOG(LM_DEBUG) << context << ": Environment variable TS_CONFIG not found.  Assuming" << escape_string(path) << endl;
     }
 
     if (!path.empty()) {
@@ -714,7 +714,7 @@ bool FEICDataBase::getEnvConnectionInfo(std::string &host, std::string &user, st
             path += "\\";
     }
     path += "mysql.ini";
-    LOG(LM_INFO) << context << ": path=" << escape_string(path) << endl;
+    LOG(LM_DEBUG) << context << ": path=" << escape_string(path) << endl;
 
     bool ret = false;
     try {
@@ -724,7 +724,7 @@ bool FEICDataBase::getEnvConnectionInfo(std::string &host, std::string &user, st
             user = configINI.GetValue("settings", "uid");
             password = configINI.GetValue("settings", "pwd");
             dbName = configINI.GetValue("settings", "database");
-            LOG(LM_INFO) << context << ": host=" << host << " user=" << user << " dbName=" << dbName << endl;
+            LOG(LM_DEBUG) << context << ": host=" << host << " user=" << user << " dbName=" << dbName << endl;
             ret = true;
         }
     } catch (...) {
@@ -746,7 +746,7 @@ bool FEICDataBase::getEnvFETMSDescription(std::string &description) {
     if (val) {
         path = val;
     } else {
-        LOG(LM_INFO) << context << ": Environment variable TS_CONFIG not found.  Assuming" << escape_string(path) << endl;
+        LOG(LM_DEBUG) << context << ": Environment variable TS_CONFIG not found.  Assuming" << escape_string(path) << endl;
     }
 
     computerName = string(getenv("COMPUTERNAME"));
@@ -756,7 +756,7 @@ bool FEICDataBase::getEnvFETMSDescription(std::string &description) {
             path += "\\";
     }
     path += "FETMS_DESCRIPTION.ini";
-    LOG(LM_INFO) << context << ": path=" << escape_string(path) << endl;
+    LOG(LM_DEBUG) << context << ": path=" << escape_string(path) << endl;
 
 
     bool ret = false;
@@ -764,7 +764,7 @@ bool FEICDataBase::getEnvFETMSDescription(std::string &description) {
         CIniFile configINI(path);
         if (configINI.ReadFile()) {
             desc = configINI.GetValue("FETMS", "Description");
-            LOG(LM_INFO) << context << ": Description=" << desc << endl;
+            LOG(LM_DEBUG) << context << ": Description=" << desc << endl;
             ret = true;
         }
     } catch (...) {

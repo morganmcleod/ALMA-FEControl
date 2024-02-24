@@ -71,6 +71,7 @@ public:
     bool getRFInputReady() const
       { return LORTMImplBase::phaselockRFInputReady; }
     
+    using LORTMImplBase::PhaseLockTuningInit;   // prevent warning from -Woverloaded-virtual
     bool PhaseLockTuningInit(short band, double freqLO1, double freqLO2, double freqFLOOG, short sbLock);
         
     bool PhaseLockGetTuning(double &freqLSB, double &freqUSB,

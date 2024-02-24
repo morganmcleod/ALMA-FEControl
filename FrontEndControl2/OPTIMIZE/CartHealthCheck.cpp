@@ -21,6 +21,7 @@
 
 #include "CartHealthCheck.h"
 #include "CONFIG/cartConfig.h"
+#include "CONFIG/LookupTables.h"
 #include "XYPlotArray.h"
 #include "CartAssembly.h"
 #include "DLL/SWVersion.h"
@@ -84,6 +85,8 @@ bool CartHealthCheck::prepare(const FEICDataBase::ID_T &feConfig, FEICDataBase::
         LOG(LM_INFO) << "FreqLO,Pol,Sb,VJ,IJ,IMAG" << endl;
 
         // iterate over the MixerParams table:
+
+
         const MixerParams &mixp = ccaConfig.mixerParams_m;
         const MagnetParams &magp = ccaConfig.magnetParams_m;
         for (it = mixp.begin(); it != mixp.end(); ++it) {
@@ -399,31 +402,56 @@ void CartHealthCheck::optimizeAction() {
             LOG(LM_ERROR) << context << ": database createLNAMonitorDataHeader failed." << endl;
 
         // Get cold cartridge LNA monitor data:
+        
         ColdCartImpl::LNA_t lnaData;
         LOG(LM_INFO) << context << ": LNA monitor data for band=" << band << "..." << endl;
         // log the data header.
-        LOG(LM_INFO) << "Band,FreqLO,Pol,SB,Stage,VdRead,IdRead,VgRead" << endl;
+        LOG(LM_INFO) << "Band,FreqLO,Pol,SB,Stage,VdSet,IdSet,VdRead,IdRead,VgRead" << endl;
         bool ok = false;
         bool dbError = false;   // to log whether any errors seen inside the loop.
         for (int pol = 0; pol <= 1; ++pol) {
             for (int sb = 1; sb <= 2; ++sb) {
                 if (cca_p -> getMonitorLNA(pol, sb, lnaData)) {
                     ok = true;
+                    // Get the LNA parameters that were set from the config:
+                    const PreampParams &params = ca_m.getColdCartConfig().getPreampParams(pol, sb);
+                    ParamTableRow row;
+                    params.get(freqLO_m, row);
+
+                    ColdCartImpl::LNA_t lnaSettings = {
+                        true,
+                        row[PreampParams::indexVD(1)],
+                        row[PreampParams::indexID(1)],
+                        0.0,
+                        row[PreampParams::indexVD(2)],
+                        row[PreampParams::indexID(2)],
+                        0.0,
+                        row[PreampParams::indexVD(3)],
+                        row[PreampParams::indexID(3)],
+                        0.0
+                    };
+
                     // log the data output.
                     LOG(LM_INFO) << band << "," << fixed << setprecision(2) << freqLO_m << "," << pol << "," << sb << ","
-                                 << "1," << lnaData.lnaSt1DrainVoltage_value << ","
+                                 << "1," << lnaSettings.lnaSt1DrainVoltage_value << ","
+                                         << lnaSettings.lnaSt1DrainCurrent_value << ","
+                                         << lnaData.lnaSt1DrainVoltage_value << ","
                                          << lnaData.lnaSt1DrainCurrent_value << ","
                                          << lnaData.lnaSt1GateVoltage_value << endl;
                     LOG(LM_INFO) << band << "," << fixed << setprecision(2) << freqLO_m << "," << pol << "," << sb << ","
-                                 << "2," << lnaData.lnaSt2DrainVoltage_value << ","
+                                 << "2," << lnaSettings.lnaSt2DrainVoltage_value << ","
+                                         << lnaSettings.lnaSt2DrainCurrent_value << ","
+                                         << lnaData.lnaSt2DrainVoltage_value << ","
                                          << lnaData.lnaSt2DrainCurrent_value << ","
                                          << lnaData.lnaSt2GateVoltage_value << endl;
                     LOG(LM_INFO) << band << "," << fixed << setprecision(2) << freqLO_m << "," << pol << "," << sb << ","
-                                 << "3," << lnaData.lnaSt3DrainVoltage_value << ","
+                                 << "3," << lnaSettings.lnaSt3DrainVoltage_value << ","
+                                         << lnaSettings.lnaSt2DrainCurrent_value << ","
+                                         << lnaData.lnaSt3DrainVoltage_value << ","
                                          << lnaData.lnaSt3DrainCurrent_value << ","
                                          << lnaData.lnaSt3GateVoltage_value << endl;
 
-                    if (!dbObject_m.insertLNAMonitorData(headerId, freqLO_m, pol, sb, lnaData))
+                    if (!dbObject_m.insertLNAMonitorData(headerId, freqLO_m, pol, sb, lnaSettings, lnaData))
                         dbError = true;
                 }
             }
@@ -440,24 +468,42 @@ void CartHealthCheck::optimizeAction() {
 
         // Get cold cartridge SIS monitor data:
         if (cca_p -> hasSIS()) {
+            
+            // Get the SIS parameters that were set from config:
+            ParamTableRow mixerSetting, magnetSetting;
+            ca_m.getColdCartConfig().mixerParams_m.get(freqLO_m, mixerSetting);
+            ca_m.getColdCartConfig().magnetParams_m.get(freqLO_m, magnetSetting);
+
             ColdCartImpl::SIS_t sisData;
             LOG(LM_INFO) << context << ": SIS monitor data for band=" << band << "..." << endl;
             // log the data header.
-            LOG(LM_INFO) << "Band,FreqLO,Pol,SB,VjRead,IjRead,VmagRead,ImagRead" << endl;
+            LOG(LM_INFO) << "Band,FreqLO,Pol,SB,VjSet,IjSet,ImagSet,VjRead,IjRead,VmagRead,ImagRead" << endl;
             ok = false;
             dbError = false;
             for (int pol = 0; pol <= 1; ++pol) {
                 for (int sb = 1; sb <= 2; ++sb) {
                     if (cca_p -> getMonitorSIS(pol, sb, sisData)) {
+                        // scale sisCurret to uA:
+                        sisData.sisCurrent_value *= 1000;
                         ok = true;
+                        ColdCartImpl::SIS_t settings = {
+                            false,
+                            mixerSetting[MixerParams::indexVJ(pol, sb)],
+                            mixerSetting[MixerParams::indexIJ(pol, sb)],
+                            0.0,
+                            magnetSetting[MagnetParams::indexIMag(pol, sb)]
+                        };
                         // log the data output.
                         LOG(LM_INFO) << band << "," << fixed << setprecision(3) << freqLO_m << "," << pol << "," << sb << ","
+                                     << settings.sisVoltage_value << ","
+                                     << settings.sisCurrent_value << ","
+                                     << settings.sisMagnetCurrent_value << ","
                                      << sisData.sisVoltage_value << ","
-                                     << 1000 * sisData.sisCurrent_value << ","
+                                     << sisData.sisCurrent_value << ","
                                      << sisData.sisMagnetVoltage_value << ","
                                      << sisData.sisMagnetCurrent_value << endl;
 
-                        if (!dbObject_m.insertSISMonitorData(headerId, freqLO_m, pol, sb, sisData))
+                        if (!dbObject_m.insertSISMonitorData(headerId, freqLO_m, pol, sb, settings, sisData))
                             dbError = true;
                     }
                 }

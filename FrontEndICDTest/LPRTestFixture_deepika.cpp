@@ -227,10 +227,10 @@ void LPRTestFixture::implOpticalSwitchPort(unsigned int bandMinusOne,const std::
 	//check 1 data byte + 1 status byte
 	CPPUNIT_ASSERT_MESSAGE(monDetails, dataLength_m == 2);
 	//check range is 0-9
-    if (bandMinusOne > 9)
-        CPPUNIT_ASSERT_MESSAGE(monDetails, data_m[0] <= 0x09);
-    else
-        CPPUNIT_ASSERT_MESSAGE(monDetails, data_m[0] == bandMinusOne);
+	if (bandMinusOne > 9)
+		CPPUNIT_ASSERT_MESSAGE(monDetails, data_m[0] <= 0x09);
+	else
+		CPPUNIT_ASSERT_MESSAGE(monDetails, data_m[0] == bandMinusOne);
 
 	//check if the shutter was disabled.
 	monitor(opticalSwitchShutter_RCA,"GET_LPR_OPT_SWITCH_SHUTTER", &info);

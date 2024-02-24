@@ -300,6 +300,9 @@ public:
 
     bool cryostatSetEnableCryoPumping(bool enable);
     ///< Enable/disable the pump-down process.
+    
+    bool cryostatStartStopPlot(bool enable);
+    ///< Start/stop the cooldown/warmup plot
 
 // FE Thermal Interlock Module monitor and control points:
     bool fetimGetMonitorModule(FETIMImpl::FETIM_t &target) const;

@@ -80,7 +80,7 @@ bool FrontEndDatabase::getConfigurationRecord(const ID_T &configId, FEConfig::Co
     string query = "SELECT keyFEConfig, fkFront_Ends, Description FROM FE_Config WHERE "
                  + configId.whereClause("keyFacility", "keyFEConfig") + ";";
 
-    LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+    LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
     MySQLConnection::Result res;
     int numRows = conn_mp -> executeQuery(query, &res);
@@ -93,7 +93,7 @@ bool FrontEndDatabase::getConfigurationRecord(const ID_T &configId, FEConfig::Co
         return false;
 
     string tmp;
-    LOG(LM_INFO) << context << ": row=(" << conn_mp -> rowToString(res, row, tmp) << ")" << endl;
+    LOG(LM_DEBUG) << context << ": row=(" << conn_mp -> rowToString(res, row, tmp) << ")" << endl;
 
     MySQLConnection::unpackString(row, 0, tmp);
     target.configId_m = from_string<unsigned>(tmp);
@@ -120,7 +120,7 @@ bool FrontEndDatabase::getMixerParams(const ID_T &componentId, FEConfig::MixerPa
     string query = "SELECT FreqLO, Pol, SB, VJ, IJ, IMAG FROM CCA_MixerParams WHERE " + componentId.whereClause("fkFacility", "fkComponent")
                  + " ORDER BY FreqLO, Pol, SB;";
 
-    LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+    LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
     MySQLConnection::Result res;
     int numRows = conn_mp -> executeQuery(query, &res);
@@ -173,7 +173,7 @@ bool FrontEndDatabase::getPreampParams(const ID_T &componentId, ColdCartConfig &
     string query = "SELECT FreqLO, Pol, SB, VD1, VD2, VD3, ID1, ID2, ID3 FROM CCA_PreampParams WHERE " + componentId.whereClause("fkFacility", "fkComponent")
                  + " ORDER BY FreqLO, Pol, SB;";
 
-    LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+    LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
     MySQLConnection::Result res;
     int numRows = conn_mp -> executeQuery(query, &res);
@@ -233,7 +233,7 @@ bool FrontEndDatabase::getWCAYIGLimits(const ID_T &componentId, double &FLOYIG, 
 
     string query = "SELECT keyId, FloYIG, FhiYIG FROM WCAs WHERE " + componentId.whereClause("fkFacility", "fkFE_Component") + ";";
 
-    LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+    LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
     MySQLConnection::Result res;
     int numRows = conn_mp -> executeQuery(query, &res);
@@ -271,7 +271,7 @@ bool FrontEndDatabase::getWCALOParams(const ID_T &componentId, FEConfig::PowerAm
     string query = "SELECT FreqLO, VDP0, VDP1, VGP0, VGP1 FROM WCA_LOParams WHERE " + componentId.whereClause("fkFacility", "fkComponent")
                  + " ORDER BY FreqLO;";
 
-    LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+    LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
     MySQLConnection::Result res;
     int numRows = conn_mp -> executeQuery(query, &res);
@@ -353,7 +353,83 @@ bool FrontEndDatabase::insertCryostatData(const ID_T &configId, DATASTATUS_TYPES
                      + to_string(source.cryostatTemperature11_value, std::fixed, 2) + ", "
                      + to_string(source.cryostatTemperature12_value, std::fixed, 2) + ")";
 
-        LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+        LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
+
+        MySQLConnection::Result res;
+        int numRows = conn_mp -> executeQuery(query, &res);
+
+        return checkQueryResult(context, numRows, 1);
+    }
+    return false;
+}
+
+bool FrontEndDatabase::startCryostatCooldownPlot(ID_T &headerId, const ID_T &configId, DATASTATUS_TYPES dataStatus) const {
+    static const string context("FrontEndDatabase::startCryostatCooldownPlot");
+    headerId = null;
+
+    if (!isConnected())
+        return false;
+    
+    if (!isValidConfigId(configId)) {
+        LOG(LM_ERROR) << context << ": given configId is not valid." << endl;
+        return false;
+    }
+    
+    ID_T componentId;
+    string componentSN;
+    if (!getConfigCryostat(configId, componentId, componentSN))
+        LOG(LM_ERROR) << context << ": database getConfigCryostat failed." << endl;
+
+    TESTDATA_TYPES testDataType(TD_CRYOSTAT_COOLDOWN);
+    string notes = makeTestDataNotes(configId, testDataType, dataStatus);
+    headerId = createTestDataHeader(configId, componentId, testDataType, dataStatus, 0, notes, measSWVer_m);
+
+    string query = "INSERT INTO TEST_Cryostat_data_SubHeader (fkHeader) VALUES (" + to_string(headerId.keyId) + ");";
+    LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
+
+    MySQLConnection::Result res;
+    int numRows = conn_mp -> executeQuery(query, &res);
+
+    return checkQueryResult(context, numRows, 1);   
+}
+
+bool FrontEndDatabase::insertCryostatCooldownData(const ID_T &headerId, const CryostatImpl::Cryostat_t &source) const {
+    static const string context("FrontEndDatabase::insertCryostatCooldownData");
+
+    if (!isConnected())
+        return false;
+
+    if (headerId.valid()) {
+        string query = "INSERT INTO TEST_CryostatCooldown (fkTestDataHeader, BackingPumpEnable, TurboPumpEnable, " 
+	    "TurboPumpError, TurboPumpSpeed, GateValveState, SolenoidValveState, SupplyCurrent230V, CryoVacuumPressure, "
+        "PortVacuumPressure, 4k_CryoCooler, 4k_PlateLink1, 4k_PlateLink2, 4k_PlateFarSide1, 4k_PlateFarSide2, "
+        "15k_CryoCooler, 15k_PlateLink, 15k_PlateFarSide, 15k_Shield, 110k_CryoCooler, 110k_PlateLink, "
+        "110k_PlateFarSide, 110k_Shield) VALUES (" 
+        + to_string(headerId.keyId) + ", "
+        + to_string(source.backingPumpEnable_value ? 1 : 0) + ", "
+        + to_string(source.turboPumpEnable_value ? 1 : 0) + ", "
+        + to_string(source.turboPumpErrorState_value ? 1 : 0) + ", "
+        + to_string(source.turboPumpHighSpeed_value ? 1 : 0) + ", "
+        + to_string((int) source.gateValveState_value) + ", "
+        + to_string((int) source.solenoidValveState_value) + ", "
+        + to_string(source.vacuumCryostatPressure_value, std::scientific, 4) + ", "
+        + to_string(source.vacuumPortPressure_value, std::scientific, 4) + ", "
+        + to_string(source.supplyCurrent230V_value, std::fixed, 2) + ", "
+        + to_string(source.cryostatTemperature0_value, std::fixed, 2) + ", "
+        + to_string(source.cryostatTemperature1_value, std::fixed, 2) + ", "
+        + to_string(source.cryostatTemperature2_value, std::fixed, 2) + ", "
+        + to_string(source.cryostatTemperature3_value, std::fixed, 2) + ", "
+        + to_string(source.cryostatTemperature4_value, std::fixed, 2) + ", "
+        + to_string(source.cryostatTemperature5_value, std::fixed, 2) + ", "
+        + to_string(source.cryostatTemperature6_value, std::fixed, 2) + ", "
+        + to_string(source.cryostatTemperature7_value, std::fixed, 2) + ", "
+        + to_string(source.cryostatTemperature8_value, std::fixed, 2) + ", "
+        + to_string(source.cryostatTemperature9_value, std::fixed, 2) + ", "
+        + to_string(source.cryostatTemperature10_value, std::fixed, 2) + ", "
+        + to_string(source.cryostatTemperature11_value, std::fixed, 2) + ", "
+        + to_string(source.cryostatTemperature12_value, std::fixed, 2) + ")";
+
+        LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
         MySQLConnection::Result res;
         int numRows = conn_mp -> executeQuery(query, &res);
@@ -391,7 +467,7 @@ bool FrontEndDatabase::insertIfSwitchData(const ID_T &configId, DATASTATUS_TYPES
                      + to_string(source.pol1Sb1AssemblyTemp_value, std::fixed, 2) + ", "
                      + to_string(source.pol1Sb2AssemblyTemp_value, std::fixed, 2) + ")";
 
-        LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+        LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
         MySQLConnection::Result res;
         int numRows = conn_mp -> executeQuery(query, &res);
@@ -434,7 +510,7 @@ bool FrontEndDatabase::insertLPRMonitorData(const ID_T &configId, DATASTATUS_TYP
                      + to_string(source.LPRTemperature0_value, std::fixed, 2) + ", "
                      + to_string(source.LPRTemperature1_value, std::fixed, 2) + ")";
 
-        LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+        LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
         MySQLConnection::Result res;
         int numRows = conn_mp -> executeQuery(query, &res);
@@ -498,7 +574,7 @@ bool FrontEndDatabase::insertPowerModuleData(const ID_T &headerId, unsigned band
                  + to_string(source.currentP24V_value, std::fixed, 2) + ", "
                  + to_string(source.currentP8V_value, std::fixed, 2) + ")";
 
-    LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+    LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
     MySQLConnection::Result res;
     int numRows = conn_mp -> executeQuery(query, &res);
@@ -544,7 +620,7 @@ bool FrontEndDatabase::insertPhotomixerData(const ID_T &headerId, unsigned band,
                  + to_string(source.photomixerVoltage_value, std::fixed, 2) + ", "
                  + to_string(source.photomixerCurrent_value, std::fixed, 2) + ")";
 
-    LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+    LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
     MySQLConnection::Result res;
     int numRows = conn_mp -> executeQuery(query, &res);
@@ -581,7 +657,7 @@ bool FrontEndDatabase::insertPLLMonitorData(const ID_T &configId, DATASTATUS_TYP
                      + to_string(source.pllAssemblyTemp_value, std::fixed, 2) + ", "
                      + to_string(source.pllYTOHeaterCurrent_value, std::fixed, 2) + ")";
 
-        LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+        LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
         MySQLConnection::Result res;
         int numRows = conn_mp -> executeQuery(query, &res);
@@ -632,7 +708,7 @@ bool FrontEndDatabase::insertFLOOGDistHealthData(const ID_T &headerId, unsigned 
                  + headerId.insertText() + ", " + to_string(band) + ", "
                  + to_string(refTotalPower, std::fixed, 2) + ")";
 
-    LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+    LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
     MySQLConnection::Result res;
     int numRows = conn_mp -> executeQuery(query, &res);
@@ -680,7 +756,7 @@ bool FrontEndDatabase::insertAMCMonitorData(const ID_T &configId, DATASTATUS_TYP
                      + to_string(source.amcMultiplierDCurrent_value, std::fixed, 2) + ", "
                      + to_string(source.amcSupplyVoltage5V_value, std::fixed, 2) + ")";
 
-        LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+        LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
         MySQLConnection::Result res;
         int numRows = conn_mp -> executeQuery(query, &res);
@@ -726,7 +802,7 @@ bool FrontEndDatabase::insertPAMonitorData(const ID_T &configId, DATASTATUS_TYPE
                      + to_string(source.paSupplyVoltage3V_value, std::fixed, 2) + ", "
                      + to_string(source.paSupplyVoltage5V_value, std::fixed, 2) + ")";
 
-        LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+        LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
         MySQLConnection::Result res;
         int numRows = conn_mp -> executeQuery(query, &res);
@@ -761,7 +837,14 @@ bool FrontEndDatabase::createSISMonitorDataHeader(ID_T &headerId, const ID_T &co
     return headerId.valid();
 }
 
-bool FrontEndDatabase::insertSISMonitorData(const ID_T &headerId, double FreqLO, unsigned pol, unsigned sb, const ColdCartImpl::SIS_t &source) const {
+bool FrontEndDatabase::insertSISMonitorData(
+        const ID_T &headerId, 
+        double FreqLO, 
+        unsigned pol, 
+        unsigned sb, 
+        const ColdCartImpl::SIS_t &settings,
+        const ColdCartImpl::SIS_t &source) const 
+{
     static const string context("FrontEndDatabase::insertSISMonitorData");
 
     if (!isConnected())
@@ -770,16 +853,19 @@ bool FrontEndDatabase::insertSISMonitorData(const ID_T &headerId, double FreqLO,
     if (!headerId.valid())
         return false;
 
-    string query = "INSERT INTO CCA_SIS_bias (fkFacility, fkHeader, FreqLO, Pol, SB, VjRead, IjRead, VmagRead, ImagRead ) VALUES ("
+    string query = "INSERT INTO CCA_SIS_bias (fkFacility, fkHeader, FreqLO, Pol, SB, VjSet, IjSet, ImagSet, VjRead, IjRead, VmagRead, ImagRead ) VALUES ("
                  + headerId.insertText() + ", "
                  + to_string(FreqLO, std::fixed, 3) + ", "
                  + to_string(pol) + ", " + to_string(sb) + ", "
+                 + to_string(settings.sisVoltage_value, std::fixed, 3) + ", "
+                 + to_string(settings.sisCurrent_value, std::fixed, 3) + ", "
+                 + to_string(settings.sisMagnetCurrent_value, std::fixed, 3) + ", "
                  + to_string(source.sisVoltage_value, std::fixed, 3) + ", "
-                 + to_string(1000.0 * source.sisCurrent_value, std::fixed, 3) + ", "
+                 + to_string(source.sisCurrent_value, std::fixed, 3) + ", "
                  + to_string(source.sisMagnetVoltage_value, std::fixed, 3) + ", "
                  + to_string(source.sisMagnetCurrent_value, std::fixed, 3) + ")";
 
-    LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+    LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
     MySQLConnection::Result res;
     int numRows = conn_mp -> executeQuery(query, &res);
@@ -811,7 +897,14 @@ bool FrontEndDatabase::createLNAMonitorDataHeader(ID_T &headerId, const ID_T &co
     return headerId.valid();
 }
 
-bool FrontEndDatabase::insertLNAMonitorData(const ID_T &headerId, double FreqLO, unsigned pol, unsigned sb, const ColdCartImpl::LNA_t &source) const {
+bool FrontEndDatabase::insertLNAMonitorData(
+        const ID_T &headerId, 
+        double FreqLO, 
+        unsigned pol, 
+        unsigned sb,
+        const ColdCartImpl::LNA_t &settings, 
+        const ColdCartImpl::LNA_t &source) const 
+{
     static const string context("FrontEndDatabase::insertLNAMonitorData");
 
     if (!isConnected())
@@ -820,11 +913,13 @@ bool FrontEndDatabase::insertLNAMonitorData(const ID_T &headerId, double FreqLO,
     if (!headerId.valid())
         return false;
 
-    string query = "INSERT INTO CCA_LNA_bias (fkFacility, fkHeader, FreqLO, Pol, SB, Stage, VdRead, IdRead, VgRead ) VALUES ("
+    string query = "INSERT INTO CCA_LNA_bias (fkFacility, fkHeader, FreqLO, Pol, SB, Stage, VdSet, IdSet, VdRead, IdRead, VgRead) VALUES ("
                  + headerId.insertText() + ", "
                  + to_string(FreqLO, std::fixed, 3) + ", "
                  + to_string(pol) + ", " + to_string(sb) + ", "
                  + "1, "
+                 + to_string(settings.lnaSt1DrainVoltage_value, std::fixed, 2) + ", "
+                 + to_string(settings.lnaSt1DrainCurrent_value, std::fixed, 2) + ", "
                  + to_string(source.lnaSt1DrainVoltage_value, std::fixed, 2) + ", "
                  + to_string(source.lnaSt1DrainCurrent_value, std::fixed, 2) + ", "
                  + to_string(source.lnaSt1GateVoltage_value, std::fixed, 2) + ")";
@@ -833,6 +928,8 @@ bool FrontEndDatabase::insertLNAMonitorData(const ID_T &headerId, double FreqLO,
                  + to_string(FreqLO, std::fixed, 3) + ", "
                  + to_string(pol) + ", " + to_string(sb) + ", "
                  + "2, "
+                 + to_string(settings.lnaSt2DrainVoltage_value, std::fixed, 2) + ", "
+                 + to_string(settings.lnaSt2DrainCurrent_value, std::fixed, 2) + ", "
                  + to_string(source.lnaSt2DrainVoltage_value, std::fixed, 2) + ", "
                  + to_string(source.lnaSt2DrainCurrent_value, std::fixed, 2) + ", "
                  + to_string(source.lnaSt2GateVoltage_value, std::fixed, 2) + ")";
@@ -841,11 +938,13 @@ bool FrontEndDatabase::insertLNAMonitorData(const ID_T &headerId, double FreqLO,
                  + to_string(FreqLO, std::fixed, 3) + ", "
                  + to_string(pol) + ", " + to_string(sb) + ", "
                  + "3, "
+                 + to_string(settings.lnaSt3DrainVoltage_value, std::fixed, 2) + ", "
+                 + to_string(settings.lnaSt3DrainCurrent_value, std::fixed, 2) + ", "
                  + to_string(source.lnaSt3DrainVoltage_value, std::fixed, 2) + ", "
                  + to_string(source.lnaSt3DrainCurrent_value, std::fixed, 2) + ", "
                  + to_string(source.lnaSt3GateVoltage_value, std::fixed, 2) + ");";
 
-    LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+    LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
     MySQLConnection::Result res;
     int numRows = conn_mp -> executeQuery(query, &res);
@@ -885,7 +984,7 @@ bool FrontEndDatabase::insertCartTempData(const ID_T &configId, DATASTATUS_TYPES
                      + to_string(source.cartridgeTemperature4_value, std::fixed, 2) + ", "
                      + to_string(source.cartridgeTemperature5_value, std::fixed, 2) + ")";
 
-        LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+        LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
         MySQLConnection::Result res;
         int numRows = conn_mp -> executeQuery(query, &res);
@@ -982,7 +1081,7 @@ bool FrontEndDatabase::insertIFTotalPowerData(const ID_T &configId, DATASTATUS_T
         query += "(" + headerId.insertText() + ", " + to_string(band) + ", " + to_string(FreqLO, std::fixed, 3) + ", 3, "
                + to_string(data[IFPowerDataSet::PHOT0_IF3], std::fixed, 2) + ", " + to_string(data[IFPowerDataSet::PHOT15_IF3], std::fixed, 2) + ");";
     }
-    LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+    LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
     MySQLConnection::Result res;
     int numRows = conn_mp -> executeQuery(query, &res);
@@ -1050,7 +1149,7 @@ bool FrontEndDatabase::insertYFactorData(const ID_T &configId, DATASTATUS_TYPES 
                + to_string(data[IFPowerDataSet::YFACTOR_IF3], std::fixed, 2) + ");";
     }
 
-    LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+    LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
     MySQLConnection::Result res;
     int numRows = conn_mp -> executeQuery(query, &res);
@@ -1102,7 +1201,7 @@ bool FrontEndDatabase::insertFineLOSweepSubHeader(ID_T &subHeaderId, const ID_T 
                  + to_string(targetSIS1Current, std::fixed, 2) + ", "
                  + "'" + conn_mp -> escapeString(legend, tmp) + "' );";
 
-    LOG(LM_INFO) << context << ": query='" << query << "'" << endl;
+    LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 
     MySQLConnection::Result res;
     int numRows = conn_mp -> executeQuery(query, &res);

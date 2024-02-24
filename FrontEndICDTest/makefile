@@ -20,7 +20,7 @@
 # makefile for test suites to exercise the the Front End, Compressor, and Power Supply ICDs.
 #
 # uses:
-# MinGW from http://www.mingw.org/ provides a POSIX build environment including GCC 3.4.2.
+# MSYS64\MINGW32
 # CppUnit from http://cppunit.sourceforge.net/ which is a unit testing framework for C++.
 # FrontEndAMBLib for low-level CAN communications
 # 
@@ -30,8 +30,6 @@ BUILD = ..
 # includes and libs for "portable" code = POSIX threads:
 PTHREADINC =
 PTHREADLIB = 
-#PTHREADLIB = -lpthreadGC-3.dll # MingW32 0.6
-#PTHREADLIB = -Wl,-Bstatic -lpthread  # for static linking pthreads
 STATICGCCLIB =
 
 PORTABLEINC = $(PTHREADINC)
@@ -98,6 +96,15 @@ FrontEnd2Test.exe : $(FRONTEND2SRC)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/FrontEnd2Test.exe \
 	$(FRONTEND2SRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
+# target FEModeTest:
+#  for testing FE_MODE transitions feature
+FEMODESRC = AmbDeviceTestFixture.cpp TestApp.cpp FEModeTestFixture.cpp
+
+FEModeTest.exe : $(FEMODESRC)
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/FEModeTest.exe \
+	$(FEMODESRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
+
+
 # target CommandLossTest:
 #  for testing the band6 STANDBY2 feature
 COMMANDLOSSSRC = AmbDeviceTestFixture.cpp TestApp.cpp CommandLossTestFixture.cpp
@@ -122,7 +129,7 @@ PowerSupplyICDTest.exe : $(POWERSUPPLYSRC)
 
 # target all:
 all : CompressorICDTest.exe CryostatICDTest.exe FrontEndICDTest.exe FrontEnd2Test.exe LPRICDTest.exe \
-	PowerSupplyICDTest.exe CommandLossTest.exe
+	PowerSupplyICDTest.exe CommandLossTest.exe FEModeTest.exe
 
 # target clean:
 clean:

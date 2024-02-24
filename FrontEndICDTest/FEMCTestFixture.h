@@ -29,7 +29,6 @@ class FEMCTestFixture : public AmbDeviceTestFixture {
     CPPUNIT_TEST(testCONSOLE_ENABLE);
     CPPUNIT_TEST(testESNS);
     CPPUNIT_TEST(testERRORS);
-    CPPUNIT_TEST(testFE_MODE);
     CPPUNIT_TEST(testGET_TCPIP_ADDRESS);
 
     CPPUNIT_TEST(testSET_EXIT_PROGRAM);

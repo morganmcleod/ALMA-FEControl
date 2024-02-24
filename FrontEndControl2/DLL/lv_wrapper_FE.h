@@ -434,6 +434,9 @@ DLLEXPORT short cryostatSetEnableVacuumGauge(short enable);
 DLLEXPORT short cryostatSetEnableCryoPumping(short enable);
 ///< Enable/disable the pump-down process.
 
+DLLEXPORT short cryostatStartStopPlot(short enable);
+///< Start/stop the cooldown/warmup plot
+
 //----------------------------------------------------------------------------
 // FETIM operations:
 

@@ -23,6 +23,7 @@
 #include "logger.h"
 #include "stringConvert.h"
 #include "FEMCEventQueue.h"
+#include "CONFIG/FrontEndDatabase.h"
 #include "OPTIMIZE/CryostatPumping.h"
 using namespace std;
 #include <cmath>
@@ -31,6 +32,9 @@ CryostatImpl::CryostatImpl(unsigned long channel,
                            unsigned long nodeAddress,
                            const std::string &ESN)
   : CryostatImplBase("Cryostat"),
+    dbObject_mp(NULL),
+    headerId_m(FEICDataBase::ID_T()),
+    recordCoolDownPlot_m(false),
     cryoPumpMonitor_mp(NULL)
 {
     setESN(ESN);
@@ -64,7 +68,62 @@ bool CryostatImpl::cryoPumpingEnable(bool val) {
 	return true;
 }
 
+void CryostatImpl::startCooldownPlot(FrontEndDatabase &dbObject, const FEICDataBase::ID_T &feConfig, FEICDataBase::DATASTATUS_TYPES dataStatus)
+{
+    dbObject_mp = &dbObject;
+    if (dbObject_mp -> startCryostatCooldownPlot(headerId_m, feConfig, dataStatus))
+        recordCoolDownPlot_m = true;
+}
+
+void CryostatImpl::stopCooldownPlot() {
+    headerId_m = FEICDataBase::ID_T();
+    recordCoolDownPlot_m = false;
+}
+
 bool CryostatImpl::getMonitorCryostat(Cryostat_t &target) const {
+    impl_getMonitorCryostat(target);
+    return true;
+}
+
+void CryostatImpl::appendThermalLog(std::string &target) const {
+    Cryostat_t state;
+    impl_getMonitorCryostat(state);
+    target += "\t" + to_string(state.backingPumpEnable_value ? 1 : 0);
+    target += "\t" + to_string(state.turboPumpEnable_value ? 1 : 0);
+    target += "\t" + to_string(state.turboPumpErrorState_value ? 1 : 0);
+    target += "\t" + to_string(state.turboPumpHighSpeed_value ? 1 : 0);
+    target += "\t" + to_string((int) state.gateValveState_value);
+    target += "\t" + to_string((int) state.solenoidValveState_value);
+    target += "\t" + to_string(state.supplyCurrent230V_value, std::fixed, 2);
+    target += "\t" + to_string(state.cryostatTemperature0_value, std::fixed, 2);
+    target += "\t" + to_string(state.cryostatTemperature1_value, std::fixed, 2);
+    target += "\t" + to_string(state.cryostatTemperature2_value, std::fixed, 2);
+    target += "\t" + to_string(state.cryostatTemperature3_value, std::fixed, 2);
+    target += "\t" + to_string(state.cryostatTemperature4_value, std::fixed, 2);
+    target += "\t" + to_string(state.cryostatTemperature5_value, std::fixed, 2);
+    target += "\t" + to_string(state.cryostatTemperature6_value, std::fixed, 2);
+    target += "\t" + to_string(state.cryostatTemperature7_value, std::fixed, 2);
+    target += "\t" + to_string(state.cryostatTemperature8_value, std::fixed, 2);
+    target += "\t" + to_string(state.cryostatTemperature9_value, std::fixed, 2);
+    target += "\t" + to_string(state.cryostatTemperature10_value, std::fixed, 2);
+    target += "\t" + to_string(state.cryostatTemperature11_value, std::fixed, 2);
+    target += "\t" + to_string(state.cryostatTemperature12_value, std::fixed, 2);
+    target += "\t" + to_string(state.vacuumCryostatPressure_value, std::scientific, 4);
+    target += "\t" + to_string(state.vacuumPortPressure_value, std::scientific, 4);
+    if (recordCoolDownPlot_m && dbObject_mp)
+        dbObject_mp -> insertCryostatCooldownData(headerId_m, state);
+}
+
+void CryostatImpl::appendThermalLogHeader(std::string &target) const {
+    target += "\tbacking pump\tturbo pump\tturbo pump error\tturbo pump speed"
+              "\tgate valve\tsolenoid valve\t230V current"
+              "\t4K stage\t4K link 1\t4K link 2\t4K far side 1\t4K far side 2"
+              "\t15K stage\t15K link\t15K far side\t15K shield"
+              "\t110K stage\t110K link\t110K far side\t110K shield"
+              "\tcryo pressure\tport pressure";
+}
+
+void CryostatImpl::impl_getMonitorCryostat(Cryostat_t &target) const {
     memset(&target, 0, sizeof(target));
     target.cryostatTemperature0_value = checkCryostatTemperature(cryostatTemperature0_value);
     target.cryostatTemperature1_value = checkCryostatTemperature(cryostatTemperature1_value);
@@ -90,42 +149,6 @@ bool CryostatImpl::getMonitorCryostat(Cryostat_t &target) const {
     target.vacuumGaugeEnable_value = vacuumGaugeEnable_value;
     target.vacuumGaugeErrorState_value = vacuumGaugeErrorState_value;
     target.supplyCurrent230V_value = supplyCurrent230V_value;
-    return true;
-}
-
-
-void CryostatImpl::appendThermalLog(std::string &target) const {
-    target += "\t" + to_string(backingPumpEnable_value ? 1 : 0);
-    target += "\t" + to_string(turboPumpEnable_value ? 1 : 0);
-    target += "\t" + to_string(turboPumpErrorState_value ? 1 : 0);
-    target += "\t" + to_string(turboPumpHighSpeed_value ? 1 : 0);
-    target += "\t" + to_string((int) gateValveState_value);
-    target += "\t" + to_string((int) solenoidValveState_value);
-    target += "\t" + to_string(supplyCurrent230V_value, std::fixed, 2);
-    target += "\t" + to_string(cryostatTemperature0_value, std::fixed, 2);
-    target += "\t" + to_string(cryostatTemperature1_value, std::fixed, 2);
-    target += "\t" + to_string(cryostatTemperature2_value, std::fixed, 2);
-    target += "\t" + to_string(cryostatTemperature3_value, std::fixed, 2);
-    target += "\t" + to_string(cryostatTemperature4_value, std::fixed, 2);
-    target += "\t" + to_string(cryostatTemperature5_value, std::fixed, 2);
-    target += "\t" + to_string(cryostatTemperature6_value, std::fixed, 2);
-    target += "\t" + to_string(cryostatTemperature7_value, std::fixed, 2);
-    target += "\t" + to_string(cryostatTemperature8_value, std::fixed, 2);
-    target += "\t" + to_string(cryostatTemperature9_value, std::fixed, 2);
-    target += "\t" + to_string(cryostatTemperature10_value, std::fixed, 2);
-    target += "\t" + to_string(cryostatTemperature11_value, std::fixed, 2);
-    target += "\t" + to_string(cryostatTemperature12_value, std::fixed, 2);
-    target += "\t" + to_string(vacuumCryostatPressure_value, std::scientific, 4);
-    target += "\t" + to_string(vacuumPortPressure_value, std::scientific, 4);
-}
-
-void CryostatImpl::appendThermalLogHeader(std::string &target) const {
-    target += "\tbacking pump\tturbo pump\tturbo pump error\tturbo pump speed"
-              "\tgate valve\tsolenoid valve\t230V current"
-              "\t4K stage\t4K link 1\t4K link 2\t4K far side 1\t4K far side 2"
-              "\t15K stage\t15K link\t15K far side\t15K shield"
-              "\t110K stage\t110K link\t110K far side\t110K shield"
-              "\tcryo pressure\tport pressure";
 }
 
 float CryostatImpl::checkCryostatTemperature(float value) const {

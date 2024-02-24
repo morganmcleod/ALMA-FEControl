@@ -1614,6 +1614,15 @@ DLLEXPORT short cryostatSetEnableCryoPumping(short enable) {
     return 0;
 }
 
+DLLEXPORT short cryostatStartStopPlot(short enable)
+{
+    if (!FEValid)
+        return -1;
+    if (!frontEnd -> cryostatStartStopPlot(enable != 0))
+        return -1;
+    return 0;
+}
+
 DLLEXPORT short fetimSetTriggerDewarN2Fill(short enable) {
     if (!FEValid)
         return -1;

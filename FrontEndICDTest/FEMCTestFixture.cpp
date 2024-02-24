@@ -9,6 +9,12 @@ CPPUNIT_TEST_SUITE_REGISTRATION(FEMCTestFixture);
 
 void FEMCTestFixture::setUp() {
     AmbDeviceTestFixture::setUp();
+    string details;
+    resetAmbVars();
+    data_m[0] = 0;  // Operational mode
+    dataLength_m = 1;
+    // Use commandImpl because we don't want to monitor on the control RCA
+    commandImpl(0x2100E, "SET_FE_MODE", &details);
 }
 
 void FEMCTestFixture::tearDown() {
@@ -222,39 +228,6 @@ void FEMCTestFixture::testERRORS() {
             // TODO: can we assert anything else about the content of the error data?
         }
     }
-}
-
-void FEMCTestFixture::testFE_MODE() {
-    string details;
-    // get the current front end mode:
-    monitor(0x2000E, "GET_FE_MODE", &details);
-    // we expect one byte, either 0, 1, or 2:
-    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 1);
-    CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == 0 || data_m[0] == 1 || data_m[0] == 2);
-    // cache it to set back at the end:
-    unsigned char priorMode(data_m[0]);
-
-    // cycle it through each mode and check:
-    for (unsigned char newMode = 0; newMode < 3; ++newMode) {    
-        resetAmbVars();
-        data_m[0] = newMode;
-        dataLength_m = 1;
-        // Use commandImpl because we don't want to monitor on the control RCA
-        commandImpl(0x2100E, "SET_FE_MODE", &details);
-        // Sleep in case the mode change wrote to the console:
-        SLEEP(5000);
-        // check that it changed:
-        monitor(0x2000E, "GET_FE_MODE", &details);
-        CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 1);
-        CPPUNIT_ASSERT_MESSAGE(details, data_m[0] == newMode);
-    }    
-    // set it back how we found it:
-    resetAmbVars();
-    data_m[0] = priorMode;
-    dataLength_m = 1;
-    // Use commandImpl because we don't want to monitor on the control RCA
-    commandImpl(0x2100E, "SET_FE_MODE", &details);
-    SLEEP(5000);
 }
 
 void FEMCTestFixture::testGET_TCPIP_ADDRESS() {

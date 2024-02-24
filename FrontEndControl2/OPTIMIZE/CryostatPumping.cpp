@@ -26,13 +26,19 @@
 using namespace std;
 
 void CryostatPumping::reset() {
-    switchTemperature_m = 0;
+    switchTemperature4k_m = switchTemperature15k_m = 0;
     cycleTimeSec_m = timeoutSec_m = elapsedSec_m = 0;
     enable_m = false;   
 }
 
-bool CryostatPumping::start(float switchTemperature, int cycleTimeSec, int timeoutSec) {
-    switchTemperature_m = switchTemperature;
+bool CryostatPumping::start(
+        float switchTemperature4k, 
+        float switchTemperature15k, 
+        int cycleTimeSec, 
+        int timeoutSec) 
+{
+    switchTemperature4k_m = switchTemperature4k;
+    switchTemperature15k_m = switchTemperature15k;
     cycleTimeSec_m = cycleTimeSec;
     timeoutSec_m = timeoutSec;
     elapsedSec_m = 0;
@@ -57,12 +63,11 @@ void CryostatPumping::optimizeAction() {
     bool targetReached = false;
     CryostatImpl::Cryostat_t cryoTemps;
     if (Cryostat_m.getMonitorCryostat(cryoTemps)) {
-        // Temperature is reached if the 4K stage temperature is below the target switchTemperature_m
-        if (cryoTemps.cryostatTemperature0_value < switchTemperature_m) {
+        // Check switch temperatures... 4K:
+        if (cryoTemps.cryostatTemperature0_value < switchTemperature4k_m) {
             // ... AND the 15K stage is below the target.
-            if (cryoTemps.cryostatTemperature5_value < switchTemperature_m)
+            if (cryoTemps.cryostatTemperature5_value < switchTemperature15k_m)
                 targetReached = true;
-            // TODO: for each stage, remove the highest and lowest and then average the rest.
         }
         LOG(LM_INFO) << fixed << setprecision(2) << "CryostatPumping: 4Kstage=" << cryoTemps.cryostatTemperature0_value
             << " 15Kstage=" << cryoTemps.cryostatTemperature5_value << endl;

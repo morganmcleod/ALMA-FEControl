@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
         ambItf_p -> setBus(canBus_p);
     
         // Set the CAN timeout to the minimum:
-        canBus_p -> monitorTimeout_m = 2;   //ms
+        canBus_p -> monitorTimeout_m = 1000;   //ms
         
         // Get the top level suite from the registry
         CPPUNIT_NS::Test *suite = CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest();

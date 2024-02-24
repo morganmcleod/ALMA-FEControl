@@ -127,11 +127,18 @@ public:
         TD_YFACTOR              = 15,
         TD_CPDS_MONITOR         = 24,
         TD_IV_CURVE             = 39,
-        TD_FINE_LO_SWEEP        = 59
+        TD_FINE_LO_SWEEP        = 59,
+        TD_CRYOSTAT_COOLDOWN    = 61
     };
 
     bool insertCryostatData(const ID_T &configId, DATASTATUS_TYPES dataStatus, const CryostatImpl::Cryostat_t &source) const;
     ///< insert cryostat monitor data into database
+
+    bool startCryostatCooldownPlot(ID_T &headerId, const ID_T &configId, DATASTATUS_TYPES dataStatus) const;
+    ///< create a new cryostat cooldown test data header
+
+    bool insertCryostatCooldownData(const ID_T &headerId, const CryostatImpl::Cryostat_t &source) const;
+    ///< insert cryostat cooldown graph data into database for the given header
 
     bool insertIfSwitchData(const ID_T &configId, DATASTATUS_TYPES dataStatus, const IFSwitchImpl::IFSwitch_t &source) const;
     ///< insert IF switch monitor data into database
@@ -176,13 +183,25 @@ public:
     bool createSISMonitorDataHeader(ID_T &headerId, const ID_T &configId, DATASTATUS_TYPES dataStatus, unsigned band) const;
     ///< create a test data header for saving up to four mixers' SIS monitor data.
 
-    bool insertSISMonitorData(const ID_T &headerId, double FreqLO, unsigned pol, unsigned sb, const ColdCartImpl::SIS_t &source) const;
+    bool insertSISMonitorData(
+        const ID_T &headerId, 
+        double FreqLO, 
+        unsigned pol, 
+        unsigned sb, 
+        const ColdCartImpl::SIS_t &settings, 
+        const ColdCartImpl::SIS_t &source) const;
     ///< insert SIS monitor data for a single mixer, attached to a previously created TestData_header record.
 
     bool createLNAMonitorDataHeader(ID_T &headerId, const ID_T &configId, DATASTATUS_TYPES dataStatus, unsigned band) const;
     ///< create a test data header for saving up to four preamps' LNA monitor data.
 
-    bool insertLNAMonitorData(const ID_T &headerId, double FreqLO, unsigned pol, unsigned sb, const ColdCartImpl::LNA_t &source) const;
+    bool insertLNAMonitorData(
+        const ID_T &headerId, 
+        double FreqLO, 
+        unsigned pol, 
+        unsigned sb, 
+        const ColdCartImpl::LNA_t &settings, 
+        const ColdCartImpl::LNA_t &source) const;
     ///< insert LNA monitor data for three preamp stages, attached to a previously created TestData_header record.
 
     bool insertIVCurveData(const ID_T &configId, DATASTATUS_TYPES dataStatus,

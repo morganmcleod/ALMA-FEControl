@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "istream": "cpp",
+        "memory": "cpp",
+        "ios": "cpp",
+        "iomanip": "cpp"
+    },
+    "cmake.configureOnOpen": false
+}

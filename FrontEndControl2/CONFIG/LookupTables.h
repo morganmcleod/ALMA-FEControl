@@ -286,6 +286,21 @@ namespace FEConfig {
         ///< constructor fixes the number of data columns at NUM_COLS. 
         ~PreampParams()
           {}
+        
+        static void normalizeStage(unsigned &stage)
+          { if (stage < 1) stage = 1;
+            if (stage > 6) stage = 6; }
+        ///< utility function to force pol and sb into range.
+
+        static PARAM_COLS indexVD(unsigned stage)
+          { normalizeStage(stage);
+            return (PARAM_COLS) ((stage - 1) % 3); }
+        ///< get the parameter name for VD at the given stage.
+
+        static PARAM_COLS indexID(unsigned stage)
+          { normalizeStage(stage);
+            return (PARAM_COLS) ((stage - 1) % 3 + 3); }
+        ///< get the parameter name for ID at the given stage.
 
         void streamOut(std::ostream& out) const;
         ///< stream output for debugging 

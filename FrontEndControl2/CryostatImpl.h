@@ -22,10 +22,13 @@
 */
 
 #include "FEBASE/CryostatImplBase.h"
+#include "CONFIG/FrontEndConfig.h"
 #include "OPTIMIZE/ThermalLoggable.h"
+#include "FEICDataBase.h"
+class FrontEndDatabase;
 class CryostatPumping;
 
-/// implementation class for the IF Switch module
+/// implementation class for the Cryostat module
 
 class CryostatImpl : public CryostatImplBase, public ThermalLoggable {
 public:
@@ -36,7 +39,11 @@ public:
     
     // initiate or stop pump-down process:
     bool cryoPumpingEnable(bool val);
-    
+
+    // start log to database for plot:
+    void startCooldownPlot(FrontEndDatabase &dbObject, const FEICDataBase::ID_T &feConfig, FEICDataBase::DATASTATUS_TYPES dataStatus);
+    void stopCooldownPlot();
+
 // Cryostat monitor data structure:
     struct Cryostat_t {
         float cryostatTemperature0_value;
@@ -73,8 +80,17 @@ public:
     ///< append thermal header information to a logging string
     
 private:
+    // database access:
+    FrontEndDatabase *dbObject_mp;  ///< database interface for cooldown plot.
+    FEICDataBase::ID_T headerId_m;  ///< of current cooldown plot.
+    bool recordCoolDownPlot_m;      ///< true while recording.
+
+    void impl_getMonitorCryostat(Cryostat_t &target) const;
+
     float checkCryostatTemperature(float value) const;
     ///< if the temperature is out of bounds, set it to -1
+
+
 
     class CryostatPumping *cryoPumpMonitor_mp;
 };

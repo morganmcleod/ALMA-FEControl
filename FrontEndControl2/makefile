@@ -182,8 +182,8 @@ t_FEICDataBase.exe : tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp
 .PHONY: all
 all: allout dll tests
 
-current:
-	$(MAKE) -C FEBASE
+current: $(CONFIGOUT)
+
 
 oneFile:
 	$(MAKE) FEMCEventQueue.o

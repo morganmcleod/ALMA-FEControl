@@ -28,7 +28,7 @@ class CryostatImpl;
 
 class CryostatPumping : public OptimizeBase {
 public:    
-	CryostatPumping(CryostatImpl &cryo)
+    CryostatPumping(CryostatImpl &cryo)
       : OptimizeBase("CryostatPumping"),
         Cryostat_m(cryo)
         { reset(); }
@@ -39,9 +39,11 @@ public:
     void reset();
     ///< reset all state to initial/just constructed.
     
-    bool start(float switchTemperature = 30,	// below what temperature to close the gate valve, etc. 
-    		   int cycleTimeSec = 20,			// how often to check.
-    		   int timeoutSec = 172800);		// give up after this much time (172800 sec = 2 days).
+    bool start(
+        float switchTemperature4k = 5,	    // below what temperatures to close the gate valve, etc. 
+        float switchTemperature15k = 30,    // ""
+        int cycleTimeSec = 20,              // how often to check.
+        int timeoutSec = 172800);           // give up after this much time (172800 sec = 2 days).
     ///< start the cryostat pumping process
     
     virtual void stop();
@@ -51,14 +53,15 @@ protected:
     virtual void optimizeAction();
 
 private:
-    
-	CryostatImpl &Cryostat_m;
 
-	float switchTemperature_m;
-	int cycleTimeSec_m;
-	int timeoutSec_m;
-	int elapsedSec_m;
-	bool enable_m;
+    CryostatImpl &Cryostat_m;
+
+    float switchTemperature4k_m;
+    float switchTemperature15k_m;
+    int cycleTimeSec_m;
+    int timeoutSec_m;
+    int elapsedSec_m;
+    bool enable_m;
 };
 
 #endif /*CRYOSTATPUMPING_H_*/
