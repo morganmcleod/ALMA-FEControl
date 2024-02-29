@@ -1,0 +1,87 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+-include ../makefile.init
+
+RM := rm -rf
+
+# All of the sources participating in the build are defined here
+-include sources.mk
+-include src/subdir.mk
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(strip $(C++M_DEPS)),)
+-include $(C++M_DEPS)
+endif
+ifneq ($(strip $(C++_DEPS)),)
+-include $(C++_DEPS)
+endif
+ifneq ($(strip $(CCM_DEPS)),)
+-include $(CCM_DEPS)
+endif
+ifneq ($(strip $(CC_DEPS)),)
+-include $(CC_DEPS)
+endif
+ifneq ($(strip $(CPP_DEPS)),)
+-include $(CPP_DEPS)
+endif
+ifneq ($(strip $(CXXM_DEPS)),)
+-include $(CXXM_DEPS)
+endif
+ifneq ($(strip $(CXX_DEPS)),)
+-include $(CXX_DEPS)
+endif
+ifneq ($(strip $(C_DEPS)),)
+-include $(C_DEPS)
+endif
+ifneq ($(strip $(C_UPPER_DEPS)),)
+-include $(C_UPPER_DEPS)
+endif
+endif
+
+-include ../makefile.defs
+
+OPTIONAL_TOOL_DEPS := \
+$(wildcard ../makefile.defs) \
+$(wildcard ../makefile.init) \
+$(wildcard ../makefile.targets) \
+
+
+BUILD_ARTIFACT_NAME := FrontEndAMB
+BUILD_ARTIFACT_EXTENSION := dll
+BUILD_ARTIFACT_PREFIX :=
+BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
+
+# Add inputs and outputs from these tool invocations to the build variables 
+
+# All Target
+all:
+	+@$(MAKE) --no-print-directory pre-build && $(MAKE) --no-print-directory main-build && $(MAKE) --no-print-directory post-build
+
+# Main-build Target
+main-build: FrontEndAMB.dll
+
+# Tool invocations
+FrontEndAMB.dll: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS) L:\ALMA-FEControl\FrontEndAMBDLL\Debug\src\resource.o
+	@echo 'Building target: $@'
+	@echo 'Invoking: MinGW C++ Linker'
+	g++ -L"L:\ALMA-FEControl\FrontEndAMBLib\Debug" -L"L:\ALMA-FEControl\3rdparty\drmingw\lib" -L"L:\ALMA-FEControl\CppUtilityLib\Debug" -L"L:\ALMA-FEControl\3rdparty\Nican\lib" -shared -Wl,--output-def=FrontEndAMB.def -o "FrontEndAMB.dll" $(OBJS) $(USER_OBJS) $(LIBS) "L:\ALMA-FEControl\FrontEndAMBDLL\Debug\src\resource.o" -lFrontEndAmbLib -lexchndl -lCppUtilityLIb -lnicanmsc
+	@echo 'Finished building target: $@'
+	@echo ' '
+
+# Other Targets
+clean:
+	-$(RM) FrontEndAMB.dll
+	-@echo ' '
+
+pre-build:
+	-windres -i ../src/resource.rc -o src/resource.o
+	-@echo ' '
+
+post-build:
+	-cp FrontEndAMB.DLL l:\ALMA-FEControl\FrontEndControl2
+	-@echo ' '
+
+.PHONY: all clean dependents main-build pre-build post-build
+
+-include ../makefile.targets

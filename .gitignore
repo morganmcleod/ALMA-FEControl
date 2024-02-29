@@ -7,12 +7,12 @@
 *.dll
 *.def
 *.zip
+*.d
 cinifile_example
 CppUnit*
 IFSUploader
 iniparser_example
 MZM-LORTM
-Debug
 html
 symsrv.yes
 test_results_local

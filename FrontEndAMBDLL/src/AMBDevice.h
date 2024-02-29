@@ -37,11 +37,13 @@ public:
         AmbDeviceInt::interface_mp = interface_p;
     }
 
+    using AmbDeviceInt::command;
     AmbErrorCode_t command(AmbNodeAddr nodeAddr,
                            AmbRelativeAddr RCA,
                            AmbDataLength_t dataLength,
                            const AmbDataMem_t *data);
 
+    using AmbDeviceInt::monitor;
     AmbErrorCode_t monitor(AmbNodeAddr nodeAddr,
                            AmbRelativeAddr RCA,
                            AmbDataLength_t &dataLength,
