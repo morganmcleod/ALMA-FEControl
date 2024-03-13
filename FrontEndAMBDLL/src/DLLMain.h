@@ -34,13 +34,13 @@
 DLL_API short DLL_CALL getSoftwareVersion(char *versionString);
 ///< Get the DLL software version
 
-DLL_API int DLL_CALL initialize();
+DLL_API int DLL_CALL ambInitialize();
 ///< Open the CAN bus connection and start logging
 
 DLL_API int DLL_CALL setTimeout(unsigned long timeout);
 ///< Override the default CAN receive timeout in ms.
 
-DLL_API int DLL_CALL shutdown();
+DLL_API int DLL_CALL ambShutdown();
 ///< Stop logs and close the CAN connection
 
 DLL_API int DLL_CALL findNodes(unsigned short *numFound, unsigned char *nodeAddrs, unsigned char **serialNums, unsigned short maxLen);

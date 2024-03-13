@@ -94,20 +94,20 @@ extern "C" BOOL WINAPI DllMain (
 
     case DLL_PROCESS_DETACH:
         // Perform any necessary cleanup.
-        shutdown();
+        ambShutdown();
         break;
     }
     return TRUE;  // Successful DLL_PROCESS_ATTACH.
 }
 
-DLL_API short DLL_CALL getSoftwareVersion(char *versionString) {
+short DLL_CALL getSoftwareVersion(char *versionString) {
     if (!versionString)
         return -1;
     strcpy(versionString, FRONTENDAMB_SW_VERSION_STRING.c_str());
     return 0;
 }
 
-DLL_API int DLL_CALL initialize() {
+int DLL_CALL ambInitialize() {
     // check that we loaded our config:
     if (!configINI)
         return -1;
@@ -233,7 +233,7 @@ DLL_API int DLL_CALL initialize() {
     return 0;
 };
 
-DLL_API int DLL_CALL shutdown() {
+int DLL_CALL ambShutdown() {
     if (!isValid)
         return 0;
     isValid = false;
@@ -263,13 +263,13 @@ DLL_API int DLL_CALL shutdown() {
     return 0;
 }
 
-DLL_API int DLL_CALL setTimeout(unsigned long timeout) {
+int DLL_CALL setTimeout(unsigned long timeout) {
     CANBusInterface::monitorTimeout_m = timeout;
     LOG(LM_INFO) << "CAN monitor timeout=" << CANBusInterface::monitorTimeout_m << endl;
     return 0;
 }
 
-DLL_API int DLL_CALL findNodes(unsigned short *numFound, unsigned char *nodeAddrs, unsigned char **serialNums, unsigned short maxLen) {
+int DLL_CALL findNodes(unsigned short *numFound, unsigned char *nodeAddrs, unsigned char **serialNums, unsigned short maxLen) {
     if (!isValid || !numFound || !nodeAddrs || !serialNums || !maxLen) {
         LOG(LM_ERROR) << "FrontEndAMB.DLL findNodes: bad state or params." << endl;
         return -1;
@@ -299,7 +299,7 @@ DLL_API int DLL_CALL findNodes(unsigned short *numFound, unsigned char *nodeAddr
     return 0;
 }
 
-DLL_API int DLL_CALL command(unsigned char nodeAddr, unsigned long RCA, unsigned short dataLength, const unsigned char *data) {
+int DLL_CALL command(unsigned char nodeAddr, unsigned long RCA, unsigned short dataLength, const unsigned char *data) {
     if (!isValid || !nodeAddr || !RCA) {
         LOG(LM_ERROR) << "FrontEndAMB.DLL command: bad state or params." << endl;
         return -1;
@@ -309,7 +309,7 @@ DLL_API int DLL_CALL command(unsigned char nodeAddr, unsigned long RCA, unsigned
     return ambDevice -> command(nodeAddr, RCA, dataLength, data);
 }
 
-DLL_API int DLL_CALL monitor(unsigned char nodeAddr, unsigned long RCA, unsigned short *dataLength, unsigned char *data) {
+int DLL_CALL monitor(unsigned char nodeAddr, unsigned long RCA, unsigned short *dataLength, unsigned char *data) {
     if (!isValid || !dataLength || !data) {
         LOG(LM_ERROR) << "FrontEndAMB.DLL monitor: bad state or params." << endl;
         return -1;
@@ -319,7 +319,7 @@ DLL_API int DLL_CALL monitor(unsigned char nodeAddr, unsigned long RCA, unsigned
     return ambDevice -> monitor(nodeAddr, RCA, *dataLength, data);
 }
 
-DLL_API int DLL_CALL runSequence(unsigned char nodeAddr, Message *sequence, unsigned long maxLen) {
+int DLL_CALL runSequence(unsigned char nodeAddr, Message *sequence, unsigned long maxLen) {
     for (unsigned long i = 0; i < maxLen; i++) {
         bool command = false;
         if (sequence[i].dataLength == 0) {

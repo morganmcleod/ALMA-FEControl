@@ -33,17 +33,15 @@
      #define LINKAGE
 #endif
 
-#ifdef STATIC_FRONTENDAMB
-     // use the code statically
-     #define DLL_CALL extern
-     #define DLL_CALL
+
+#ifdef BUILD_FRONTENDAMB
+    #define DLL_API LINKAGE __declspec(dllexport)
 #else
-    #ifdef BUILD_FRONTENDAMB
-        #define DLL_API __declspec(dllexport)
-    #else
-        #define DLL_API LINKAGE __declspec(dllimport)
-    #endif
-    #define DLL_CALL __cdecl
+    #define DLL_API LINKAGE __declspec(dllimport)
 #endif
+
+
+#define DLL_CALL __cdecl
+
 
 #endif /*_FRONTENDAMB_LV_WRAPPER_DLL_EXPORT_H_*/
