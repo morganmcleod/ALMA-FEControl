@@ -52,6 +52,12 @@ BUILD_ARTIFACT_EXTENSION := dll
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
+GIT_HASH=`git rev-parse HEAD`
+COMPILE_TIME=`date -u +'%Y-%m-%d %H:%M:%S UTC'`
+GIT_BRANCH=`git branch | grep "^\*" | sed 's/^..//'`
+export VERSION_FLAGS=-DGIT_HASH="\"$(GIT_HASH)\"" -DCOMPILE_TIME="\"$(COMPILE_TIME)\"" -DGIT_BRANCH="\"$(GIT_BRANCH)\""
+
+
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
@@ -64,7 +70,7 @@ main-build: FrontEndAMB.dll
 FrontEndAMB.dll: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS) L:\ALMA-FEControl\FrontEndAMBDLL\Debug\src\resource.o
 	@echo 'Building target: $@'
 	@echo 'Invoking: MinGW C++ Linker'
-	g++ -L"L:\ALMA-FEControl\FrontEndAMBLib\Release" -L"L:\ALMA-FEControl\3rdparty\drmingw\lib" -L"L:\ALMA-FEControl\CppUtilityLib\Release" -L"L:\ALMA-FEControl\3rdparty\Nican\lib" -shared -Wl,--output-def=FrontEndAMB.def -o "FrontEndAMB.dll" $(OBJS) $(USER_OBJS) $(LIBS) "L:\ALMA-FEControl\FrontEndAMBDLL\Debug\src\resource.o" -lFrontEndAmbLib -lexchndl -lCppUtilityLIb -lnicanmsc
+	g++ -L"L:\ALMA-FEControl\FrontEndAMBLib\Release" -L"L:\ALMA-FEControl\3rdparty\drmingw\lib" -L"L:\ALMA-FEControl\CppUtilityLib\Release" -L"L:\ALMA-FEControl\3rdparty\Nican\lib" -shared -Wl,--output-def=FrontEndAMB.def -o "FrontEndAMB.dll" $(OBJS) $(USER_OBJS) $(LIBS) $(VERSION_FLAGS) "L:\ALMA-FEControl\FrontEndAMBDLL\Debug\src\resource.o" -lFrontEndAmbLib -lexchndl -lCppUtilityLIb -lnicanmsc
 	@echo 'Finished building target: $@'
 	@echo ' '
 

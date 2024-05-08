@@ -69,7 +69,7 @@ main-build: FrontEndAMB.dll
 FrontEndAMB.dll: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS) L:\ALMA-FEControl\FrontEndAMBDLL\Debug\src\resource.o
 	@echo 'Building target: $@'
 	@echo 'Invoking: MinGW C++ Linker'
-	g++ -L"L:\ALMA-FEControl\FrontEndAMBLib\Debug" -L"L:\ALMA-FEControl\3rdparty\drmingw\lib" -L"L:\ALMA-FEControl\CppUtilityLib\Debug" -L"L:\ALMA-FEControl\3rdparty\Nican\lib" -shared -Wl,--output-def=FrontEndAMB.def -o "FrontEndAMB.dll" $(OBJS) $(USER_OBJS) $(LIBS) "L:\ALMA-FEControl\FrontEndAMBDLL\Debug\src\resource.o" -lFrontEndAmbLib -lexchndl -lCppUtilityLIb -lnicanmsc
+	g++ -L"L:\ALMA-FEControl\FrontEndAMBLib\Debug" -L"L:\ALMA-FEControl\3rdparty\drmingw\lib" -L"L:\ALMA-FEControl\CppUtilityLib\Debug" -L"L:\ALMA-FEControl\3rdparty\Nican\lib" -shared -Wl,--output-def=FrontEndAMB.def -o "FrontEndAMB.dll" $(OBJS) $(USER_OBJS) $(LIBS) $(VERSION_FLAGS) "L:\ALMA-FEControl\FrontEndAMBDLL\Debug\src\resource.o" -lFrontEndAmbLib -lexchndl -lCppUtilityLIb -lnicanmsc
 	@echo 'Finished building target: $@'
 	@echo ' '
 
