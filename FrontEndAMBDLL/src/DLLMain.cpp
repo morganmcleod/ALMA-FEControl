@@ -50,7 +50,7 @@ namespace FrontEndAMBDLL {
     CIniFile *configINI = NULL;         ///< ini file access object
     string iniFileName;                 ///< the top-level FrontEndControlDLL.ini
     string logDir("");                  ///< output logs are created here
-    logLevel reportingLevel(LM_DEBUG);   ///< global logging level
+    logLevel reportingLevel(LM_INFO);   ///< global logging level
     bool CAN_noTransmit = false;        ///< Normally false: ignore CAN connection failure and suppress all CAN messages
     AmbDataMem_t FEMode = 0;            ///< Normally 0=Operational, 1=Troubleshooting, 2=Maintenance, 3=Simulate
 

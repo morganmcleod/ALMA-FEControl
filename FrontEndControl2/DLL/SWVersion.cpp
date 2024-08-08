@@ -21,14 +21,17 @@
 
 #include "SWVersion.h"
 
-const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.16.2");
+const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.16.3");
 
 //******* Be sure to update resource.rc!
 
 
 /* Revision history:
 
-2.16.2: 
+2.16.3 2024-08-08
+  Band 2 signal source has an x6 multiplier not x4 like the LO.  
+
+2.16.2 2024-02-29: 
   Cart Healthcheck:  store SIS and LNA settings to database along with readings.
   CryostatPumping:  switch when 4K stage is below 5 K and 15K stage is below 30 K.
   Record cryostat cooldown plot
