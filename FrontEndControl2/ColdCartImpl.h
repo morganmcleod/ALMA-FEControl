@@ -101,6 +101,26 @@ public:
       { return hasLNA(band_m); }
     ///< true if this cartridge has LNAs.
 
+    static bool hasLED(int band) {
+        static bool leds[11] = {
+            false,  // band 0: no multiplier 
+            true,  // band 1
+            false,  // band 2
+            true,  // band 3
+            false,  // band 4
+            false,  // band 5
+            true,  // band 6
+            false,  // band 7
+            false,  // band 8
+            false,  // band 9
+            false   // band 10
+        };
+        return leds[band];
+    }
+
+    bool hasLED() const
+      { return hasLED(band_m); }
+
     void reset();
     ///< set all state data to defaults, as if just constructed.
 
@@ -439,14 +459,20 @@ public:
         addMon(&lnaPol1Sb2St3DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb2St3DrainCurrent, true);
     }
     virtual void lnaLedPol0Enable(bool val) {
-        ColdCartImplBase::lnaLedPol0Enable(val);
-        // monitor it right away:
-        lnaLedPol0Enable_value = ColdCartImplBase::lnaLedPol0Enable();
+        if (hasLED()) {
+            ColdCartImplBase::lnaLedPol0Enable(val);
+            // monitor it right away:
+            lnaLedPol0Enable_value = ColdCartImplBase::lnaLedPol0Enable();
+        } else
+            lnaLedPol0Enable_value = false;
     }
     virtual void lnaLedPol1Enable(bool val) {
-        ColdCartImplBase::lnaLedPol1Enable(val);
-        // monitor it right away:
-        lnaLedPol1Enable_value = ColdCartImplBase::lnaLedPol1Enable();
+        if (hasLED()) {
+            ColdCartImplBase::lnaLedPol1Enable(val);
+            // monitor it right away:
+            lnaLedPol1Enable_value = ColdCartImplBase::lnaLedPol1Enable();
+        } else
+            lnaLedPol1Enable_value = false;
     }
 
 //-------------------------------------------------------------------------------------------------

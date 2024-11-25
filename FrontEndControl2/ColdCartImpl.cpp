@@ -1304,14 +1304,18 @@ bool ColdCartImpl::getMonitorLNA(int pol, int sb, LNA_t &target) const {
 bool ColdCartImpl::getMonitorAux(int pol, Aux_t &target) const {
     memset(&target, 0, sizeof(target));
     if (pol == 0) {
-        if (hasLNA())
+        if (hasLNA() && hasLED())
             target.lnaLedEnable_value = lnaLedPol0Enable_value;
+        else
+            target.lnaLedEnable_value = false;
         if (hasSISHeater())
             target.sisHeaterCurrent_value = sisHeaterPol0Current_value;
         return true;
     } else if (pol == 1) {
-        if (hasLNA())
+        if (hasLNA() && hasLED())
             target.lnaLedEnable_value = lnaLedPol1Enable_value;
+        else
+            target.lnaLedEnable_value = false;
         if (hasSISHeater())
             target.sisHeaterCurrent_value = sisHeaterPol1Current_value;
         return true;
@@ -1392,8 +1396,13 @@ void ColdCartImpl::monitorAction(Time *timestamp_p) {
                 monitorPhase = 3;
                 break;
             case 3:
-                lnaLedPol0Enable_value = ColdCartImplBase::lnaLedPol0Enable();
-                lnaLedPol1Enable_value = ColdCartImplBase::lnaLedPol1Enable();
+                if (hasLED()) {
+                    lnaLedPol0Enable_value = ColdCartImplBase::lnaLedPol0Enable();
+                    lnaLedPol1Enable_value = ColdCartImplBase::lnaLedPol1Enable();
+                } else {
+                    lnaLedPol0Enable_value = false;
+                    lnaLedPol1Enable_value = false;
+                }
                 monitorPhase = 4;
                 break;
             case 4:

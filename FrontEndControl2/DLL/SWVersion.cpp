@@ -21,12 +21,19 @@
 
 #include "SWVersion.h"
 
-const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.16.3");
+const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.16.5 NRAO-B2");
 
 //******* Be sure to update resource.rc!
 
 
 /* Revision history:
+
+2.16.5 NRAO-B2 2025-11-25
+  HACK Use IF switch port 6 for operating band 2
+  Added check for hasLED in ColdCartImpl.  Band 2 doesn't have one.
+
+2.16.4 NRAO-B2 2024-11-21
+  HACK Use IF switch port 6 for operating band 2
 
 2.16.3 2024-08-08
   Band 2 signal source has an x6 multiplier not x4 like the LO.  
