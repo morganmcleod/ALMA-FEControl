@@ -19,7 +19,7 @@ void CryostatTestFixture::tearDown() {
 }
 
 void CryostatTestFixture::testGET_CRYOSTAT_TEMPS() {
-    //Valid range: 2° to 325° K
+    //Valid range: 2ï¿½ to 325ï¿½ K
     string details;
     float temp;
     unsigned char statusByte;
@@ -368,10 +368,10 @@ void CryostatTestFixture::testGET_CRYOSTAT_COLD_HEAD_HOURS() {
     // request the cold head hours:
     monitor(coldHeadHours_RCA, "GET_CRYOSTAT_COLD_HEAD_HOURS", &details);
     unsigned char statusByte;
-    unpackU16(&statusByte);
+    unpackU32(&statusByte);
 
     // check data length and status byte:
-    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 3);
+    CPPUNIT_ASSERT_MESSAGE(details, dataLength_m == 5);
     CPPUNIT_ASSERT_MESSAGE(details, statusByte == FEMC_NO_ERROR);
 }
 
