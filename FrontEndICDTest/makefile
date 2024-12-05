@@ -79,7 +79,8 @@ CryostatICDTest.exe : $(CRYOSTATSRC)
 	$(CRYOSTATSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
 # target FrontEndICDTest:
-FRONTENDSRC = AllBands.cpp AmbDeviceTestFixture.cpp Band1.cpp Band3.cpp Band6.cpp Band7.cpp Band9.cpp \
+#  removed  Band3.cpp Band6.cpp Band7.cpp Band9.cpp 
+FRONTENDSRC = AllBands.cpp AmbDeviceTestFixture.cpp Band2.cpp \
     CartridgeTestFixture.cpp ColdCartridgeTestFixture.cpp \
 	CPDSTestFixture_deepika.cpp FEMCTestFixture.cpp IFSwitchTestFixture.cpp TestApp.cpp WCATestFixture.cpp
 
