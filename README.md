@@ -1,111 +1,69 @@
 # ALMA-FEControl
 C++ software for monitor and control of the ALMA Front End and related hardware
 
-Uses 3rd party libraries not included in this repository:<br>
-Pthreads-win32: https://www.sourceware.org/pthreads-win32/ supplied by MinGW as of 2.8.x <br>
-MySQL Connector/C: https://dev.mysql.com/downloads/connector/c/<br>
-NI-CAN driver: http://sine.ni.com/nips/cds/view/p/lang/en/nid/206955<br>
-CPPUnit: https://sourceforge.net/projects/cppunit/<br>
-ExcHndl: https://github.com/jrfonseca/drmingw<br>
+## This library must be built using 32-bits tools because the NI-CAN driver does not support 64-bits
 
-$ ls -R 3rdparty/
+I recommend using the tools available in MinGW W32. In this case simply run the `install_dep.sh` script.
 
-3rdparty:
-cppunit/
-drmingw/
-MySQL41/
-Nican/
+## Third party libraries
 
-3rdparty/cppunit:
-include/
-lib/
+Uses 3rd party libraries not included in this repository:
+- MySQL Connector/C: https://dev.mysql.com/downloads/connector/c/
+- NI-CAN driver: http://sine.ni.com/nips/cds/view/p/lang/en/nid/206955
 
-3rdparty/cppunit/include:
-cppunit/
-
-3rdparty/cppunit/include/cppunit:
-(contents omitted)
-
-3rdparty/cppunit/lib:
-Debug/
-
-3rdparty/cppunit/lib/Debug:
-(contents omitted)
-
-3rdparty/drmingw:
-include/
-lib/
-
-3rdparty/drmingw/include:
-exchndl.h
-
-3rdparty/drmingw/lib:
-libexchndl.a
-libmgwhelp.a
-
-3rdparty/MySQL41:
-include/
-lib/
-
-3rdparty/MySQL41/include:
-config-netware.h
-config-os2.h
-config-win.h
-errmsg.h
-libmysql.def
-libmysqld.def
-m_ctype.h
-m_string.h
-my_alloc.h
-my_dbug.h
-my_getopt.h
-my_global.h
-my_list.h
-my_pthread.h
-my_sys.h
-mysql.h
-mysql_com.h
-mysql_embed.h
-mysql_time.h
-mysql_version.h
-mysqld_error.h
-raid.h
-typelib.h
-
-3rdparty/MySQL41/lib:
-debug/
-opt/
-
-3rdparty/MySQL41/lib/debug:
-liblibmysql.a
-LIBMYSQL.def
-libmysql.dll*
-libmysql.lib
-mysqlclient.lib
-mysys.lib
-regex.lib
-strings.lib
-zlib.lib
-
-3rdparty/MySQL41/lib/opt:
-libmysql.dll*
-libmysql.lib
-mysqlclient.lib
-mysys.lib
-mysys_tls.lib
-mysys-max.lib
-regex.lib
-strings.lib
-zlib.lib
-
-3rdparty/Nican:
-include/
-lib/
-
-3rdparty/Nican/include:
-Nican.h
-
-3rdparty/Nican/lib:
-libnicanmsc.a
-nicanmsc.lib
-README.txt
+3rdparty folder structure
+```
+3rdparty
+├── MySQL41
+│   ├── include
+│   │   ├── config-netware.h
+│   │   ├── config-os2.h
+│   │   ├── config-win.h
+│   │   ├── errmsg.h
+│   │   ├── libmysql.def
+│   │   ├── libmysqld.def
+│   │   ├── m_ctype.h
+│   │   ├── m_string.h
+│   │   ├── my_alloc.h
+│   │   ├── my_dbug.h
+│   │   ├── my_getopt.h
+│   │   ├── my_global.h
+│   │   ├── my_list.h
+│   │   ├── my_pthread.h
+│   │   ├── my_sys.h
+│   │   ├── mysql.h
+│   │   ├── mysql_com.h
+│   │   ├── mysql_embed.h
+│   │   ├── mysql_time.h
+│   │   ├── mysql_version.h
+│   │   ├── mysqld_error.h
+│   │   ├── raid.h
+│   │   └── typelib.h
+│   └── lib
+│       ├── debug
+│       │   ├── liblibmysql.a
+│       │   ├── LIBMYSQL.def
+│       │   ├── libmysql.dll
+│       │   ├── libmysql.lib
+│       │   ├── mysqlclient.lib
+│       │   ├── mysys.lib
+│       │   ├── regex.lib
+│       │   ├── strings.lib
+│       │   └── zlib.lib
+│       └── opt
+│           ├── libmysql.dll
+│           ├── libmysql.lib
+│           ├── mysqlclient.lib
+│           ├── mysys.lib
+│           ├── mysys_tls.lib
+│           ├── mysys-max.lib
+│           ├── regex.lib
+│           ├── strings.lib
+│           └── zlib.lib
+└── Nican
+    ├── include
+    │   └── Nican.h
+    └── lib
+        ├── nicanmsc.lib
+        └── nicanmsclib.a
+```

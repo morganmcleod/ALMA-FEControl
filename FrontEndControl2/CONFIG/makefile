@@ -19,11 +19,11 @@
 
 CONFIGCPP = $(wildcard *.cpp) 
 
+INCLUDEDIR_MOD=$(patsubst -I%, -I../%, $(INCLUDEDIR))
+
 .PHONY: config
 config: $(CONFIGCPP)
-	g++ $(CPPFLAGS) $(DEBUGFLAGS) \
-	$(PROJECTINC) $(MYSQLINC) $(EXPATMMINC) \
-	-c $(CONFIGCPP)
+	g++ $(FLAGS) $(INCLUDEDIR_MOD) -c $(CONFIGCPP)
 
 clean:
 	@rm -rf *.a

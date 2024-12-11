@@ -28,47 +28,34 @@
 #     for Windows post-mortem crash analysis 
 #   ExpatMM XML Parser class for C++ based upon Expat https://github.com/ckane/expatmm
 #     
-export BUILD = L:/ALMA-FEControl
+BUILD = ..
 
-# these may be vestigial:
-PTHREADINC =
-PTHREADLIB =
-STATICGCCLIB =
-
-export PORTABLEINC = $(PTHREADINC)
-PORTABLELIB = $(PTHREADLIB) $(STATICGCCLIB)
-
-export EXCHNDLINC = -I$(BUILD)/3rdparty/drmingw/include
-EXCHNDLIB = -L$(BUILD)/3rdparty/drmingw/lib -lexchndl
-
-export EXPATINC = -I$(BUILD)/3rdparty/expat/Source/lib
-EXPATLIB = -L$(BUILD)/3rdparty/expat/Bin -lexpat
-
-export EXPATMMINC = -I$(BUILD)/3rdparty/expatmm-1.0
-EXPATMMLIB = -L$(BUILD)/3rdparty/expatmm-1.0/lib -lexpatmm
+EXCHNDLIB = -lexchndl
+EXPATLIB = -lexpat
+EXPATMMLIB = -lexpatmm
 
 # includes and libs for the CppUtilityLib library:
-export UTILINC = -I$(BUILD)/CppUtilityLib/include
+UTILINC = -I$(BUILD)/CppUtilityLib/include
 UTILLIB = -L$(BUILD)/CppUtilityLib/Debug -lCppUtilityLib
 
 # includes and libs for the FEICDBLib library:
-export DBINC = -I$(BUILD)/FEICDBLib/include
+DBINC = -I$(BUILD)/FEICDBLib/include
 DBLIB = -L$(BUILD)/FEICDBLib/Debug -lFEICDBLib
 
 # includes and libs for the FrontEndAMB library:
-export AMBINC = -I$(BUILD)/FrontEndAmbLib/include
-AMBLIB = -L$(BUILD)/FrontEndAmbLib/Debug -lFrontEndAmbLib
+AMBINC = -I$(BUILD)/FrontEndAMBLib/include
+AMBLIB = -L$(BUILD)/FrontEndAMBLib/Debug -lFrontEndAMBLib
 
 # includes and libs for MySQL library:
-export MYSQLINC = -I$(BUILD)/3rdparty/MySQL41/include
+MYSQLINC = -I$(BUILD)/3rdparty/MySQL41/include
 MYSQLLIB = -L$(BUILD)/3rdparty/MySQL41/lib/debug -Wl,-Bdynamic -llibmysql
 
-# includes and libs for the NI CAN interface library: 
-export NICANINC = -I$(BUILD)/3rdparty/Nican/include
+# includes and libs for the NI CAN interface library:
+NICANINC = -I$(BUILD)/3rdparty/Nican/include
 NICANLIB = $(BUILD)/3rdparty/Nican/lib/nicanmsc.lib
 
 # project includes plus this directory:
-export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) $(EXCHNDLINC) $(EXPATINC) $(EXPATMMINC) -I$(CURDIR)
+PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) -I././
 
 # windows libs:
 WINLIB = -lwinmm -lwsock32
@@ -78,10 +65,10 @@ WINLIB = -lwinmm -lwsock32
 #  don't wrap compiler error/warning messages
 #  don't warn about else clauses without braces
 #  don't warn about C++ member initializers out of order in constructor 
-export CPPFLAGS = -O0 -fmessage-length=0 -Wall -Wno-dangling-else -Wno-reorder
+CPPFLAGS = -O0 -fmessage-length=0 -Wall -Wno-dangling-else -Wno-reorder
 # flags for debug build:
 #  debug level 2
-export DEBUGFLAGS = -g2
+DEBUGFLAGS = -g2
 
 # list of output files in subdirectories:
 DLLOUT = $(patsubst %.cpp,%.o,$(wildcard DLL/*.cpp)) DLL/resource.o
@@ -92,15 +79,18 @@ OPTIMIZEOUT := $(patsubst %.cpp,%.o,$(wildcard OPTIMIZE/*.cpp))
 
 # rules to build library files in subdirectories:
 $(DLLOUT):
-	$(MAKE) -C DLL	
+	@echo "DLL"
+	$(MAKE) -C DLL INCLUDEDIR="$(PROJECTINC) $(MYSQLINC)"
 $(CONFIGOUT):
-	$(MAKE) -C CONFIG
+	@echo "Include directories:"
+	@echo "$(PROJECTINC) $(MYSQLINC)"
+	$(MAKE) -C CONFIG FLAGS="$(CPPFLAGS) $(DEBUGFLAGS)" INCLUDEDIR=" $(PROJECTINC) $(MYSQLINC)"
 $(FEBASEOUT):
-	$(MAKE) -C FEBASE
+	$(MAKE) -C FEBASE INCLUDEDIR="$(PROJECTINC) $(MYSQLINC)"
 $(LOGGEROUT):
-	$(MAKE) -C LOGGER
+	$(MAKE) -C LOGGER INCLUDEDIR="$(PROJECTINC) $(MYSQLINC)"
 $(OPTIMIZEOUT):
-	$(MAKE) -C OPTIMIZE
+	$(MAKE) -C OPTIMIZE INCLUDEDIR="$(PROJECTINC) $(MYSQLINC)"
 	
 # rules to build the top-level Front End files:
 FRONTENDCPP = $(wildcard *.cpp)

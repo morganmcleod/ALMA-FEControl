@@ -26,7 +26,7 @@ OBJS += \
 src/%.o: ../src/%.cpp src/subdir.mk
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -DBUILD_FRONTENDAMB $(VERSION_FLAGS) -I"L:\ALMA-FEControl\CppUtilityLib\include" -I"L:\ALMA-FEControl\3rdparty\drmingw\include" -I"L:\ALMA-FEControl\FrontEndAMBLib\include" -O3 -Wall -c -fmessage-length=0 -Wno-dangling-else -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	g++ -DBUILD_FRONTENDAMB $(VERSION_FLAGS) -I"../../CppUtilityLib/include" -I"../../FrontEndAMBLib/include" -O3 -Wall -c -fmessage-length=0 -Wno-dangling-else -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
