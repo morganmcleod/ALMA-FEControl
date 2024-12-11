@@ -377,10 +377,10 @@ void CryostatTestFixture::testGET_CRYOSTAT_COLD_HEAD_HOURS() {
 
 void CryostatTestFixture::testSET_CRYOSTAT_COLD_HEAD_HOURS() {
     string details;
-    // send the command to zerp the cold head hours and check for no errors:
+    // send the command to zero the cold head hours and check for no errors:
     resetAmbVars();
     packU32(0);
-    command(coldHeadHours_RCA, "SET_CRYOSTAT_COLD_HEAD_HOURS(0)", &details, true, 300);
+    command(coldHeadHoursReset_RCA, "SET_CRYOSTAT_COLD_HEAD_HOURS(0)", &details, true, 300);
 
     // check that the hours are now zero, not sufficient if they were zero before this test.
     monitor(coldHeadHours_RCA, "GET_CRYOSTAT_COLD_HEAD_HOURS", &details);

@@ -66,7 +66,6 @@ private:
         VACUUM_GAUGE_STATE      = 0x0047,
         SUPPLY_CURRENT_230V     = 0x0048,
         COLD_HEAD_HOURS         = 0x004C,
-        RESET_COLD_HEAD_HOURS   = 0x004D,
         CRYOSTAT_TVO_COEFF_SPECIFIC = 0x0080,
 
         controlRCA              = 0x10000,  /// add this to the monitor RCA to get the corresponding command RCA
@@ -85,7 +84,7 @@ private:
         vacuumGaugeErrorState_RCA   = baseRCA + VACUUM_GAUGE_STATE,
         supplyCurrent230V_RCA       = baseRCA + SUPPLY_CURRENT_230V,
         coldHeadHours_RCA           = baseRCA + COLD_HEAD_HOURS,
-        coldHeadHoursReset_RCA      = baseRCA + controlRCA + RESET_COLD_HEAD_HOURS
+        coldHeadHoursReset_RCA      = baseRCA + controlRCA + COLD_HEAD_HOURS
     };
 
     // helper functions for the above test cases:

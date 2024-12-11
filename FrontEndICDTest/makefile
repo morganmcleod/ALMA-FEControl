@@ -140,8 +140,11 @@ PowerSupplyICDTest.exe : $(POWERSUPPLYSRC)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/PowerSupplyICDTest.exe \
 	$(POWERSUPPLYSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
+BuildFolder:
+	mkdir -p Debug
+
 # target all:
-all : CompressorICDTest.exe CryostatICDTest.exe FrontEndICDTest.exe FEMCTest.exe FrontEnd2Test.exe LPRICDTest.exe \
+all : BuildFolder CompressorICDTest.exe CryostatICDTest.exe FrontEndICDTest.exe FEMCTest.exe FrontEnd2Test.exe LPRICDTest.exe \
 	PowerSupplyICDTest.exe CommandLossTest.exe FEModeTest.exe IFSwitchTest.exe CPDSTest.exe
 
 # target clean:
