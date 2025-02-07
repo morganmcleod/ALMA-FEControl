@@ -72,8 +72,9 @@ CryostatICDTest.exe : $(CRYOSTATSRC)
 
 # target FrontEndICDTest:
 #  removed  Band3.cpp Band6.cpp Band7.cpp Band9.cpp
-FRONTENDSRC = AllBands.cpp AmbDeviceTestFixture.cpp Band2.cpp \
-    CartridgeTestFixture.cpp ColdCartridgeTestFixture.cpp \
+FRONTENDSRC = AllBands.cpp AmbDeviceTestFixture.cpp \
+	Band1.cpp Band2.cpp Band3.cpp Band6.cpp Band7.cpp Band9.cpp \
+	CartridgeTestFixture.cpp ColdCartridgeTestFixture.cpp \
 	TestApp.cpp WCATestFixture.cpp
 
 FrontEndICDTest.exe : $(FRONTENDSRC)
