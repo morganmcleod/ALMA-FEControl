@@ -1,18 +1,18 @@
 # ALMA - Atacama Large Millimiter Array
 # (c) Associated Universities Inc., 2010
 #
-# This library is free software; you can redistribute it and/or modify it 
-# under the terms of the GNU Library General Public License as published by 
+# This library is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Library General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
 #
-# This library is distributed in the hope that it will be useful but WITHOUT 
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public 
+# This library is distributed in the hope that it will be useful but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
 # License for more details.
 #
-# You should have received a copy of the GNU Library General Public License 
-# along with this library; if not, write to the Free Software Foundation, 
+# You should have received a copy of the GNU Library General Public License
+# along with this library; if not, write to the Free Software Foundation,
 # Inc., 675 Massachusetts Ave, Cambridge, MA, 02139, USA.
 #
 # Morgan McLeod <mmcleod@nrao.edu> 19 October 2010
@@ -23,17 +23,10 @@
 # MSYS64\MINGW32
 # CppUnit from http://cppunit.sourceforge.net/ which is a unit testing framework for C++.
 # FrontEndAMBLib for low-level CAN communications
-# 
+#
 #
 BUILD = ..
 
-# includes and libs for "portable" code = POSIX threads:
-PTHREADINC =
-PTHREADLIB = 
-STATICGCCLIB =
-
-PORTABLEINC = $(PTHREADINC)
-PORTABLELIB = $(PTHREADLIB) $(STATICGCCLIB)
 
 # includes and libs for the CppUtilityLib library:
 UTILINC = -I$(BUILD)/CppUtilityLib/include
@@ -44,18 +37,17 @@ AMBINC = -I$(BUILD)/FrontEndAmbLib/include
 AMBLIB = -L$(BUILD)/FrontEndAmbLib/Debug -lFrontEndAmbLib
 
 # includes and libs for CppUnit:
-CPPUNITINC = -I$(BUILD)/3rdparty/cppunit/include
-CPPUNITLIB = -L$(BUILD)/3rdparty/cppunit/lib/Debug -lCppUnit 
+CPPUNITLIB = -lCppUnit
 
-# includes and libs for the NI CAN interface library: 
+# includes and libs for the NI CAN interface library:
 NICANINC = -I$(BUILD)/3rdparty/Nican/include
 NICANLIB = $(BUILD)/3rdparty/Nican/lib/nicanmsc.lib
 
 # include order for test apps:
-APPINCLUDES = $(UTILINC) $(AMBINC) $(CPPUNITINC) $(PORTABLEINC)
+APPINCLUDES = $(UTILINC) $(AMBINC) $(CPPUNITINC)
 
 # lib order for test apps:
-APPLIBS = $(UTILLIB) $(AMBLIB) $(CPPUNITLIB) $(PORTABLELIB) $(NICANLIB)  
+APPLIBS = $(UTILLIB) $(AMBLIB) $(CPPUNITLIB) $(NICANLIB)
 
 # C++ build options:
 CPPFLAGS = -O0 -fmessage-length=0 -Wall -Wno-deprecated-declarations
@@ -79,15 +71,36 @@ CryostatICDTest.exe : $(CRYOSTATSRC)
 	$(CRYOSTATSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
 # target FrontEndICDTest:
-#  removed  Band3.cpp Band6.cpp Band7.cpp Band9.cpp 
-FRONTENDSRC = AllBands.cpp AmbDeviceTestFixture.cpp Band2.cpp \
-    CartridgeTestFixture.cpp ColdCartridgeTestFixture.cpp \
-	CPDSTestFixture_deepika.cpp FEMCTestFixture.cpp IFSwitchTestFixture.cpp TestApp.cpp WCATestFixture.cpp
+#  removed  Band3.cpp Band6.cpp Band7.cpp Band9.cpp
+FRONTENDSRC = AllBands.cpp AmbDeviceTestFixture.cpp \
+	Band1.cpp Band2.cpp Band3.cpp Band6.cpp Band7.cpp Band9.cpp \
+	CartridgeTestFixture.cpp ColdCartridgeTestFixture.cpp \
+	TestApp.cpp WCATestFixture.cpp
 
 FrontEndICDTest.exe : $(FRONTENDSRC)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/FrontEndICDTest.exe \
 	$(FRONTENDSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
+# target FEMCTest:
+FEMCSRC = AmbDeviceTestFixture.cpp TestApp.cpp FEMCTestFixture.cpp
+
+FEMCTest.exe : $(FEMCSRC)
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/FEMCTest.exe \
+	$(FEMCSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
+
+# target CPDSTest:
+CPDSSRC = AmbDeviceTestFixture.cpp TestApp.cpp CPDSTestFixture_deepika.cpp
+
+CPDSTest.exe : $(CPDSSRC)
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/CPDSTest.exe \
+	$(CPDSSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
+
+# target IFSwitchTest:
+IFSWTEST = AmbDeviceTestFixture.cpp TestApp.cpp IFSwitchTestFixture.cpp
+
+IFSwitchTest.exe : $(IFSWTEST)
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/IFSwitchTest.exe \
+	$(IFSWTEST) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
 # target FrontEnd2Test:
 #  for testing the band6 STANDBY2 feature
@@ -128,9 +141,12 @@ PowerSupplyICDTest.exe : $(POWERSUPPLYSRC)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/PowerSupplyICDTest.exe \
 	$(POWERSUPPLYSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
+BuildFolder:
+	mkdir -p Debug
+
 # target all:
-all : CompressorICDTest.exe CryostatICDTest.exe FrontEndICDTest.exe FrontEnd2Test.exe LPRICDTest.exe \
-	PowerSupplyICDTest.exe CommandLossTest.exe FEModeTest.exe
+all : BuildFolder CompressorICDTest.exe CryostatICDTest.exe FrontEndICDTest.exe FEMCTest.exe FrontEnd2Test.exe LPRICDTest.exe \
+	PowerSupplyICDTest.exe CommandLossTest.exe FEModeTest.exe IFSwitchTest.exe CPDSTest.exe
 
 # target clean:
 clean:

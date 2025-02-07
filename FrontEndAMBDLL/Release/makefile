@@ -61,16 +61,17 @@ export VERSION_FLAGS=-DGIT_HASH="\"$(GIT_HASH)\"" -DCOMPILE_TIME="\"$(COMPILE_TI
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: main-build
+all:
+	+@$(MAKE) --no-print-directory pre-build && $(MAKE) --no-print-directory main-build && $(MAKE) --no-print-directory post-build
 
 # Main-build Target
 main-build: FrontEndAMB.dll
 
 # Tool invocations
-FrontEndAMB.dll: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS) L:\ALMA-FEControl\FrontEndAMBDLL\Debug\src\resource.o
+FrontEndAMB.dll: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS) src/resource.o
 	@echo 'Building target: $@'
 	@echo 'Invoking: MinGW C++ Linker'
-	g++ -L"L:\ALMA-FEControl\FrontEndAMBLib\Release" -L"L:\ALMA-FEControl\3rdparty\drmingw\lib" -L"L:\ALMA-FEControl\CppUtilityLib\Release" -L"L:\ALMA-FEControl\3rdparty\Nican\lib" -shared -Wl,--output-def=FrontEndAMB.def -o "FrontEndAMB.dll" $(OBJS) $(USER_OBJS) $(LIBS) $(VERSION_FLAGS) "L:\ALMA-FEControl\FrontEndAMBDLL\Debug\src\resource.o" -lFrontEndAmbLib -lexchndl -lCppUtilityLIb -lnicanmsc
+	g++ -L"../../FrontEndAMBLib\Debug" -L"../../CppUtilityLib/Debug" -L"../../3rdparty/Nican/lib" -shared -Wl,--output-def=FrontEndAMB.def -o "FrontEndAMB.dll" $(OBJS) $(USER_OBJS) $(LIBS) $(VERSION_FLAGS) "src/resource.o" -lFrontEndAmbLib -lexchndl -lCppUtilityLIb -lnicanmsc
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -79,6 +80,14 @@ clean:
 	-$(RM) FrontEndAMB.dll
 	-@echo ' '
 
-.PHONY: all clean dependents main-build
+pre-build:
+	-windres -i ../src/resource.rc -o src/resource.o
+	-@echo ' '
+
+post-build:
+	-cp FrontEndAMB.DLL ../../FrontEndControl2
+	-@echo ' '
+
+.PHONY: all clean dependents main-build pre-build post-build
 
 -include ../makefile.targets
