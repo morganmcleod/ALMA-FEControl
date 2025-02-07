@@ -61,6 +61,14 @@ public:
       { return hasSb2(band_m); }
     ///< true if this cartridge is 2SB or DSB, false if SSB.
 
+    static bool hasSb2St3(int band)
+      { return band > 1; }
+    ///< true if the given band cartridge is 2SB or DSB, false if SSB.
+
+    bool hasSb2St3() const
+      { return hasSb2St3(band_m); }
+    ///< true if this cartridge is 2SB or DSB, false if SSB.
+
     static bool hasSIS(int band)
       { return band >= 3; }
     ///< true if the given band cartridge has SIS mixers.
@@ -344,6 +352,20 @@ public:
     virtual void lnaPol1Sb2Enable(bool val);
     ///< override the base class LNA enable control function so that we can cache the value in local state.
 
+    virtual float lnaPol0Sb2St3DrainVoltage()
+      { return (hasSb2St3()) ? ColdCartImplBase::lnaPol0Sb2St3DrainVoltage() : 0.0; }
+    virtual float lnaPol0Sb2St3DrainCurrent()
+      { return (hasSb2St3()) ? ColdCartImplBase::lnaPol0Sb2St3DrainCurrent() : 0.0; }
+    virtual float lnaPol0Sb2St3GateVoltage()
+      { return (hasSb2St3()) ? ColdCartImplBase::lnaPol0Sb2St3GateVoltage() : 0.0; }
+
+    virtual float lnaPol1Sb2St3DrainVoltage()
+      { return (hasSb2St3()) ? ColdCartImplBase::lnaPol1Sb2St3DrainVoltage() : 0.0; }
+    virtual float lnaPol1Sb2St3DrainCurrent()
+      { return (hasSb2St3()) ? ColdCartImplBase::lnaPol1Sb2St3DrainCurrent() : 0.0; }
+    virtual float lnaPol1Sb2St3GateVoltage()
+      { return (hasSb2St3()) ? ColdCartImplBase::lnaPol1Sb2St3GateVoltage() : 0.0; }
+
     bool setLNAEnable(bool val);
     ///< set the LNA enable state for all pol and sb.
     ///< returns true if LNA is defined for this band.  Else logs an error message and returns false.
@@ -403,10 +425,12 @@ public:
         addMon(&lnaPol0Sb2St2DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb2St2DrainCurrent, true);
     }
     virtual void lnaPol0Sb2St3DrainVoltage(float val) {
+        if (!hasSb2St3()) return;
         ColdCartImplBase::lnaPol0Sb2St3DrainVoltage(val);
         addMon(&lnaPol0Sb2St3DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb2St3DrainVoltage, true);
     }
     virtual void lnaPol0Sb2St3DrainCurrent(float val) {
+        if (!hasSb2St3()) return;
         ColdCartImplBase::lnaPol0Sb2St3DrainCurrent(val);
         addMon(&lnaPol0Sb2St3DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb2St3DrainCurrent, true);
     }
@@ -451,10 +475,12 @@ public:
         addMon(&lnaPol1Sb2St2DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb2St2DrainCurrent, true);
     }
     virtual void lnaPol1Sb2St3DrainVoltage(float val) {
+        if (!hasSb2St3()) return;
         ColdCartImplBase::lnaPol1Sb2St3DrainVoltage(val);
         addMon(&lnaPol1Sb2St3DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb2St3DrainVoltage, true);
     }
     virtual void lnaPol1Sb2St3DrainCurrent(float val) {
+        if (!hasSb2St3()) return;
         ColdCartImplBase::lnaPol1Sb2St3DrainCurrent(val);
         addMon(&lnaPol1Sb2St3DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb2St3DrainCurrent, true);
     }
