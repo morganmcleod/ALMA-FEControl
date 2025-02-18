@@ -486,7 +486,8 @@ DLLEXPORT short FEMCFlushErrors() {
         unsigned char mod, err;
         std::string desc;
         while (frontEnd -> getNextError(mod, err, desc)) {
-            ;
+            LOG(LM_DEBUG) << "FEMC(" << std::uppercase << std::hex << std::setw(2) << std::setfill('0') << (short) mod
+                 << ":" << std::setw(2) << std::setfill('0') << (short) err << ") " << desc << std::endl;
         }
     }
     return 0;
@@ -511,8 +512,8 @@ DLLEXPORT short FEMCGetNextError(short *moduleNum, short *errorNum, char *descri
                 *errorNum = (short) err;
             if (description)
                 strcpy(description, desc.c_str());
+            return 0;
         }
-        return 0;
     }
     return -1;
 }

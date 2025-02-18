@@ -4,7 +4,6 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../src/Socket.cpp \
 ../src/iniFile.cpp \
 ../src/listDir.cpp \
 ../src/logger.cpp \
@@ -13,7 +12,6 @@ CPP_SRCS += \
 ../src/stringConvert.cpp 
 
 CPP_DEPS += \
-./src/Socket.d \
 ./src/iniFile.d \
 ./src/listDir.d \
 ./src/logger.d \
@@ -22,7 +20,6 @@ CPP_DEPS += \
 ./src/stringConvert.d 
 
 OBJS += \
-./src/Socket.o \
 ./src/iniFile.o \
 ./src/listDir.o \
 ./src/logger.o \
@@ -43,7 +40,7 @@ src/%.o: ../src/%.cpp src/subdir.mk
 clean: clean-src
 
 clean-src:
-	-$(RM) ./src/Socket.d ./src/Socket.o ./src/iniFile.d ./src/iniFile.o ./src/listDir.d ./src/listDir.o ./src/logger.d ./src/logger.o ./src/setTimeStamp.d ./src/setTimeStamp.o ./src/splitPath.d ./src/splitPath.o ./src/stringConvert.d ./src/stringConvert.o
+	-$(RM) ./src/iniFile.d ./src/iniFile.o ./src/listDir.d ./src/listDir.o ./src/logger.d ./src/logger.o ./src/setTimeStamp.d ./src/setTimeStamp.o ./src/splitPath.d ./src/splitPath.o ./src/stringConvert.d ./src/stringConvert.o
 
 .PHONY: clean-src
 

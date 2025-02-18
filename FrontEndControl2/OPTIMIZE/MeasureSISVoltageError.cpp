@@ -31,7 +31,7 @@ void MeasureSISVoltageError::optimizeAction() {
     ColdCartImpl *cc = ca_m.useColdCart();
 
     // delay to allow cartridge to fully bias up:
-    SLEEP(1500);
+    SLEEP(150);
 
     // If band 5 or above, save the prior enabled state of the magnets:
     float iSet01(0.0), iSet02(0.0), iSet11(0.0), iSet12(0.0);

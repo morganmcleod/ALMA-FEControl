@@ -21,12 +21,15 @@
 
 #include "SWVersion.h"
 
-const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.16.5 NRAO-B2");
+const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.17.0 b1");
 
 //******* Be sure to update resource.rc!
 
 
 /* Revision history:
+
+2.17.0
+  b1 Testing Socket client
 
 2.16.5 NRAO-B2 2025-11-25
   HACK Use IF switch port 6 for operating band 2

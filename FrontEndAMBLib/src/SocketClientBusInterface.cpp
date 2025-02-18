@@ -1,6 +1,6 @@
 /*******************************************************************************
 * ALMA - Atacama Large Millimeter Array
-* (c) Associated Universities Inc., 2005
+* (c) Associated Universities Inc., 2025
 *
 *This library is free software; you can redistribute it and/or
 *modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,6 @@
 *License along with this library; if not, write to the Free Software
 *Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 *
-* "@(#) $Id$"
-*
 */
 
 /************************************************************************
@@ -27,11 +25,13 @@
  */
 
 #include "SocketClientBusInterface.h"
-#include "Socket.h"
-#include <stdio.h>
-#include <string.h> //for memset
-#include <string>
-using namespace std;
+#include <array>
+#include <iostream>
+#include <chrono>
+#include "stringConvert.h"
+
+const int REQUEST_LEN(18);
+const int RESPONSE_LEN(13);
 
 struct SocketServerRequest {
     // The Request Structure consists of 18 bytes (Byte Numbers 0-17)
@@ -65,12 +65,10 @@ struct SocketServerRequest {
           if (_data && dataLength) memcpy(data, _data, dataLength);
         }
     
-    void pack(string &target);
-    
-    void asText(string &target);
+    void pack(std::string &target);
 };
 
-void SocketServerRequest::pack(string &target) {
+void SocketServerRequest::pack(std::string &target) {
     target.clear();
     unsigned short stmp;
     unsigned long ltmp;    
@@ -100,10 +98,10 @@ struct SocketServerResponse {
         dataLength(0)
         { memset(data, 0, AMB_DATA_MSG_SIZE); }
     
-    bool unpack(string &source);
+    bool unpack(std::string &source);
 };
 
-bool SocketServerResponse::unpack(string &source) {
+bool SocketServerResponse::unpack(std::string &source) {
     if (source.length() < 13)
         return false;
     unsigned long ltmp;
@@ -123,10 +121,10 @@ struct SocketServerNode {
       : nodeId(0)
         { memset(data, 0, AMB_DATA_MSG_SIZE); }
     
-    bool unpack(string &source);
+    bool unpack(std::string &source);
 };
 
-bool SocketServerNode::unpack(string &source) {
+bool SocketServerNode::unpack(std::string &source) {
     if (source.length() < 12)
         return false;
     unsigned long ltmp;
@@ -138,16 +136,12 @@ bool SocketServerNode::unpack(string &source) {
 } 
 
 SocketClientBusInterface::SocketClientBusInterface(const std::string& host, int port)
-  : socket_mp(NULL)
+  : io_m()
 {
-    try {
-        socket_mp = new SocketClient(host, port);
-    }
-    catch(std::string &s) {
-        delete socket_mp;
-        socket_mp = NULL;
-        printf("SocketClientBusInterface: %s\n", s.c_str());
-    }
+    boost::asio::ip::tcp::resolver resolver(io_m);
+    boost::asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host, to_string(port));
+    socket_mp = new boost::asio::ip::tcp::socket(io_m);
+    boost::asio::connect(*socket_mp, endpoints);
 }
 
 SocketClientBusInterface::~SocketClientBusInterface() {
@@ -178,25 +172,25 @@ bool SocketClientBusInterface::openChannel(AmbChannel channel) {
 void SocketClientBusInterface::closeChannel(AmbChannel channel) {
     if (channelNodeMap_m.isOpenChannel(channel)) {
         channelNodeMap_m.closeChannel(channel);
-        // Close the CAN object:
-        unsigned long handle = channelNodeMap_m.getHandle(channel);
     }
 }
 
-// Do the actual work of clearing the read buffer, sending a monitor request,
+// Do the actual work of sending a monitor request,
 // and waiting for a reply before returning.
 void SocketClientBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &msg)
 {
     bool success = false;
     bool timeout = false;
     SocketServerRequest req(0, msg.address, msg.dataLen, msg.data);
-    string reqBytes, respBytes;
+    std::string reqBytes, respBytes;
     req.pack(reqBytes);
     
     SocketServerResponse resp;
                 
     if (socket_mp) {
         // Request the monitor parameter:
+
+        flushRead();
 
         if (enableDebug_m) {
             printf("monRequ: %X [ ", (unsigned) req.address);
@@ -207,7 +201,9 @@ void SocketClientBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &
         }
         
         try {
-            socket_mp -> SendBytes(reqBytes);
+            boost::system::error_code ignored_error;
+            boost::asio::write(*socket_mp, boost::asio::buffer(reqBytes), ignored_error);
+
             if (readWithTimeout(respBytes, monitorTimeout_m)) {
 
                 if (enableDebug_m) {
@@ -222,8 +218,9 @@ void SocketClientBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &
             } else
                 timeout = true;
         }
-        catch(const string &s) {
-            printf("SocketClientBusInterface::monitorImpl: %s\n", s.c_str());
+        catch (std::exception& e) {
+            const std::string msg(e.what());
+            printf("SocketClientBusInterface::monitorImpl: %s\n", msg.c_str());
         }
     }
     if (success) {
@@ -253,10 +250,12 @@ void SocketClientBusInterface::commandImpl(unsigned long _handle, AmbMessage_t &
 {
     int status = -1;
     
+    flushRead();
+
     if (socket_mp) {
         // Pack and send the command:
         SocketServerRequest req(1, msg.address, msg.dataLen, msg.data);
-        string reqBytes;
+        std::string reqBytes, respBytes;
         req.pack(reqBytes);
         
         if (enableDebug_m) {
@@ -268,11 +267,14 @@ void SocketClientBusInterface::commandImpl(unsigned long _handle, AmbMessage_t &
         }
         
         try {
-            socket_mp -> SendBytes(reqBytes);
+            boost::system::error_code ignored_error;
+            boost::asio::write(*socket_mp, boost::asio::buffer(reqBytes), ignored_error);
+            readWithTimeout(respBytes, monitorTimeout_m);
             status = 0;
         }
-        catch(const string &s) {
-            printf("SocketClientBusInterface::commandImpl: %s\n", s.c_str());
+        catch (std::exception& e) {
+            const std::string msg(e.what());
+            printf("SocketClientBusInterface::commandImpl: %s\n", msg.c_str());
         }
     }
     if (msg.completion_p -> status_p) {
@@ -283,17 +285,38 @@ void SocketClientBusInterface::commandImpl(unsigned long _handle, AmbMessage_t &
     }
 }                                       
 
+void SocketClientBusInterface::flushRead() {
+    std::array<char, 100> buf;
+    boost::system::error_code ignored_error;
+    std::size_t len = socket_mp -> available(ignored_error);
+    while (len > 0) {
+        len = socket_mp -> read_some(boost::asio::buffer(buf), ignored_error);
+        len = socket_mp -> available(ignored_error);
+    }
+}
+
 bool SocketClientBusInterface::readWithTimeout(std::string &target, unsigned long timeout) {
-    string tmp;
-    unsigned long startTime = GETTIMER();
-    unsigned long stopTime = startTime + timeout;
-    while (GETTIMER() < stopTime) {
-        tmp = socket_mp -> ReceiveBytes();
-        if (tmp.length()) {
-            target.append(tmp);
-            return true;
+
+    std::array<char, RESPONSE_LEN> buf;
+    boost::system::error_code ignored_error;
+    
+    auto start = std::chrono::steady_clock::now();
+    bool done = false;
+    bool error = false;
+    while (!done && !error) {
+        std::size_t len = socket_mp -> available(ignored_error);
+        if (len >= RESPONSE_LEN) {
+            len = socket_mp -> read_some(boost::asio::buffer(buf), ignored_error);
+            done = true;
+        } else {
+            unsigned long elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+            if (elapsed > timeout)
+                error = true;
         }
-        SLEEP(1);
+    }
+    if (!error) {
+        target = std::string(buf.begin(), buf.end());
+        return true;
     }
     return false;
 }
@@ -306,8 +329,6 @@ void SocketClientBusInterface::findChannelNodes(AmbChannel channel) {
     if (channelNodeMap_m.isOpenChannel(channel)) {
         // Drop all known nodes:
         channelNodeMap_m.clearNodes(channel);
-        // Get the channel object handle:
-        unsigned long handle = channelNodeMap_m.getHandle(channel);  
 
         bool success = false;
 
@@ -315,7 +336,7 @@ void SocketClientBusInterface::findChannelNodes(AmbChannel channel) {
         SocketServerResponse resp;
         SocketServerNode node;
                
-        string reqBytes, respBytes;
+        std::string reqBytes, respBytes;
         req.pack(reqBytes);
         
         if (enableDebug_m) {
@@ -325,9 +346,15 @@ void SocketClientBusInterface::findChannelNodes(AmbChannel channel) {
             printf("]\n");
             fflush(NULL);
         }
-        
         try {
-            socket_mp -> SendBytes(reqBytes);
+            boost::system::error_code ignored_error;
+            boost::asio::write(*socket_mp, boost::asio::buffer(reqBytes), ignored_error);
+        }
+        catch (std::exception& e) {
+            const std::string msg(e.what());
+            printf("SocketClientBusInterface::commandImpl: %s\n", msg.c_str());
+        }
+        try {
             if (readWithTimeout(respBytes, monitorTimeout_m)) {
 
                 if (enableDebug_m) {
@@ -337,11 +364,10 @@ void SocketClientBusInterface::findChannelNodes(AmbChannel channel) {
                     printf("]\n");
                     fflush(NULL);
                 }
-
                 success = resp.unpack(respBytes);
             }
         }
-        catch(const string &s) {
+        catch(const std::string &s) {
             printf("SocketClientBusInterface::findChannelNodes: %s\n", s.c_str());
             return;
         }

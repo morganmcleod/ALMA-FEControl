@@ -29,9 +29,11 @@
  *----------------------------------------------------------------------
  */
 
-#include "CANBusInterface.h"
+#include <winsock2.h>
+#include <windows.h>
+#include <boost/asio.hpp>
 #include <string>
-class SocketClient;
+#include "CANBusInterface.h"
 
 class SocketClientBusInterface : public CANBusInterface {
 public:
@@ -61,6 +63,9 @@ private:
     // Called by worker thread.  Performs the actual work of sending
     // a command on the CAN bus.
 
+    void flushRead();
+    // flush the read buffer
+
     bool readWithTimeout(std::string &target, unsigned long timeout);
     // read on the socket, waiting up to the specified timeout.
     
@@ -69,7 +74,8 @@ private:
     // This blocks the channel, trashes any pending responses, and takes time so use sparingly.
     // fails if channel is closed.
     
-    SocketClient *socket_mp;
+    boost::asio::io_context io_m;
+    boost::asio::ip::tcp::socket *socket_mp;
 };
 
 #endif

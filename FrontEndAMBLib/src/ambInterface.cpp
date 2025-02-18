@@ -88,7 +88,7 @@ const AmbInterface* AmbInterface::getInstance() {
         instance_mp = new AmbInterface();
     }
     sem_post(&semCount_m);
-    int status = pthread_mutex_unlock(&instanceLock_m);
+    pthread_mutex_unlock(&instanceLock_m);
     return instance_mp;
 }
 

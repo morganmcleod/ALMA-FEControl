@@ -7,7 +7,6 @@ CPP_SRCS += \
 ../src/CANBusInterface.cpp \
 ../src/ChannelNodeMap.cpp \
 ../src/NICANBusInterface.cpp \
-../src/Socket.cpp \
 ../src/SocketClientBusInterface.cpp \
 ../src/ambDeviceImpl.cpp \
 ../src/ambDeviceInt.cpp \
@@ -20,7 +19,6 @@ CPP_DEPS += \
 ./src/CANBusInterface.d \
 ./src/ChannelNodeMap.d \
 ./src/NICANBusInterface.d \
-./src/Socket.d \
 ./src/SocketClientBusInterface.d \
 ./src/ambDeviceImpl.d \
 ./src/ambDeviceInt.d \
@@ -33,7 +31,6 @@ OBJS += \
 ./src/CANBusInterface.o \
 ./src/ChannelNodeMap.o \
 ./src/NICANBusInterface.o \
-./src/Socket.o \
 ./src/SocketClientBusInterface.o \
 ./src/ambDeviceImpl.o \
 ./src/ambDeviceInt.o \

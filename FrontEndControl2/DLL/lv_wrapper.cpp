@@ -217,8 +217,8 @@ short LVWrapperInit() {
     // Create the CAN interface:
     WHACK(canBus);
     ambItf = AmbInterface::getInstance();
-    canBus = new NICANBusInterface(); 
-    //canBus = new SocketClientBusInterface("ste-acc.cv.nrao.edu", 2000);
+    // canBus = new NICANBusInterface(); 
+    canBus = new SocketClientBusInterface("10.195.7.146", 2000);
     if (ambItf)
         ambItf -> setBus(canBus);
 
@@ -358,7 +358,7 @@ DLLEXPORT short getNextEventSeqNo(unsigned long *seq) {
 
 DLLEXPORT short TestSocketClient() {
     CANBusInterface::enableDebug_m = true;
-    SocketClientBusInterface itf("ste-acc.cv.nrao.edu", 2000);
+    SocketClientBusInterface itf("10.195.7.146", 2000);
     AmbMessage_t req;
     AmbDataMem_t data[8];
     AmbDataLength_t dataLen;

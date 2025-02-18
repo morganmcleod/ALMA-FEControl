@@ -69,13 +69,7 @@ const std::string &timestampToText(const Time *timestamp, std::string &timeText,
 */
 
     SYSTEMTIME st;
-    Time tsLow = 0, tsHigh = 0;
     if (timestamp) {
-        Time ts = *(timestamp);
-        tsLow = ts;
-        ts >>= 32;
-        tsHigh = ts;
-
         FILETIME ft;
         memcpy(&ft, timestamp, sizeof(Time));
         FileTimeToSystemTime(&ft, &st);

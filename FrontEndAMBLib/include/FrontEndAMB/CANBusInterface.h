@@ -49,7 +49,7 @@ public:
     CANBusInterface();
     ///< Constructor for abstract class.
 
-    virtual ~CANBusInterface();
+    virtual ~CANBusInterface() = 0;
     ///< Destructor for abstract class.
     
     virtual const nodeList_t* findNodes(AmbChannel channel) = 0;

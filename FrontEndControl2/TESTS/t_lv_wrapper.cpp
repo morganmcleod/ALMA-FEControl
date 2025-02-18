@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <windows.h>
 #include <math.h>
+#include <iostream>
+#include <iomanip>
 
 int main(int, char*[]) {
     char DLLVersion[20];
@@ -47,13 +49,6 @@ int main(int, char*[]) {
     else
         printf(">>> FEMCGetFirmwareInfo failed.\n");
 
-    short moduleNum, errorNum;
-    char description[200];
-
-//    while (FEMCGetNextError(&moduleNum, &errorNum, description) == 0) {
-//        SLEEP(10);
-//    }
-
     bool done = false;
     while (!done) {
         fflush(stdout);
@@ -63,12 +58,14 @@ int main(int, char*[]) {
             }
         	SLEEP(1000);
         }
-        if (MessageBox(NULL, "OK to proceed with test.  Cancel to exit", "t_lv_wrapper", MB_OKCANCEL) != IDOK)
+        if (MessageBoxA(NULL, "OK to proceed with test.  Cancel to exit", "t_lv_wrapper", MB_OKCANCEL) != IDOK)
             done = true;
         else {
-            FESetCartridgeOn(9);
-            cartSetLOFrequency(9, 655.0, 0.0315, 0);
-            cartLockPLL(9);
+            FESetCartridgeOn(3);
+            SLEEP(20);
+            cartSetLOFrequency(3, 100.0, 0.0315, 0);
+            SLEEP(10000);
+            cartLockPLL(3);
         }
     }
     FEControlShutdown();

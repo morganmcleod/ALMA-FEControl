@@ -116,7 +116,7 @@ bool NICANBusInterface::openChannel(AmbChannel channel) {
 void NICANBusInterface::closeChannel(AmbChannel channel) {
     if (channelNodeMap_m.isOpenChannel(channel)) {
         // Close the CAN object:
-        NCTYPE_STATUS status = ncCloseObject(channelNodeMap_m.getHandle(channel));
+        ncCloseObject(channelNodeMap_m.getHandle(channel));
         // Mark the channel closed in the map:
         channelNodeMap_m.closeChannel(channel);        
     }

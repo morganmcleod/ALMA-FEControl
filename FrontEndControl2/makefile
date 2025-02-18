@@ -71,7 +71,7 @@ NICANLIB = $(BUILD)/3rdparty/Nican/lib/nicanmsc.lib
 export PROJECTINC = $(UTILINC) $(DBINC) $(AMBINC) $(EXCHNDLINC) $(EXPATINC) $(EXPATMMINC) -I$(CURDIR)
 
 # windows libs:
-WINLIB = -lwinmm -lwsock32
+WINLIB = -lwinmm -lwsock32 -lWs2_32
 
 # flags for compiling C++ code:
 #  optimization: "Reduce compilation time and make debugging produce the expected results. This is the default."
@@ -182,8 +182,7 @@ t_FEICDataBase.exe : tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp
 .PHONY: all
 all: allout dll tests
 
-current: $(CONFIGOUT)
-
+current: $(DLLOUT)
 
 oneFile:
 	$(MAKE) FEMCEventQueue.o
