@@ -45,7 +45,8 @@ protected:
 
     void implGetFloat(AmbRelativeAddr monitor_RCA,
                         const float validmin, const float validmax,
-                        const std::string &callerDescription);
+                        const std::string &callerDescription,
+                        const bool &can_be_nan = false);
 
     int band_m;                         ///< Which cartridge band this class represents.
     bool isEnabled_m;                   ///< True if the cartridge is powered on

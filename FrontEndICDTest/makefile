@@ -70,16 +70,65 @@ CryostatICDTest.exe : $(CRYOSTATSRC)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/CryostatICDTest.exe \
 	$(CRYOSTATSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
-# target FrontEndICDTest:
-#  removed  Band3.cpp Band6.cpp Band7.cpp Band9.cpp
-FRONTENDSRC = AllBands.cpp AmbDeviceTestFixture.cpp \
-	Band1.cpp Band2.cpp Band3.cpp Band6.cpp Band7.cpp Band9.cpp \
+# target Band1ICDTest:
+BAND1SRC = AmbDeviceTestFixture.cpp \
+	Band1.cpp \
 	CartridgeTestFixture.cpp ColdCartridgeTestFixture.cpp \
 	TestApp.cpp WCATestFixture.cpp
 
-FrontEndICDTest.exe : $(FRONTENDSRC)
-	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/FrontEndICDTest.exe \
-	$(FRONTENDSRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
+Band1ICDTest.exe : $(FRONTENDSRC)
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/Band1ICDTest.exe \
+	$(BAND1SRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
+
+# target Band2ICDTest:
+BAND2SRC = AmbDeviceTestFixture.cpp \
+	Band2.cpp \
+	CartridgeTestFixture.cpp ColdCartridgeTestFixture.cpp \
+	TestApp.cpp WCATestFixture.cpp
+
+Band2ICDTest.exe : $(FRONTENDSRC)
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/Band2ICDTest.exe \
+	$(BAND2SRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
+
+# target Band3ICDTest:
+BAND3SRC = AmbDeviceTestFixture.cpp \
+	Band3.cpp \
+	CartridgeTestFixture.cpp ColdCartridgeTestFixture.cpp \
+	TestApp.cpp WCATestFixture.cpp
+
+Band3ICDTest.exe : $(FRONTENDSRC)
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/Band3ICDTest.exe \
+	$(BAND3SRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
+
+# target Band6ICDTest:
+BAND6SRC = AmbDeviceTestFixture.cpp \
+	Band6.cpp \
+	CartridgeTestFixture.cpp ColdCartridgeTestFixture.cpp \
+	TestApp.cpp WCATestFixture.cpp
+
+Band6ICDTest.exe : $(FRONTENDSRC)
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/Band6ICDTest.exe \
+	$(BAND6SRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
+
+# target Band7ICDTest:
+BAND7SRC = AmbDeviceTestFixture.cpp \
+	Band7.cpp \
+	CartridgeTestFixture.cpp ColdCartridgeTestFixture.cpp \
+	TestApp.cpp WCATestFixture.cpp
+
+Band7ICDTest.exe : $(FRONTENDSRC)
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/Band7ICDTest.exe \
+	$(BAND7SRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
+
+# target Band9ICDTest:
+BAND9SRC = AmbDeviceTestFixture.cpp \
+	Band9.cpp \
+	CartridgeTestFixture.cpp ColdCartridgeTestFixture.cpp \
+	TestApp.cpp WCATestFixture.cpp
+
+Band9ICDTest.exe : $(FRONTENDSRC)
+	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o Debug/Band9ICDTest.exe \
+	$(BAND9SRC) $(APPINCLUDES) $(APPLIBS) $(LDFLAGS)
 
 # target FEMCTest:
 FEMCSRC = AmbDeviceTestFixture.cpp TestApp.cpp FEMCTestFixture.cpp
@@ -145,7 +194,8 @@ BuildFolder:
 	mkdir -p Debug
 
 # target all:
-all : BuildFolder CompressorICDTest.exe CryostatICDTest.exe FrontEndICDTest.exe FEMCTest.exe FrontEnd2Test.exe LPRICDTest.exe \
+all : BuildFolder CompressorICDTest.exe CryostatICDTest.exe FEMCTest.exe FrontEnd2Test.exe LPRICDTest.exe \
+	Band1ICDTest.exe Band2ICDTest.exe Band3ICDTest.exe Band6ICDTest.exe Band7ICDTest.exe Band9ICDTest.exe \
 	PowerSupplyICDTest.exe CommandLossTest.exe FEModeTest.exe IFSwitchTest.exe CPDSTest.exe
 
 # target clean:

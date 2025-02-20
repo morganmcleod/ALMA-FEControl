@@ -168,11 +168,11 @@ public:
     virtual float sisPol0Sb1Voltage()
       { return hasSIS() ? ColdCartImplBase::sisPol0Sb1Voltage() : 0.0; }
     virtual float sisPol0Sb2Voltage()
-      { return hasSb2() && hasSIS() ? ColdCartImplBase::sisPol0Sb2Voltage() : 0.0; }
+      { return (hasSb2() && hasSIS()) ? ColdCartImplBase::sisPol0Sb2Voltage() : 0.0; }
     virtual float sisPol1Sb1Voltage()
       { return hasSIS() ? ColdCartImplBase::sisPol1Sb1Voltage() : 0.0; }
     virtual float sisPol1Sb2Voltage()
-      { return hasSb2() && hasSIS() ? ColdCartImplBase::sisPol1Sb2Voltage() : 0.0; }
+      { return (hasSb2() && hasSIS()) ? ColdCartImplBase::sisPol1Sb2Voltage() : 0.0; }
     
 
     virtual void sisPol0Sb1OpenLoop(bool val) {
@@ -247,11 +247,11 @@ public:
     float avgSisPol0Sb1Currentx8()
       { return (hasSIS()) ? avgSisPol0Sb1Current(8) : 0.0; }
     float avgSisPol0Sb2Currentx8()
-      { return (hasSIS()) ? avgSisPol0Sb2Current(8) : 0.0; }
+      { return (hasSb2() && hasSIS()) ? avgSisPol0Sb2Current(8) : 0.0; }
     float avgSisPol1Sb1Currentx8()
       { return (hasSIS()) ? avgSisPol1Sb1Current(8) : 0.0; }
     float avgSisPol1Sb2Currentx8()
-      { return (hasSIS()) ? avgSisPol1Sb2Current(8) : 0.0; }
+      { return (hasSb2() && hasSIS()) ? avgSisPol1Sb2Current(8) : 0.0; }
 //-------------------------------------------------------------------------------------------------
 // SIS magnet monitor and control
 
@@ -351,20 +351,43 @@ public:
     ///< override the base class LNA enable control function so that we can cache the value in local state.
     virtual void lnaPol1Sb2Enable(bool val);
     ///< override the base class LNA enable control function so that we can cache the value in local state.
-
+    virtual float lnaPol0Sb2St1DrainVoltage()
+      { return (hasSb2()) ? ColdCartImplBase::lnaPol0Sb2St1DrainVoltage() : 0.0; }
+    virtual float lnaPol0Sb2St1DrainCurrent()
+      { return (hasSb2()) ? ColdCartImplBase::lnaPol0Sb2St1DrainCurrent() : 0.0; }
+    virtual float lnaPol0Sb2St1GateVoltage()
+      { return (hasSb2()) ? ColdCartImplBase::lnaPol0Sb2St1GateVoltage() : 0.0; }
+    virtual float lnaPol0Sb2St2DrainVoltage()
+      { return (hasSb2()) ? ColdCartImplBase::lnaPol0Sb2St2DrainVoltage() : 0.0; }
+    virtual float lnaPol0Sb2St2DrainCurrent()
+      { return (hasSb2()) ? ColdCartImplBase::lnaPol0Sb2St2DrainCurrent() : 0.0; }
+    virtual float lnaPol0Sb2St2GateVoltage()
+      { return (hasSb2()) ? ColdCartImplBase::lnaPol0Sb2St2GateVoltage() : 0.0; }
     virtual float lnaPol0Sb2St3DrainVoltage()
-      { return (hasSb2St3()) ? ColdCartImplBase::lnaPol0Sb2St3DrainVoltage() : 0.0; }
+      { return (hasSb2() && hasSb2St3()) ? ColdCartImplBase::lnaPol0Sb2St3DrainVoltage() : 0.0; }
     virtual float lnaPol0Sb2St3DrainCurrent()
-      { return (hasSb2St3()) ? ColdCartImplBase::lnaPol0Sb2St3DrainCurrent() : 0.0; }
+      { return (hasSb2() && hasSb2St3()) ? ColdCartImplBase::lnaPol0Sb2St3DrainCurrent() : 0.0; }
     virtual float lnaPol0Sb2St3GateVoltage()
-      { return (hasSb2St3()) ? ColdCartImplBase::lnaPol0Sb2St3GateVoltage() : 0.0; }
+      { return (hasSb2() && hasSb2St3()) ? ColdCartImplBase::lnaPol0Sb2St3GateVoltage() : 0.0; }
 
+    virtual float lnaPol1Sb2St1DrainVoltage()
+      { return (hasSb2()) ? ColdCartImplBase::lnaPol1Sb2St1DrainVoltage() : 0.0; }
+    virtual float lnaPol1Sb2St1DrainCurrent()
+      { return (hasSb2()) ? ColdCartImplBase::lnaPol1Sb2St1DrainCurrent() : 0.0; }
+    virtual float lnaPol1Sb2St1GateVoltage()
+      { return (hasSb2()) ? ColdCartImplBase::lnaPol1Sb2St1GateVoltage() : 0.0; }
+    virtual float lnaPol1Sb2St2DrainVoltage()
+      { return (hasSb2()) ? ColdCartImplBase::lnaPol1Sb2St2DrainVoltage() : 0.0; }
+    virtual float lnaPol1Sb2St2DrainCurrent()
+      { return (hasSb2()) ? ColdCartImplBase::lnaPol1Sb2St2DrainCurrent() : 0.0; }
+    virtual float lnaPol1Sb2St2GateVoltage()
+      { return (hasSb2()) ? ColdCartImplBase::lnaPol1Sb2St2GateVoltage() : 0.0; }
     virtual float lnaPol1Sb2St3DrainVoltage()
-      { return (hasSb2St3()) ? ColdCartImplBase::lnaPol1Sb2St3DrainVoltage() : 0.0; }
+      { return (hasSb2() && hasSb2St3()) ? ColdCartImplBase::lnaPol1Sb2St3DrainVoltage() : 0.0; }
     virtual float lnaPol1Sb2St3DrainCurrent()
-      { return (hasSb2St3()) ? ColdCartImplBase::lnaPol1Sb2St3DrainCurrent() : 0.0; }
+      { return (hasSb2() && hasSb2St3()) ? ColdCartImplBase::lnaPol1Sb2St3DrainCurrent() : 0.0; }
     virtual float lnaPol1Sb2St3GateVoltage()
-      { return (hasSb2St3()) ? ColdCartImplBase::lnaPol1Sb2St3GateVoltage() : 0.0; }
+      { return (hasSb2() && hasSb2St3()) ? ColdCartImplBase::lnaPol1Sb2St3GateVoltage() : 0.0; }
 
     bool setLNAEnable(bool val);
     ///< set the LNA enable state for all pol and sb.

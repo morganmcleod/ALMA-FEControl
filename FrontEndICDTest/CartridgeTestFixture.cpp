@@ -223,7 +223,12 @@ void CartridgeTestFixture::implGenericTest(
 }
 
 
-void CartridgeTestFixture::implGetFloat( AmbRelativeAddr monitor_RCA, const float validmin, const float validmax, const std::string &callerDescription) {
+void CartridgeTestFixture::implGetFloat(
+	AmbRelativeAddr monitor_RCA,
+	const float validmin,
+	const float validmax,
+	const std::string &callerDescription,
+	const bool &can_be_nan) {
 
     unsigned char statusByte;
 	string info,strReturn;
@@ -238,13 +243,14 @@ void CartridgeTestFixture::implGetFloat( AmbRelativeAddr monitor_RCA, const floa
 
 	//Append monitored value to the message
 	bufReturn <<  "\n" << callerDescription << ", Monitored Value=" << num <<
-			",Range=[" << validmin << "," << validmax << "]." << endl;
+			",Range=[" << validmin << "," << validmax << "]";
+	if(can_be_nan) bufReturn << "or NaN";
+	bufReturn << "." << endl;
 	strReturn = bufReturn.str();
 
 	bool inRange;
-	if (   num >= validmin
-		&& num <= validmax)
-		inRange=true;
+	if ((num >= validmin && num <= validmax) || isnan(num)) inRange=true;
+	else if(can_be_nan && isnan(num)) inRange=true;
 	else inRange=false;
 	CPPUNIT_ASSERT_MESSAGE(strReturn + "Monitored value out of range.", inRange);
 }
