@@ -831,22 +831,22 @@ void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SIS_HEATER_ENABLE(){
 }
 
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_TEMP0_TEMP(){
-    implGetFloat(cartridgeTemperature0_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP1_TEMP");
+    implGetFloat(cartridgeTemperature0_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP1_TEMP", true);
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_TEMP1_TEMP(){
-    implGetFloat(cartridgeTemperature1_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP1_TEMP");
+    implGetFloat(cartridgeTemperature1_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP1_TEMP", true);
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_TEMP2_TEMP(){
-    implGetFloat(cartridgeTemperature2_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP2_TEMP");
+    implGetFloat(cartridgeTemperature2_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP2_TEMP", true);
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_TEMP3_TEMP(){
-    implGetFloat(cartridgeTemperature3_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP3_TEMP");
+    implGetFloat(cartridgeTemperature3_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP3_TEMP", true);
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_TEMP4_TEMP(){
-    implGetFloat(cartridgeTemperature4_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP4_TEMP");
+    implGetFloat(cartridgeTemperature4_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP4_TEMP", true);
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_TEMP5_TEMP(){
-    implGetFloat(cartridgeTemperature5_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP5_TEMP");
+    implGetFloat(cartridgeTemperature5_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP5_TEMP", true);
 }
 
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_TEMP_OFFSET() {

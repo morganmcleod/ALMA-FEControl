@@ -47,7 +47,6 @@ void LPRTestFixture::testGET_LPR_OPT_SWITCH_BUSY()
     data_m[0]=5;
 	dataLength_m=1;
     command(ctrlopticalSwitchPort_RCA,"SET_LPR_OPT_SWITCH_PORT",&info,false);
-	SLEEP(5);
 	//check if LPR_OPT_SWITCH_BUSY was set.
 	monitor(opticalSwitchBusy_RCA,"LPR_OPT_SWITCH_BUSY",&info);
 	CPPUNIT_ASSERT_MESSAGE(info, dataLength_m == 2);

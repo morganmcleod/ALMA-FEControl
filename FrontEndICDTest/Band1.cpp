@@ -20,6 +20,9 @@
 
 #include "band1.h"
 
+CPPUNIT_TEST_SUITE_REGISTRATION(Band1CCATestFixture);
+CPPUNIT_TEST_SUITE_REGISTRATION(Band1WCATestFixture);
+
 void Band1CCATestFixture::testSET_CARTRIDGE_POL0_SB1_LNA_ST4_DRAIN_VOLTAGE() {
     float min, max, tolerance;
     getLimitsLNAVd(min, max, tolerance);
