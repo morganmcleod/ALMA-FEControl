@@ -974,7 +974,13 @@ bool FrontEndImpl::setCartridgeObserving(int port) {
     }    
     // Switch the IF output to the new observing port:
     if (ifSwitch_mp) {
-        if (!ifSwitch_mp -> setObservingBand(port)) {
+        
+        
+        // BEWARE HACK to work around bad IF switch channel:
+        if (!ifSwitch_mp -> setObservingBand(port == 2 ? 6 : port)) {
+        // HACK
+
+
             LOG(LM_INFO) << "FrontEndImpl::setCartridgeObserving port=" << port << " IF switch setObservingBand failed." << endl;
             FEMCEventQueue::addStatusMessage(false, "IF Switch: setting the observing port failed.");
             return false;

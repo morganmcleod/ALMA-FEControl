@@ -19,12 +19,12 @@
 
 DLLCPP = $(wildcard *.cpp) 
 
+INCLUDEDIR_MOD=$(patsubst -I%, -I../%, $(INCLUDEDIR))
+
 .PHONY: dllimpl
 dllimpl: $(DLLCPP)
 	windres -i resource.rc -o resource.o
-	g++ $(CPPFLAGS) $(DEBUGFLAGS) -DBUILD_FRONTENDCONTROL \
-	$(PROJECTINC) \
-	-c $(DLLCPP)
+	g++ -DBUILD_FRONTENDCONTROL $(FLAGS) $(INCLUDEDIR_MOD) -c $(DLLCPP)
 
 clean:
 	@rm -rf *.a

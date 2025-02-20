@@ -83,15 +83,17 @@ ColdCartImpl::ColdCartImpl(unsigned long channel,
     addMon(&lnaPol0Sb1St3DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb1St3DrainVoltage);
     addMon(&lnaPol0Sb1St3DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb1St3DrainCurrent);
     addMon(&lnaPol0Sb1St3GateVoltage_value, &ColdCartImplBase::lnaPol0Sb1St3GateVoltage);
-    addMon(&lnaPol0Sb2St1DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb2St1DrainVoltage);
-    addMon(&lnaPol0Sb2St1DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb2St1DrainCurrent);
-    addMon(&lnaPol0Sb2St1GateVoltage_value, &ColdCartImplBase::lnaPol0Sb2St1GateVoltage);
-    addMon(&lnaPol0Sb2St2DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb2St2DrainVoltage);
-    addMon(&lnaPol0Sb2St2DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb2St2DrainCurrent);
-    addMon(&lnaPol0Sb2St2GateVoltage_value, &ColdCartImplBase::lnaPol0Sb2St2GateVoltage);
-    addMon(&lnaPol0Sb2St3DrainVoltage_value, &ColdCartImplBase::lnaPol0Sb2St3DrainVoltage);
-    addMon(&lnaPol0Sb2St3DrainCurrent_value, &ColdCartImplBase::lnaPol0Sb2St3DrainCurrent);
-    addMon(&lnaPol0Sb2St3GateVoltage_value, &ColdCartImplBase::lnaPol0Sb2St3GateVoltage);
+    // LNA stage monitoring we override in this class:
+    addMon(&lnaPol0Sb2St1DrainVoltage_value, &ColdCartImpl::lnaPol0Sb2St1DrainVoltage);
+    addMon(&lnaPol0Sb2St1DrainCurrent_value, &ColdCartImpl::lnaPol0Sb2St1DrainCurrent);
+    addMon(&lnaPol0Sb2St1GateVoltage_value, &ColdCartImpl::lnaPol0Sb2St1GateVoltage);
+    addMon(&lnaPol0Sb2St2DrainVoltage_value, &ColdCartImpl::lnaPol0Sb2St2DrainVoltage);
+    addMon(&lnaPol0Sb2St2DrainCurrent_value, &ColdCartImpl::lnaPol0Sb2St2DrainCurrent);
+    addMon(&lnaPol0Sb2St2GateVoltage_value, &ColdCartImpl::lnaPol0Sb2St2GateVoltage);
+    addMon(&lnaPol0Sb2St3DrainVoltage_value, &ColdCartImpl::lnaPol0Sb2St3DrainVoltage);
+    addMon(&lnaPol0Sb2St3DrainCurrent_value, &ColdCartImpl::lnaPol0Sb2St3DrainCurrent);
+    addMon(&lnaPol0Sb2St3GateVoltage_value, &ColdCartImpl::lnaPol0Sb2St3GateVoltage);
+
     addMon(&lnaPol1Sb1St1DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb1St1DrainVoltage);
     addMon(&lnaPol1Sb1St1DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb1St1DrainCurrent);
     addMon(&lnaPol1Sb1St1GateVoltage_value, &ColdCartImplBase::lnaPol1Sb1St1GateVoltage);
@@ -101,15 +103,16 @@ ColdCartImpl::ColdCartImpl(unsigned long channel,
     addMon(&lnaPol1Sb1St3DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb1St3DrainVoltage);
     addMon(&lnaPol1Sb1St3DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb1St3DrainCurrent);
     addMon(&lnaPol1Sb1St3GateVoltage_value, &ColdCartImplBase::lnaPol1Sb1St3GateVoltage);
-    addMon(&lnaPol1Sb2St1DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb2St1DrainVoltage);
-    addMon(&lnaPol1Sb2St1DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb2St1DrainCurrent);
-    addMon(&lnaPol1Sb2St1GateVoltage_value, &ColdCartImplBase::lnaPol1Sb2St1GateVoltage);
-    addMon(&lnaPol1Sb2St2DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb2St2DrainVoltage);
-    addMon(&lnaPol1Sb2St2DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb2St2DrainCurrent);
-    addMon(&lnaPol1Sb2St2GateVoltage_value, &ColdCartImplBase::lnaPol1Sb2St2GateVoltage);
-    addMon(&lnaPol1Sb2St3DrainVoltage_value, &ColdCartImplBase::lnaPol1Sb2St3DrainVoltage);
-    addMon(&lnaPol1Sb2St3DrainCurrent_value, &ColdCartImplBase::lnaPol1Sb2St3DrainCurrent);
-    addMon(&lnaPol1Sb2St3GateVoltage_value, &ColdCartImplBase::lnaPol1Sb2St3GateVoltage);
+    // LNA stage monitoring we override in this class:
+    addMon(&lnaPol1Sb2St1DrainVoltage_value, &ColdCartImpl::lnaPol1Sb2St1DrainVoltage);
+    addMon(&lnaPol1Sb2St1DrainCurrent_value, &ColdCartImpl::lnaPol1Sb2St1DrainCurrent);
+    addMon(&lnaPol1Sb2St1GateVoltage_value, &ColdCartImpl::lnaPol1Sb2St1GateVoltage);
+    addMon(&lnaPol1Sb2St2DrainVoltage_value, &ColdCartImpl::lnaPol1Sb2St2DrainVoltage);
+    addMon(&lnaPol1Sb2St2DrainCurrent_value, &ColdCartImpl::lnaPol1Sb2St2DrainCurrent);
+    addMon(&lnaPol1Sb2St2GateVoltage_value, &ColdCartImpl::lnaPol1Sb2St2GateVoltage);
+    addMon(&lnaPol1Sb2St3DrainVoltage_value, &ColdCartImpl::lnaPol1Sb2St3DrainVoltage);
+    addMon(&lnaPol1Sb2St3DrainCurrent_value, &ColdCartImpl::lnaPol1Sb2St3DrainCurrent);
+    addMon(&lnaPol1Sb2St3GateVoltage_value, &ColdCartImpl::lnaPol1Sb2St3GateVoltage);
     // SIS heater monitoring we override in this class:
     addMon(&sisHeaterPol0Current_value, &ColdCartImpl::sisHeaterPol0Current);
     addMon(&sisHeaterPol1Current_value, &ColdCartImpl::sisHeaterPol1Current);
@@ -1383,16 +1386,16 @@ void ColdCartImpl::monitorAction(Time *timestamp_p) {
                 break;
             case 1:
                 sisPol0Sb1OpenLoop_value = (hasSIS()) ? ColdCartImplBase::sisPol0Sb1OpenLoop() : false;
-                sisPol0Sb2OpenLoop_value = (hasSIS()) ? ColdCartImplBase::sisPol0Sb2OpenLoop() : false;
+                sisPol0Sb2OpenLoop_value = (hasSb2() && hasSIS()) ? ColdCartImplBase::sisPol0Sb2OpenLoop() : false;
                 sisPol1Sb1OpenLoop_value = (hasSIS()) ? ColdCartImplBase::sisPol1Sb1OpenLoop() : false;
-                sisPol1Sb2OpenLoop_value = (hasSIS()) ? ColdCartImplBase::sisPol1Sb2OpenLoop() : false;
+                sisPol1Sb2OpenLoop_value = (hasSb2() && hasSIS()) ? ColdCartImplBase::sisPol1Sb2OpenLoop() : false;
                 monitorPhase = 2;
                 break;
             case 2:
                 lnaPol0Sb1Enable_value = ColdCartImplBase::lnaPol0Sb1Enable();
-                lnaPol0Sb2Enable_value = ColdCartImplBase::lnaPol0Sb2Enable();
+                lnaPol0Sb2Enable_value = (hasSb2()) ? ColdCartImplBase::lnaPol0Sb2Enable() : false;
                 lnaPol1Sb1Enable_value = ColdCartImplBase::lnaPol1Sb1Enable();
-                lnaPol1Sb2Enable_value = ColdCartImplBase::lnaPol1Sb2Enable();
+                lnaPol1Sb2Enable_value = (hasSb2()) ? ColdCartImplBase::lnaPol1Sb2Enable() : false;
                 monitorPhase = 3;
                 break;
             case 3:

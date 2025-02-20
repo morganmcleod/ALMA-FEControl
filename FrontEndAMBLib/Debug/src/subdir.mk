@@ -44,7 +44,7 @@ OBJS += \
 src/%.o: ../src/%.cpp src/subdir.mk
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -I"L:\ALMA-FEControl\FrontEndAMBLib\include" -I"L:\ALMA-FEControl\FrontEndAMBLib\include\FrontEndAMB" -I"L:\ALMA-FEControl\3rdparty\Nican\include" -I"L:\ALMA-FEControl\CppUtilityLib\include" -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	g++ -I"../include" -I"../include/FrontEndAMB" -I"../../3rdparty/Nican/include" -I"../../CppUtilityLib/include" -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

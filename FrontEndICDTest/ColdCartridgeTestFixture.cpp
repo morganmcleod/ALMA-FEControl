@@ -442,18 +442,24 @@ void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB1_LNA_ST3_GATE_VOLTAGE()
 //////////////////////////////////////
 
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB2_LNA_ST1_GATE_VOLTAGE(){
+    if (band_m == 9)
+        return; // not checking SB2 for band 9
     float min, max;
     getLimitsLNAVg(min, max);
     implGetFloat(lnaPol0Sb2St1GateVoltage_RCA, min, max,
                 "GET_CARTRIDGE_POL0_SB2_LNA_ST1_GATE_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB2_LNA_ST2_GATE_VOLTAGE(){
+    if (band_m == 9)
+        return; // not checking SB2 for band 9
     float min, max;
     getLimitsLNAVg(min, max);
     implGetFloat(lnaPol0Sb2St2GateVoltage_RCA, min, max,
                 "GET_CARTRIDGE_POL0_SB2_LNA_ST2_GATE_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL0_SB2_LNA_ST3_GATE_VOLTAGE(){
+    if (band_m == 9)
+        return; // not checking SB2 for band 9
     float min, max;
     getLimitsLNAVg(min, max);
     implGetFloat(lnaPol0Sb2St3GateVoltage_RCA, min, max,
@@ -486,18 +492,24 @@ void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB1_LNA_ST3_GATE_VOLTAGE()
 //////////////////////////////////////
 
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB2_LNA_ST1_GATE_VOLTAGE(){
+    if (band_m == 9)
+        return; // not checking SB2 for band 9
     float min, max;
     getLimitsLNAVg(min, max);
     implGetFloat(lnaPol1Sb2St1GateVoltage_RCA, min, max,
                 "GET_CARTRIDGE_POL1_SB2_LNA_ST1_GATE_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB2_LNA_ST2_GATE_VOLTAGE(){
+    if (band_m == 9)
+        return; // not checking SB2 for band 9
     float min, max;
     getLimitsLNAVg(min, max);
     implGetFloat(lnaPol1Sb2St2GateVoltage_RCA, min, max,
                 "GET_CARTRIDGE_POL1_SB2_LNA_ST2_GATE_VOLTAGE");
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_POL1_SB2_LNA_ST3_GATE_VOLTAGE(){
+    if (band_m == 9)
+        return; // not checking SB2 for band 9
     float min, max;
     getLimitsLNAVg(min, max);
     implGetFloat(lnaPol1Sb2St3GateVoltage_RCA, min, max,
@@ -550,6 +562,8 @@ void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SB2_LNA_ENABLE(){
 //////////////////////////////////////
 
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_LNA_LED_ENABLE(){
+    if (band_m == 9 || band_m == 7)
+        return; // not checking SB2 for band 9 and band 7
     implToggleEnable(lnaLedPol0Enable_RCA ,ctrllnaLedPol0Enable_RCA,0,
                      "SET_CARTRIDGE_POL0_LNA_LED_ENABLE_OFF");
     implToggleEnable(lnaLedPol0Enable_RCA ,ctrllnaLedPol0Enable_RCA,1,
@@ -558,6 +572,8 @@ void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL0_LNA_LED_ENABLE(){
                      "SET_CARTRIDGE_POL0_LNA_LED_ENABLE_ILLEGALVALUE");
 }
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_LNA_LED_ENABLE(){
+    if (band_m == 9 || band_m == 7)
+        return; // not checking SB2 for band 9 and band 7
     implToggleEnable(lnaLedPol1Enable_RCA ,ctrllnaLedPol1Enable_RCA,0,
                      "SET_CARTRIDGE_POL1_LNA_LED_ENABLE_OFF");
     implToggleEnable(lnaLedPol1Enable_RCA ,ctrllnaLedPol1Enable_RCA,1,
@@ -815,22 +831,22 @@ void ColdCartridgeTestFixture::testSET_CARTRIDGE_POL1_SIS_HEATER_ENABLE(){
 }
 
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_TEMP0_TEMP(){
-    implGetFloat(cartridgeTemperature0_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP1_TEMP");
+    implGetFloat(cartridgeTemperature0_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP1_TEMP", true);
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_TEMP1_TEMP(){
-    implGetFloat(cartridgeTemperature1_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP1_TEMP");
+    implGetFloat(cartridgeTemperature1_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP1_TEMP", true);
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_TEMP2_TEMP(){
-    implGetFloat(cartridgeTemperature2_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP2_TEMP");
+    implGetFloat(cartridgeTemperature2_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP2_TEMP", true);
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_TEMP3_TEMP(){
-    implGetFloat(cartridgeTemperature3_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP3_TEMP");
+    implGetFloat(cartridgeTemperature3_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP3_TEMP", true);
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_TEMP4_TEMP(){
-    implGetFloat(cartridgeTemperature4_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP4_TEMP");
+    implGetFloat(cartridgeTemperature4_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP4_TEMP", true);
 }
 void ColdCartridgeTestFixture::testGET_CARTRIDGE_TEMP5_TEMP(){
-    implGetFloat(cartridgeTemperature5_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP5_TEMP");
+    implGetFloat(cartridgeTemperature5_RCA,-1.0, 325.0,"GET_CARTRIDGE_TEMP5_TEMP", true);
 }
 
 void ColdCartridgeTestFixture::testSET_CARTRIDGE_TEMP_OFFSET() {

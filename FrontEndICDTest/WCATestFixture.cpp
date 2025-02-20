@@ -402,7 +402,8 @@ void WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE() {
         packSGL(1.0);
         command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
         SLEEP(10);
-        command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
+        packSGL(1.0);
+        command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
     }
 
     // Set the LO PAs back to 0:
@@ -410,6 +411,7 @@ void WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE() {
     command(ctrlytoCoarseTune_RCA, "YTO_COARSE_TUNE 0", &info);
     packSGL(0.0);   // PAVD = 0
     command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
+    packSGL(0.0);   // PAVD = 0
     command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
 
     // Clear any existing PA limits table:
@@ -500,6 +502,7 @@ void WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE() {
     CPPUNIT_ASSERT_MESSAGE(info, data_m[dataLength_m - 1] == FEMC_HARDW_BLOCKED_ERR);
     packSGL(0.0);   // PAVD = 0
     command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
+    packSGL(0.0);   // PAVD = 0
     command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
 
     LOG(LM_INFO) << "WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE: YTO=500" << endl;
@@ -519,6 +522,7 @@ void WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE() {
 
     packSGL(0.0);   // PAVD = 0
     command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
+    packSGL(0.0);   // PAVD = 0
     command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
 
     LOG(LM_INFO) << "WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE: YTO=1500" << endl;
@@ -537,6 +541,7 @@ void WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE() {
 
     packSGL(0.0);   // PAVD = 0
     command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
+    packSGL(0.0);   // PAVD = 0
     command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
 
     LOG(LM_INFO) << "WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE: YTO=2500" << endl;
@@ -555,6 +560,7 @@ void WCATestFixture::testSET_CARTRIDGE_LO_PA_LIMITS_TABLE() {
 
     packSGL(0.0);   // PAVD = 0
     command(ctrlpaPol0DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE0", &info);
+    packSGL(0.0);   // PAVD = 0
     command(ctrlpaPol1DrainVoltageScale_RCA, "PA_DRAIN_VOLTAGE1", &info);
 
     // Clear any existing PA limits table:

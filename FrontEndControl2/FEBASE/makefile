@@ -17,13 +17,13 @@
 #
 # Morgan McLeod <mmcleod@nrao.edu> 2021-10-15
 
-FEBASECPP = $(wildcard *.cpp) 
+FEBASECPP = $(wildcard *.cpp)
+
+INCLUDEDIR_MOD=$(patsubst -I%, -I../%, $(INCLUDEDIR))
 
 .PHONY: febase
 febase: $(FEBASECPP)
-	g++ $(CPPFLAGS) $(DEBUGFLAGS) \
-	$(PORTABLEINC) $(PROJECTINC) \
-	-c $(FEBASECPP)
+	g++ $(FLAGS) $(INCLUDEDIR_MOD) -c $(FEBASECPP)
 
 clean:
 	@rm -rf *.a

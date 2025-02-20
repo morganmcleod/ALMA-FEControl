@@ -20,6 +20,9 @@
 
 #include "Band7.h"
 
+CPPUNIT_TEST_SUITE_REGISTRATION(Band7CCATestFixture);
+CPPUNIT_TEST_SUITE_REGISTRATION(Band7WCATestFixture);
+
 const std::vector<float> &Band7CCATestFixture::getTestValuesSISVoltage() const {
     static bool firstTime(true);
     static std::vector<float> values;

@@ -17,12 +17,13 @@
 #
 # Morgan McLeod <mmcleod@nrao.edu> 2021-10-15
 
-OPTIMIZECPP = $(wildcard *.cpp) 
+OPTIMIZECPP = $(wildcard *.cpp)
+
+INCLUDEDIR_MOD=$(patsubst -I%, -I../%, $(INCLUDEDIR))
+
 .PHONY: optimize
 optimize: $(OPTIMIZECPP)
-	g++ $(CPPFLAGS) $(DEBUGFLAGS) \
-	$(PORTABLEINC) $(PROJECTINC) \
-	-c $(OPTIMIZECPP)
+	g++ $(FLAGS) $(INCLUDEDIR_MOD) -c $(OPTIMIZECPP)
 
 clean:
 	@rm -rf *.a

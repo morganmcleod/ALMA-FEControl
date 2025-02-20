@@ -17,14 +17,14 @@
 #
 # Morgan McLeod <mmcleod@nrao.edu> 2021-10-15
 
-LOGGERCPP = $(wildcard *.cpp) 
+LOGGERCPP = $(wildcard *.cpp)
+
+INCLUDEDIR_MOD=$(patsubst -I%, -I../%, $(INCLUDEDIR))
 
 .PHONY: logger
 
 logger: $(LOGGERCPP)
-	g++ $(CPPFLAGS) $(DEBUGFLAGS) \
-	$(PORTABLEINC) $(PROJECTINC) \
-	-c $(LOGGERCPP)
+	g++ $(FLAGS) $(INCLUDEDIR_MOD) -c $(LOGGERCPP)
 
 clean:
 	@rm -rf *.a
