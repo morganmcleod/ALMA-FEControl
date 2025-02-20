@@ -1,6 +1,5 @@
 .settings
 .p4ignore
-3rdparty
 *.o
 *.a
 *.exe

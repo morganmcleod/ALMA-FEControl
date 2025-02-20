@@ -10,6 +10,8 @@ pacman -S mingw-w64-i686-make --needed --noconfirm
 pacman -S mingw-w64-i686-cppunit --needed --noconfirm
 # Install expat
 pacman -S mingw-w64-i686-expat --needed --noconfirm
+# Install boost
+pacman -S mingw-w64-i686-boost --needed --noconfirm
 # Install drmingw
 pacman -S mingw-w64-i686-drmingw --needed --noconfirm
 # Install git
