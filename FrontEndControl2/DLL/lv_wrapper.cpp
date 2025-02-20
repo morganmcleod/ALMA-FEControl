@@ -60,6 +60,12 @@ namespace FrontEndLVWrapper {
     bool CAN_noTransmit = false;        ///< Normally false: ignore CAN connection failure and suppress all CAN messages
     unsigned int thermalLogInterval = 30; ///< Seconds between rows in the thermal log file
 
+    // Socket server options:
+    bool useSocketServer(false);
+    std::string socketServerHost("");
+    unsigned int socketServerPort(2000);
+    unsigned int socketServerTimeout(0);
+    
     // Software objects we create:
     FILE *logStream = NULL;
     static const AmbInterface *ambItf;
@@ -161,6 +167,20 @@ short LVWrapperInit() {
         if (!excHndlFile.empty())
             LOG(LM_INFO) << "Using ExcHndl file '" << excHndlFile << "'" << endl;
 
+        // socketServerHost = if provided, use Socket Server instead of direct CAN
+        tmp = configINI.GetValue("connection", "socketServerHost");
+        if (!tmp.empty()) {
+            socketServerHost = tmp;
+            useSocketServer = true;
+        }
+        // socketServerPort defaults to 2000 if not provided
+        tmp = configINI.GetValue("logger", "socketServerPort");
+        if (!tmp.empty())
+            socketServerPort = from_string<unsigned int>(tmp);
+        
+        if (useSocketServer)
+            LOG(LM_INFO) << "Using Socket Server (instead of CAN) host:" << socketServerHost << " port:" << socketServerPort << endl;
+
         // logTransactions = if true, every CAN message will be logged.  HUGE log file!
         tmp = configINI.GetValue("logger", "logTransactions");
         if (!tmp.empty())
@@ -189,10 +209,17 @@ short LVWrapperInit() {
 
         // CAN_monitorTimeout = milliseconds timeout for monitor messages:
         //  2ms typical;  Increase when debugging FE firmware.
-        tmp = configINI.GetValue("debug", "CAN_monitorTimeout");
+        //  May be overridden by connection:socketServerTimeout if useSocketServer:
+        if (useSocketServer)
+            tmp = configINI.GetValue("connection", "socketServerTimeout");
+        else
+            tmp = configINI.GetValue("debug", "CAN_monitorTimeout");
         if (!tmp.empty())
             CANBusInterface::monitorTimeout_m = from_string<unsigned long>(tmp);
-        LOG(LM_INFO) << "CAN monitor timeout=" << CANBusInterface::monitorTimeout_m << endl;
+        if (useSocketServer)
+            LOG(LM_INFO) << "Socket Server timeout=" << CANBusInterface::monitorTimeout_m << endl;
+        else
+            LOG(LM_INFO) << "CAN monitor timeout=" << CANBusInterface::monitorTimeout_m << endl;
         
         // debugLVStructures = if true, dump all monitor data results to the log:
         tmp = configINI.GetValue("debug", "debugLVStructures");
@@ -216,9 +243,12 @@ short LVWrapperInit() {
     
     // Create the CAN interface:
     WHACK(canBus);
+    if (useSocketServer)
+        canBus = new SocketClientBusInterface(socketServerHost, socketServerPort);
+    else
+        canBus = new NICANBusInterface();
+    // Tell the AmbInterface to use the bus:
     ambItf = AmbInterface::getInstance();
-    // canBus = new NICANBusInterface(); 
-    canBus = new SocketClientBusInterface("10.195.7.146", 2000);
     if (ambItf)
         ambItf -> setBus(canBus);
 
