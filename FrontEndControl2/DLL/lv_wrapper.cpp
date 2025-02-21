@@ -64,7 +64,6 @@ namespace FrontEndLVWrapper {
     bool useSocketServer(false);
     std::string socketServerHost("");
     unsigned int socketServerPort(2000);
-    unsigned int socketServerTimeout(0);
     
     // Software objects we create:
     FILE *logStream = NULL;
@@ -209,17 +208,10 @@ short LVWrapperInit() {
 
         // CAN_monitorTimeout = milliseconds timeout for monitor messages:
         //  2ms typical;  Increase when debugging FE firmware.
-        //  May be overridden by connection:socketServerTimeout if useSocketServer:
-        if (useSocketServer)
-            tmp = configINI.GetValue("connection", "socketServerTimeout");
-        else
-            tmp = configINI.GetValue("debug", "CAN_monitorTimeout");
+        tmp = configINI.GetValue("debug", "CAN_monitorTimeout");
         if (!tmp.empty())
             CANBusInterface::monitorTimeout_m = from_string<unsigned long>(tmp);
-        if (useSocketServer)
-            LOG(LM_INFO) << "Socket Server timeout=" << CANBusInterface::monitorTimeout_m << endl;
-        else
-            LOG(LM_INFO) << "CAN monitor timeout=" << CANBusInterface::monitorTimeout_m << endl;
+        LOG(LM_INFO) << "CAN monitor timeout=" << CANBusInterface::monitorTimeout_m << endl;
         
         // debugLVStructures = if true, dump all monitor data results to the log:
         tmp = configINI.GetValue("debug", "debugLVStructures");

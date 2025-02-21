@@ -977,12 +977,12 @@ bool FrontEndDatabase::insertCartTempData(const ID_T &configId, DATASTATUS_TYPES
     if (headerId.valid()) {
         string query = "INSERT INTO CCA_TempSensors (fkFacility, fkHeader, 4k, 110k , Pol0_mixer, Spare, 15k, Pol1_mixer ) VALUES ("
                      + headerId.insertText() + ", "
-                     + to_string(source.cartridgeTemperature0_value, std::fixed, 2) + ", "
-                     + to_string(source.cartridgeTemperature1_value, std::fixed, 2) + ", "
-                     + to_string(source.cartridgeTemperature2_value, std::fixed, 2) + ", "
-                     + to_string(source.cartridgeTemperature3_value, std::fixed, 2) + ", "
-                     + to_string(source.cartridgeTemperature4_value, std::fixed, 2) + ", "
-                     + to_string(source.cartridgeTemperature5_value, std::fixed, 2) + ")";
+                     + to_string(fixNaN(source.cartridgeTemperature0_value), std::fixed, 2) + ", "
+                     + to_string(fixNaN(source.cartridgeTemperature1_value), std::fixed, 2) + ", "
+                     + to_string(fixNaN(source.cartridgeTemperature2_value), std::fixed, 2) + ", "
+                     + to_string(fixNaN(source.cartridgeTemperature3_value), std::fixed, 2) + ", "
+                     + to_string(fixNaN(source.cartridgeTemperature4_value), std::fixed, 2) + ", "
+                     + to_string(fixNaN(source.cartridgeTemperature5_value), std::fixed, 2) + ")";
 
         LOG(LM_DEBUG) << context << ": query='" << query << "'" << endl;
 

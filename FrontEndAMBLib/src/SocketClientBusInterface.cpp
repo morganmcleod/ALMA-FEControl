@@ -28,10 +28,12 @@
 #include <array>
 #include <iostream>
 #include <chrono>
+#include "string.h"
 #include "stringConvert.h"
+#include "logger.h"
+using namespace std;
 
-const int REQUEST_LEN(18);
-const int RESPONSE_LEN(13);
+const size_t REQUEST_LEN(18);
 
 struct SocketServerRequest {
     // The Request Structure consists of 18 bytes (Byte Numbers 0-17)
@@ -65,23 +67,20 @@ struct SocketServerRequest {
           if (_data && dataLength) memcpy(data, _data, dataLength);
         }
     
-    void pack(std::string &target);
+    void pack(std::array<char, REQUEST_LEN> &target);
 };
 
-void SocketServerRequest::pack(std::string &target) {
-    target.clear();
-    unsigned short stmp;
-    unsigned long ltmp;    
-    stmp = htons(resourceId);
-    target.append(reinterpret_cast<char *>(&stmp), 2);
-    stmp = htons(busId);    
-    target.append(reinterpret_cast<char *>(&stmp), 2);
-    ltmp = htonl(address);
-    target.append(reinterpret_cast<char *>(&ltmp), 4);
-    target.append(reinterpret_cast<char *>(&mode), 1);
-    target.append(reinterpret_cast<char *>(&dataLength), 1);
-    target.append(reinterpret_cast<char *>(&data[0]), 8);
+void SocketServerRequest::pack(std::array<char, REQUEST_LEN> &target) {
+    target.fill(0);
+    *reinterpret_cast<unsigned short *>(&target[0]) = htons(resourceId);
+    *reinterpret_cast<unsigned short *>(&target[2]) = htons(busId);
+    *reinterpret_cast<unsigned long *>(&target[4]) = htonl(address);
+    target[8] = mode;
+    target[9] = dataLength;
+    memcpy(&target[10], &data[0], 8);
 }
+
+const size_t RESPONSE_LEN(13);
 
 struct SocketServerResponse {
     //The Reponse Structure consists of 13 bytes (Byte Numbers 0-12) 
@@ -98,20 +97,16 @@ struct SocketServerResponse {
         dataLength(0)
         { memset(data, 0, AMB_DATA_MSG_SIZE); }
     
-    bool unpack(std::string &source);
+    void unpack(std::array<char, RESPONSE_LEN> &source);
 };
 
-bool SocketServerResponse::unpack(std::string &source) {
-    if (source.length() < 13)
-        return false;
-    unsigned long ltmp;
-    memcpy(reinterpret_cast<char *>(&ltmp), source.c_str() + 0, 4);
-    errorCode = ntohl(ltmp);
-    memcpy(reinterpret_cast<char *>(&dataLength), source.c_str() + 4, 1);
-    memcpy(reinterpret_cast<char *>(&data[0]), source.c_str() + 5, 8);
-    source.erase(0, 13);
-    return true;
+void SocketServerResponse::unpack(std::array<char, RESPONSE_LEN> &source) {
+    errorCode = *reinterpret_cast<int*>(&source[0]);
+    dataLength = source[4];
+    memcpy(data, reinterpret_cast<AmbDataMem_t *>(&source[5]), 8);
 }
+
+const size_t NODE_LEN(12);
 
 struct SocketServerNode {
     AmbNodeAddr nodeId; // Byte[0-3] contains the Node ID.
@@ -121,38 +116,61 @@ struct SocketServerNode {
       : nodeId(0)
         { memset(data, 0, AMB_DATA_MSG_SIZE); }
     
-    bool unpack(std::string &source);
+    void unpack(std::array<char, NODE_LEN> &source);
 };
 
-bool SocketServerNode::unpack(std::string &source) {
-    if (source.length() < 12)
-        return false;
-    unsigned long ltmp;
-    memcpy(reinterpret_cast<char *>(&ltmp), source.c_str(), 4);
-    nodeId = ntohl(ltmp);
-    memcpy(reinterpret_cast<char *>(&data[0]), source.c_str() + 4, 8);
-    source.erase(0, 12);
-    return true;
-} 
+void SocketServerNode::unpack(std::array<char, NODE_LEN> &source) {
+    nodeId = *reinterpret_cast<AmbNodeAddr*>(&source[0]) >> 24;
+    memcpy(data, reinterpret_cast<AmbDataMem_t *>(&source[4]), 8);
+}
+
+////////////////////////////////////////////////////////////////////////////////////
 
 SocketClientBusInterface::SocketClientBusInterface(const std::string& host, int port)
-  : io_m()
+  : io_m(),
+    sock_mp(NULL),
+    monitorTimes_m()
 {
     boost::asio::ip::tcp::resolver resolver(io_m);
-    boost::asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host, to_string(port));
-    socket_mp = new boost::asio::ip::tcp::socket(io_m);
-    boost::asio::connect(*socket_mp, endpoints);
+    endpoints_m = resolver.resolve(host, to_string(port));
+    openSocket();
 }
 
 SocketClientBusInterface::~SocketClientBusInterface() {
-    delete socket_mp;
+    closeSocket();
+}
+
+void SocketClientBusInterface::openSocket() {
+    if (endpoints_m.begin() == endpoints_m.end()) {
+        LOG(LM_ERROR) << "SocketClientBusInterface::openSocket no valid endpoint" << endl;
+        return;
+    }
+    sock_mp = new boost::asio::ip::tcp::socket(io_m);
+    try {
+        boost::asio::connect(*sock_mp, endpoints_m);
+    }
+    catch (boost::system::system_error &e) {
+        LOG(LM_ERROR) << "SocketClientBusInterface::openSocket connect error:\n" << e.what() << endl;
+        delete sock_mp;
+        sock_mp = NULL;
+    }
+}
+
+void SocketClientBusInterface::closeSocket() {
+    if (!sock_mp)
+        return;
+    try {
+        (*sock_mp).close();
+    }
+    catch (boost::system::system_error &e) {
+        LOG(LM_ERROR) << "SocketClientBusInterface::closeSocket close error:\n" << e.what() << endl;
+    }
+    delete sock_mp;
+    sock_mp = NULL;
 }
 
 bool SocketClientBusInterface::openChannel(AmbChannel channel) {
     bool success = false;
-    
-    // initialize the socket interface:
-    
     unsigned long handle = 0;
     success = true;
     
@@ -160,12 +178,8 @@ bool SocketClientBusInterface::openChannel(AmbChannel channel) {
     if (success) {        
         channelNodeMap_m.setHandle(channel, handle);
         channelNodeMap_m.openChannel(channel);
+        findChannelNodes(channel);
     }
-
-    // Find all the nodes on the channel:
-    //if (success)
-    //    findChannelNodes(channel);
-
     return success;        
 }
 
@@ -179,51 +193,41 @@ void SocketClientBusInterface::closeChannel(AmbChannel channel) {
 // and waiting for a reply before returning.
 void SocketClientBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &msg)
 {
-    bool success = false;
-    bool timeout = false;
+    if (!sock_mp) {
+        LOG(LM_ERROR) << "SocketClientBusInterface::monitorImpl no socket" << endl;
+        return;
+    }
+
+    flushRead();
+
+    bool error = false;      
     SocketServerRequest req(0, msg.address, msg.dataLen, msg.data);
-    std::string reqBytes, respBytes;
+    SocketServerResponse resp;
+    std::array<char, REQUEST_LEN> reqBytes;
     req.pack(reqBytes);
     
-    SocketServerResponse resp;
-                
-    if (socket_mp) {
-        // Request the monitor parameter:
+    if (enableDebug_m) {
+        printf("monitor: %X [ ", (unsigned) req.address);
+        for (unsigned index = 0; index < REQUEST_LEN; ++index)
+            printf("%02X ", (unsigned char) reqBytes[index]);
+        printf("]\n");
+        fflush(NULL);
+    }
 
-        flushRead();
-
-        if (enableDebug_m) {
-            printf("monRequ: %X [ ", (unsigned) req.address);
-            for (unsigned index = 0; index < reqBytes.length(); ++index)
-                printf("%02X ", (unsigned char) reqBytes[index]);
-            printf("]\n");
-            fflush(NULL);
-        }
-        
-        try {
-            boost::system::error_code ignored_error;
-            boost::asio::write(*socket_mp, boost::asio::buffer(reqBytes), ignored_error);
-
-            if (readWithTimeout(respBytes, monitorTimeout_m)) {
-
-                if (enableDebug_m) {
-                    printf("monResp: [ ");
-                    for (unsigned index = 0; index < respBytes.length(); ++index)
-                        printf("%02X ", (unsigned char) respBytes[index]);
-                    printf("]\n");
-                    fflush(NULL);
-                }
-
-                success = resp.unpack(respBytes);
-            } else
-                timeout = true;
-        }
-        catch (std::exception& e) {
-            const std::string msg(e.what());
-            printf("SocketClientBusInterface::monitorImpl: %s\n", msg.c_str());
+    try {
+        boost::system::error_code sock_error;
+        boost::asio::write(*sock_mp, boost::asio::buffer(reqBytes), sock_error);
+        if (sock_error) {
+            LOG(LM_ERROR) << "SocketClientBusInterface::monitorImpl write error: " << sock_error.value() << endl;
+            error = true;
+        } else if (!readResponse(*sock_mp, resp)) {
+            error = true;
         }
     }
-    if (success) {
+    catch (std::exception& e) {
+        LOG(LM_ERROR) << "SocketClientBusInterface::monitorImpl:\n" << e.what() << endl;
+    }
+    if (!error) {
         // Save the received data length into the caller's pointer:
         if (msg.completion_p -> dataLength_p)
             *(msg.completion_p -> dataLength_p) = resp.dataLength;
@@ -233,8 +237,7 @@ void SocketClientBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &
         // Result is good status:
         if (msg.completion_p -> status_p)
             *(msg.completion_p -> status_p) = AMBERR_NOERR;
-    
-    } else if (timeout) {
+    } else {
         // Read timed out or other error.  Return zero data:
         if (msg.completion_p -> dataLength_p)
             *(msg.completion_p -> dataLength_p) = 0;
@@ -248,159 +251,194 @@ void SocketClientBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &
 // Do the actual work of sending a command:
 void SocketClientBusInterface::commandImpl(unsigned long _handle, AmbMessage_t &msg)
 {
-    int status = -1;
-    
-    flushRead();
+    if (!sock_mp) {
+        LOG(LM_ERROR) << "SocketClientBusInterface::monitorImpl no socket" << endl;
+        return;
+    }
+    AmbErrorCode_t status = AMBERR_NOERR;
 
-    if (socket_mp) {
-        // Pack and send the command:
-        SocketServerRequest req(1, msg.address, msg.dataLen, msg.data);
-        std::string reqBytes, respBytes;
-        req.pack(reqBytes);
-        
-        if (enableDebug_m) {
-            printf("command: %X [ ", (unsigned) req.address);
-            for (unsigned index = 0; index < reqBytes.length(); ++index)
-                printf("%02X ", (unsigned char) reqBytes[index]);
-            printf("]\n");
-            fflush(NULL);
-        }
-        
-        try {
-            boost::system::error_code ignored_error;
-            boost::asio::write(*socket_mp, boost::asio::buffer(reqBytes), ignored_error);
-            readWithTimeout(respBytes, monitorTimeout_m);
-            status = 0;
-        }
-        catch (std::exception& e) {
-            const std::string msg(e.what());
-            printf("SocketClientBusInterface::commandImpl: %s\n", msg.c_str());
+    flushRead();
+    
+    // Pack and send the command:
+    SocketServerRequest req(1, msg.address, msg.dataLen, msg.data);
+    std::array<char, REQUEST_LEN> reqBytes;
+    req.pack(reqBytes);
+    if (enableDebug_m) {
+        printf("command: %X [ ", (unsigned) req.address);
+        for (unsigned index = 0; index < REQUEST_LEN; ++index)
+            printf("%02X ", (unsigned char) reqBytes[index]);
+        printf("]\n");
+        fflush(NULL);
+    }
+    try {
+        boost::system::error_code sock_error;
+        boost::asio::write(*sock_mp, boost::asio::buffer(reqBytes), sock_error);
+        if (sock_error) {
+            LOG(LM_ERROR) << "SocketClientBusInterface::commandImpl write error " << sock_error.value() << endl;
+            status = AMBERR_WRITEERR;
+        } else {
+            SocketServerResponse resp;
+            readResponse(*sock_mp, resp);
         }
     }
+    catch (std::exception& e) {
+        LOG(LM_ERROR) << "SocketClientBusInterface::commandImpl:\n" << e.what() << endl;
+        status = AMBERR_WRITEERR;
+    }
     if (msg.completion_p -> status_p) {
-        if (status >= 0)
-            *(msg.completion_p -> status_p) = AMBERR_NOERR;
-        else
-            *(msg.completion_p -> status_p) = AMBERR_WRITEERR;
+       *(msg.completion_p -> status_p) = status;
     }
 }                                       
 
 void SocketClientBusInterface::flushRead() {
     std::array<char, 100> buf;
-    boost::system::error_code ignored_error;
-    std::size_t len = socket_mp -> available(ignored_error);
+    boost::system::error_code sock_error;
+    std::size_t total = 0;
+    std::size_t len = (*sock_mp).available(sock_error);
     while (len > 0) {
-        len = socket_mp -> read_some(boost::asio::buffer(buf), ignored_error);
-        len = socket_mp -> available(ignored_error);
+        total += len;
+        len = (*sock_mp).read_some(boost::asio::buffer(buf), sock_error);
+        len = (*sock_mp).available(sock_error);
+    }
+    if (total > 0) {
+        LOG(LM_WARNING) << "SocketClientBusInterface::flushRead " << total << " bytes" << endl;
     }
 }
 
-bool SocketClientBusInterface::readWithTimeout(std::string &target, unsigned long timeout) {
+struct mean_sd {
+    double mean_m;
+    double sd_m;
+    unsigned long max_m;
+    size_t N = 1000;
+
+    void calculate(const std::vector<unsigned long> &v) {
+        double sum = 0;
+        max_m = 0;
+        auto len = v.size();
+        for (auto &each: v) {
+            sum += each;
+            if (each > max_m)
+                max_m = each;
+        }
+        mean_m = sum / len;        
+        double square_sum_of_difference = 0;
+        double tmp;
+        for (auto &each: v) {
+            tmp = each - mean_m;
+            square_sum_of_difference += tmp * tmp;
+        }
+        sd_m = std::sqrt(square_sum_of_difference / (len - 1));
+    }
+};
+
+bool SocketClientBusInterface::readResponse(boost::asio::ip::tcp::socket &sock, SocketServerResponse &target) {
 
     std::array<char, RESPONSE_LEN> buf;
-    boost::system::error_code ignored_error;
-    
+    boost::system::error_code sock_error;
+    unsigned long elapsed;
+
+    const bool MEASURE_RESPONSE_TIME = true;
     auto start = std::chrono::steady_clock::now();
-    bool done = false;
+    static mean_sd calc_response_time;
+
     bool error = false;
-    while (!done && !error) {
-        std::size_t len = socket_mp -> available(ignored_error);
-        if (len >= RESPONSE_LEN) {
-            len = socket_mp -> read_some(boost::asio::buffer(buf), ignored_error);
-            done = true;
-        } else {
-            unsigned long elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
-            if (elapsed > timeout)
-                error = true;
+    try {
+        boost::asio::read(sock, boost::asio::buffer(buf), boost::asio::transfer_exactly(RESPONSE_LEN), sock_error);
+        if (sock_error) {
+            LOG(LM_ERROR) << "SocketClientBusInterface::readResponse read error " << sock_error.value() << endl;
+            error = true;
         }
     }
+    catch (boost::system::system_error &e) {
+        LOG(LM_ERROR) << "SocketClientBusInterface::readResponse read error " << e.what() << endl;
+        error = true;
+    }
     if (!error) {
-        target = std::string(buf.begin(), buf.end());
+        if (MEASURE_RESPONSE_TIME) {
+            elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+            monitorTimes_m.push_back(elapsed);
+            if (monitorTimes_m.size() == calc_response_time.N) {
+                calc_response_time.calculate(monitorTimes_m);
+                LOG(LM_INFO) << "monitor elapsed N=" << calc_response_time.N << ", mean=" << calc_response_time.mean_m 
+                             << ", stdev=" << calc_response_time.sd_m << ", max=" << calc_response_time.max_m << " ms" << endl;
+                monitorTimes_m.clear();
+            }
+        }
+        if (enableDebug_m) {
+            printf("response: [ ");
+            for (unsigned index = 0; index < RESPONSE_LEN; ++index)
+                printf("%02X ", (unsigned char) buf[index]);
+            printf("]\n");
+            fflush(NULL);
+        }
+        target.unpack(buf);
         return true;
     }
     return false;
 }
 
 void SocketClientBusInterface::findChannelNodes(AmbChannel channel) {
-    if (!socket_mp)
+    if (!sock_mp) {
+        LOG(LM_ERROR) << "SocketClientBusInterface::findChannelNodes no socket" << endl;
         return;
-    
+    }
     // Check that the channel is open:
-    if (channelNodeMap_m.isOpenChannel(channel)) {
-        // Drop all known nodes:
-        channelNodeMap_m.clearNodes(channel);
+    if (!channelNodeMap_m.isOpenChannel(channel)) {
+        LOG(LM_ERROR) << "SocketClientBusInterface::findChannelNodes channel is not open" << endl;
+        return;
+    }
+    // Drop all known nodes:
+    channelNodeMap_m.clearNodes(channel);
 
-        bool success = false;
+    bool success = false;
 
-        SocketServerRequest req(2);
-        SocketServerResponse resp;
-        SocketServerNode node;
-               
-        std::string reqBytes, respBytes;
-        req.pack(reqBytes);
-        
-        if (enableDebug_m) {
-            printf("getNods: [");
-            for (unsigned index = 0; index < reqBytes.length(); ++index)
-                printf("%02X ", (unsigned char) reqBytes[index]);
-            printf("]\n");
-            fflush(NULL);
-        }
-        try {
-            boost::system::error_code ignored_error;
-            boost::asio::write(*socket_mp, boost::asio::buffer(reqBytes), ignored_error);
-        }
-        catch (std::exception& e) {
-            const std::string msg(e.what());
-            printf("SocketClientBusInterface::commandImpl: %s\n", msg.c_str());
-        }
-        try {
-            if (readWithTimeout(respBytes, monitorTimeout_m)) {
-
-                if (enableDebug_m) {
-                    printf("nodResp: [");
-                    for (unsigned index = 0; index < respBytes.length(); ++index)
-                        printf("%02X ", (unsigned char) respBytes[index]);
-                    printf("]\n");
-                    fflush(NULL);
-                }
-                success = resp.unpack(respBytes);
-            }
-        }
-        catch(const std::string &s) {
-            printf("SocketClientBusInterface::findChannelNodes: %s\n", s.c_str());
-            return;
-        }
-        
-        if (success && resp.errorCode == 0) {
-            int count = resp.dataLength;
-            bool timeout = false;
-            while (!timeout && count > 0) {                        
-                if (!node.unpack(respBytes)) {
-                    if (!readWithTimeout(respBytes, monitorTimeout_m))
-                        timeout = true;
-                    else {
+    SocketServerRequest req(2);
+    SocketServerResponse resp;
+    SocketServerNode node;
+    array<char, REQUEST_LEN> reqBytes;
+    req.pack(reqBytes);
+    if (enableDebug_m) {
+        printf("find nodes: [");
+        for (unsigned index = 0; index < REQUEST_LEN; ++index)
+            printf("%02X ", (unsigned char) reqBytes[index]);
+        printf("]\n");
+        fflush(NULL);
+    }
+    try {
+        boost::system::error_code sock_error;
+        boost::asio::write(*sock_mp, boost::asio::buffer(reqBytes), sock_error);
+        if (sock_error) {
+            LOG(LM_ERROR) << "SocketClientBusInterface::findChannelNodes write error " << sock_error.value() << endl;
+        } else {
+            success = readResponse(*sock_mp, resp);
+            if (success && resp.errorCode == 0) {
+                // Number of nodes found is in dataLength:
+                int count = resp.dataLength;
+                array<char, NODE_LEN> buf;
+                bool error = false;
+                while (!error && count > 0) {
+                    boost::asio::read(*sock_mp, boost::asio::buffer(buf), boost::asio::transfer_exactly(NODE_LEN), sock_error);
+                    if (sock_error) {
+                        LOG(LM_ERROR) << "SocketClientBusInterface::findChannelNodes read error " << sock_error.value() << endl;
+                        error = true;
+                    } else {
+                        --count;
+                        node.unpack(buf);
+                        channelNodeMap_m.addNode(channel, node.nodeId, node.data);
                         if (enableDebug_m) {
-                            printf("nodResp: [");
-                            for (unsigned index = 0; index < respBytes.length(); ++index)
-                                printf("%02X ", (unsigned char) respBytes[index]);
-                            printf("]\n");
-                            fflush(NULL);
+                            printf("Node 0x%02X: %02X%02X%02X%02X%02X%02X%02X%02X\n",
+                                   static_cast<unsigned int>(node.nodeId),
+                                   node.data[0], node.data[1], node.data[2], node.data[3], 
+                                   node.data[4], node.data[5], node.data[6], node.data[7]);
                         }
                     }
-                } else {
-                    --count;
-                    channelNodeMap_m.addNode(channel, node.nodeId, node.data);
-                    if (enableDebug_m) {
-                        printf("Node %02X:\n"
-                               "  SN: %02X%02X%02X%02X%02X%02X%02X%02X\n",
-                               static_cast<unsigned int>(node.nodeId),
-                               node.data[0], node.data[1], node.data[2], node.data[3], 
-                               node.data[4], node.data[5], node.data[6], node.data[7]);
-                    }
                 }
             }
-        }    
+        }
+    }
+    catch (std::exception& e) {
+        LOG(LM_ERROR) << "SocketClientBusInterface::findChannelNodes: " << e.what() << endl;
+        return;
     }
 }
 

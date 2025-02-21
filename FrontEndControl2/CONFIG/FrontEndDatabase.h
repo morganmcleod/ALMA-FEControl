@@ -30,6 +30,7 @@
 #include "LPRImpl.h"
 #include "PowerModuleImpl.h"
 #include "WCAImpl.h"
+#include <cmath>
 class IFPowerDataSet;
 class XYPlotArray;
 namespace FEConfig {
@@ -229,6 +230,10 @@ public:
     ///< insert Fine LO Sweep data, attached to a previously created subHeader record.
 
 private:
+    static float fixNaN(float value) {
+        return std::isnan(value) ? -1.0 : value;
+    }
+
     std::string measSWVer_m;
 };
 

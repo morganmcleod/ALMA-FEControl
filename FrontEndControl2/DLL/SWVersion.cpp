@@ -29,7 +29,7 @@ const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.17.0");
 /* Revision history:
 
 2.17.0
-  Added Socket Client connection option.
+  SocketClientBusInterface:  working well with timeout logic disabled.   To futher simplify.
   Relative paths in makefiles, NGFemc fixes for regression test, script to install MinGW dependencies
   Fixed Sb2St3 monitors and commands for Band 1
   Fixed Cryostat set cold head hours error
@@ -37,6 +37,7 @@ const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.17.0");
   Fixed some commands adding an extra byte.
   Changed the Cryostat set hours to the one mentioned in the ICD.
   Removed previous HACK from 2.16.4 and 2.16.5
+  FrontEndDatabase fixNaN() on cart temp sensors
 
 2.16.5 NRAO-B2 2025-11-25
   HACK Use IF switch port 6 for operating band 2

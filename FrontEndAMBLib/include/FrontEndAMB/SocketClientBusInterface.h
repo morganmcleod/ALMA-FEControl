@@ -33,7 +33,10 @@
 #include <windows.h>
 #include <boost/asio.hpp>
 #include <string>
+#include <vector>
 #include "CANBusInterface.h"
+
+class SocketServerResponse;
 
 class SocketClientBusInterface : public CANBusInterface {
 public:
@@ -48,6 +51,8 @@ public:
     ///< Returns NULL if the channel could not be opened.
 
 private:
+    void openSocket();
+    void closeSocket();
 
     virtual bool openChannel(AmbChannel channel);
     // initialize a CAN interface channel.
@@ -66,7 +71,7 @@ private:
     void flushRead();
     // flush the read buffer
 
-    bool readWithTimeout(std::string &target, unsigned long timeout);
+    bool readResponse(boost::asio::ip::tcp::socket &sock, SocketServerResponse &target);
     // read on the socket, waiting up to the specified timeout.
     
     void findChannelNodes(AmbChannel channel);
@@ -75,7 +80,10 @@ private:
     // fails if channel is closed.
     
     boost::asio::io_context io_m;
-    boost::asio::ip::tcp::socket *socket_mp;
+    boost::asio::ip::tcp::resolver::results_type endpoints_m;
+    boost::asio::ip::tcp::socket *sock_mp;
+
+    std::vector<unsigned long> monitorTimes_m;
 };
 
 #endif

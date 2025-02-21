@@ -98,7 +98,7 @@ void FrontEndImpl::initialize(unsigned long channel, unsigned long nodeAddress) 
             connected_m = true;
 
 
-            LOG(LM_INFO) << "Connected to front end on CAN" << channel
+            LOG(LM_INFO) << "Connected to front end on channel " << channel
                          << " at nodeAddress=0x" << uppercase << hex << setw(2) << setfill('0') << nodeAddress << dec << setw(0)
                          << " firmware: ARCOM:" << FEMCFirmwareVersion() << " AMBSI1:" << AMBSIFirmwareRev()
                          << " serialNum=" << AMBSISerialNum() << endl;
@@ -968,25 +968,27 @@ bool FrontEndImpl::setCartridgeObserving(int port) {
     
     // Switch the LPR optical switch to the new observing port:
     if (!lprSetOpticalSwitchPort(port)) {
-        LOG(LM_INFO) << "FrontEndImpl::setCartridgeObserving port=" << port << " lprSetOpticalSwitchPort failed." << endl;
+        LOG(LM_ERROR) << "FrontEndImpl::setCartridgeObserving port=" << port << " lprSetOpticalSwitchPort failed." << endl;
         FEMCEventQueue::addStatusMessage(false, "LPR: setting the observing port failed.");
         return false;
     }    
     // Switch the IF output to the new observing port:
     if (ifSwitch_mp) {
-        LOG(LM_INFO) << "FrontEndImpl::setCartridgeObserving port=" << port << " IF switch setObservingBand failed." << endl;
-        FEMCEventQueue::addStatusMessage(false, "IF Switch: setting the observing port failed.");
-        return false;
+        if (!ifSwitch_mp -> setObservingBand(port)) {
+            LOG(LM_ERROR) << "FrontEndImpl::setCartridgeObserving port=" << port << " IF switch setObservingBand failed." << endl;
+            FEMCEventQueue::addStatusMessage(false, "IF Switch: setting the observing port failed.");
+            return false;
+        }
     }
     // Check whether the cartridge is enabled:
     if (!carts_mp -> getEnable(port)) {
-        LOG(LM_INFO) << "FrontEndImpl::setCartridgeObserving port=" << port << " cartridge is not enabled.  LPR and IF switch were changed." << endl;
+        LOG(LM_ERROR) << "FrontEndImpl::setCartridgeObserving port=" << port << " cartridge is not enabled.  LPR and IF switch were changed." << endl;
         FEMCEventQueue::addStatusMessage(false, "The cartridge selected for observing port is not enabled.");
         return true;
     }
     // set the new observing port:
     if (!carts_mp -> setObserving(port)) {
-        LOG(LM_INFO) << "FrontEndImpl::setCartridgeObserving port=" << port << " setObserving failed.  LPR and IF switch were changed." << endl;
+        LOG(LM_ERROR) << "FrontEndImpl::setCartridgeObserving port=" << port << " setObserving failed.  LPR and IF switch were changed." << endl;
         FEMCEventQueue::addStatusMessage(false, "Set observing port failed.");
         return false;
     }
