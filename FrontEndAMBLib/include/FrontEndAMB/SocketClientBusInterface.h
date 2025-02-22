@@ -17,9 +17,6 @@
 *You should have received a copy of the GNU Lesser General Public
 *License along with this library; if not, write to the Free Software
 *Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
-*
-* "@(#) $Id$"
-*
 */
 
 /************************************************************************
@@ -33,7 +30,6 @@
 #include <windows.h>
 #include <boost/asio.hpp>
 #include <string>
-#include <vector>
 #include "CANBusInterface.h"
 
 class SocketServerResponse;
@@ -82,8 +78,6 @@ private:
     boost::asio::io_context io_m;
     boost::asio::ip::tcp::resolver::results_type endpoints_m;
     boost::asio::ip::tcp::socket *sock_mp;
-
-    std::vector<unsigned long> monitorTimes_m;
 };
 
 #endif

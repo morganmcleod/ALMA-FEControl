@@ -38,6 +38,8 @@ const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.17.0");
   Changed the Cryostat set hours to the one mentioned in the ICD.
   Removed previous HACK from 2.16.4 and 2.16.5
   FrontEndDatabase fixNaN() on cart temp sensors
+  Added calculatom of latency statistics for CAN and SocketClient
+  Added CAN_measureLatency to INI file options.
 
 2.16.5 NRAO-B2 2025-11-25
   HACK Use IF switch port 6 for operating band 2

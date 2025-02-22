@@ -29,6 +29,9 @@ int CANBusInterface::maxChannels_m = 6;
 bool CANBusInterface::enableDebug_m = false;
 // Enables debug logging of CAN traffic to stdout.
 
+bool CANBusInterface::measureLatency_m = false;
+///< Enables logging of CAN/network round-trip stats.  Default is false.
+
 bool CANBusInterface::enableDebugLifecycle_m = false;
 ///< Enables debug logging of startup/shutdown to stdout.  Default is false.
 

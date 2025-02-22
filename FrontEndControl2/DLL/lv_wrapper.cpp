@@ -212,6 +212,12 @@ short LVWrapperInit() {
         if (!tmp.empty())
             CANBusInterface::monitorTimeout_m = from_string<unsigned long>(tmp);
         LOG(LM_INFO) << "CAN monitor timeout=" << CANBusInterface::monitorTimeout_m << endl;
+
+        // CAN_measureLatency = Measure and log CAN or network latency.  Default is 0:
+        tmp = configINI.GetValue("debug", "CAN_measureLatency");
+        if (!tmp.empty())
+            CANBusInterface::measureLatency_m = from_string<unsigned long>(tmp) != 0;
+        LOG(LM_INFO) << "CAN measure latency=" << CANBusInterface::measureLatency_m << endl;
         
         // debugLVStructures = if true, dump all monitor data results to the log:
         tmp = configINI.GetValue("debug", "debugLVStructures");

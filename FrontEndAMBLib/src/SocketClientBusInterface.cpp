@@ -28,8 +28,10 @@
 #include <array>
 #include <iostream>
 #include <chrono>
+#include <vector>
 #include "string.h"
 #include "stringConvert.h"
+#include "delayStats.h"
 #include "logger.h"
 using namespace std;
 
@@ -128,8 +130,7 @@ void SocketServerNode::unpack(std::array<char, NODE_LEN> &source) {
 
 SocketClientBusInterface::SocketClientBusInterface(const std::string& host, int port)
   : io_m(),
-    sock_mp(NULL),
-    monitorTimes_m()
+    sock_mp(NULL)
 {
     boost::asio::ip::tcp::resolver resolver(io_m);
     endpoints_m = resolver.resolve(host, to_string(port));
@@ -305,41 +306,17 @@ void SocketClientBusInterface::flushRead() {
     }
 }
 
-struct mean_sd {
-    double mean_m;
-    double sd_m;
-    unsigned long max_m;
-    size_t N = 1000;
-
-    void calculate(const std::vector<unsigned long> &v) {
-        double sum = 0;
-        max_m = 0;
-        auto len = v.size();
-        for (auto &each: v) {
-            sum += each;
-            if (each > max_m)
-                max_m = each;
-        }
-        mean_m = sum / len;        
-        double square_sum_of_difference = 0;
-        double tmp;
-        for (auto &each: v) {
-            tmp = each - mean_m;
-            square_sum_of_difference += tmp * tmp;
-        }
-        sd_m = std::sqrt(square_sum_of_difference / (len - 1));
-    }
-};
 
 bool SocketClientBusInterface::readResponse(boost::asio::ip::tcp::socket &sock, SocketServerResponse &target) {
+    // values used for measuring response time.  Enabed by measureLatency_m:
+    static delayStats<unsigned long> calc_response_time;
+    static std::vector<unsigned long> monitorTimes;
+    static unsigned int N = 1000;
+    auto start = std::chrono::steady_clock::now();
+    unsigned long elapsed;
 
     std::array<char, RESPONSE_LEN> buf;
     boost::system::error_code sock_error;
-    unsigned long elapsed;
-
-    const bool MEASURE_RESPONSE_TIME = true;
-    auto start = std::chrono::steady_clock::now();
-    static mean_sd calc_response_time;
 
     bool error = false;
     try {
@@ -354,14 +331,14 @@ bool SocketClientBusInterface::readResponse(boost::asio::ip::tcp::socket &sock, 
         error = true;
     }
     if (!error) {
-        if (MEASURE_RESPONSE_TIME) {
+        if (measureLatency_m) {
             elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
-            monitorTimes_m.push_back(elapsed);
-            if (monitorTimes_m.size() == calc_response_time.N) {
-                calc_response_time.calculate(monitorTimes_m);
-                LOG(LM_INFO) << "monitor elapsed N=" << calc_response_time.N << ", mean=" << calc_response_time.mean_m 
-                             << ", stdev=" << calc_response_time.sd_m << ", max=" << calc_response_time.max_m << " ms" << endl;
-                monitorTimes_m.clear();
+            monitorTimes.push_back(elapsed);
+            if (monitorTimes.size() == N) {
+                calc_response_time.calculate(monitorTimes);
+                LOG(LM_INFO) << "monitor elapsed N=" << N << ", mean=" << calc_response_time.mean_m 
+                             << ", stdev=" << calc_response_time.std_m << ", max=" << calc_response_time.max_m << " ms" << endl;
+                monitorTimes.clear();
             }
         }
         if (enableDebug_m) {

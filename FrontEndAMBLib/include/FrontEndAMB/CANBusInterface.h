@@ -36,6 +36,9 @@ public:
     static bool enableDebug_m;
     ///< Enables debug logging of CAN traffic to stdout.  Default is false.
 
+    static bool measureLatency_m;
+    ///< Enables logging of CAN/network round-trip stats.  Default is false.
+
     static bool enableDebugLifecycle_m;
     ///< Enables debug logging of startup/shutdown to stdout.  Default is false.
     

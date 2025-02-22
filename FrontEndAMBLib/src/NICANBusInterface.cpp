@@ -21,14 +21,13 @@
 */
 
 #include "NICANBusInterface.h"
+#include <iostream>
 #include <stdio.h>
 #include <nican.h>
-#include "portable.h"
-
-#ifdef _WIN32
-//#define MEASURE_CAN_LATENCY 1
-#endif
-
+#include <chrono>
+#include "delayStats.h"
+#include "logger.h"
+// #include "portable.h"
 
 // --------------------------------------------------------------------------
 //private:
@@ -126,8 +125,14 @@ void NICANBusInterface::closeChannel(AmbChannel channel) {
 // and waiting for a reply before returning.
 void NICANBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &msg)
 {
-    NCTYPE_OBJH handle = _handle; 
-        
+    // values used for measuring response time.  Enabled by measureLatency_m.
+    static delayStats<unsigned long> calc_response_time;
+    static std::vector<unsigned long> monitorTimes;
+    static unsigned int N = 1000;
+    auto start = std::chrono::steady_clock::now();
+    unsigned long elapsed;
+    
+    NCTYPE_OBJH handle = _handle;        
     // Read and discard any stale data in the read buffer:
     flushReadBuffer(handle);
 
@@ -142,20 +147,6 @@ void NICANBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &msg)
     request.IsRemote = 0;
     request.DataLength = 0;
     memset(request.Data, 0, AMB_DATA_MSG_SIZE);
-
-#ifdef MEASURE_CAN_LATENCY
-    static bool firstTime(true);
-    static LARGE_INTEGER sum, freq, start, end;
-    sum.QuadPart = 0;
-    static int count = 0;
-    static const int averagingSize = 1000;
-    if (firstTime) {
-    	firstTime = false;
-    	QueryPerformanceFrequency(&freq);
-    	printf("NICANBusInterface::monitorImpl:Ticks\nN\tStart\tEnd\tSum\tAvg\tFreq\n");
-    }
-    QueryPerformanceCounter(&start);
-#endif
     status = ncWrite(handle, sizeof(NCTYPE_CAN_FRAME), &request);
 
     bool success = false;
@@ -168,24 +159,18 @@ void NICANBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &msg)
             status = -1;
         }
         if (status >= 0) {
-
-#ifdef MEASURE_CAN_LATENCY
-        	QueryPerformanceCounter(&end);
-        	sum.QuadPart += (end.QuadPart - start.QuadPart);
-        	if (++count == averagingSize) {
-        		double avgTicks(double(sum.QuadPart) / count);
-        		printf("%d\t%f\t%f\t%f\t%f\t%f\n",
-        				count,
-						double(start.QuadPart),
-						double(end.QuadPart),
-						double(sum.QuadPart),
-						avgTicks,
-						double(freq.QuadPart));
-        		sum.QuadPart = 0;
-        		count = 0;
-        	}
-#endif
             status = ncRead(handle, sizeof(NCTYPE_CAN_STRUCT), &response);
+
+            if (measureLatency_m) {
+                elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+                monitorTimes.push_back(elapsed);
+                if (monitorTimes.size() == N) {
+                    calc_response_time.calculate(monitorTimes);
+                    LOG(LM_INFO) << "monitor elapsed N=" << N << ", mean=" << calc_response_time.mean_m 
+                                 << ", stdev=" << calc_response_time.std_m << ", max=" << calc_response_time.max_m << " ms" << std::endl;
+                    monitorTimes.clear();
+                }
+            }
         
             if (enableDebug_m) {        
                 printf("monitorImpl: %x -> %x [ ", (unsigned) request.ArbitrationId, (unsigned) response.ArbitrationId);
