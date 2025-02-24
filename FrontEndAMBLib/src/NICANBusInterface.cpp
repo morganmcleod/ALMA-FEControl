@@ -15,9 +15,7 @@
 *You should have received a copy of the GNU Lesser General Public
 *License along with this library; if not, write to the Free Software
 *Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
-*
-* "@(#) $Id$"
-*
+
 */
 
 #include "NICANBusInterface.h"
@@ -27,7 +25,6 @@
 #include <chrono>
 #include "delayStats.h"
 #include "logger.h"
-// #include "portable.h"
 
 // --------------------------------------------------------------------------
 //private:
@@ -129,8 +126,6 @@ void NICANBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &msg)
     static delayStats<unsigned long> calc_response_time;
     static std::vector<unsigned long> monitorTimes;
     static unsigned int N = 1000;
-    auto start = std::chrono::steady_clock::now();
-    unsigned long elapsed;
     
     NCTYPE_OBJH handle = _handle;        
     // Read and discard any stale data in the read buffer:
@@ -149,6 +144,9 @@ void NICANBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &msg)
     memset(request.Data, 0, AMB_DATA_MSG_SIZE);
     status = ncWrite(handle, sizeof(NCTYPE_CAN_FRAME), &request);
 
+    // start the timer after write:
+    unsigned long start = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
     bool success = false;
     bool timeout = false;
     while (!success && !timeout) {
@@ -162,8 +160,9 @@ void NICANBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &msg)
             status = ncRead(handle, sizeof(NCTYPE_CAN_STRUCT), &response);
 
             if (measureLatency_m) {
-                elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
-                monitorTimes.push_back(elapsed);
+                // collect stats on microseconds elapsed since after write:
+                unsigned long now = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                monitorTimes.push_back(now - start);
                 if (monitorTimes.size() == N) {
                     calc_response_time.calculate(monitorTimes);
                     LOG(LM_INFO) << "monitor elapsed N=" << N << ", mean=" << calc_response_time.mean_m 

@@ -18,6 +18,7 @@
 *
 */
 
+#include "portable.h"
 #include "lv_wrapper.h"
 #include "lv_structs.h"
 #include "exchndl.h"

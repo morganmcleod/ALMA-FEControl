@@ -1,8 +1,8 @@
+#include "portable.h"
 #include "../DLL/lv_wrapper_sigSrc.h"
 #include "../DLL/lv_wrapper_FE.h"
 #include "../DLL/lv_structs.h"
 #include <stdio.h>
-#include <windows.h>
 #include <math.h>
 
 int main(int, char*[]) {

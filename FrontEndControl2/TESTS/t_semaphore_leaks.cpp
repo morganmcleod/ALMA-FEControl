@@ -1,5 +1,5 @@
+#include "portable.h"
 #include <stdio.h>
-#include <windows.h>
 #include <pthread.h>
 #include <semaphore.h>
 

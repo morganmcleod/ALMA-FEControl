@@ -4,7 +4,6 @@
 #include "../DLL/lv_structs.h"
 #include "portable.h"
 #include <stdio.h>
-#include <windows.h>
 #include <math.h>
 #include <iostream>
 #include <iomanip>

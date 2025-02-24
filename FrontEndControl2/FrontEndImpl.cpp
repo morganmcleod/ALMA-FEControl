@@ -901,6 +901,10 @@ bool FrontEndImpl::setCartridgeOn(int port) {
     carts_mp -> setEnable(port);
     msg += " is now powered ON.";
     FEMCEventQueue::addStatusMessage(true, msg);
+    
+    // delay to allow cartridge to fully bias up:
+    SLEEP(1500);
+
     // Measure the SIS voltage setting error if configured to do so:
     if (correctSISVoltageError_m)
         measureSISVoltageError(port);

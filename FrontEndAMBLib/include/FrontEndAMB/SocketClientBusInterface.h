@@ -26,8 +26,6 @@
  *----------------------------------------------------------------------
  */
 
-#include <winsock2.h>
-#include <windows.h>
 #include <boost/asio.hpp>
 #include <string>
 #include "CANBusInterface.h"

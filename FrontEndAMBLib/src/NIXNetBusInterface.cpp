@@ -26,11 +26,6 @@
 #include "portable.h"
 #include "stringConvert.h"
 
-#ifdef _WIN32
-//#define MEASURE_CAN_LATENCY 1
-#endif
-
-
 // --------------------------------------------------------------------------
 //private:
 
