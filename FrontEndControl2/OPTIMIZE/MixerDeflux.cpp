@@ -275,13 +275,13 @@ void MixerDeflux::optimizeAction() {
 
     // Send the measurement finished event:
     setProgress(100);
+    setEvent(FEMCEventQueue::EVENT_OPTIMIZE_DONE, cca_m -> getBand(), -1, 0, 100);
+    setEvent(FEMCEventQueue::EVENT_ALL_REPS_DONE, cca_m -> getBand(), -1, 0, 100);
     if (stopRequested()) {
-        setEvent(FEMCEventQueue::EVENT_OPTIMIZE_DONE, cca_m -> getBand(), -1, 0, 100);
         string msg("MixerDeflux: process stopped.");
         setStatusMessage(false, msg);
         setFinished(false);
     } else {
-        setEvent(FEMCEventQueue::EVENT_OPTIMIZE_DONE, cca_m -> getBand(), -1, 0, 100);
         string msg("MixerDeflux: finished successfully.");
         setStatusMessage(true, msg);
         setFinished(true);

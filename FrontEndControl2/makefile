@@ -100,7 +100,7 @@ FRONTENDOUT = $(patsubst %.cpp,%.o,$(wildcard $(FRONTENDCPP)))
 frontend: $(FRONTENDOUT)
 $(FRONTENDOUT): $(FRONTENDCPP)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) \
-	$(PROJECTINC) $(PORTABLEINC) $(MYSQLINC) \
+	$(PROJECTINC) $(MYSQLINC) \
 	-c $(FRONTENDCPP)
 
 # List of all output files:
@@ -115,8 +115,8 @@ dll: FrontEndControl.dll DLL/libFrontEndControl.a DLL/FrontEndControl.def
 FrontEndControl.dll DLL/FrontEndControl.def: $(DLLCPP) $(ALLOUT)
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -DBUILD_FRONTENDCONTROL -shared -o FrontEndControl.dll \
 	$(ALLOUT) \
-	$(PROJECTINC) $(PORTABLEINC) $(MYSQLINC) \
-	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIB) $(NICANLIB) $(PORTABLELIB) $(EXCHNDLIB) $(EXPATLIB) $(EXPATMMLIB) \
+	$(PROJECTINC) $(MYSQLINC) \
+	$(DBLIB) $(AMBLIB) $(UTILLIB) $(MYSQLLIB) $(WINLIB) $(NICANLIB) $(EXCHNDLIB) $(EXPATLIB) $(EXPATMMLIB) \
 	-Wl,--enable-auto-import,--output-def,DLL/FrontEndControl.def
 
 # Build the import library for linking to the DLL:
@@ -148,26 +148,24 @@ t_SocketClient.exe : tests/t_SocketClient.cpp
 t_LookupTables.exe : tests/t_LookupTables.cpp
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_LookupTables.exe \
 	tests/t_LookupTables.cpp CONFIG/LookupTables.o \
-	$(PORTABLEINC) \
-	$(PORTABLELIB)
+	$(PROJECTINC)
 
 t_semaphore_leaks.exe : tests/t_semaphore_leaks.cpp
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_semaphore_leaks.exe \
 	tests/t_semaphore_leaks.cpp \
-	$(PORTABLEINC) \
-	$(PORTABLELIB)
+	$(PROJECTINC)
 
 t_StreamLogger.exe : tests/t_StreamLogger.cpp
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_StreamLogger.exe \
 	tests/t_StreamLogger.cpp $(AMBOUT) $(BASICOUT) \
 	$(PROJECTINC) \
-	$(UTILLIB) $(PORTABLELIB) $(AMBLIB)
+	$(UTILLIB) $(AMBLIB)
 
 t_FEICDataBase.exe : tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_FEICDataBase.exe \
 	tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp CONFIG/LookupTables.cpp DLL/SWVersion.cpp \
 	$(PROJECTINC) $(MYSQLINC) \
-	$(DBLIB) $(UTILLIB) $(MYSQLLIB) $(PORTABLELIB)
+	$(DBLIB) $(UTILLIB) $(MYSQLLIB)
 
 .PHONY: all
 all: allout dll tests

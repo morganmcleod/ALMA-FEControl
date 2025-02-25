@@ -166,7 +166,7 @@ void NICANBusInterface::monitorImpl(unsigned long _handle, AmbMessage_t &msg)
                 if (monitorTimes.size() == N) {
                     calc_response_time.calculate(monitorTimes);
                     LOG(LM_INFO) << "monitor elapsed N=" << N << ", mean=" << calc_response_time.mean_m 
-                                 << ", stdev=" << calc_response_time.std_m << ", max=" << calc_response_time.max_m << " ms" << std::endl;
+                                 << ", stdev=" << calc_response_time.std_m << ", max=" << calc_response_time.max_m << " us" << std::endl;
                     monitorTimes.clear();
                 }
             }

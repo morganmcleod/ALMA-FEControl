@@ -193,6 +193,7 @@ void MeasureFineLOSweep::optimizeAction() {
             else
                 saveData(1);
         }
+        setEvent(FEMCEventQueue::EVENT_OPTIMIZE_DONE, cartAssembly_m.getBand(), -1, 0, 100);
     }        
     if (!error) {
         string msg("MeasureFineLOSweep: finished successfully.");
@@ -231,7 +232,7 @@ void MeasureFineLOSweep::exitAction(bool success) {
     }
 
     // Send the measurement finished event:
-    setEvent(FEMCEventQueue::EVENT_OPTIMIZE_DONE, cartAssembly_m.getBand(), -1, 0, 100);
+    setEvent(FEMCEventQueue::EVENT_ALL_REPS_DONE, cartAssembly_m.getBand(), -1, 0, 100);
 }
 
 void MeasureFineLOSweep::saveData(int pol) {

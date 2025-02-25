@@ -28,7 +28,8 @@ public:
         EVENT_OPTIMIZE_DONE     = 10,   // indicates that an optimization-related measurement is complete.  caller can collect the data.
         EVENT_CHOPPER_MOVE      = 11,   // asks the caller to move the chopper to hot or cold position.
         EVENT_INITIALIZE        = 12,   // sent after successful connection and querying of FE state.
-        EVENT_CARTHC_DONE       = 13    // sent when all cart health check measurements have finished.
+        EVENT_CARTHC_DONE       = 13,   // sent when all cart health check measurements have finished.
+        EVENT_ALL_REPS_DONE     = 14    // sent when all requested IVCURVE or OPTIMIZE repetitions are complete.
     };
 
     struct Event {

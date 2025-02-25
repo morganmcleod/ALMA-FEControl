@@ -209,6 +209,7 @@ void MeasureSISCurrent::optimizeAction() {
             progress_m += progressIncrement;
             setProgress((short) progress_m);
         }
+        setEvent(FEMCEventQueue::EVENT_OPTIMIZE_DONE, coldCart_m.getBand(), -1, 0, 100);
     }
 
     // sweep the SIS magnet(s) current down to 0:
@@ -239,7 +240,7 @@ void MeasureSISCurrent::optimizeAction() {
         dataFile_mp = NULL;
     }
     setProgress(100);
-    setEvent(FEMCEventQueue::EVENT_OPTIMIZE_DONE, coldCart_m.getBand(), -1, 0, 100);
+    setEvent(FEMCEventQueue::EVENT_ALL_REPS_DONE, coldCart_m.getBand(), -1, 0, 100);
     if (stopRequested()) {
         string msg("MeasureSISCurrent: process stopped.");
         setStatusMessage(false, msg);

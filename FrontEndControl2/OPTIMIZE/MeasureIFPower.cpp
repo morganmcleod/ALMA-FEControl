@@ -362,6 +362,8 @@ void MeasureIFPower::optimizeAction() {
             SLEEP(stepSleep);
             waitForPowerReading_m = true;
         }
+        // Send the measurement finished event:
+        setEvent(FEMCEventQueue::EVENT_OPTIMIZE_DONE, coldCart_m.getBand(), -1, 0, 100);
         
     // All iterations done:
     } else {
@@ -405,7 +407,7 @@ void MeasureIFPower::exitAction(bool success) {
         setStatusMessage(false, msg);
     }
     // Send the measurement finished event:
-    setEvent(FEMCEventQueue::EVENT_OPTIMIZE_DONE, coldCart_m.getBand(), -1, 0, 100);
+    setEvent(FEMCEventQueue::EVENT_ALL_REPS_DONE, coldCart_m.getBand(), -1, 0, 100);
 }
 
 void MeasureIFPower::readData(bool printHeader) {

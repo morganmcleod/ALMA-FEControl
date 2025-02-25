@@ -863,6 +863,12 @@ bool FrontEndImpl::setYIGLimits(int port, double FLOYIG, double FHIYIG) {
 bool FrontEndImpl::setCartridgeOff(int port) {
     LOG(LM_INFO) << "FrontEndImpl::setCartridgeOff port=" << port << endl;
 
+    // pause monitoring:
+    carts_mp -> pauseMonitor(port, true, true);
+
+    // delay to allow monitoring pause to take effect:
+    SLEEP(500);
+
     // set the CartAssembly to powered off state:
     carts_mp -> clearEnable(port);
 
