@@ -1468,7 +1468,7 @@ bool FrontEndImpl::cartMeasureFineLOSweep(int port, float tiltAngle, int pol,
         FEICDataBase::ID_T configId;
         getDbConfigId(configId);
 
-        FEICDataBase::DATASTATUS_TYPES dataStatus = FEICDataBase::DS_COLD_PAS;
+        FEICDataBase::DATASTATUS_TYPES dataStatus = FEICDataBase::DS_COLD_PAI;
         return ca -> measureFineLOSweep(*dbObject_mp, configId, dataStatus, tiltAngle, pol, VJ, IJ, fixedVD, LOStart, LOStop, LOStep, repeatCount);
     } else {
         reportBadCartridge(port, "FrontEndImpl::cartMeasureFineLOSweep", "Measuring fine LO sweep failed");

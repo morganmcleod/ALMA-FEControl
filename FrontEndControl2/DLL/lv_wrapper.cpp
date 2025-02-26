@@ -174,7 +174,7 @@ short LVWrapperInit() {
             useSocketServer = true;
         }
         // socketServerPort defaults to 2000 if not provided
-        tmp = configINI.GetValue("logger", "socketServerPort");
+        tmp = configINI.GetValue("connection", "socketServerPort");
         if (!tmp.empty())
             socketServerPort = from_string<unsigned int>(tmp);
         

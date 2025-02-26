@@ -21,12 +21,15 @@
 
 #include "SWVersion.h"
 
-const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.17.0");
+const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.17.1");
 
 //******* Be sure to update resource.rc!
 
 
 /* Revision history:
+
+2.17.1
+  Fix Fine LO Sweep data being inserted with DataStatus 1=PAS, should be 3=PAI
 
 2.17.0
   SocketClientBusInterface:  working well with timeout logic disabled.   To futher simplify.

@@ -332,12 +332,12 @@ bool SocketClientBusInterface::readResponse(boost::asio::ip::tcp::socket &sock, 
     }
     if (!error) {
         if (measureLatency_m) {
-            elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+            elapsed = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count();
             monitorTimes.push_back(elapsed);
             if (monitorTimes.size() == N) {
                 calc_response_time.calculate(monitorTimes);
                 LOG(LM_INFO) << "monitor elapsed N=" << N << ", mean=" << calc_response_time.mean_m 
-                             << ", stdev=" << calc_response_time.std_m << ", max=" << calc_response_time.max_m << " ms" << endl;
+                             << ", stdev=" << calc_response_time.std_m << ", max=" << calc_response_time.max_m << " us" << endl;
                 monitorTimes.clear();
             }
         }
