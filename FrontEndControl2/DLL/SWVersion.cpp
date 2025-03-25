@@ -21,14 +21,17 @@
 
 #include "SWVersion.h"
 
-const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.17.1");
+const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.17.2");
 
 //******* Be sure to update resource.rc!
 
 
 /* Revision history:
 
-2.17.1
+2.17.2 2025-03-25
+  Fix bug introduced in commit dbe2c97de0: was sending OPTIMIZE_DONE event in the measurement loop for IF power
+
+2.17.1 2025-02-26
   Fix Fine LO Sweep data being inserted with DataStatus 1=PAS, should be 3=PAI
 
 2.17.0
