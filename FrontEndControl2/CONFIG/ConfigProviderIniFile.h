@@ -105,6 +105,10 @@ namespace FEConfig {
                                         float &VG1, float &VG2, float &VG3);
         ///< private helper to parse a PreampParam row formatted like "FreqLO,Pol,SIS,VD1,VD2,VD3,ID1,ID2,ID3,VG1,VG2,VG3"
 
+        static bool parseTVOCoeffRow(const std::string &src, 
+                                    float &X0, float &X1, float &X2, float &X3,
+                                    float &X4, float &X5, float &X6);
+
         static bool parseLOParamRow(const std::string &src, double &FreqLO, 
                                     float &VD0, float &VD1, float &VG0, float &VG1);
         ///< private helper to parse an LOParam row formatted like "FreqLO,VD0,VD1,VG0,VG1"

@@ -75,6 +75,7 @@ public:
     virtual void gateValveState(unsigned char val);
     virtual void solenoidValveState(unsigned char val);
     virtual void vacuumGaugeEnable(bool val);
+    virtual void setTVOCoefficient(unsigned char se,  unsigned char co, float val);
 
 protected:
     FEMC_ERROR CryostatMonitorTempsensor(AmbRelativeAddr RCA, float &target);
@@ -83,20 +84,23 @@ protected:
     virtual void monitorAction(Time *timestamp_p);
     
     enum MonitorControlOffset {
-        CRYOSTAT_TEMP           = 0x0000,
-        BACKING_PUMP_ENABLE     = 0x0034,
-        TURBO_PUMP_ENABLE       = 0x0038,
-        TURBO_PUMP_STATE        = 0x0039,
-        TURBO_PUMP_SPEED        = 0x003A,
-        GATE_VALVE_STATE        = 0x003C,
-        SOLENOID_VALVE_STATE    = 0x0040,        
-        VACUUM_CRYOSTAT_PRES    = 0x0044,
-        VACUUM_PORT_PRES        = 0x0045,
-        VACUUM_GAUGE_ENABLE     = 0x0046,
-        VACUUM_GAUGE_STATE      = 0x0047,
-        SUPPLY_CURRENT_230V     = 0x0048,
-        COLD_HEAD_HOURS         = 0x004C,
-        RESET_COLD_HEAD_HOURS   = 0x004D
+        CRYOSTAT_TEMP                   = 0x0000,
+        BACKING_PUMP_ENABLE             = 0x0034,
+        TURBO_PUMP_ENABLE               = 0x0038,
+        TURBO_PUMP_STATE                = 0x0039,
+        TURBO_PUMP_SPEED                = 0x003A,
+        GATE_VALVE_STATE                = 0x003C,
+        SOLENOID_VALVE_STATE            = 0x0040,
+        VACUUM_CRYOSTAT_PRES            = 0x0044,
+        VACUUM_PORT_PRES                = 0x0045,
+        VACUUM_GAUGE_ENABLE             = 0x0046,
+        VACUUM_GAUGE_STATE              = 0x0047,
+        SUPPLY_CURRENT_230V             = 0x0048,
+        COLD_HEAD_HOURS                 = 0x004C,
+        RESET_COLD_HEAD_HOURS           = 0x004D,
+        TVO_COEFF_SET                   = 0x0080,
+        SET_CRYOSTAT_TEMP_TVO_COEFF     = 0x0008
+
     };
 
     float cryostatTemperature0_value;
@@ -148,6 +152,7 @@ protected:
     int vacuumPortPressure_status;
     int vacuumGaugeEnable_status;
     int vacuumGaugeErrorState_status;
+    int setTVOCoefficient_status;
 
     AmbRelativeAddr baseRCA;
     AmbRelativeAddr cryostatTemperature0_RCA;
@@ -162,7 +167,7 @@ protected:
     AmbRelativeAddr cryostatTemperature9_RCA;
     AmbRelativeAddr cryostatTemperature10_RCA;
     AmbRelativeAddr cryostatTemperature11_RCA;
-    AmbRelativeAddr cryostatTemperature12_RCA;    
+    AmbRelativeAddr cryostatTemperature12_RCA;
     AmbRelativeAddr backingPumpEnable_RCA;
     AmbRelativeAddr supplyCurrent230V_RCA;
     AmbRelativeAddr turboPumpEnable_RCA;
@@ -174,6 +179,7 @@ protected:
     AmbRelativeAddr vacuumPortPressure_RCA;
     AmbRelativeAddr vacuumGaugeEnable_RCA;
     AmbRelativeAddr vacuumGaugeErrorState_RCA;
+    AmbRelativeAddr setTVOCoefficient_RCA;
 
 private:
     // forbid copy constructor:

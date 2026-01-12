@@ -36,6 +36,8 @@ public:
                  unsigned long nodeAddress,
                  const std::string &ESN = "");
     virtual ~CryostatImpl();
+
+    void setCryostatConfig(const FEConfig::CryostatConfig &params);
     
     // initiate or stop pump-down process:
     bool cryoPumpingEnable(bool val);

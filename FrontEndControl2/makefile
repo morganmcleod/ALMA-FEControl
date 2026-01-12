@@ -164,7 +164,7 @@ t_StreamLogger.exe : tests/t_StreamLogger.cpp
 t_FEICDataBase.exe : tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp
 	g++ $(CPPFLAGS) $(DEBUGFLAGS) -o t_FEICDataBase.exe \
 	tests/t_FEICDataBase.cpp CONFIG/FrontEndDatabase.cpp CONFIG/LookupTables.cpp DLL/SWVersion.cpp \
-	$(PROJECTINC) $(MYSQLINC) \
+	$(PROJECTINC) $(WINLIB) $(MYSQLINC) \
 	$(DBLIB) $(UTILLIB) $(MYSQLLIB)
 
 .PHONY: all

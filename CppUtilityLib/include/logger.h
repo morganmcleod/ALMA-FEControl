@@ -62,6 +62,29 @@ public:
     std::ostringstream &get(logLevel level = LM_INFO, const Time *TS = NULL);
     ///< Prepares the Logger object by prepending the timestamp and logging level to the internal string.
 
+    inline static logLevel levelFromString(std::string &inputString) {
+      if(inputString.compare("EMERGENCY") == 0)
+        return logLevel::LM_EMERGENCY;
+      else if(inputString.compare("ALERT")==0)
+        return logLevel::LM_ALERT;
+      else if(inputString.compare("CRITICAL")==0)
+        return logLevel::LM_CRITICAL;
+      else if(inputString.compare("ERROR")==0)
+        return logLevel::LM_ERROR;
+      else if(inputString.compare("WARNING")==0)
+        return logLevel::LM_WARNING;
+      else if(inputString.compare("NOTICE")==0)
+        return logLevel::LM_NOTICE;
+      else if(inputString.compare("INFO")==0)
+        return logLevel::LM_INFO;
+      else if(inputString.compare("DEBUG")==0)
+        return logLevel::LM_DEBUG;
+      else if(inputString.compare("TRACE")==0)
+        return logLevel::LM_TRACE;
+      else
+        return logLevel::LM_INFO;
+    }
+
     inline static logLevel &reportingLevel()
       { return reportingLevel_m; }
     ///< Access an object giving the maximum loging level to print.  This object can be modified at runtime.

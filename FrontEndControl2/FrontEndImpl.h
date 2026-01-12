@@ -112,6 +112,7 @@ public:
     bool setColdCartConfig(int port, const FEConfig::ColdCartConfig &params);
     bool setWCAConfig(int port, const FEConfig::WCAConfig &params);
     bool setYIGLimits(int port, double FLOYIG, double FHIYIG);
+    bool setCryostatConfig(const FEConfig::CryostatConfig &params);
 
 // Functions to manage the enabled/standby/observing status of the cartridges:    
     bool setCartridgeOff(int port);

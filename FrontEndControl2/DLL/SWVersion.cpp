@@ -21,12 +21,17 @@
 
 #include "SWVersion.h"
 
-const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.17.2");
+const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.17.3");
 
 //******* Be sure to update resource.rc!
 
 
 /* Revision history:
+2.17.3 2026-01-12
+  Added Cryostat TVO Coefficients configuration from INI/XML file
+  Added setting logLevel from FrontEndControlDLL.ini
+  Added Boost library using install_dep.sh
+  Fixed a minor bug in two LORTM monitor points offsets
 
 2.17.2 2025-03-25
   Fix bug introduced in commit dbe2c97de0: was sending OPTIMIZE_DONE event in the measurement loop for IF power

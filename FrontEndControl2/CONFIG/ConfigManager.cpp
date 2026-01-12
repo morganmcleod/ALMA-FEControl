@@ -94,6 +94,7 @@ bool ConfigManager::configure(const Configuration &config, SignalSourceImpl &tar
 
 bool ConfigManager::configureCryostat(const CryostatConfig &cryo, FrontEndImpl &target) const {
     // TODO: insert cryostat config into target.
+    target.setCryostatConfig(cryo);
     LOG(LM_INFO) << "ConfigManager: Configured Cryostat (" << cryo.keyCryostat_m << ")." << endl;
     return true;
 }

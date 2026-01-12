@@ -30,6 +30,11 @@ void CryostatConfig::reset(unsigned keyCryostat) {
 void CryostatConfig::streamOut(std::ostream& out) const {
     out << "CryostatConfig(" << keyCryostat_m << "): "
         << "SN='" << SN_m << "' ESN='" << ESN_m << "'" << std::endl;
+    if (!keyCryostat_m) {
+        out << "empty" << std::endl;
+    } else {
+        out << " - TVO Coefficients:" << std::endl << tvoCoeff_m;
+    }
 }
 
 void LPRConfig::reset(unsigned keyLPR) {

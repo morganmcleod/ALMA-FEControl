@@ -68,6 +68,21 @@ bool CryostatImpl::cryoPumpingEnable(bool val) {
 	return true;
 }
 
+void CryostatImpl::setCryostatConfig(const FEConfig::CryostatConfig &params) {
+    LOG(LM_INFO) << "Cryostat setting coefficients:" << endl << params.tvoCoeff_m << endl;
+
+    for (auto& elem : params.tvoCoeff_m) {
+        auto sensor = elem.first;
+        auto data = elem.second;
+        unsigned char se = (unsigned char)(sensor - 1);
+        if (se > 8 || se < 0) continue;
+        for (unsigned char co = 0; co < 7; co++) {
+            auto val = data.get(co);
+            setTVOCoefficient(se, co, val);
+        }
+    }
+}
+
 void CryostatImpl::startCooldownPlot(FrontEndDatabase &dbObject, const FEICDataBase::ID_T &feConfig, FEICDataBase::DATASTATUS_TYPES dataStatus)
 {
     dbObject_mp = &dbObject;

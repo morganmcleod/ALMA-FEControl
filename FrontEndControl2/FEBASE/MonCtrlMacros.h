@@ -193,6 +193,11 @@
     SYNCCMD2(RCA, VALUE) \
     LOG2_INT(FEMC_LOG_COMMAND, RCA, TEXT, 0, VALUE)
 
+/// synchronous command and log a float, given the parameter NAME, VALUE, and logging TEXT.
+#define SYNCCMD2_LOG_FLOAT(RCA, VALUE, TEXT) \
+    SYNCCMD2(RCA, VALUE) \
+    LOG2_FLOAT(FEMC_LOG_COMMAND, RCA, TEXT, 0, VALUE)
+
 /// synchronous command and log an integer type, given the parameter NAME, VALUE, and logging TEXT.
 #define SYNCCMD2_LOG_INT(RCA, VALUE, TEXT) \
     SYNCCMD2(RCA, VALUE) \

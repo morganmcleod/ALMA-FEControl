@@ -50,6 +50,13 @@ bool XMLParser::getWCAConfig(WCAConfig &target) {
     return Parse();
 }
 
+bool XMLParser::getCryostatConfig(CryostatConfig &target) {
+    target_m.cryostat_p = &target;
+    targetType_m = TYPE_CRYOSTAT;
+    return Parse();
+}
+
+
 enum attrStrings {
     MixerParams,
     FreqLO,
@@ -83,7 +90,16 @@ enum attrStrings {
     VG3,
     FLOYIG,
     FHIYIG,
-    PowerAmp
+    PowerAmp,
+    TVOCoefficients,
+    Se,
+    A0,
+    A1,
+    A2,
+    A3,
+    A4,
+    A5,
+    A6
 };
 
 static std::map<std::string, attrStrings> s_mapStrings;
@@ -271,6 +287,47 @@ void XMLParser::StartElement(const XML_Char *name, const XML_Char **attrs) {
                     break;
             }
             break;
+        case TYPE_CRYOSTAT:
+            switch (s_mapStrings[name]) {
+                case TVOCoefficients:
+                    for (int i = 0; attrs[i]; i += 2) {
+                        attrName = attrs[i];
+                        attrValue = attrs[i + 1];
+                        fValue = from_string<double>(attrValue);
+                        switch (s_mapStrings[attrName]) {
+                            case Se:
+                                freqLO = fValue + 1;
+                                break;
+                            case A0:
+                                target_m.cryostat_p -> tvoCoeff_m.set(freqLO, TVOCoeffParams::Coeff0, fValue);
+                                break;
+                            case A1:
+                                target_m.cryostat_p -> tvoCoeff_m.set(freqLO, TVOCoeffParams::Coeff1, fValue);
+                                break;
+                            case A2:
+                                target_m.cryostat_p -> tvoCoeff_m.set(freqLO, TVOCoeffParams::Coeff2, fValue);
+                                break;
+                            case A3:
+                                target_m.cryostat_p -> tvoCoeff_m.set(freqLO, TVOCoeffParams::Coeff3, fValue);
+                                break;
+                            case A4:
+                                target_m.cryostat_p -> tvoCoeff_m.set(freqLO, TVOCoeffParams::Coeff4, fValue);
+                                break;
+                            case A5:
+                                target_m.cryostat_p -> tvoCoeff_m.set(freqLO, TVOCoeffParams::Coeff5, fValue);
+                                break;
+                            case A6:
+                                target_m.cryostat_p -> tvoCoeff_m.set(freqLO, TVOCoeffParams::Coeff6, fValue);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+            break;
         case TYPE_UNDEFINED:
         default:
             break;
@@ -352,6 +409,15 @@ void XMLParser::initAttrStrings() const {
     s_mapStrings["FLOYIG"] = FLOYIG;
     s_mapStrings["FHIYIG"] = FHIYIG;
     s_mapStrings["PowerAmp"] = PowerAmp;
+    s_mapStrings["TVOCoefficients"] = TVOCoefficients;
+    s_mapStrings["Se"] = Se;
+    s_mapStrings["A0"] = A0;
+    s_mapStrings["A1"] = A1;
+    s_mapStrings["A2"] = A2;
+    s_mapStrings["A3"] = A3;
+    s_mapStrings["A4"] = A4;
+    s_mapStrings["A5"] = A5;
+    s_mapStrings["A6"] = A6;
 }
 
 } // namespace FEConfig
