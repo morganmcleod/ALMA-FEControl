@@ -80,6 +80,7 @@ CryostatImplBase::CryostatImplBase(const std::string &name)
     vacuumPortPressure_status(FEMC_NOT_CONNECTED),
     vacuumGaugeEnable_status(FEMC_NOT_CONNECTED),
     vacuumGaugeErrorState_status(FEMC_NOT_CONNECTED),
+    setTVOCoefficient_status(FEMC_NOT_CONNECTED),
     lastMonitorTime(0),
     monitorPhase(0)
 {
@@ -108,6 +109,7 @@ CryostatImplBase::CryostatImplBase(const std::string &name)
     vacuumPortPressure_RCA      = baseRCA + VACUUM_PORT_PRES;
     vacuumGaugeEnable_RCA       = baseRCA + VACUUM_GAUGE_ENABLE;
     vacuumGaugeErrorState_RCA   = baseRCA + VACUUM_GAUGE_STATE;
+    setTVOCoefficient_RCA       = baseRCA + TVO_COEFF_SET + 0x10000;
     supplyCurrent230V_RCA       = baseRCA + SUPPLY_CURRENT_230V;
 
     // Add all the analog monitor points to the registry:
@@ -300,6 +302,10 @@ void CryostatImplBase::solenoidValveState(unsigned char val) {
 
 void CryostatImplBase::vacuumGaugeEnable(bool val) {
     SYNCCMD_LOG_BOOL(vacuumGaugeEnable, val, "CRYO_VACUUM_GAUGE_ENABLE") 
+}
+
+void CryostatImplBase::setTVOCoefficient(unsigned char se, unsigned char co, float val) {
+    SYNCCMD2_LOG_FLOAT(setTVOCoefficient_RCA + se * 0x0008 + co, val, "CRYO_SET_TVO_COEFFICIENT")
 }
 
 void CryostatImplBase::monitorAction(Time *timestamp_p) {

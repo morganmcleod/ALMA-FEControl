@@ -24,6 +24,7 @@
 
 /// \file
 /// \brief declares data structures for front end subsystems configuration items in namespace FEConfig.  
+#include "LookupTables.h"
 #include <iostream>
 
 namespace FEConfig {
@@ -49,6 +50,7 @@ namespace FEConfig {
         unsigned keyCryostat_m;     ///< uniquely identifies a record in the Cryostats table.
         std::string SN_m;           ///< The cryostat's assigned serial number.
         std::string ESN_m;          ///< The cryostat's electronic serial number.
+        TVOCoeffParams tvoCoeff_m;  ///< contains the mixer bias values which vary with LO frequency.
     };
 
     inline std::ostream &operator << (std::ostream& out, const CryostatConfig &config)

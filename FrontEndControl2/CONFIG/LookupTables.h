@@ -337,6 +337,39 @@ namespace FEConfig {
     inline std::ostream &operator << (std::ostream& out, const PowerAmpParams &params)
       { params.streamOut(out); return out; }
     ///< stream output for debugging PowerAmpParams
+
+    //------------------------------------------------------------------------
+    /// lookup table for Cryostat TVO Coefficients
+    class TVOCoeffParams : public ParamTable {
+    public:
+        /// define parameter names for use with this ParamTable
+        enum PARAM_COLS {
+            Coeff0 = 0,     /// SIS magnet current for pol0 sb1
+            Coeff1,
+            Coeff2,
+            Coeff3,
+            Coeff4,
+            Coeff5,
+            Coeff6,
+            NUM_COLS
+        };
+
+        TVOCoeffParams()
+        : ParamTable(NUM_COLS)
+        { ParamTable::minInterpolateInterval_m = 0.000001;
+          ParamTable::freqPrecision_m = 6; }
+        ///< constructor fixes the number of data columns at NUM_COLS.
+        ///< Minimum interpolation interval is 1 kHz.
+        ~TVOCoeffParams()
+          {}
+
+        void streamOut(std::ostream& out) const;
+        ///< stream output for debugging
+    };
+
+    inline std::ostream &operator << (std::ostream& out, const TVOCoeffParams &params)
+      { params.streamOut(out); return out; }
+    ///< stream output for debugging MagnetParams
     
 }; // namespace FEConfig
 

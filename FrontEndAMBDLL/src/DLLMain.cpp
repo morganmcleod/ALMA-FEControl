@@ -134,6 +134,11 @@ int DLL_CALL ambInitialize() {
         if (!temp.empty())
             logDir = temp;
 
+        // load a user specified logDir:
+        temp = configINI -> GetValue("logger", "logLevel");
+        if (!temp.empty())
+            reportingLevel = StreamLogger::levelFromString(temp);
+
         // Compose the log file and excHndl file names:
         string logFile("");
         string excHndlFile("");

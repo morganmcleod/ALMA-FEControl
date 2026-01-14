@@ -133,6 +133,11 @@ short LVWrapperInit() {
         if (logDir.empty())
             logDir = configINI.GetValue("logger", "logDir");
 
+        // load a user specified logDir:
+        string temp = configINI.GetValue("logger", "logLevel");
+        if (!temp.empty())
+            reportingLevel = StreamLogger::levelFromString(temp);
+
         // Compose the log file and excHndl file names:
         string logFile("");
         string excHndlFile("");

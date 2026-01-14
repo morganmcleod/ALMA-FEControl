@@ -18,7 +18,7 @@
 *
 *
 */
- 
+
 #include "LORTMImplBase.h"
 #include "MonCtrlMacros.h"
 #include "logger.h"
@@ -31,7 +31,7 @@ LORTMImplBase::LORTMImplBase(const std::string &name)
   : FEHardwareDevice(name),
     CANStatus_value(0),
     AMBSINumErrors_value(0),
-    AMBSINumTransactions_value(0),  
+    AMBSINumTransactions_value(0),
     AmbientTemperature_value(0),
     AmbientTemperature_status(0),
     SystemGetStatus_value(0),
@@ -41,7 +41,7 @@ LORTMImplBase::LORTMImplBase(const std::string &name)
     operationPending(false),
     SystemGetError_value(0),
     SystemGetWarning_value(0),
-    SystemGetInterlockStatus_value(false),  
+    SystemGetInterlockStatus_value(false),
     LaserBiasMon1_value(0),
     LaserBiasMon2_value(0),
     LaserBiasMon3_value(0),
@@ -74,7 +74,7 @@ LORTMImplBase::LORTMImplBase(const std::string &name)
     LaserGetStatus1_value(0),
     LaserGetStatus2_value(0),
     LaserGetStatus3_value(0),
-    LaserGetStatus4_value(0),  
+    LaserGetStatus4_value(0),
     PhaselockGetStatus_value(0),
     PhaselockGetSelectedLaser_value(0),
     PhaselockGetSelectedBand_value(0),
@@ -94,13 +94,13 @@ void LORTMImplBase::shutdown() {
 
 std::string LORTMImplBase::GetSerialNumber() {
     FEHardwareDevice::syncMonitorEightByteESN(GET_SERIAL_NUMBER, SerialNumber_value, false);
-    return SerialNumber_value;    
+    return SerialNumber_value;
 }
 
 std::string LORTMImplBase::GetProtocolRevision() {
     AmbDataLength_t dataLength;
     AmbDataMem_t data[8];
-    sem_t synchLock; 
+    sem_t synchLock;
     Time timestamp;
     AmbErrorCode_t status = AMBERR_NOERR;
     sem_init(&synchLock, 0, 0);
@@ -120,7 +120,7 @@ std::string LORTMImplBase::GetProtocolRevision() {
 std::string LORTMImplBase::GetFirmwareVersion() {
     AmbDataLength_t dataLength;
     AmbDataMem_t data[8];
-    sem_t synchLock; 
+    sem_t synchLock;
     Time timestamp;
     AmbErrorCode_t status = AMBERR_NOERR;
     sem_init(&synchLock, 0, 0);
@@ -156,7 +156,7 @@ unsigned long LORTMImplBase::AMBSINumErrors() {
     LOG2_INT(FEMC_LOG_MONITOR, AMBSI_NUM_ERRORS, "LORTM:AMBSI_NUM_ERRORS", feStatus, AMBSINumErrors_value);
     return AMBSINumErrors_value;
 }
-    
+
 unsigned long LORTMImplBase::AMBSINumTransactions() {
     AMBSINumTransactions_value = 0;
     AmbDataLength_t dataLength;
@@ -178,7 +178,7 @@ unsigned long LORTMImplBase::AMBSINumTransactions() {
 }
 
 float LORTMImplBase::AmbientTemperature() {
-    int AmbientTemperature_status = 0; 
+    int AmbientTemperature_status = 0;
     AmbientTemperature_value = 0;
     AmbDataLength_t dataLength;
     AmbDataMem_t data[8];
@@ -188,12 +188,12 @@ float LORTMImplBase::AmbientTemperature() {
     sem_init(&synchLock, 0, 0);
     monitor(GET_AMBIENT_TEMPERATURE, dataLength, data, &synchLock, &timestamp, &status);
     sem_wait(&synchLock);
-    sem_destroy(&synchLock);    
+    sem_destroy(&synchLock);
     if (status == AMBERR_NOERR) {
         // TODO: remove this workaround -- LORTM returns temperature bytes in reverse order.
         data[7] = data[0];
         data[0] = data[1];
-        data[1] = data[7];        
+        data[1] = data[7];
         AmbientTemperature_status = unpackDS1820Temperature(AmbientTemperature_value, dataLength, data);
     } else
         AmbientTemperature_status = FEMC_UNPACK_ERROR;
@@ -369,11 +369,11 @@ unsigned char LORTMImplBase::LaserGetStatus4() {
 }
 
 bool LORTMImplBase::LaserISrcEnable(int laser) {
-    SYNCMON2_LOG_INT(LASER_ISRC_ENABLE, unsigned char, "LORTM:LASER_ISRC_ENABLE")
+    SYNCMON2_LOG_INT(LASER_ISRC_ENABLE + laser, unsigned char, "LORTM:LASER_ISRC_ENABLE")
 }
 
 unsigned long LORTMImplBase::LaserFrequency(int laser) {
-    SYNCMON2_LOG_INT(LASER_FREQUENCY, unsigned long, "LORTM:LASER_FREQUENCY")
+    SYNCMON2_LOG_INT(LASER_FREQUENCY + laser, unsigned long, "LORTM:LASER_FREQUENCY")
 }
 
 float LORTMImplBase::LaserCalibCoeffA(int laser, int coeff) {
@@ -415,22 +415,22 @@ unsigned short LORTMImplBase::PhaselockGetStatus() {
     if (status == AMBERR_NOERR) {
         feStatus = unpack(PhaselockGetStatus_value, dataLength, data);
         if (feStatus == 0) {
-            phaselockLocked = (PhaselockGetStatus_value & 0x0001) != 0; 
+            phaselockLocked = (PhaselockGetStatus_value & 0x0001) != 0;
             phaselockTuningReady = (PhaselockGetStatus_value & 0x0040) != 0;
             phaselockRFInputReady = (PhaselockGetStatus_value & 0x0080) != 0;
         }
     } else
         feStatus = FEMC_UNPACK_ERROR;
     getLogger().log(FEMC_LOG_MONITOR, "LORTM:PHASELOCK_GET_STATUS", PHASELOCK_GET_STATUS, feStatus, PhaselockGetStatus_value, 0.0);
-    return PhaselockGetStatus_value;    
+    return PhaselockGetStatus_value;
 }
 
 unsigned char LORTMImplBase::PhaselockGetSelectedLaser() {
-    SYNCMON2_LOG_INT(PHASELOCK_GET_SELECTED_LASER, unsigned char, "LORTM:PHASELOCK_GET_SELECTED_LASER")    
+    SYNCMON2_LOG_INT(PHASELOCK_GET_SELECTED_LASER, unsigned char, "LORTM:PHASELOCK_GET_SELECTED_LASER")
 }
-    
+
 unsigned char LORTMImplBase::PhaselockGetSelectedBand() {
-    SYNCMON2_LOG_INT(PHASELOCK_GET_SELECTED_BAND, unsigned char, "LORTM:PHASELOCK_GET_SELECTED_BAND")    
+    SYNCMON2_LOG_INT(PHASELOCK_GET_SELECTED_BAND, unsigned char, "LORTM:PHASELOCK_GET_SELECTED_BAND")
 }
 
 void LORTMImplBase::ResetAMBSI() {
@@ -468,7 +468,7 @@ void LORTMImplBase::SystemClearErrors() {
     SYNCCMD2_LOG_BYTE(SYSTEM_CLEAR_ERRORS, dummy, "LORTM:SYSTEM_CLEAR_ERRORS")
 }
 
-void LORTMImplBase::PhaseLockTuningInit(unsigned long slaveFreqMHz) {    
+void LORTMImplBase::PhaseLockTuningInit(unsigned long slaveFreqMHz) {
     SYNCCMD2_LOG_INT(PHASELOCK_TUNING_INIT, slaveFreqMHz, "LORTM:PHASELOCK_TUNING_INIT")
 }
 
@@ -497,14 +497,13 @@ void LORTMImplBase::LaserCalibrationSelect(int laser) {
     SYNCCMD2_LOG_BYTE(LL_OPTSW_CALIBRATION, val, "LORTM:LL_OPTSW_CALIBRATION")
 }
 
-void LORTMImplBase::monitorAction(Time *timestamp_p) {
-    
+void LORTMImplBase::monitorAction(Time* timestamp_p) {
     if (!timestamp_p)
         return;
 
     // constant factor to convert 100 ns ticks to ms:
     static const Time milliseconds = 10000;
-    static const Time monitorInterval = 5000 * milliseconds;   
+    static const Time monitorInterval = 5000 * milliseconds;
     bool doMonitor = false;
 
     if (lastMonitorTime == 0 || (*timestamp_p - lastMonitorTime >= monitorInterval)) {
@@ -523,7 +522,7 @@ void LORTMImplBase::monitorAction(Time *timestamp_p) {
         if (phaselockRFInputReady) {
             PhaselockGetSelectedLaser_value = PhaselockGetSelectedLaser();
             PhaselockGetSelectedBand_value = PhaselockGetSelectedBand();
-        }            
+        }
         LaserBiasMon1_value = LaserBiasMon1();
         LaserBiasMon2_value = LaserBiasMon2();
         LaserBiasMon3_value = LaserBiasMon3();
@@ -539,19 +538,19 @@ void LORTMImplBase::monitorAction(Time *timestamp_p) {
         LaserGetStatus4_value = LaserGetStatus4();
     }
 
-    static const Time monitorInterval30s = 30000 * milliseconds;   
+    static const Time monitorInterval30s = 30000 * milliseconds;
     bool doMonitor30s = false;
 
     if (lastMonitorTime30s == 0 || (*timestamp_p - lastMonitorTime30s >= monitorInterval30s)) {
         lastMonitorTime30s = *timestamp_p;
         doMonitor30s = true;
     }
-    
+
     if (doMonitor30s) {
         AMBSINumErrors();
         AMBSINumTransactions();
         AmbientTemperature();
-        
+
         LaserTecIMon1_value = LaserTecIMon1();
         LaserTecIMon2_value = LaserTecIMon2();
         LaserTecIMon3_value = LaserTecIMon3();
@@ -568,10 +567,10 @@ void LORTMImplBase::monitorAction(Time *timestamp_p) {
         RFPowMon34dB_value = RFPowMon34dB();
         ExternThermMon_value = ExternThermMon();
         InternThermMon_value = InternThermMon();
-        
+
         /*
         for (int laser = 0; laser < 3; ++laser) {
-            for (int coeff = 0; coeff < 3; ++coeff) {        
+            for (int coeff = 0; coeff < 3; ++coeff) {
                 LaserCalibCoeffA(laser, coeff);
                 LaserCalibCoeffB(laser, coeff);
                 LaserCalibCoeffC(laser, coeff);
@@ -580,7 +579,6 @@ void LORTMImplBase::monitorAction(Time *timestamp_p) {
         */
     }
 }
-
 
 float LORTMImplBase::convertLaserBiasMon(unsigned short adValue) {
     return (float) ((double(adValue) / 65536.0) * 1000.0);
@@ -628,4 +626,3 @@ float LORTMImplBase::convertRFAGCGainMon(unsigned short adValue) {
 float LORTMImplBase::convertRFPowMon34dB(unsigned short adValue) {
     return (float) ((22.72 * ((double(adValue) / 65536.0) * 5.0) - 2.64) - 34.4);
 }
-

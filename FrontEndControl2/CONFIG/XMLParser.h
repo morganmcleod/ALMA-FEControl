@@ -45,6 +45,10 @@ public:
     ///< get the WCAConfig portion of the specified config for the specified band.
     ///< returns false if that portion is not available or on error.
 
+    bool getCryostatConfig(CryostatConfig &target);
+    ///< get the WCAConfig portion of the specified config for the specified band.
+    ///< returns false if that portion is not available or on error.
+
 protected:
     virtual void StartElement(const XML_Char *name, const XML_Char **attrs);
     virtual void EndElement(const XML_Char *name);
@@ -57,7 +61,9 @@ private:
     typedef enum {
         TYPE_UNDEFINED,
         TYPE_COLDCART,
-        TYPE_WCA
+        TYPE_WCA,
+        TYPE_CRYOSTAT,
+        TYPE_LPR,
     } TargetType_t;
 
     TargetType_t targetType_m;
@@ -65,6 +71,7 @@ private:
     union {
         ColdCartConfig *cca_p;
         WCAConfig *wca_p;
+        CryostatConfig *cryostat_p;
     } target_m;
 };
 

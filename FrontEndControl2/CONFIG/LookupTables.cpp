@@ -182,7 +182,11 @@ void PreampParams::streamOut(std::ostream& out) const {
 void PowerAmpParams::streamOut(std::ostream& out) const {
     out << "FreqLO: VD0 VD1 VG0 VG1" << std::endl;
     ParamTable::streamOut(out); 
-} 
-        
+}
+
+void TVOCoeffParams::streamOut(std::ostream& out) const {
+    out << "TVOCoeff: X0 X1 X2 X3 X4 X5 X6" << std::endl;
+    ParamTable::streamOut(out); 
+}
 }; //namespace FEConfig
 

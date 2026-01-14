@@ -857,6 +857,15 @@ bool FrontEndImpl::setYIGLimits(int port, double FLOYIG, double FHIYIG) {
         return false;
 }
 
+bool FrontEndImpl::setCryostatConfig(const FEConfig::CryostatConfig &params) {
+    CryostatImpl *cryostat = this->cryostat_mp;
+    if (cryostat) {
+        cryostat -> setCryostatConfig(params);
+        return true;
+    } else
+        return false;
+}
+
 //----------------------------------------------------------------------------
 // Functions to manage the power and enabled/standby/observing status of the cartridges:    
 

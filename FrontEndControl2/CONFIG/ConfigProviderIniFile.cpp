@@ -57,14 +57,14 @@ ConfigProviderIniFile::~ConfigProviderIniFile() {
 bool ConfigProviderIniFile::exists(unsigned configId) const {
     if (!configId)
         return false;
-    
+
     Configuration::Record rec;
     return getConfiguration(configId, rec);
 }
 
 bool ConfigProviderIniFile::getConfiguration(unsigned configId, Configuration::Record &target) const {
     target.reset(configId);
-    
+
     if (!configId)
         return false;
 
@@ -114,15 +114,15 @@ bool ConfigProviderIniFile::getAllConfigurations(std::vector<Configuration::Reco
 
 bool ConfigProviderIniFile::getFrontEndConfig(unsigned keyFrontEnd, FrontEndConfig &target) const {
     target.reset(keyFrontEnd);
-    
+
     if (!keyFrontEnd)
         return false;
-    
+
     string tmp;
     char sectionName[30];
     char itemName[30];
     sprintf(sectionName, "~FrontEnd%u-%u", providerCode_m, keyFrontEnd);
-    
+
     unsigned fkCryostat(0), fkLPR(0), numCarts(0);
 
     target.SN_m = iniFile_mp -> GetValue(sectionName, "SN");
@@ -137,7 +137,7 @@ bool ConfigProviderIniFile::getFrontEndConfig(unsigned keyFrontEnd, FrontEndConf
         if (getCryostatConfig(fkCryostat, cryoConfig))
             target.setCryostatConfig(cryoConfig);
     }
-        
+
     // FETIM: default to 1 unless explicitly set to 0:
     tmp = iniFile_mp -> GetValue(sectionName, "FETIM");
     if (!tmp.empty())
@@ -158,17 +158,17 @@ bool ConfigProviderIniFile::getFrontEndConfig(unsigned keyFrontEnd, FrontEndConf
         if (getLPRConfig(fkLPR, lprConfig))
             target.setLPRConfig(lprConfig);
     }
-        
+
     tmp = iniFile_mp -> GetValue(sectionName, "PowerDist");
     if (!tmp.empty())
         target.fkPowerDist_m = from_string<unsigned>(tmp);
-    
+
     tmp = iniFile_mp -> GetValue(sectionName, "Carts");
     if (!tmp.empty())
         numCarts = from_string<unsigned>(tmp);
 
     CartAssemblyConfig caConfig;
-    
+
     for (unsigned cart = 1; cart <= numCarts; ++cart) {
         sprintf(itemName, "Cart%02d", cart);
         tmp = iniFile_mp -> GetValue(sectionName, itemName);
@@ -185,7 +185,7 @@ bool ConfigProviderIniFile::getFrontEndConfig(unsigned keyFrontEnd, FrontEndConf
             }
         }
     }
-    
+
     return true;
 }
 
@@ -196,10 +196,55 @@ bool ConfigProviderIniFile::getCryostatConfig(unsigned keyCryostat, CryostatConf
         return false;
 
     char sectionName[30];
+    char itemName[30];
+    unsigned numParams(0);
+    string tmp;
+
     sprintf(sectionName, "~Cryostat%u-%u", providerCode_m, keyCryostat);
-    
+
     target.SN_m = iniFile_mp -> GetValue(sectionName, "SN");
     target.ESN_m = iniFile_mp -> GetValue(sectionName, "ESN");
+
+    // If the XML key is defined, load the configuration from the XML file instead:
+    tmp = iniFile_mp -> GetValue(sectionName, "XML");
+    if (!tmp.empty()) {
+        string xmlFile(tmp);
+        string iniFile(iniFile_mp -> Path());
+        string iniPath;
+
+        // get the path where the FrontendControlDLL.ini file is located:
+        splitPath(iniFile, iniPath, tmp);
+        if (iniPath.empty())
+            iniPath = ".";
+
+        xmlFile = iniPath + "/" + xmlFile;
+
+        XMLParser xmlParser(xmlFile);
+        return xmlParser.getCryostatConfig(target);
+    }
+
+    tmp = iniFile_mp -> GetValue(sectionName, "TVOCoefficients");
+    if (!tmp.empty())
+        numParams = from_string<unsigned>(tmp);
+
+    if (numParams) {
+        float X0, X1, X2, X3, X4, X5, X6;
+
+        for (unsigned param = 1; param <= numParams; ++param) {
+            sprintf(itemName, "TVOCoefficient%02d", param);
+            tmp = iniFile_mp -> GetValue(sectionName, itemName);
+            double indexFloat = (double)param;
+            if (parseTVOCoeffRow(tmp, X0, X1, X2, X3, X4, X5, X6)) {
+                target.tvoCoeff_m.set(indexFloat, TVOCoeffParams::Coeff0, X0);
+                target.tvoCoeff_m.set(indexFloat, TVOCoeffParams::Coeff1, X1);
+                target.tvoCoeff_m.set(indexFloat, TVOCoeffParams::Coeff2, X2);
+                target.tvoCoeff_m.set(indexFloat, TVOCoeffParams::Coeff3, X3);
+                target.tvoCoeff_m.set(indexFloat, TVOCoeffParams::Coeff4, X4);
+                target.tvoCoeff_m.set(indexFloat, TVOCoeffParams::Coeff5, X5);
+                target.tvoCoeff_m.set(indexFloat, TVOCoeffParams::Coeff6, X6);
+            }
+        }
+    }
 
     return true;
 }
@@ -212,7 +257,7 @@ bool ConfigProviderIniFile::getLPRConfig(unsigned keyLPR, LPRConfig &target) con
 
     char sectionName[30];
     sprintf(sectionName, "~LPR%u-%u", providerCode_m, keyLPR);
-    
+
     target.SN_m = iniFile_mp -> GetValue(sectionName, "SN");
     target.ESN_m = iniFile_mp -> GetValue(sectionName, "ESN");
 
@@ -224,9 +269,9 @@ bool ConfigProviderIniFile::getCartAssemblyConfig(CartAssemblyID CAId, CartAssem
 
     if (!CAId.isValid())
         return false;
-    
+
     target.Id_m = CAId;
-    
+
     bool found;
     found = getColdCartConfig(CAId.CCABand_m, CAId.CCAId_m, target.coldCart_m);
     if (!found)
@@ -235,17 +280,17 @@ bool ConfigProviderIniFile::getCartAssemblyConfig(CartAssemblyID CAId, CartAssem
     found = getWCAConfig(CAId.WCABand_m, CAId.WCAId_m, target.WCA_m);
     if (!found)
         target.WCA_m.reset();
-        
+
     return found;
 }
 
 bool ConfigProviderIniFile::getColdCartConfig(unsigned CCABand, unsigned keyColdCart, ColdCartConfig &target) const {
     target.reset(CCABand, keyColdCart);
-    
+
     if (!CCABand || !keyColdCart)
         return false;
 
-    unsigned cartBand(0), numParams(0); 
+    unsigned cartBand(0), numParams(0);
     string tmp;
 
     char sectionName[30];
@@ -260,7 +305,7 @@ bool ConfigProviderIniFile::getColdCartConfig(unsigned CCABand, unsigned keyCold
     target.SN_m = iniFile_mp -> GetValue(sectionName, "SN");
     target.ESN_m = iniFile_mp -> GetValue(sectionName, "ESN");
     target.description_m = iniFile_mp -> GetValue(sectionName, "Description");
-    
+
     // If the XML key is defined, load the configuration from the XML file instead:
     tmp = iniFile_mp -> GetValue(sectionName, "XML");
     if (!tmp.empty()) {
@@ -282,8 +327,8 @@ bool ConfigProviderIniFile::getColdCartConfig(unsigned CCABand, unsigned keyCold
     tmp = iniFile_mp -> GetValue(sectionName, "MixerParams");
     if (!tmp.empty())
         numParams = from_string<unsigned>(tmp);
-        
-    if (numParams) {       
+
+    if (numParams) {
         double freqLO;
         float VJ01, VJ02, VJ11, VJ12, IJ01, IJ02, IJ11, IJ12;
 
@@ -302,12 +347,12 @@ bool ConfigProviderIniFile::getColdCartConfig(unsigned CCABand, unsigned keyCold
             }
         }
     }
-    
+
     tmp = iniFile_mp -> GetValue(sectionName, "MagnetParams");
     if (!tmp.empty())
         numParams = from_string<unsigned>(tmp);
-        
-    if (numParams) {       
+
+    if (numParams) {
         double freqLO;
         float IMag01, IMag02, IMag11, IMag12;
 
@@ -322,12 +367,12 @@ bool ConfigProviderIniFile::getColdCartConfig(unsigned CCABand, unsigned keyCold
             }
         }
     }
-    
+
     tmp = iniFile_mp -> GetValue(sectionName, "PreampParams");
     if (!tmp.empty())
         numParams = from_string<unsigned>(tmp);
-        
-    if (numParams) {       
+
+    if (numParams) {
         double freqLO;
         unsigned pol, sis;
         float VD1, VD2, VD3, ID1, ID2, ID3, VG1, VG2, VG3;
@@ -348,7 +393,7 @@ bool ConfigProviderIniFile::getColdCartConfig(unsigned CCABand, unsigned keyCold
             }
         }
     }
-    
+
     //TODO:  get tempsensor params.
     return true;
 }
@@ -356,7 +401,7 @@ bool ConfigProviderIniFile::getColdCartConfig(unsigned CCABand, unsigned keyCold
 
 bool ConfigProviderIniFile::getWCAConfig(unsigned WCABand, unsigned keyWCA, WCAConfig &target) const {
     target.reset(WCABand, keyWCA);
-    
+
     if (!WCABand || !keyWCA)
         return false;
 
@@ -366,12 +411,12 @@ bool ConfigProviderIniFile::getWCAConfig(unsigned WCABand, unsigned keyWCA, WCAC
     char sectionName[30];
     char itemName[30];
     sprintf(sectionName, "~WCA%u-%u", WCABand, keyWCA);
-    
+
     tmp = iniFile_mp -> GetValue(sectionName, "Band");
     if (!tmp.empty())
         cartBand = from_string<unsigned>(tmp);
     target.band_m = cartBand;
-    
+
     target.SN_m = iniFile_mp -> GetValue(sectionName, "SN");
     target.ESN_m = iniFile_mp -> GetValue(sectionName, "ESN");
     target.description_m = iniFile_mp -> GetValue(sectionName, "Description");
@@ -379,7 +424,7 @@ bool ConfigProviderIniFile::getWCAConfig(unsigned WCABand, unsigned keyWCA, WCAC
     tmp = iniFile_mp -> GetValue(sectionName, "LoopBW");
     if (!tmp.empty())
         target.loopBW_m = static_cast<WCAConfig::LOOPBW_OPTS>(from_string<int>(tmp));
-    
+
     tmp = iniFile_mp -> GetValue(sectionName, "LockStrategy");
     if (!tmp.empty())
         target.lockingStrategy_m = static_cast<WCAConfig::LOCK_STRATEGY_OPTS>(from_string<int>(tmp));
@@ -405,19 +450,19 @@ bool ConfigProviderIniFile::getWCAConfig(unsigned WCABand, unsigned keyWCA, WCAC
     tmp = iniFile_mp -> GetValue(sectionName, "FLOYIG");
     if (!tmp.empty())
         target.FLOYIG_m = (float) atof(tmp.c_str());
-        
+
     tmp = iniFile_mp -> GetValue(sectionName, "FHIYIG");
     if (!tmp.empty())
         target.FHIYIG_m = (float) atof(tmp.c_str());
-    
+
     tmp = iniFile_mp -> GetValue(sectionName, "LOParams");
     if (!tmp.empty())
         numParams = from_string<unsigned>(tmp);
 
-    if (numParams) {       
+    if (numParams) {
         double freqLO;
         float VD0, VD1, VG0, VG1;
-        
+
         for (unsigned param = 1; param <= numParams; ++param) {
             sprintf(itemName, "LOParam%02d", param);
             tmp = iniFile_mp -> GetValue(sectionName, itemName);
@@ -440,21 +485,21 @@ bool ConfigProviderIniFile::parseCartSectionName(const string &src, unsigned &pr
     unsigned p2 = src.rfind("-");
     if (p2 == string::npos)
         return false;
-    
+
     id = from_string<unsigned>(src.substr(p2 + 1, string::npos));
     if (!id)
         return false;
-    
+
     unsigned p1 = src.find_last_not_of("0123456789", p2-1);
     if (p1 == string::npos)
         return false;
     if (p1 + 1 >= p2 - 1)
         return false;
-    
-    provider = from_string<unsigned>(src.substr(p1 + 1, p2 - p1 - 1)); 
+
+    provider = from_string<unsigned>(src.substr(p1 + 1, p2 - p1 - 1));
     if (!provider)
         return false;
-        
+
     return true;
 }
 
@@ -466,7 +511,7 @@ bool ConfigProviderIniFile::parseCartRow(const std::string &src, CartAssemblyID 
 
     if (src.empty())
         return false;
-    
+
     int nextPos(0);
     if (!parseUnsigned(src, target.port_m, nextPos))
         return false;
@@ -491,10 +536,10 @@ bool ConfigProviderIniFile::parseMixerParamRow(const string &src, double &freqLO
     //freqLO,VJ01,VJ02,VJ11,VJ12,IJ01,IJ02,IJ11,IJ12
     freqLO = 0;
     VJ01 = VJ02 = VJ11 = VJ12 = IJ01 = IJ02 = IJ11 = IJ12 = 0;
-    
+
     if (src.empty())
         return false;
-    
+
     int nextPos(0);
     if (!parseDouble(src, freqLO, nextPos))
         return false;
@@ -524,10 +569,10 @@ bool ConfigProviderIniFile::parseMagnetParamRow(const string &src, double &freqL
     //freqLO,IMag01,IMag02,IMag11,IMag12
     freqLO = 0;
     IMag01 = IMag02 = IMag11 = IMag12 = 0;
-  
+
     if (src.empty())
         return false;
-    
+
     int nextPos(0);
     if (!parseDouble(src, freqLO, nextPos))
         return false;
@@ -539,10 +584,10 @@ bool ConfigProviderIniFile::parseMagnetParamRow(const string &src, double &freqL
         return false;
     if (!parseFloat(src, IMag12, nextPos))
         return false;
-    
+
     return true;
 }
-        
+
 bool ConfigProviderIniFile::parsePreampParamRow(const string &src, double &freqLO, 
                                                 unsigned &pol, unsigned &sis, 
                                                 float &VD1, float &VD2, float &VD3, 
@@ -553,10 +598,10 @@ bool ConfigProviderIniFile::parsePreampParamRow(const string &src, double &freqL
     //freqLO,Pol,SIS,VD1,VD2,VD3,ID1,ID2,ID3,VG1,VG2,VG3
     freqLO = 0;
     VD1 = VD2 = VD3 = ID1 = ID2 = ID3 = VG1 = VG2 = VG3 = 0;
-  
+
     if (src.empty())
         return false;
-    
+
     int nextPos(0);
     if (!parseDouble(src, freqLO, nextPos))
         return false;
@@ -592,10 +637,10 @@ bool ConfigProviderIniFile::parseLOParamRow(const string &src, double &freqLO,
     //freqLO,VD0,VD1,VG0,VG1
     freqLO = 0;
     VD0 = VD1 = VG0 = VG1 = 0;
-  
+
     if (src.empty())
         return false;
-    
+
     int nextPos(0);
     if (!parseDouble(src, freqLO, nextPos))
         return false;
@@ -610,18 +655,48 @@ bool ConfigProviderIniFile::parseLOParamRow(const string &src, double &freqLO,
     return true;
 }
 
+bool ConfigProviderIniFile::parseTVOCoeffRow(const string &src, 
+                                            float &X0, float &X1, float &X2, float &X3,
+                                            float &X4, float &X5, float &X6)
+{
+    //each LOParam row is like:
+    //freqLO,VD0,VD1,VG0,VG1
+    X0 = X1 = X2 = X3 = X4 = X5 = X6 = 0;
+
+    if (src.empty())
+        return false;
+
+    int nextPos(0);
+    if (!parseFloat(src, X0, nextPos))
+        return false;
+    if (!parseFloat(src, X1, nextPos))
+        return false;
+    if (!parseFloat(src, X2, nextPos))
+        return false;
+    if (!parseFloat(src, X3, nextPos))
+        return false;
+    if (!parseFloat(src, X4, nextPos))
+        return false;
+    if (!parseFloat(src, X5, nextPos))
+        return false;
+    if (!parseFloat(src, X6, nextPos))
+        return false;
+    return true;
+}
+
+
 bool ConfigProviderIniFile::parseUnsigned(const string &src, unsigned &target, int &nextPos) {
     target = 0;
     unsigned p1(nextPos), p2;
     string tmp("");
-        
+
     // look for the next comma:
     p2 = src.find(",", p1);
     if (p2 == string::npos) {
         // no comma found.  Use the rest of the string:
         tmp = TrimStr(src.substr(p1, string::npos));
     } else {
-        // found comma.  Get the value:    
+        // found comma.  Get the value:
         tmp = TrimStr(src.substr(p1, p2 - p1));
         // Advance nextPos past the comma:
         nextPos = p2 + 1;
@@ -637,14 +712,14 @@ bool ConfigProviderIniFile::parseDouble(const string &src, double &target, int &
     target = 0.0;
     unsigned p1(nextPos), p2;
     string tmp("");
-        
+
     // look for the next comma:
     p2 = src.find(",", p1);
     if (p2 == string::npos) {
         // no comma found.  Use the rest of the string:
         tmp = TrimStr(src.substr(p1, string::npos));
     } else {
-        // found comma.  Get the value:    
+        // found comma.  Get the value:
         tmp = TrimStr(src.substr(p1, p2 - p1));
         // Advance nextPos past the comma:
         nextPos = p2 + 1;

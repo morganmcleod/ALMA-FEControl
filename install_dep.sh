@@ -16,6 +16,8 @@ pacman -S mingw-w64-i686-boost --needed --noconfirm
 pacman -S mingw-w64-i686-drmingw --needed --noconfirm
 # Install git
 pacman -S git --needed --noconfirm
+# Install Boost
+pacman -S mingw-w64-i686-boost --needed --noconfirm
 
 # Make a symbolic link for the make command
 ln -sf $(which mingw32-make.exe) /mingw32/bin/make.exe
