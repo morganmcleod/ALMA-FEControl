@@ -66,12 +66,6 @@ bool MixerDeflux::start(int pol) {
         case 5:
             // Band 5 production cartridge uses 30 mA.
             IMagMax_m = 30;
-
-            // Special sweeping mode for band 5 pre-production cartridge only:
-            //IMagMax_m = 4.0;
-            //stepSize_m = 0.5;
-            //stepSleep_m = 0;
-            //band5sweepMode_m = true;
             break;
         case 8:
             // Band 8 uses 20 mA.
@@ -216,7 +210,7 @@ void MixerDeflux::optimizeAction() {
 
         // Perform the mixer heating process on the selected polarization, or both if requested,
         //   with the specified target temperature and the default timeout:
-        cca_m -> sisMixerHeatingProcess(pol_m, targetTemp);
+        cca_m -> sisMixerHeatingProcess(pol_m, targetTemp, 60);
 
         // restart monitoring:
         ca_m.pauseMonitor(false, false);

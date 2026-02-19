@@ -64,7 +64,7 @@ void WCAConfig::reset(unsigned band, unsigned keyWCA) {
     FLOYIG_m = FHIYIG_m = 0.0;      
     PAParams_m.clear(); 
     loopBW_m = LOOPBW_DEFAULT;
-    lockingStrategy_m = LOCK_NORMAL;
+    lockingStrategy_m = LOCK_9_POINTS;
 }
 
 void WCAConfig::streamOut(std::ostream& out) const {

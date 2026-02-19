@@ -82,7 +82,7 @@ namespace FEConfig {
             FLOYIG_m(0.0),
             FHIYIG_m(0.0),
             loopBW_m(LOOPBW_DEFAULT),
-            lockingStrategy_m(LOCK_NORMAL)
+            lockingStrategy_m(LOCK_9_POINTS)
             {}
         ///< construct with the primary keyWCA
         ~WCAConfig()

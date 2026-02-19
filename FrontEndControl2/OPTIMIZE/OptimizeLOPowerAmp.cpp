@@ -48,7 +48,7 @@ bool OptimizeLOPowerAmp::start(double freqLO, float VD0, float targetIJ01, float
 
 void OptimizeLOPowerAmp::optimizeAction() {
     bool success = true;
-    const bool verboseLogging = true;
+    const bool verboseLogging = false;
     cartAssembly_m.pauseMonitor(true, true, "Optimize LO power amp.");
     float VD0_temp, VD1_temp;
     int iter = 0;

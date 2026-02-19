@@ -1638,8 +1638,8 @@ bool CartAssembly::mixerDeflux(int pol, int sb, int IMagMax) {
         return false;
     int caBand = coldCart_mp -> getBand();
 
-    if (caBand == 4) {
-        LOG(LM_INFO) << "CartAssembly::mixerDeflux: only heating allowed for band 4.  Calling MixerHeating process..." << endl;
+    if (caBand == 3 or caBand == 4) {
+        LOG(LM_INFO) << "CartAssembly::mixerDeflux: only heating allowed for bands 3 & 4.  Calling MixerHeating process..." << endl;
         return setEnableSISHeaters(true, pol);
 
     } else if (caBand < 5 || caBand > 10) {
