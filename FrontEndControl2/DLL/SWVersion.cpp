@@ -21,12 +21,19 @@
 
 #include "SWVersion.h"
 
-const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.17.3");
+const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.17.4");
 
 //******* Be sure to update resource.rc!
 
 
 /* Revision history:
+2.17.4
+  Debugging fine LO sweep for B6v2
+  LockingStrategy defaults to LOCK_9_POINTS
+  MixerHeating timeout during deflux 30->60 sec
+  Added 'Version' key to WCAConfig and ColdCartConfig
+  IVCurveDefaults to 6 mV for B6v2
+
 2.17.3 2026-01-12
   Added Cryostat TVO Coefficients configuration from INI/XML file
   Added setting logLevel from FrontEndControlDLL.ini

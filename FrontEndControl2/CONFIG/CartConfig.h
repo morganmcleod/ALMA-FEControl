@@ -48,6 +48,7 @@ namespace FEConfig {
     public:
         unsigned keyColdCart_m;     ///< uniquely identifies a record in ColdCarts table.
         unsigned band_m;            ///< the cartridge band.
+        unsigned hardwareVersion_m; ///< version of cartridge HW e.g. B6v2
         std::string SN_m;           ///< the assigned serial number for the cartridge.
         std::string ESN_m;          ///< the electronic serial number for the cartridge.
         MixerParams mixerParams_m;  ///< contains the mixer bias values which vary with LO frequency.
@@ -82,7 +83,8 @@ namespace FEConfig {
             FLOYIG_m(0.0),
             FHIYIG_m(0.0),
             loopBW_m(LOOPBW_DEFAULT),
-            lockingStrategy_m(LOCK_9_POINTS)
+            lockingStrategy_m(LOCK_9_POINTS),
+            hardwareVersion_m(1)
             {}
         ///< construct with the primary keyWCA
         ~WCAConfig()
@@ -108,6 +110,7 @@ namespace FEConfig {
         };
         unsigned keyWCA_m;          ///< along with provider, uniquely identifies a record in ColdCarts table.
         unsigned band_m;            ///< the cartridge band.
+        unsigned hardwareVersion_m; ///< version of cartridge HW e.g. B6v2
         std::string SN_m;           ///< the assigned serial number for the WCA.
         std::string ESN_m;          ///< the electronic serial number for the WCA.
         double FLOYIG_m;            ///< the lower YiG oscillator limit, in GHz.

@@ -290,7 +290,7 @@ bool ConfigProviderIniFile::getColdCartConfig(unsigned CCABand, unsigned keyCold
     if (!CCABand || !keyColdCart)
         return false;
 
-    unsigned cartBand(0), numParams(0);
+    unsigned cartBand(0), numParams(0), hardwareVersion(1);
     string tmp;
 
     char sectionName[30];
@@ -302,6 +302,11 @@ bool ConfigProviderIniFile::getColdCartConfig(unsigned CCABand, unsigned keyCold
         cartBand = from_string<unsigned>(tmp);
     target.band_m = cartBand;
 
+    tmp = iniFile_mp -> GetValue(sectionName, "Version");
+    if (!tmp.empty())
+        hardwareVersion = from_string<unsigned>(tmp);
+    target.hardwareVersion_m = hardwareVersion;
+    
     target.SN_m = iniFile_mp -> GetValue(sectionName, "SN");
     target.ESN_m = iniFile_mp -> GetValue(sectionName, "ESN");
     target.description_m = iniFile_mp -> GetValue(sectionName, "Description");
@@ -405,7 +410,7 @@ bool ConfigProviderIniFile::getWCAConfig(unsigned WCABand, unsigned keyWCA, WCAC
     if (!WCABand || !keyWCA)
         return false;
 
-    unsigned cartBand(0), numParams(0);
+    unsigned cartBand(0), numParams(0), hardwareVersion(1);
     string tmp;
 
     char sectionName[30];
@@ -416,6 +421,11 @@ bool ConfigProviderIniFile::getWCAConfig(unsigned WCABand, unsigned keyWCA, WCAC
     if (!tmp.empty())
         cartBand = from_string<unsigned>(tmp);
     target.band_m = cartBand;
+
+    tmp = iniFile_mp -> GetValue(sectionName, "Version");
+    if (!tmp.empty())
+        hardwareVersion = from_string<unsigned>(tmp);
+    target.hardwareVersion_m = hardwareVersion;
 
     target.SN_m = iniFile_mp -> GetValue(sectionName, "SN");
     target.ESN_m = iniFile_mp -> GetValue(sectionName, "ESN");

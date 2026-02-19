@@ -1327,6 +1327,9 @@ bool CartAssembly::measureFineLOSweep(FrontEndDatabase &dbObject, const FEICData
 
     sectionName += to_string(band_m);
 
+    if (config_m.coldCart_m.hardwareVersion_m == 2)
+        sectionName += "V2";
+
     float VJ(0.0), IJ(0.0);
     double LOStart(0.0), LOStop(0.0), LOStep(0.1);
 
@@ -1553,7 +1556,10 @@ bool CartAssembly::getIVCurveDefaults(int pol, int sb, float *VJlow_p, float *VJ
 
         case 3:
         case 6:
-            VJMax = 12.0;
+            if (config_m.coldCart_m.hardwareVersion_m == 2)
+                VJMax = 6.0;
+            else
+                VJMax = 12.0;
             break;
 
         case 5:
