@@ -32,7 +32,8 @@ namespace FrontEndTestApp {
     const AmbInterface *ambItf_p(NULL);
     CANBusInterface *canBus_p(NULL);
     FILE *logStream = NULL;
-    const char *versionString = "1.4.7: 2024-12-05  Added Band2.cpp and Band2.h in ngFEMC campaign";
+    const char *versionString = "1.4.8: 2026-02-21: Updated LPRICD test to catch illegal values for EDFA modulation";
+//                              "1.4.7: 2024-12-05  Added Band2.cpp and Band2.h in ngFEMC campaign"
 //                              "1.4.6: 2022-01-12  Added CommandLossTest for FEMC 3.6.x";
 //                              "1.4.5: 2020-10-15  Added testSET_CRYOSTAT_TEMP_TVO_COEFF_SPECIFIC for FEMC 3.5.0";
 //                              "1.4.4: 2020-03-02  improved tests ALL_CHANNELS_ATTENUATION, SET_CARTRIDGE_LO_PA_LIMITS_TABLE";

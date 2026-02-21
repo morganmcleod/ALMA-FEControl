@@ -27,12 +27,13 @@ const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.17.4");
 
 
 /* Revision history:
-2.17.4
+2.17.4 2026-01-21
   Debugging fine LO sweep for B6v2
-  LockingStrategy defaults to LOCK_9_POINTS
+  LockingStrategy defaults to LOCK_9_POINTS but don't allow adjusting LPR EDFA
   MixerHeating timeout during deflux 30->60 sec
   Added 'Version' key to WCAConfig and ColdCartConfig
   IVCurveDefaults to 6 mV for B6v2
+  FineLOSweep settings for B6v2
 
 2.17.3 2026-01-12
   Added Cryostat TVO Coefficients configuration from INI/XML file

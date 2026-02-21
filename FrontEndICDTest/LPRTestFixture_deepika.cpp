@@ -107,11 +107,14 @@ void LPRTestFixture::testSET_LPR_OPTICAL_SWITCH_PORT()
 }
 void LPRTestFixture::testSET_LPR_EDFA_MODULATION_INPUT_VALUE()
 {
-	//Disable optical switch shutter
+    unsigned char statusByte;
+    float monValue;
+    string monDetails;
+    std::stringstream streamOut;
+
+    //Disable optical switch shutter
 	string info;
-	//data_m[0]=6;
 	dataLength_m=1;
-	//command(ctrlopticalSwitchPort_RCA,"SET_LPR_OPT_SWITCH_PORT",&info, false);
 	monitor(opticalSwitchShutter_RCA,"GET_LPR_OPT_SWITCH_SHUTTER",&info);   //command to close shutter
 	CPPUNIT_ASSERT_MESSAGE(info,data_m[0]==0);
 
@@ -123,17 +126,36 @@ void LPRTestFixture::testSET_LPR_EDFA_MODULATION_INPUT_VALUE()
 		monitor(EDFAModulationInput_RCA,"GET_LPR_EDFA_MODULATION_INPUT_VALUE",&info);
 
 		/// add the set and readback float vals to the info string
-		unsigned char statusByte;
-		float monValue = unpackSGL(&statusByte);
-
-		std::stringstream streamOut;
+		monValue = unpackSGL(&statusByte);
 		streamOut << info << " Value Set= " << modval << " Readback value=" << monValue;
-		string monDetails = streamOut.str();
+		monDetails = streamOut.str();
 
 		CPPUNIT_ASSERT_MESSAGE(monDetails,dataLength_m==5);
         CPPUNIT_ASSERT_MESSAGE(monDetails,statusByte==FEMC_NO_ERROR);
 		CPPUNIT_ASSERT_MESSAGE(monDetails,monValue==modval);
 	}
+    //try some illegal values
+    float modval(16.2);
+    packSGL(modval);
+    command(ctrlEDFAModulationInput_RCA,"SET_LPR_EDFA_MODULATION_INPUT_VALUE",&info);
+    monitor(EDFAModulationInput_RCA,"GET_LPR_EDFA_MODULATION_INPUT_VALUE",&info);
+    monValue = unpackSGL(&statusByte);
+    streamOut << info << " Value Set= " << modval << " Readback value=" << monValue;
+    monDetails = streamOut.str();
+    CPPUNIT_ASSERT_MESSAGE(monDetails,dataLength_m==5);
+    CPPUNIT_ASSERT_MESSAGE(monDetails,statusByte!=FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(monDetails,monValue!=modval);
+
+    modval = -1.0;
+    packSGL(modval);
+    command(ctrlEDFAModulationInput_RCA,"SET_LPR_EDFA_MODULATION_INPUT_VALUE",&info);
+    monitor(EDFAModulationInput_RCA,"GET_LPR_EDFA_MODULATION_INPUT_VALUE",&info);
+    monValue = unpackSGL(&statusByte);
+    streamOut << info << " Value Set= " << modval << " Readback value=" << monValue;
+    monDetails = streamOut.str();
+    CPPUNIT_ASSERT_MESSAGE(monDetails,dataLength_m==5);
+    CPPUNIT_ASSERT_MESSAGE(monDetails,statusByte!=FEMC_NO_ERROR);
+    CPPUNIT_ASSERT_MESSAGE(monDetails,monValue!=modval);
 }
 void LPRTestFixture::testGET_LPR_EDFA_DRIVER_TEMPERATURE_ALARM()
 {

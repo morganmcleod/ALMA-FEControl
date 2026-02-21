@@ -14,7 +14,7 @@ class WCAImpl;
 
 class LockingStrategy {
 public:
-    LockingStrategy(bool allowEdfaAdjust = true)
+    LockingStrategy(bool allowEdfaAdjust = false)
       : allowEdfaAdjust_m(allowEdfaAdjust)
         {}
     virtual ~LockingStrategy() {}
