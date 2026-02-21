@@ -31,14 +31,14 @@ bool ICT_19283_LOCK_CV_Points::lockPLL(CartAssembly &CA) const {
 
     CA.pauseMonitor(true, true, "Searching for lock.");
 
-    LOG(LM_INFO) << "--> ICT_19283_LOCK_CV_Points=" << numPoints_m << " interval=" << interval_m << "..." << endl;
+    LOG(LM_INFO) << "lockPLL points=" << numPoints_m << " interval=" << interval_m << "..." << endl;
 
     int coldMultiplier = ColdCartImpl::getMultiplier(CA.getBand());
     int warmMultiplier = WCAImpl::getMultiplier(CA.getBand());
-
-    double targetPmxCurrent_mA = 1.1;   //mA    We want this much LO photomixer current when testing the lock
-    double lprStep_V = 0.1;             //V     Adjust in this step size
+    
     if (allowEdfaAdjust_m) {
+        const double targetPmxCurrent_mA = 1.1;   //mA    We want this much LO photomixer current when testing the lock
+        const double lprStep_V = 0.1;             //V     Adjust in this step size
         // Set the LPR EDFA to a starting value:
         setLPRVoltageForPmxCurrent(WCA_p, targetPmxCurrent_mA, lprStep_V);
     }
@@ -57,34 +57,23 @@ bool ICT_19283_LOCK_CV_Points::lockPLL(CartAssembly &CA) const {
 
         // If still locked, adjust the LPR EDFA for target IFTP:
         if (isLocked && allowEdfaAdjust_m) {
-            lprStep_V = 0.02;
+            const double lprStep_V = 0.02;
             setLPRVoltageForIFTP(WCA_p, targetIFTP_V, toleranceIFTP_V, lprStep_V, pdPowerLimit_mW);
         }
 
     } else {
-        //parkStandbyBands();
-
-        /////////////////////
-        // 1/Gather variables
+        // Gather variables:
         double hiYig = CA.getWCAConfig().FHIYIG_m;
         double loYig = CA.getWCAConfig().FLOYIG_m;
-
         double currentYig = freqLO / warmMultiplier / coldMultiplier;
-
         int firstGuessInt = (int)(4095.0 * (currentYig - loYig) / (hiYig - loYig));
 
-        // Log
-        ostringstream message1;
         LOG(LM_INFO) << "lockPLL: points-1: "
-                     << "firstGuessInt:"       << firstGuessInt
-                     << ", freqLO:"            << freqLO
-                     << ", currentYig:"        << currentYig
-                     << ", lowYig:"            << loYig
-                     << ", hiYig:"             << hiYig << endl;
+                     << "first guess: coarseTune=" << firstGuessInt
+                     << ", ytoFreq:"        << currentYig
+                     << ", freqLO:"                << freqLO << endl;
 
-        //////////////////////////////////////
-        // 2/ Inspect coarse tune, divide and conquer
-        // Decalre container: PLL voltage info,
+        // Declare container: PLL voltage info:
         struct PllV {
             double corrV;
             double lockV;
@@ -92,35 +81,26 @@ bool ICT_19283_LOCK_CV_Points::lockPLL(CartAssembly &CA) const {
         };
         std::vector <PllV> pllVList;
 
-        // Get those famous 5 points
+        // search for points where lock is achieved:
         for (int i = 0; i < numPoints_m; i++) {
-            // tune in range -12 .. +12. where 12 = 6 * 5/2
-            int offset = (int)( interval_m * (i-int(numPoints_m/2.0)) );
+            int offset = (int)(interval_m * (i - int(numPoints_m / 2.0)));
             int thisTune = firstGuessInt + offset;
 
             // Border control
-            if (thisTune > 4095){ thisTune = 4095; }
-            if (thisTune < 0){ thisTune = 0; }
-
-            // Log
-            LOG(LM_INFO) << "lockPLL: points-2: "
-                         << "i:"            << i
-                         << " ,offset:"     << offset
-                         << " ,thisTune:"   << thisTune << endl;
+            if (thisTune > 4095)
+                thisTune = 4095;
+            if (thisTune < 0)
+                thisTune = 0;
 
             // Disable the PLL and reset the integrator
             WCA_p -> pllNullLoopIntegrator(true);
 
             // Set coarse tune
             WCA_p -> ytoCoarseTuneWithTrace(thisTune, "lockPLL: initial");
-
-            // Wait 10 ms to stabilize
             SLEEP(10);
 
             // Reactivate the PLL
             WCA_p -> pllNullLoopIntegrator(false);
-
-            // Wait 10 ms to stabilize
             SLEEP(10);
 
             // Gather data
@@ -128,44 +108,26 @@ bool ICT_19283_LOCK_CV_Points::lockPLL(CartAssembly &CA) const {
             thisPllV.lockV = WCA_p -> pllLockDetectVoltage();
             thisPllV.corrV = WCA_p -> pllCorrectionVoltage();
             thisPllV.coarseTune = WCA_p -> ytoCoarseTune();
+            LOG(LM_INFO) << "lockPLL: "
+                         << "coarseTune:"   << thisPllV.coarseTune
+                         << ", lockV:"        << thisPllV.lockV
+                         << ", corrV:"      << thisPllV.corrV << endl;
 
-            // Log
-            LOG(LM_INFO) << "lockPLL: points-3: "
-                         << "lockV:"        << thisPllV.lockV
-                         << ", corrV:"      << thisPllV.corrV
-                         << ", coarseTune:" << thisPllV.coarseTune << endl;
-
-            // Keep it if worth it
-            // -- value from FEND-40.00.00.00-089-D-MAN, page 30
-            if (thisPllV.lockV > 3.0){
+            // Keep it if the lock detect is on:
+            if (thisPllV.lockV > 3.0)
                 pllVList.push_back(thisPllV);
-            }
         }
 
-
-        ////////////////////////////
-        // 3/ Fire: MAIN LOCK HERE
-        // at this point the lists contain only those points where the locking voltage was high = the PLL is able to lock
-        // we searched at -12,-6,0,6,12 offset from the first guess
+        // at this point the list contains only those points where the locking voltage was high = the PLL is able to lock
         // there must be at least two points, because the locking range is ~ 20 counts wide in B1
-        //
-        // calculate the zero correction voltage point
-        // check that we have at least two points: THIS SHOULD ALWAYS BE THE CASE
+
+        // check for found only one point:
         if (pllVList.size() == 1) {
-            LOG(LM_WARNING) << "lockPLL: points: FOUND ONLY ONE POINT.  Taking it." << endl;
-            // we found one locking point.  Use it:
-            // Lock at tune_zero
             WCA_p -> ytoCoarseTuneWithTrace(pllVList.front().coarseTune, "Lock at our one and only");
-            // Wait 10 ms to stabilize
             SLEEP(10);
             // Zero the CV from here:
             WCA_p -> adjustPLL(0.0);
-
-            // AT THIS POINT IT SHOULD BE LOCKED - DONE
-
-            // Log: let's confirm that it is locked
-            // -- we just need to check that (lockv > 3) and (corrv ~ 0)
-            // -- important: return ytun -> this is the actual YTO locking point
+            // log one point found:
             double lockV = WCA_p -> pllLockDetectVoltage();
             double corrV = WCA_p -> pllCorrectionVoltage();
             double coarse = WCA_p -> ytoCoarseTune();
@@ -177,11 +139,9 @@ bool ICT_19283_LOCK_CV_Points::lockPLL(CartAssembly &CA) const {
         } else if (pllVList.size() == 0) {
             // we could NOT find at least two locking points
             // something went WRONG
-            LOG(LM_WARNING) << "lockPLL: points: FAILED TO FIND AT ANY POINTS!" << endl;
+            LOG(LM_ERROR) << "lockPLL: points: FAILED TO FIND AT ANY POINTS!" << endl;
         } else {
             // we have found two or more locking points
-            // it  should be enough to take the two extremes OTHERWISE one could make a linear fit
-
             // Calculate slope:
             PllV firstPllV = pllVList.front();
             PllV lastPllV = pllVList.back();
@@ -189,8 +149,18 @@ bool ICT_19283_LOCK_CV_Points::lockPLL(CartAssembly &CA) const {
             double y0 = firstPllV.corrV;
             double x1 = lastPllV.coarseTune;
             double x0 = firstPllV.coarseTune;
-            double slope = (y1 - y0) / (x1 - x0);
 
+            // guard divide by zero:
+            if (x1 == x0) {
+                LOG(LM_ERROR) << "lockPLL: calculate slope would divide by zero:"
+                              << " x0=" << x0
+                              << " x1=" << x1
+                              << " y0=" << y0
+                              << " y1=" << y1 << endl;
+                return false;
+            }
+
+            double slope = (y1 - y0) / (x1 - x0);
             int tuneZero;
             // If we have a decreasing slope (good)
             if (slope <= -0.001) {
@@ -204,8 +174,7 @@ bool ICT_19283_LOCK_CV_Points::lockPLL(CartAssembly &CA) const {
                 LOG(LM_WARNING) << "lockPLL: points: seems to be in simulation, set YIG coarse tune to the mean: " << tuneZero << endl;
             }
 
-            // Log
-            LOG(LM_INFO) << "lockPLL: points-4: "
+            LOG(LM_INFO) << "lockPLL: "
                          << "tuneZero:" << tuneZero
                          << " ,x0:" << x0
                          << " ,x1:" << x1
@@ -213,34 +182,39 @@ bool ICT_19283_LOCK_CV_Points::lockPLL(CartAssembly &CA) const {
                          << " ,y1:" << y1
                          << " ,slope:" << slope << endl;
 
+            // Disable the PLL and reset the integrator
+            WCA_p -> pllNullLoopIntegrator(true);
+
             // Lock at tune_zero
             WCA_p -> ytoCoarseTuneWithTrace(tuneZero, "Lock at tuneZero");
-
-            // Wait 10 ms to stabilize
             SLEEP(10);
 
+            // Reactivate the PLL
+            WCA_p -> pllNullLoopIntegrator(false);
+            SLEEP(10);
+            
             // Clear unlock detect:
             WCA_p -> pllClearUnlockDetectLatch();
 
-            // AT THIS POINT IT SHOULD BE LOCKED - DONE
-
-            // Log: let's confirm that it is locked
-            // -- we just need to check that (lockv > 3) and (corrv ~ 0)
-            // -- important: return ytun -> this is the actual YTO locking point
+            // check if still locked:
             double lockV = WCA_p -> pllLockDetectVoltage();
             double corrV = WCA_p -> pllCorrectionVoltage();
             double coarse = WCA_p -> ytoCoarseTune();
-            LOG(LM_INFO) << "lockPLL: points lock succeeded with: "
-                         << "lockV:"    << lockV
-                         << ", corrV:"  << corrV
-                         << ", coarse:" << coarse << endl;
+            if (lockV > 3.0) {
+                LOG(LM_INFO) << "lockPLL: lock succeeded with: "
+                            << "lockV:"    << lockV
+                            << ", corrV:"  << corrV
+                            << ", coarse:" << coarse << endl;
+            } else {
+                LOG(LM_ERROR) << "PLL NO LOCK" << endl;
+            }
         }
-        // Thats all folks, this should be locked now
+        // log final state:
         isLocked = WCA_p -> getLocked();
 
         // Adjust LPR EDFA for target IFTP
         if (isLocked && allowEdfaAdjust_m) {
-            lprStep_V = 0.02;
+            float lprStep_V = 0.02;
             setLPRVoltageForIFTP(WCA_p, targetIFTP_V, toleranceIFTP_V, lprStep_V, pdPowerLimit_mW);
         }
     }

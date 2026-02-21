@@ -56,7 +56,7 @@ public:
     void reset();
     ///< set all state data to defaults, as if just constructed.
 
-    void setLockingStrategy(FEConfig::WCAConfig::LOCK_STRATEGY_OPTS strategy, bool allowEdfaAdjust = true);
+    void setLockingStrategy(FEConfig::WCAConfig::LOCK_STRATEGY_OPTS strategy, bool allowEdfaAdjust = false);
     ///< Set the locking strategy to use.
     ///< allowEdfaAdjust is normally true for WCAs in the front end but should be false for RF signal sources
 
