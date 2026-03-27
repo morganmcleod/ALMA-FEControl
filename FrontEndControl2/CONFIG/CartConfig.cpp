@@ -45,7 +45,11 @@ void ColdCartConfig::streamOut(std::ostream& out) const {
     if (!keyColdCart_m) {
         out << "empty" << endl;
     } else {
-        out << "band=" << band_m << " SN='" << SN_m << "' ESN='" << ESN_m << "' '" << description_m << "'" << endl;
+        out << "band=" << band_m 
+            << " Version=" << hardwareVersion_m
+            << " SN='" << SN_m 
+            << "' ESN='" << ESN_m << "' '" 
+            << description_m << "'" << endl;
         if (DEBUG_CONFIG_PARAMS) {
             out << " - MixerParams:" << endl << mixerParams_m;
             out << " - MagnetParams:" << endl << magnetParams_m;
@@ -85,9 +89,14 @@ void WCAConfig::streamOut(std::ostream& out) const {
                 loopBW = "band_default";
                 break;
         }
-        out  << "band=" << band_m <<" SN='" << SN_m << "' ESN='" << ESN_m << "'"
-             << setprecision(4) << " FLOYIG=" << FLOYIG_m << " FHIYIG=" << FHIYIG_m
-             << " loopBW=" << loopBW << " lockingStrategy=" << lockingStrategy_m
+        out  << "band=" << band_m 
+             << " Version=" << hardwareVersion_m
+             << " SN='" << SN_m 
+             << "' ESN='" << ESN_m << "'"
+             << setprecision(4) << " FLOYIG=" << FLOYIG_m 
+             << " FHIYIG=" << FHIYIG_m
+             << " loopBW=" << loopBW 
+             << " lockingStrategy=" << lockingStrategy_m
              << " '" << description_m << "'" << endl;
         if (DEBUG_CONFIG_PARAMS) {
             out << " - PowerAmpParams:" << PAParams_m << endl;

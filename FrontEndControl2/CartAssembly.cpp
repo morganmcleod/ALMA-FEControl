@@ -1557,7 +1557,7 @@ bool CartAssembly::getIVCurveDefaults(int pol, int sb, float *VJlow_p, float *VJ
         case 3:
         case 6:
             if (config_m.coldCart_m.hardwareVersion_m == 2)
-                VJMax = 6.0;
+                VJMax = 6.5;
             else
                 VJMax = 12.0;
             break;
