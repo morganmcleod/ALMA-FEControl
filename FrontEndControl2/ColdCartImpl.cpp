@@ -878,11 +878,6 @@ bool ColdCartImpl::sisMixerHeatingProcess(int pol, float targetTemp, unsigned ti
 
     // make sure the SIS magnets are off:
     bool magnetsPriorState = getSISMagnetEnableSetting();
-    if (magnetsPriorState) {
-        string msg("MixerHeating ALERT: Turning off SIS magnets.  They will not automatically be re-enabled.");
-        FEMCEventQueue::addStatusMessage(true, msg);
-        LOG(LM_INFO) << msg << endl;
-    }
     setSISMagnetEnable(false);  // this sweeps the magnet currents to zero.
 
     // measure the current and mixer temperatures with the heater switched off:
@@ -1061,7 +1056,6 @@ bool ColdCartImpl::sisMixerHeatingProcess(int pol, float targetTemp, unsigned ti
     FEMCEventQueue::addStatusMessage(true, msg);
 
     // re-enable the SIS magnets if they were enabled before:
-    // This doesn't energize the magnets, just makes them enabled so that they may be set.
     setSISMagnetEnable(magnetsPriorState);  
 
     // flush the log file:

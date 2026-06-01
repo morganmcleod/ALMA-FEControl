@@ -26,6 +26,9 @@ const std::string FECONTROL_SW_VERSION_STRING("FEControl 2.17.4");
 //******* Be sure to update resource.rc!
 
 /* Revision history:
+2.17.5 2026-06-01
+  Fix erronious warning and comment in ColdCartImpl::sisMixerHeatingProcess
+
 2.17.4 2026-02-24
   Debugging fine LO sweep for B6v2
   LockingStrategy defaults to LOCK_9_POINTS but don't allow adjusting LPR EDFA
